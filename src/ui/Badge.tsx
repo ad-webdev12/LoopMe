@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { LEVEL_META, T } from '../theme';
+import { LEVEL_META, T, F } from '../theme';
 import type { Level } from '../engine/ScamDetector';
 
 /** Small risk chip for lists and history rows. */
@@ -19,5 +19,5 @@ const s = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start',
     borderRadius: 999, paddingHorizontal: 11, paddingVertical: 5, gap: 5,
   },
-  text: { fontSize: T.caption, fontWeight: '700' },
+  text: { fontSize: T.caption, fontFamily: F.bodyBold },
 });

@@ -3,7 +3,7 @@
 // detailed" side of the product.
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { T } from '../theme';
+import { T, F } from '../theme';
 import Card from '../ui/Card';
 import Screen from '../ui/Screen';
 import { PLAYBOOK } from '../lib/playbook';
@@ -32,11 +32,11 @@ export default function CareGuideScreen(props: { go: (r: Route) => void }) {
 }
 
 const s = StyleSheet.create({
-  intro: { fontSize: T.body, color: T.inkSoft, lineHeight: 27, marginVertical: 10 },
-  title: { fontSize: T.body, fontWeight: '800', color: T.ink, marginBottom: 6 },
-  body: { fontSize: T.small, color: T.ink, lineHeight: 25, marginBottom: 6 },
-  why: { fontSize: T.small, color: T.inkSoft, lineHeight: 24, marginBottom: 10 },
+  intro: { fontSize: T.body, fontFamily: F.body, color: T.inkSoft, lineHeight: 27, marginVertical: 10 },
+  title: { fontSize: T.body, fontFamily: F.bodyBold, color: T.ink, marginBottom: 6 },
+  body: { fontSize: T.small, fontFamily: F.body, color: T.ink, lineHeight: 25, marginBottom: 6 },
+  why: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, lineHeight: 24, marginBottom: 10 },
   sayBox: { backgroundColor: T.accentSoft, borderRadius: T.radiusSm, padding: 12 },
-  sayLabel: { fontSize: T.caption, fontWeight: '800', color: T.accentDeep, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 },
-  sayText: { fontSize: T.small, color: T.ink, lineHeight: 24 },
+  sayLabel: { fontSize: T.caption, fontFamily: F.bodyBold, color: T.accentDeep, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 },
+  sayText: { fontSize: T.small, fontFamily: F.body, color: T.ink, lineHeight: 24 },
 });

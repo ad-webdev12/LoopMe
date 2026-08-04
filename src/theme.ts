@@ -1,7 +1,17 @@
-// Design tokens — warm, calm, elderly-first, and professional.
+// Design tokens — analog warmth, editorial. Fraunces (soft editorial serif)
+// carries the brand voice; Atkinson Hyperlegible — a typeface designed for
+// aging and low-vision readers — carries every word of body copy. That pairing
+// IS the design statement: beauty and legibility as the same decision.
 // One quiet accent for interactive things; red/amber/green reserved for verdicts
 // so color always MEANS something. Big type and tap targets are non-negotiable.
 import { OctagonX, TriangleAlert, CircleCheck } from 'lucide-react-native';
+
+export const F = {
+  display: 'Fraunces_600SemiBold',
+  displayBold: 'Fraunces_700Bold',
+  body: 'AtkinsonHyperlegible_400Regular',
+  bodyBold: 'AtkinsonHyperlegible_700Bold',
+} as const;
 
 export const T = {
   // surfaces

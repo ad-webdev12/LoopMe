@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Linking, StyleSheet, Text } from 'react-native';
 import { Volume2 } from 'lucide-react-native';
-import { T } from '../theme';
+import { T, F } from '../theme';
 import Button from '../ui/Button';
 import Screen from '../ui/Screen';
 import { readAloud } from '../lib/speech';
@@ -62,8 +62,8 @@ export default function PanicScreen(props: { settings: Settings; update: (s: Set
   );
 }
 const s = StyleSheet.create({
-  count: { fontSize: T.caption, fontWeight: '700', color: T.inkSoft, textTransform: 'uppercase', letterSpacing: 0.8, textAlign: 'center' },
-  title: { fontSize: T.headline, fontWeight: '800', color: T.ink, textAlign: 'center', marginVertical: 12, letterSpacing: -0.4 },
-  body: { fontSize: T.bodyLg, color: T.ink, textAlign: 'center', lineHeight: 31, marginBottom: 18 },
-  note: { fontSize: T.small, color: T.inkSoft, textAlign: 'center', lineHeight: 24, marginVertical: 10 },
+  count: { fontSize: T.caption, fontFamily: F.bodyBold, color: T.inkSoft, textTransform: 'uppercase', letterSpacing: 0.8, textAlign: 'center' },
+  title: { fontSize: T.headline, fontFamily: F.displayBold, color: T.ink, textAlign: 'center', marginVertical: 12, letterSpacing: -0.4 },
+  body: { fontSize: T.bodyLg, fontFamily: F.body, color: T.ink, textAlign: 'center', lineHeight: 31, marginBottom: 18 },
+  note: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, textAlign: 'center', lineHeight: 24, marginVertical: 10 },
 });

@@ -5,7 +5,7 @@ import React, { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { OctagonX } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { T } from '../theme';
+import { T, F } from '../theme';
 import Button from '../ui/Button';
 import { loopIn } from '../lib/loopIn';
 import type { Verdict } from '../engine/ScamDetector';
@@ -34,5 +34,5 @@ export default function AlertScreen(props: {
 const s = StyleSheet.create({
   wrap: { flex: 1, padding: 28, justifyContent: 'center', backgroundColor: T.redSoft },
   circle: { alignSelf: 'center', width: 124, height: 124, borderRadius: 62, backgroundColor: T.red, alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
-  line: { fontSize: T.title, fontWeight: '800', color: T.ink, textAlign: 'center', lineHeight: 36, marginBottom: 22 },
+  line: { fontSize: T.title, fontFamily: F.displayBold, color: T.ink, textAlign: 'center', lineHeight: 36, marginBottom: 22 },
 });

@@ -2,7 +2,7 @@
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { Gift, Package, PhoneCall, Landmark, KeySquare } from 'lucide-react-native';
-import { T } from '../theme';
+import { T, F } from '../theme';
 import Card from '../ui/Card';
 import Screen from '../ui/Screen';
 import type { Route } from '../App';
@@ -30,7 +30,7 @@ export default function LearnScreen(props: { go: (r: Route) => void }) {
   );
 }
 const s = StyleSheet.create({
-  sub: { fontSize: T.body, color: T.inkSoft, textAlign: 'center', marginVertical: 10, lineHeight: 27 },
-  cardTitle: { fontSize: T.bodyLg, fontWeight: '800', color: T.ink, marginTop: 8, marginBottom: 6 },
-  cardBody: { fontSize: T.body, color: T.ink, lineHeight: 27 },
+  sub: { fontSize: T.body, fontFamily: F.body, color: T.inkSoft, textAlign: 'center', marginVertical: 10, lineHeight: 27 },
+  cardTitle: { fontSize: T.bodyLg, fontFamily: F.bodyBold, color: T.ink, marginTop: 8, marginBottom: 6 },
+  cardBody: { fontSize: T.body, fontFamily: F.body, color: T.ink, lineHeight: 27 },
 });

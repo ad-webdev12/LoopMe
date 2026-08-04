@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import { Volume2, MessageCircleQuestion, Users } from 'lucide-react-native';
-import { T, LEVEL_META } from '../theme';
+import { T, LEVEL_META, F } from '../theme';
 import VerdictMark from '../ui/VerdictMark';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
@@ -142,13 +142,13 @@ export default function VerdictScreen(props: {
 }
 
 const s = StyleSheet.create({
-  line: { fontSize: T.title, fontWeight: '800', color: T.ink, textAlign: 'center', letterSpacing: -0.3 },
-  conf: { fontSize: T.small, color: T.inkSoft, textAlign: 'center', marginTop: 6, marginBottom: 12 },
-  stepLabel: { fontSize: T.caption, fontWeight: '800', color: T.inkSoft, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 },
-  step: { fontSize: T.bodyLg, color: T.ink, fontWeight: '600', lineHeight: 30 },
-  msg: { fontSize: T.small, color: T.inkSoft, lineHeight: 26, marginBottom: 12, fontStyle: 'italic' },
-  hit: { backgroundColor: T.amberSoft, color: T.ink, fontWeight: '700', fontStyle: 'normal' },
-  reason: { fontSize: T.body, color: T.ink, lineHeight: 27, marginBottom: 6 },
-  affirm: { fontSize: T.small, color: T.inkSoft, textAlign: 'center', marginTop: 10, lineHeight: 24 },
+  line: { fontSize: T.title, fontFamily: F.displayBold, color: T.ink, textAlign: 'center', letterSpacing: -0.3 },
+  conf: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, textAlign: 'center', marginTop: 6, marginBottom: 12 },
+  stepLabel: { fontSize: T.caption, fontFamily: F.bodyBold, color: T.inkSoft, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 },
+  step: { fontSize: T.bodyLg, color: T.ink, fontFamily: F.bodyBold, lineHeight: 30 },
+  msg: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, lineHeight: 26, marginBottom: 12, fontStyle: 'italic' },
+  hit: { backgroundColor: T.amberSoft, color: T.ink, fontFamily: F.bodyBold, fontStyle: 'normal' },
+  reason: { fontSize: T.body, fontFamily: F.body, color: T.ink, lineHeight: 27, marginBottom: 6 },
+  affirm: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, textAlign: 'center', marginTop: 10, lineHeight: 24 },
   row: { flexDirection: 'row', justifyContent: 'space-between' },
 });

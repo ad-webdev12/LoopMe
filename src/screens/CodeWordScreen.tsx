@@ -3,7 +3,7 @@
 // that was never posted online. Stored on this device only.
 import React, { useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
-import { T } from '../theme';
+import { T, F } from '../theme';
 import Button from '../ui/Button';
 import Field from '../ui/Field';
 import Screen from '../ui/Screen';
@@ -36,9 +36,9 @@ export default function CodeWordScreen(props: { settings: Settings; update: (s: 
   );
 }
 const s = StyleSheet.create({
-  sub: { fontSize: T.body, color: T.inkSoft, textAlign: 'center', marginVertical: 12, lineHeight: 28 },
+  sub: { fontSize: T.body, fontFamily: F.body, color: T.inkSoft, textAlign: 'center', marginVertical: 12, lineHeight: 28 },
   wordCard: { alignItems: 'center', paddingVertical: 22 },
-  word: { fontSize: 32, fontWeight: '800', color: T.greenText },
-  note: { fontSize: T.small, color: T.inkSoft, textAlign: 'center', lineHeight: 24, marginVertical: 8 },
-  input: { textAlign: 'center', fontSize: T.bodyLg },
+  word: { fontSize: 32, fontFamily: F.displayBold, color: T.greenText },
+  note: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, textAlign: 'center', lineHeight: 24, marginVertical: 8 },
+  input: { textAlign: 'center', fontSize: T.bodyLg , fontFamily: F.body},
 });

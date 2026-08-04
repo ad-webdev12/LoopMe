@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import * as Contacts from 'expo-contacts';
 import { Link2, Phone, X } from 'lucide-react-native';
-import { T, SHADOW } from '../theme';
+import { T, SHADOW, F } from '../theme';
 import Button from '../ui/Button';
 import Field from '../ui/Field';
 import Screen from '../ui/Screen';
@@ -84,20 +84,20 @@ export default function TrustedCircleScreen(props: {
 }
 
 const s = StyleSheet.create({
-  sub: { fontSize: T.body, color: T.inkSoft, textAlign: 'center', marginVertical: 10, lineHeight: 27 },
+  sub: { fontSize: T.body, fontFamily: F.body, color: T.inkSoft, textAlign: 'center', marginVertical: 10, lineHeight: 27 },
   person: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: T.card,
     borderRadius: T.radius, borderWidth: 1, borderColor: T.hairline, padding: 16, marginVertical: 5, ...SHADOW,
   },
-  pName: { fontSize: T.bodyLg, fontWeight: '700', color: T.ink },
-  pPhone: { fontSize: T.small, color: T.inkSoft, marginTop: 2 },
+  pName: { fontSize: T.bodyLg, fontFamily: F.bodyBold, color: T.ink },
+  pPhone: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, marginTop: 2 },
   callBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: T.greenSoft,
     borderRadius: T.radiusSm, paddingHorizontal: 13, paddingVertical: 10, marginRight: 8,
   },
-  callText: { fontSize: T.small, fontWeight: '700', color: T.greenText },
+  callText: { fontSize: T.small, fontFamily: F.bodyBold, color: T.greenText },
   remove: { padding: 10, minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  or: { fontSize: T.small, color: T.inkSoft, textAlign: 'center', marginVertical: 6 },
-  linkTitle: { fontSize: T.body, fontWeight: '800', color: T.accentDeep },
-  linkBody: { fontSize: T.small, color: T.inkSoft, lineHeight: 24, marginVertical: 8 },
+  or: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, textAlign: 'center', marginVertical: 6 },
+  linkTitle: { fontSize: T.body, fontFamily: F.bodyBold, color: T.accentDeep },
+  linkBody: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, lineHeight: 24, marginVertical: 8 },
 });

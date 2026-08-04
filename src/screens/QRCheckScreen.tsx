@@ -3,7 +3,7 @@
 // in plain text, run it through the engine, and NEVER auto-open anything.
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { T } from '../theme';
+import { T, F } from '../theme';
 import Button from '../ui/Button';
 import Screen from '../ui/Screen';
 import type { Route } from '../App';
@@ -47,7 +47,7 @@ export default function QRCheckScreen(props: { go: (r: Route) => void; check: (m
   );
 }
 const s = StyleSheet.create({
-  sub: { fontSize: T.body, color: T.inkSoft, textAlign: 'center', marginVertical: 12, lineHeight: 27 },
+  sub: { fontSize: T.body, fontFamily: F.body, color: T.inkSoft, textAlign: 'center', marginVertical: 12, lineHeight: 27 },
   camBox: { height: 340, borderRadius: T.radius, overflow: 'hidden', marginVertical: 12 },
-  err: { fontSize: T.small, color: T.ink, backgroundColor: T.amberSoft, borderRadius: T.radiusSm, padding: 14, lineHeight: 24, marginTop: 8 },
+  err: { fontSize: T.small, fontFamily: F.body, color: T.ink, backgroundColor: T.amberSoft, borderRadius: T.radiusSm, padding: 14, lineHeight: 24, marginTop: 8 },
 });

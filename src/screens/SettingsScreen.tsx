@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Linking, Platform, StyleSheet, Switch, Text, View } from 'react-native';
-import { T, SHADOW } from '../theme';
+import { T, SHADOW, F } from '../theme';
 import Button from '../ui/Button';
 import Field from '../ui/Field';
 import Screen from '../ui/Screen';
@@ -85,10 +85,10 @@ const s = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', backgroundColor: T.card,
     borderRadius: T.radius, borderWidth: 1, borderColor: T.hairline, padding: 16, marginVertical: 5, ...SHADOW,
   },
-  rowTitle: { fontSize: T.body, fontWeight: '700', color: T.ink },
-  rowWhy: { fontSize: T.small, color: T.inkSoft, lineHeight: 23, marginTop: 4 },
+  rowTitle: { fontSize: T.body, fontFamily: F.bodyBold, color: T.ink },
+  rowWhy: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, lineHeight: 23, marginTop: 4 },
   section: {
-    fontSize: T.caption, fontWeight: '800', color: T.inkSoft, textTransform: 'uppercase',
+    fontSize: T.caption, fontFamily: F.bodyBold, color: T.inkSoft, textTransform: 'uppercase',
     letterSpacing: 0.8, marginTop: 20, marginBottom: 4,
   },
   safeRow: {

@@ -6,7 +6,7 @@ import {
   BookOpen, ChevronRight, HeartHandshake, Link2, Phone,
   Settings as SettingsIcon, ShieldCheck, Inbox,
 } from 'lucide-react-native';
-import { T, SHADOW } from '../theme';
+import { T, SHADOW, F } from '../theme';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import Badge from '../ui/Badge';
@@ -139,16 +139,16 @@ export default function CareHomeScreen(props: {
 
 const s = StyleSheet.create({
   head: { marginTop: 18, marginBottom: 12 },
-  brand: { fontSize: T.headline, fontWeight: '800', color: T.ink, textAlign: 'center', letterSpacing: -0.6 },
-  sub: { fontSize: T.small, color: T.inkSoft, textAlign: 'center', marginTop: 6, lineHeight: 24 },
+  brand: { fontSize: T.headline, fontFamily: F.displayBold, color: T.ink, textAlign: 'center', letterSpacing: -0.6 },
+  sub: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, textAlign: 'center', marginTop: 6, lineHeight: 24 },
   person: { paddingVertical: 14 },
   personRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  personName: { fontSize: T.bodyLg, fontWeight: '800', color: T.ink },
-  personSub: { fontSize: T.caption, color: T.inkSoft, marginTop: 2 },
-  linkTitle: { fontSize: T.body, fontWeight: '800', color: T.accentDeep },
-  linkBody: { fontSize: T.small, color: T.inkSoft, lineHeight: 24, marginVertical: 8 },
+  personName: { fontSize: T.bodyLg, fontFamily: F.bodyBold, color: T.ink },
+  personSub: { fontSize: T.caption, fontFamily: F.body, color: T.inkSoft, marginTop: 2 },
+  linkTitle: { fontSize: T.body, fontFamily: F.bodyBold, color: T.accentDeep },
+  linkBody: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, lineHeight: 24, marginVertical: 8 },
   section: {
-    fontSize: T.caption, fontWeight: '800', color: T.inkSoft, textTransform: 'uppercase',
+    fontSize: T.caption, fontFamily: F.bodyBold, color: T.inkSoft, textTransform: 'uppercase',
     letterSpacing: 0.8, marginTop: 18, marginBottom: 6,
   },
   row: {
@@ -157,17 +157,17 @@ const s = StyleSheet.create({
     padding: 14, marginVertical: 4, ...SHADOW,
   },
   rowTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  rowWhen: { fontSize: T.caption, color: T.inkFaint },
-  rowExcerpt: { fontSize: T.small, color: T.ink, lineHeight: 23, marginTop: 7 },
-  rowMeta: { fontSize: T.caption, color: T.inkSoft, marginTop: 6 },
+  rowWhen: { fontSize: T.caption, fontFamily: F.body, color: T.inkFaint },
+  rowExcerpt: { fontSize: T.small, fontFamily: F.body, color: T.ink, lineHeight: 23, marginTop: 7 },
+  rowMeta: { fontSize: T.caption, fontFamily: F.body, color: T.inkSoft, marginTop: 6 },
   emptyRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  empty: { flex: 1, fontSize: T.small, color: T.inkSoft, lineHeight: 24 },
+  empty: { flex: 1, fontSize: T.small, fontFamily: F.body, color: T.inkSoft, lineHeight: 24 },
   panel: {
     backgroundColor: T.card, borderRadius: T.radiusLg, borderWidth: 1, borderColor: T.hairline,
     padding: 14, marginVertical: 4, ...SHADOW,
   },
-  box: { minHeight: 96, padding: 8, fontSize: T.body, color: T.ink, textAlignVertical: 'top', lineHeight: 26 },
+  box: { minHeight: 96, padding: 8, fontSize: T.body, fontFamily: F.body, color: T.ink, textAlignVertical: 'top', lineHeight: 26 },
   footer: { flexDirection: 'row', justifyContent: 'center', gap: 20, marginTop: 18 },
   footBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44 },
-  footText: { fontSize: T.caption, color: T.inkSoft, fontWeight: '600' },
+  footText: { fontSize: T.caption, color: T.inkSoft, fontFamily: F.bodyBold },
 });

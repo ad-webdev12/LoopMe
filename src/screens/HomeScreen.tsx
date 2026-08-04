@@ -6,10 +6,11 @@ import {
   Camera, Phone, Banknote, QrCode, Users, LifeBuoy, BookOpen, KeyRound,
   Settings as SettingsIcon, ShieldCheck, ClipboardPaste, X,
 } from 'lucide-react-native';
-import { T, SHADOW } from '../theme';
+import { T, SHADOW, F } from '../theme';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import Screen from '../ui/Screen';
+import Entrance from '../ui/Entrance';
 import { pickAndReadImage, OCR_AVAILABLE } from '../lib/ocr';
 import type { Route } from '../App';
 import type { Settings } from '../lib/storage';
@@ -41,10 +42,12 @@ export default function HomeScreen(props: {
 
   return (
     <Screen>
-      <View style={s.head}>
-        <Text style={s.brand} allowFontScaling>Loop Me In</Text>
-        <Text style={s.sub} allowFontScaling>Not sure about a message? Check it here.</Text>
-      </View>
+      <Entrance index={0}>
+        <View style={s.head}>
+          <Text style={s.brand} allowFontScaling>Loop Me In</Text>
+          <Text style={s.sub} allowFontScaling>Not sure about a message? Check it here.</Text>
+        </View>
+      </Entrance>
 
       {props.clipOffer && (
         <Card tone="accent" style={s.clipCard}>
@@ -61,6 +64,7 @@ export default function HomeScreen(props: {
         </Card>
       )}
 
+      <Entrance index={1}>
       <View style={s.panel}>
         <TextInput
           style={s.box} multiline
@@ -71,7 +75,9 @@ export default function HomeScreen(props: {
         />
         <Button label="Check it" onPress={() => text.trim() && props.onCheck(text)} />
       </View>
+      </Entrance>
 
+      <Entrance index={2}>
       <View style={s.quickRow}>
         <Quick Icon={Camera} label="Photo" onPress={() => fromPhoto(true)} />
         <Quick Icon={QrCode} label="QR code" onPress={() => props.go({ name: 'qr' })} />
@@ -82,9 +88,12 @@ export default function HomeScreen(props: {
       <View style={s.quickRow}>
         <Quick Icon={Banknote} label="Before you send money" onPress={() => props.go({ name: 'money' })} />
       </View>
+      </Entrance>
 
+      <Entrance index={3}>
       <Button label="People you trust" kind="secondary" icon={Users} onPress={() => props.go({ name: 'circle' })} />
       <Button label="I think I’ve been scammed" kind="secondary" icon={LifeBuoy} onPress={() => props.go({ name: 'panic' })} />
+      </Entrance>
 
       <View style={s.footer}>
         <Pressable style={s.footBtn} onPress={() => props.go({ name: 'learn' })} accessibilityRole="button">
@@ -106,19 +115,19 @@ export default function HomeScreen(props: {
 
 const s = StyleSheet.create({
   head: { marginTop: 18, marginBottom: 14 },
-  brand: { fontSize: T.giant, fontWeight: '800', color: T.ink, textAlign: 'center', letterSpacing: -0.8 },
-  sub: { fontSize: T.body, color: T.inkSoft, textAlign: 'center', marginTop: 6, lineHeight: 27 },
+  brand: { fontSize: T.giant, fontFamily: F.displayBold, color: T.ink, textAlign: 'center', letterSpacing: -0.8 },
+  sub: { fontSize: T.body, fontFamily: F.body, color: T.inkSoft, textAlign: 'center', marginTop: 6, lineHeight: 27 },
   clipCard: { paddingVertical: 14 },
   clipRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  clipTitle: { flex: 1, fontSize: T.small, fontWeight: '700', color: T.accentDeep },
+  clipTitle: { flex: 1, fontSize: T.small, fontFamily: F.bodyBold, color: T.accentDeep },
   clipClose: { padding: 6 },
-  clipBody: { fontSize: T.small, color: T.inkSoft, lineHeight: 23, marginVertical: 8 },
+  clipBody: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, lineHeight: 23, marginVertical: 8 },
   panel: {
     backgroundColor: T.card, borderRadius: T.radiusLg, borderWidth: 1, borderColor: T.hairline,
     padding: 14, marginVertical: 6, ...SHADOW,
   },
   box: {
-    minHeight: 132, padding: 8, fontSize: T.body, color: T.ink,
+    minHeight: 132, padding: 8, fontSize: T.body, fontFamily: F.body, color: T.ink,
     textAlignVertical: 'top', lineHeight: 27,
   },
   quickRow: { flexDirection: 'row', gap: 10, marginVertical: 4 },
@@ -127,8 +136,8 @@ const s = StyleSheet.create({
     borderRadius: T.radius, borderWidth: 1, borderColor: T.hairline,
     minHeight: 58, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12,
   },
-  quickText: { fontSize: T.small, color: T.ink, fontWeight: '600', textAlign: 'center' },
+  quickText: { fontSize: T.small, color: T.ink, fontFamily: F.bodyBold, textAlign: 'center' },
   footer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 18, marginTop: 16 },
   footBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44, paddingHorizontal: 2 },
-  footText: { fontSize: T.caption, color: T.inkSoft, fontWeight: '600' },
+  footText: { fontSize: T.caption, color: T.inkSoft, fontFamily: F.bodyBold },
 });

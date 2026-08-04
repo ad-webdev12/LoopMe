@@ -1,7 +1,7 @@
 // "Before you send money" — the 20-second checklist for the moment that matters.
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { T } from '../theme';
+import { T, F } from '../theme';
 import Button from '../ui/Button';
 import type { Route } from '../App';
 
@@ -42,7 +42,7 @@ export default function MoneyCheckScreen(props: { go: (r: Route) => void }) {
 }
 const s = StyleSheet.create({
   wrap: { flex: 1, padding: 28, justifyContent: 'center', backgroundColor: T.cream },
-  count: { fontSize: T.caption, fontWeight: '700', color: T.inkSoft, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.8 },
-  big: { fontSize: T.title + 2, fontWeight: '800', color: T.ink, textAlign: 'center', marginVertical: 18, lineHeight: 37, letterSpacing: -0.3 },
-  sub: { fontSize: T.bodyLg, color: T.ink, textAlign: 'center', lineHeight: 31, marginBottom: 16 },
+  count: { fontSize: T.caption, fontFamily: F.bodyBold, color: T.inkSoft, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.8 },
+  big: { fontSize: T.title + 2, fontFamily: F.displayBold, color: T.ink, textAlign: 'center', marginVertical: 18, lineHeight: 37, letterSpacing: -0.3 },
+  sub: { fontSize: T.bodyLg, fontFamily: F.body, color: T.ink, textAlign: 'center', lineHeight: 31, marginBottom: 16 },
 });

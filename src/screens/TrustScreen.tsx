@@ -2,7 +2,7 @@
 // Nobody else in this market ships the honesty screen. That's exactly why it builds trust.
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
-import { T } from '../theme';
+import { T, F } from '../theme';
 import Card from '../ui/Card';
 import Screen from '../ui/Screen';
 import type { Route } from '../App';
@@ -34,7 +34,7 @@ export default function TrustScreen(props: { go: (r: Route) => void }) {
   );
 }
 const s = StyleSheet.create({
-  title2: { fontSize: T.title, fontWeight: '800', color: T.ink, textAlign: 'center', marginVertical: 12, letterSpacing: -0.3 },
-  h: { fontSize: T.bodyLg, fontWeight: '800', color: T.ink, marginBottom: 8 },
-  b: { fontSize: T.body, color: T.ink, lineHeight: 28 },
+  title2: { fontSize: T.title, fontFamily: F.displayBold, color: T.ink, textAlign: 'center', marginVertical: 12, letterSpacing: -0.3 },
+  h: { fontSize: T.bodyLg, fontFamily: F.bodyBold, color: T.ink, marginBottom: 8 },
+  b: { fontSize: T.body, fontFamily: F.body, color: T.ink, lineHeight: 28 },
 });

@@ -3,6 +3,9 @@ import { AppState, SafeAreaView, StatusBar, StyleSheet, View } from 'react-nativ
 import * as Linking from 'expo-linking';
 import * as Clipboard from 'expo-clipboard';
 import * as Notifications from 'expo-notifications';
+import { useFonts } from 'expo-font';
+import { Fraunces_600SemiBold, Fraunces_700Bold } from '@expo-google-fonts/fraunces';
+import { AtkinsonHyperlegible_400Regular, AtkinsonHyperlegible_700Bold } from '@expo-google-fonts/atkinson-hyperlegible';
 import { T } from './theme';
 import { detect, Verdict } from './engine/ScamDetector';
 import { loadSettings, saveSettings, isPostPanic, Settings } from './lib/storage';
@@ -41,6 +44,10 @@ Notifications.setNotificationHandler({
 });
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Fraunces_600SemiBold, Fraunces_700Bold,
+    AtkinsonHyperlegible_400Regular, AtkinsonHyperlegible_700Bold,
+  });
   const [route, setRoute] = useState<Route>({ name: 'home' });
   const [settings, setSettings] = useState<Settings | null>(null);
   const [clipOffer, setClipOffer] = useState<string | null>(null);
@@ -128,7 +135,7 @@ export default function App() {
     return () => sub.remove();
   }, [settings?.role]);
 
-  if (!settings) return <View style={s.root} />;
+  if (!settings || !fontsLoaded) return <View style={s.root} />;
 
   if (!settings.role) {
     return (

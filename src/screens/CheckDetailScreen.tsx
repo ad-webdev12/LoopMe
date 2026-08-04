@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { CircleCheck, MessageCircleWarning, Phone, ShieldQuestion } from 'lucide-react-native';
-import { T, LEVEL_META } from '../theme';
+import { T, LEVEL_META, F } from '../theme';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import Badge from '../ui/Badge';
@@ -95,20 +95,20 @@ export default function CheckDetailScreen(props: {
 }
 
 const s = StyleSheet.create({
-  line: { fontSize: T.title, fontWeight: '800', color: T.ink, textAlign: 'center', letterSpacing: -0.3, marginBottom: 8 },
-  label: { fontSize: T.caption, fontWeight: '800', color: T.inkSoft, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 },
-  excerpt: { fontSize: T.small, color: T.inkSoft, fontStyle: 'italic', lineHeight: 24, marginBottom: 10 },
-  reason: { fontSize: T.body, color: T.ink, lineHeight: 27 },
-  replyBig: { fontSize: T.bodyLg, fontWeight: '700', color: T.ink, lineHeight: 30 },
+  line: { fontSize: T.title, fontFamily: F.displayBold, color: T.ink, textAlign: 'center', letterSpacing: -0.3, marginBottom: 8 },
+  label: { fontSize: T.caption, fontFamily: F.bodyBold, color: T.inkSoft, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 },
+  excerpt: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, fontStyle: 'italic', lineHeight: 24, marginBottom: 10 },
+  reason: { fontSize: T.body, fontFamily: F.body, color: T.ink, lineHeight: 27 },
+  replyBig: { fontSize: T.bodyLg, fontFamily: F.bodyBold, color: T.ink, lineHeight: 30 },
   section: {
-    fontSize: T.caption, fontWeight: '800', color: T.inkSoft, textTransform: 'uppercase',
+    fontSize: T.caption, fontFamily: F.bodyBold, color: T.inkSoft, textTransform: 'uppercase',
     letterSpacing: 0.8, marginTop: 16, marginBottom: 4,
   },
-  pbTitle: { fontSize: T.body, fontWeight: '800', color: T.ink, marginBottom: 6 },
-  pbBody: { flex: 1, fontSize: T.small, color: T.ink, lineHeight: 25, marginBottom: 6 },
-  pbWhy: { fontSize: T.small, color: T.inkSoft, lineHeight: 24, marginBottom: 10 },
+  pbTitle: { fontSize: T.body, fontFamily: F.bodyBold, color: T.ink, marginBottom: 6 },
+  pbBody: { flex: 1, fontSize: T.small, fontFamily: F.body, color: T.ink, lineHeight: 25, marginBottom: 6 },
+  pbWhy: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, lineHeight: 24, marginBottom: 10 },
   sayBox: { backgroundColor: T.accentSoft, borderRadius: T.radiusSm, padding: 12 },
-  sayLabel: { fontSize: T.caption, fontWeight: '800', color: T.accentDeep, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 },
-  sayText: { fontSize: T.small, color: T.ink, lineHeight: 24 },
+  sayLabel: { fontSize: T.caption, fontFamily: F.bodyBold, color: T.accentDeep, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 },
+  sayText: { fontSize: T.small, fontFamily: F.body, color: T.ink, lineHeight: 24 },
   noteRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
 });

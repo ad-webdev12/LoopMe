@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Volume2 } from 'lucide-react-native';
-import { T } from '../theme';
+import { T, F } from '../theme';
 import Button from '../ui/Button';
 import { readAloud } from '../lib/speech';
 import type { Route } from '../App';
@@ -47,7 +47,7 @@ export default function CallHelpScreen(props: { settings: Settings; go: (r: Rout
 }
 const s = StyleSheet.create({
   wrap: { flex: 1, padding: 28, justifyContent: 'center', backgroundColor: T.cream },
-  count: { fontSize: T.caption, fontWeight: '700', color: T.inkSoft, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.8 },
-  big: { fontSize: T.headline, fontWeight: '800', color: T.ink, textAlign: 'center', marginVertical: 18, lineHeight: 40, letterSpacing: -0.4 },
-  sub: { fontSize: T.bodyLg, color: T.ink, textAlign: 'center', lineHeight: 31, marginBottom: 18 },
+  count: { fontSize: T.caption, fontFamily: F.bodyBold, color: T.inkSoft, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.8 },
+  big: { fontSize: T.headline, fontFamily: F.displayBold, color: T.ink, textAlign: 'center', marginVertical: 18, lineHeight: 40, letterSpacing: -0.4 },
+  sub: { fontSize: T.bodyLg, fontFamily: F.body, color: T.ink, textAlign: 'center', lineHeight: 31, marginBottom: 18 },
 });
