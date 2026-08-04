@@ -16,17 +16,13 @@ import CodeWordScreen from './screens/CodeWordScreen';
 import CallHelpScreen from './screens/CallHelpScreen';
 import MoneyCheckScreen from './screens/MoneyCheckScreen';
 import TrustScreen from './screens/TrustScreen';
-import ScanScreen from './screens/ScanScreen';
-import AnimatedBG from './components/AnimatedBG';
-import { play } from './lib/sound';
 
 export type Route =
   | { name: 'home' }
   | { name: 'verdict'; message: string; verdict: Verdict }
   | { name: 'alert'; message: string; verdict: Verdict }
   | { name: 'circle' } | { name: 'panic' } | { name: 'settings' } | { name: 'learn' }
-  | { name: 'qr' } | { name: 'codeword' } | { name: 'callhelp' } | { name: 'money' } | { name: 'trust' }
-  | { name: 'scan'; next: Route; level: string };
+  | { name: 'qr' } | { name: 'codeword' } | { name: 'callhelp' } | { name: 'money' } | { name: 'trust' };
 
 export default function App() {
   const [route, setRoute] = useState<Route>({ name: 'home' });
@@ -43,10 +39,9 @@ export default function App() {
       recentTags: recentTags.current,
       postPanic: settings ? isPostPanic(settings) : false,
     });
-    recentTags.current = v.tags;
-    const target: Route = opts?.fromAlert && v.level !== 'green'
-      ? { name: 'alert', message, verdict: v } : { name: 'verdict', message, verdict: v };
-    setRoute({ name: 'scan', next: target, level: v.level } as any);
+    recentTags.current = v.tags; // remember for the next check (fake alert → "fraud agent" pattern)
+    if (opts?.fromAlert && v.level !== 'green') setRoute({ name: 'alert', message, verdict: v });
+    else setRoute({ name: 'verdict', message, verdict: v });
   }, [settings]);
 
   useEffect(() => {
@@ -67,9 +62,7 @@ export default function App() {
 
   return (
     <SafeAreaView style={s.root}>
-      <StatusBar barStyle="light-content" backgroundColor={T.cream} />
-      {route.name !== 'scan' && <AnimatedBG />}
-      {route.name === 'scan' && <ScanScreen onDone={() => { play(route.level as any); setRoute(route.next); }} />}
+      <StatusBar barStyle="dark-content" backgroundColor={T.cream} />
       {route.name === 'home' && <HomeScreen onCheck={check} go={setRoute} settings={settings} />}
       {route.name === 'verdict' && <VerdictScreen message={route.message} verdict={route.verdict} {...common} />}
       {route.name === 'alert' && <AlertScreen message={route.message} verdict={route.verdict} settings={settings} go={setRoute} />}

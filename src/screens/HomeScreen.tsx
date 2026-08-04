@@ -1,25 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, Pressable, Alert, Animated, Easing } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
 import { T } from '../theme';
 import BigButton from '../components/BigButton';
 import { pickAndReadImage, OCR_AVAILABLE } from '../lib/ocr';
 import type { Route } from '../App';
 import type { Settings } from '../lib/storage';
-
-function GlowTitle() {
-  const a = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    Animated.loop(Animated.sequence([
-      Animated.timing(a, { toValue: 1, duration: 1600, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
-      Animated.timing(a, { toValue: 0, duration: 1600, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
-    ])).start();
-  }, []);
-  return (
-    <Animated.Text allowFontScaling style={[s.title, { textShadowRadius: a.interpolate({ inputRange: [0, 1], outputRange: [6, 22] }) }]}>
-      LOOP ME IN
-    </Animated.Text>
-  );
-}
 
 export default function HomeScreen(props: {
   onCheck: (m: string) => void; go: (r: Route) => void; settings: Settings;
@@ -41,8 +26,8 @@ export default function HomeScreen(props: {
   );
   return (
     <ScrollView contentContainerStyle={s.wrap} keyboardShouldPersistTaps="handled">
-      <GlowTitle />
-      <Text style={s.sub} allowFontScaling>THREAT SCANNER \u00B7 ON-DEVICE \u00B7 OFFLINE</Text>
+      <Text style={s.title} allowFontScaling>Loop Me In</Text>
+      <Text style={s.sub} allowFontScaling>Not sure about a message? Let\u2019s check it together.</Text>
 
       <TextInput
         style={s.box} multiline
@@ -77,15 +62,15 @@ export default function HomeScreen(props: {
 }
 const s = StyleSheet.create({
   wrap: { padding: 24, paddingTop: 32 },
-  title: { fontSize: T.giant, fontWeight: '900', color: T.ink, textAlign: 'center', letterSpacing: 6, textShadowColor: '#38D9FF' },
-  sub: { fontSize: 14, color: T.inkSoft, textAlign: 'center', marginTop: 8, marginBottom: 20, letterSpacing: 3, fontWeight: '700' },
+  title: { fontSize: T.giant, fontWeight: '800', color: T.ink, textAlign: 'center' },
+  sub: { fontSize: T.body, color: T.inkSoft, textAlign: 'center', marginTop: 8, marginBottom: 20, lineHeight: 28 },
   box: {
-    backgroundColor: T.card, borderRadius: T.radius, minHeight: 150, padding: 20, borderWidth: 1, borderColor: '#1E3A5C',
+    backgroundColor: T.card, borderRadius: T.radius, minHeight: 150, padding: 20,
     fontSize: T.body, color: T.ink, textAlignVertical: 'top', lineHeight: 28, marginBottom: 10,
     shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 2,
   },
   row: { flexDirection: 'row', gap: 12, marginTop: 8 },
-  small: { flex: 1, backgroundColor: T.card, borderWidth: 1, borderColor: '#1E3A5C', borderRadius: 18, minHeight: 60, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 },
+  small: { flex: 1, backgroundColor: T.card, borderRadius: 18, minHeight: 60, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 },
   smallText: { fontSize: 19, color: T.ink, fontWeight: '600', textAlign: 'center' },
   footer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 4, marginTop: 8 },
 });

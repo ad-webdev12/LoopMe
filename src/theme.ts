@@ -1,24 +1,21 @@
-// NEON test theme — deep space + electric accents. (The calm cream theme lives in app-src.)
+// Warm, calm, elderly-first — matches the current site.
 export const T = {
-  cream: '#070B14',        // deep space background (kept the key name so all screens restyle at once)
-  ink: '#EAF6FF',          // near-white cyan text
-  inkSoft: '#7FA3C0',      // dimmed steel
-  card: '#0E1626',         // panel
-  cardEdge: '#1E3A5C',
-  red: '#FF3B5C',          // laser red
-  amber: '#FFB020',        // plasma amber
-  green: '#22F0A6',        // matrix green
-  cyan: '#38D9FF',
-  violet: '#8A6CFF',
-  redSoft: '#2A0B14',
-  amberSoft: '#291D06',
-  greenSoft: '#06251B',
+  cream: '#FBF6EC',
+  ink: '#2A2622',
+  inkSoft: '#5C554C',
+  card: '#FFFFFF',
+  red: '#D64B3F',
+  amber: '#E7A13D',
+  green: '#4E8D5B',
+  redSoft: '#FBEAE8',
+  amberSoft: '#FBF1DF',
+  greenSoft: '#E9F2EC',
   radius: 24,
   body: 20, button: 22, headline: 30, giant: 40,
   tap: 64,
 };
 export const LEVEL_META = {
-  red:   { word: 'THREAT',   icon: '\u26A0', color: T.red,   soft: T.redSoft,   line: 'Scam signature detected.' },
-  amber: { word: 'CAUTION',  icon: '\u25C8', color: T.amber, soft: T.amberSoft, line: 'Anomaly detected.' },
-  green: { word: 'CLEAR',    icon: '\u2726', color: T.green, soft: T.greenSoft, line: 'No threat signatures found.' },
+  red:   { word: 'Stop',       icon: '\u26D4', color: T.red,   soft: T.redSoft,   line: 'This looks like a scam.' },
+  amber: { word: 'Be careful', icon: '\u26A0\uFE0F', color: T.amber, soft: T.amberSoft, line: 'This might not be safe.' },
+  green: { word: 'Looks okay', icon: '\u2713', color: T.green, soft: T.greenSoft, line: 'This looks okay.' },
 } as const;

@@ -1,6 +1,6 @@
 // Verdict v2 — commit, explain with highlights, one action, and never make checking feel foolish.
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, Animated, Easing } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { T, LEVEL_META } from '../theme';
 import Stoplight from '../components/Stoplight';
 import BigButton from '../components/BigButton';
@@ -49,11 +49,7 @@ export default function VerdictScreen(props: {
   const hasLink = /https?:\/\/|www\.|\.[a-z]{2,4}\//i.test(message);
 
   const speech = `${m.word}. ${v.reason} ${CONF[v.confidence]} Here is one safe step: ${v.safeStep}`;
-  const enter = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    Animated.timing(enter, { toValue: 1, duration: 550, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
-    if (props.settings.readAloud) readAloud(speech);
-  }, []);
+  useEffect(() => { if (props.settings.readAloud) readAloud(speech); }, []);
 
   const doLoopIn = async () => {
     const person = props.settings.trusted[0] || null;
@@ -76,7 +72,6 @@ export default function VerdictScreen(props: {
 
   return (
     <ScrollView contentContainerStyle={s.wrap}>
-      <Animated.View style={{ opacity: enter, transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [26, 0] }) }] }}>
       <Stoplight level={v.level} />
       <Text style={s.line} allowFontScaling>{v.level === 'red' ? 'This is a scam.' : v.level === 'amber' ? 'Something\u2019s off here.' : 'This looks okay.'}</Text>
       <Text style={s.conf} allowFontScaling>{CONF[v.confidence]}</Text>
@@ -125,7 +120,6 @@ export default function VerdictScreen(props: {
         <BigButton label="Check another" kind="quiet" onPress={() => props.go({ name: 'home' })} />
         {v.level !== 'green' && <BigButton label="I think you\u2019re wrong" kind="quiet" onPress={disagree} />}
       </View>
-      </Animated.View>
     </ScrollView>
   );
 }
@@ -133,7 +127,7 @@ const s = StyleSheet.create({
   wrap: { padding: 24, paddingTop: 20 },
   line: { fontSize: T.headline - 2, fontWeight: '800', color: T.ink, textAlign: 'center' },
   conf: { fontSize: 18, color: T.inkSoft, textAlign: 'center', marginTop: 6, marginBottom: 14 },
-  card: { backgroundColor: T.card, borderRadius: T.radius, padding: 20, marginVertical: 8, borderWidth: 1, borderColor: '#1E3A5C' },
+  card: { backgroundColor: T.card, borderRadius: T.radius, padding: 20, marginVertical: 8 },
   stepLabel: { fontSize: 16, fontWeight: '800', color: T.inkSoft, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 },
   step: { fontSize: T.body + 2, color: T.ink, fontWeight: '600', lineHeight: 30 },
   msg: { fontSize: T.body - 1, color: T.inkSoft, lineHeight: 28, marginBottom: 12, fontStyle: 'italic' },
