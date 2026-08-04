@@ -2,9 +2,10 @@
 // Plus the "hang up permission" screen: telling an older person, unambiguously,
 // that hanging up is allowed. This psychological barrier costs people their savings.
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { Volume2 } from 'lucide-react-native';
 import { T } from '../theme';
-import BigButton from '../components/BigButton';
+import Button from '../ui/Button';
 import { readAloud } from '../lib/speech';
 import type { Route } from '../App';
 import type { Settings } from '../lib/storage';
@@ -25,9 +26,9 @@ export default function CallHelpScreen(props: { settings: Settings; go: (r: Rout
       <View style={[s.wrap, { backgroundColor: T.redSoft }]}>
         <Text style={s.big} allowFontScaling>Hang up.</Text>
         <Text style={s.sub} allowFontScaling>{msg}</Text>
-        <BigButton label="\uD83D\uDD0A  Read it to me" kind="secondary" onPress={() => readAloud(msg)} />
-        {props.settings.trusted[0] && <BigButton label={`Call ${props.settings.trusted[0].name}`} color={T.green} onPress={() => import('../lib/loopIn').then(m => m.callPerson(props.settings.trusted[0]))} />}
-        <BigButton label="Back home" kind="quiet" onPress={() => props.go({ name: 'home' })} />
+        <Button label="Read it to me" kind="secondary" icon={Volume2} onPress={() => readAloud(msg)} />
+        {props.settings.trusted[0] && <Button label={`Call ${props.settings.trusted[0].name}`} kind="success" onPress={() => import('../lib/loopIn').then(m => m.callPerson(props.settings.trusted[0]))} />}
+        <Button label="Back home" kind="ghost" onPress={() => props.go({ name: 'home' })} />
       </View>
     );
   }
@@ -35,18 +36,18 @@ export default function CallHelpScreen(props: { settings: Settings; go: (r: Rout
     <View style={s.wrap}>
       <Text style={s.count} allowFontScaling>Question {i + 1} of {QUESTIONS.length}</Text>
       <Text style={s.big} allowFontScaling>{QUESTIONS[i]}</Text>
-      <BigButton label="Yes" color={T.red} onPress={() => setFlagged(true)} />
-      <BigButton label="No" kind="secondary" onPress={() => {
+      <Button label="Yes" kind="danger" onPress={() => setFlagged(true)} />
+      <Button label="No" kind="secondary" onPress={() => {
         if (i + 1 < QUESTIONS.length) setI(i + 1);
         else props.go({ name: 'home' });
       }} />
-      <BigButton label="Never mind" kind="quiet" onPress={() => props.go({ name: 'home' })} />
+      <Button label="Never mind" kind="ghost" onPress={() => props.go({ name: 'home' })} />
     </View>
   );
 }
 const s = StyleSheet.create({
-  wrap: { flex: 1, padding: 28, justifyContent: 'center' },
-  count: { fontSize: 17, fontWeight: '700', color: T.inkSoft, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1 },
-  big: { fontSize: T.headline, fontWeight: '800', color: T.ink, textAlign: 'center', marginVertical: 18, lineHeight: 42 },
-  sub: { fontSize: T.body + 1, color: T.ink, textAlign: 'center', lineHeight: 32, marginBottom: 20 },
+  wrap: { flex: 1, padding: 28, justifyContent: 'center', backgroundColor: T.cream },
+  count: { fontSize: T.caption, fontWeight: '700', color: T.inkSoft, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.8 },
+  big: { fontSize: T.headline, fontWeight: '800', color: T.ink, textAlign: 'center', marginVertical: 18, lineHeight: 40, letterSpacing: -0.4 },
+  sub: { fontSize: T.bodyLg, color: T.ink, textAlign: 'center', lineHeight: 31, marginBottom: 18 },
 });

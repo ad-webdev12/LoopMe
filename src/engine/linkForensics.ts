@@ -200,7 +200,7 @@ export function analyzeLinks(text: string): { hits: LinkHit[]; urlCount: number;
     for (const b of brandsInText) {
       const anyMentions = matches.some(u => leet(hostOf(u)).includes(leet(b.domains[0].split('.')[0])));
       if (!anyMentions) {
-        hits.push({ w: 18, tag: 'url-mismatch', plain: `The message talks about ${b.label}, but its link goes somewhere else entirely.`, match: matches[0] });
+        hits.push({ w: 18, tag: 'url-mismatch', plain: `The message talks about ${b.label}, but its link goes somewhere else entirely.`, match: matches[0] ?? '' });
         sawBad++;
         break;
       }

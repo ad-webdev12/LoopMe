@@ -1,9 +1,16 @@
+// The trusted circle — up to three people, one tap away. The "link by text"
+// button pairs a family member's phone so answers flow back automatically.
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, Pressable, Alert } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import * as Contacts from 'expo-contacts';
-import { T } from '../theme';
-import BigButton from '../components/BigButton';
+import { Link2, Phone, X } from 'lucide-react-native';
+import { T, SHADOW } from '../theme';
+import Button from '../ui/Button';
+import Field from '../ui/Field';
+import Screen from '../ui/Screen';
+import Card from '../ui/Card';
 import { callPerson } from '../lib/loopIn';
+import { pairText, sendSms } from '../lib/familyLink';
 import type { Route } from '../App';
 import type { Settings, TrustedPerson } from '../lib/storage';
 
@@ -12,9 +19,11 @@ export default function TrustedCircleScreen(props: {
 }) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const st = props.settings;
+
   const add = (p: TrustedPerson) => {
-    if (props.settings.trusted.length >= 3) { Alert.alert('Three people is plenty', 'You can remove someone to add another.'); return; }
-    props.update({ ...props.settings, trusted: [...props.settings.trusted, p] });
+    if (st.trusted.length >= 3) { Alert.alert('Three people is plenty', 'You can remove someone to add another.'); return; }
+    props.update({ ...st, trusted: [...st.trusted, p] });
     setName(''); setPhone('');
   };
   const fromContacts = async () => {
@@ -24,51 +33,71 @@ export default function TrustedCircleScreen(props: {
     const num = picked?.phoneNumbers?.[0]?.number;
     if (picked?.name && num) add({ name: picked.name, phone: num });
   };
-  return (
-    <ScrollView contentContainerStyle={s.wrap}>
-      <Text style={s.title} allowFontScaling>People you trust</Text>
-      <Text style={s.sub} allowFontScaling>When a message worries you, one tap sends it to them.</Text>
 
-      {props.settings.trusted.map((p, i) => (
+  return (
+    <Screen onBack={() => props.go({ name: 'home' })} title="People you trust">
+      <Text style={s.sub} allowFontScaling>
+        When a message worries you, one tap sends it to them — and their answer comes back to this phone.
+      </Text>
+
+      {st.trusted.map((p, i) => (
         <View key={i} style={s.person}>
           <View style={{ flex: 1 }}>
             <Text style={s.pName} allowFontScaling>{p.name}</Text>
             <Text style={s.pPhone} allowFontScaling>{p.phone}</Text>
           </View>
           <Pressable onPress={() => callPerson(p)} style={s.callBtn} accessibilityRole="button" accessibilityLabel={`Call ${p.name}`}>
-            <Text style={s.callText}>{'\uD83D\uDCDE'} Call</Text>
+            <Phone size={17} color={T.greenText} strokeWidth={2.2} />
+            <Text style={s.callText} allowFontScaling>Call</Text>
           </Pressable>
           <Pressable
-            onPress={() => props.update({ ...props.settings, trusted: props.settings.trusted.filter((_, j) => j !== i) })}
+            onPress={() => props.update({ ...st, trusted: st.trusted.filter((_, j) => j !== i) })}
             accessibilityRole="button" accessibilityLabel={`Remove ${p.name}`} style={s.remove}>
-            <Text style={{ fontSize: 20, color: T.inkSoft }}>{'\u2715'}</Text>
+            <X size={20} color={T.inkSoft} />
           </Pressable>
         </View>
       ))}
 
-      {props.settings.trusted.length < 3 && (
+      {st.role === 'elder' && (
+        <Card tone="accent">
+          <Text style={s.linkTitle} allowFontScaling>Put Loop Me In on their phone too</Text>
+          <Text style={s.linkBody} allowFontScaling>
+            Text them a link. Once they have the app, your checks reach them with one tap and their answers appear right here.
+          </Text>
+          <Button label="Send them the link" icon={Link2} size="compact"
+            onPress={() => sendSms(st.trusted[0]?.phone || null, pairText(st.myName, ''))} />
+        </Card>
+      )}
+
+      {st.trusted.length < 3 && (
         <>
-          <BigButton label="Pick from my contacts" kind="secondary" onPress={fromContacts} />
+          <Button label="Pick from my contacts" kind="secondary" onPress={fromContacts} />
           <Text style={s.or} allowFontScaling>or type them in</Text>
-          <TextInput style={s.input} placeholder="Name" placeholderTextColor={T.inkSoft} value={name} onChangeText={setName} accessibilityLabel="Name" />
-          <TextInput style={s.input} placeholder="Phone number" placeholderTextColor={T.inkSoft} value={phone} onChangeText={setPhone} keyboardType="phone-pad" accessibilityLabel="Phone number" />
-          <BigButton label="Add this person" color={T.green} onPress={() => name.trim() && phone.trim() && add({ name: name.trim(), phone: phone.trim() })} />
+          <Field placeholder="Name" value={name} onChangeText={setName} />
+          <Field placeholder="Phone number" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+          <Button label="Add this person" kind="success" onPress={() => name.trim() && phone.trim() && add({ name: name.trim(), phone: phone.trim() })} />
         </>
       )}
-      <BigButton label="Done" kind="quiet" onPress={() => props.go({ name: 'home' })} />
-    </ScrollView>
+      <Button label="Done" kind="ghost" onPress={() => props.go({ name: 'home' })} />
+    </Screen>
   );
 }
+
 const s = StyleSheet.create({
-  wrap: { padding: 24 },
-  title: { fontSize: T.headline, fontWeight: '800', color: T.ink, textAlign: 'center' },
-  sub: { fontSize: T.body, color: T.inkSoft, textAlign: 'center', marginVertical: 12, lineHeight: 28 },
-  person: { flexDirection: 'row', alignItems: 'center', backgroundColor: T.card, borderRadius: 20, padding: 18, marginVertical: 6 },
-  pName: { fontSize: T.body + 2, fontWeight: '700', color: T.ink },
-  pPhone: { fontSize: 18, color: T.inkSoft },
-  callBtn: { backgroundColor: T.greenSoft, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, marginRight: 10 },
-  callText: { fontSize: 18, fontWeight: '700', color: T.green },
+  sub: { fontSize: T.body, color: T.inkSoft, textAlign: 'center', marginVertical: 10, lineHeight: 27 },
+  person: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: T.card,
+    borderRadius: T.radius, borderWidth: 1, borderColor: T.hairline, padding: 16, marginVertical: 5, ...SHADOW,
+  },
+  pName: { fontSize: T.bodyLg, fontWeight: '700', color: T.ink },
+  pPhone: { fontSize: T.small, color: T.inkSoft, marginTop: 2 },
+  callBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: T.greenSoft,
+    borderRadius: T.radiusSm, paddingHorizontal: 13, paddingVertical: 10, marginRight: 8,
+  },
+  callText: { fontSize: T.small, fontWeight: '700', color: T.greenText },
   remove: { padding: 10, minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  or: { fontSize: 18, color: T.inkSoft, textAlign: 'center', marginVertical: 8 },
-  input: { backgroundColor: T.card, borderRadius: 18, padding: 18, fontSize: T.body, color: T.ink, marginVertical: 6 },
+  or: { fontSize: T.small, color: T.inkSoft, textAlign: 'center', marginVertical: 6 },
+  linkTitle: { fontSize: T.body, fontWeight: '800', color: T.accentDeep },
+  linkBody: { fontSize: T.small, color: T.inkSoft, lineHeight: 24, marginVertical: 8 },
 });

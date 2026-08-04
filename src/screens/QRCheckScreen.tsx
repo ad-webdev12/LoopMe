@@ -2,10 +2,10 @@
 // where it goes ("quishing" is up ~587%). We decode, show the REAL destination
 // in plain text, run it through the engine, and NEVER auto-open anything.
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { T } from '../theme';
-import BigButton from '../components/BigButton';
-import { detect } from '../engine/ScamDetector';
+import Button from '../ui/Button';
+import Screen from '../ui/Screen';
 import type { Route } from '../App';
 
 export default function QRCheckScreen(props: { go: (r: Route) => void; check: (m: string) => void }) {
@@ -31,27 +31,23 @@ export default function QRCheckScreen(props: { go: (r: Route) => void; check: (m
   };
 
   return (
-    <View style={s.wrap}>
-      <Text style={s.title} allowFontScaling>Check a QR code</Text>
+    <Screen onBack={() => props.go({ name: 'home' })} title="Check a QR code">
       <Text style={s.sub} allowFontScaling>
-        A QR code hides where it really goes. I\u2019ll show you the real address in plain words — nothing opens unless you choose.
+        A QR code hides where it really goes. You’ll see the real address in plain words — nothing opens unless you choose.
       </Text>
       {scanning && Camera ? (
         <View style={s.camBox}>
           <Camera style={{ flex: 1 }} barcodeScannerSettings={{ barcodeTypes: ['qr'] }} onBarcodeScanned={onScan} />
         </View>
       ) : (
-        <BigButton label="Open the camera" color={T.ink} onPress={start} />
+        <Button label="Open the camera" onPress={start} />
       )}
       {!!err && <Text style={s.err} allowFontScaling>{err}</Text>}
-      <BigButton label="Back home" kind="quiet" onPress={() => props.go({ name: 'home' })} />
-    </View>
+    </Screen>
   );
 }
 const s = StyleSheet.create({
-  wrap: { flex: 1, padding: 24, paddingTop: 32 },
-  title: { fontSize: T.headline, fontWeight: '800', color: T.ink, textAlign: 'center' },
-  sub: { fontSize: T.body, color: T.inkSoft, textAlign: 'center', marginVertical: 14, lineHeight: 28 },
+  sub: { fontSize: T.body, color: T.inkSoft, textAlign: 'center', marginVertical: 12, lineHeight: 27 },
   camBox: { height: 340, borderRadius: T.radius, overflow: 'hidden', marginVertical: 12 },
-  err: { fontSize: T.body - 1, color: T.ink, backgroundColor: T.amberSoft, borderRadius: 18, padding: 16, lineHeight: 26, marginTop: 8 },
+  err: { fontSize: T.small, color: T.ink, backgroundColor: T.amberSoft, borderRadius: T.radiusSm, padding: 14, lineHeight: 24, marginTop: 8 },
 });
