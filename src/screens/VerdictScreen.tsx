@@ -2,7 +2,8 @@
 // tap, and never make checking feel foolish.
 import React, { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
-import { Volume2, MessageCircleQuestion, Users } from 'lucide-react-native';
+import { Volume2, MessageCircleQuestion } from 'lucide-react-native';
+import * as Notifications from 'expo-notifications';
 import { T, LEVEL_META, F } from '../theme';
 import VerdictMark from '../ui/VerdictMark';
 import Button from '../ui/Button';
@@ -63,7 +64,25 @@ export default function VerdictScreen(props: {
     if (!person) { props.go({ name: 'circle' }); return; }
     const rec = (await listChecks()).find(r => r.id === props.recordId);
     if (!rec) return;
-    await updateCheck(rec.id, { askedFamily: true });
+    // The check stays "open" until family answers: gentle reminders keep the
+    // person from acting on the message in the meantime (cancelled on reply).
+    const reminderIds: string[] = [];
+    if (v.level !== 'green') {
+      const first = person.name.split(' ')[0];
+      for (const [seconds, body] of [
+        [1800, `No answer from ${first} yet about that message. Until then: don’t reply, don’t pay, don’t tap anything.`],
+        [7200, `Still waiting on ${first}. The message will keep — real business can always wait. If it’s urgent, call ${first} directly.`],
+      ] as const) {
+        try {
+          const id = await Notifications.scheduleNotificationAsync({
+            content: { title: 'Your check is still open', body },
+            trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds },
+          });
+          reminderIds.push(id);
+        } catch {}
+      }
+    }
+    await updateCheck(rec.id, { askedFamily: true, reminderIds });
     await sendSms(person.phone, askText(props.settings.myName, rec));
     setAsked(true);
   };

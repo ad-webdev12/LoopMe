@@ -26,6 +26,7 @@ export interface CheckRecord {
   from?: string;                 // ask-link sender's name (caretaker side)
   askedFamily: boolean;
   reply?: FamilyReply;
+  reminderIds?: string[];        // scheduled "still waiting" notifications, cancelled on reply
 }
 
 const KEY = 'loopmein.history.v1';

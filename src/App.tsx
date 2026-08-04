@@ -84,6 +84,7 @@ export default function App() {
         upsertCheck(rec).then(() => setRoute({ name: 'detail', record: rec }));
       } else if (fam.k === 'reply') {
         updateCheck(fam.id, { reply: { by: fam.n, verdict: fam.v, at: Date.now() } }).then((rec) => {
+          for (const id of rec?.reminderIds || []) Notifications.cancelScheduledNotificationAsync(id).catch(() => {});
           Notifications.scheduleNotificationAsync({
             content: {
               title: `${fam.n} answered`,
