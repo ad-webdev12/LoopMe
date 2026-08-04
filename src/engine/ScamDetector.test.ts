@@ -63,6 +63,21 @@ const SCAMS: Case[] = [
   ['Send the money by Zelle now, my phone is broken, this is your son','familypay'],
   ['Sweepstakes winner! To receive your car, pay taxes upfront via MoneyGram','prize'],
   ['Verify your Medicare card number now or your benefits will be suspended immediately','gov'],
+  // — v3 additions: evasion, look-alikes, and newer scam families
+  ['Yоur Аpple ID has been lоcked. Verify nоw at apple-id-verify.top','homoglyph'],
+  ['Send me the gi​ft ca​rd codes right away please','zerowidth'],
+  ['Update your billing information here: netfl1x-billing.com','lookalike-noname'],
+  ['Your wallmart reward of $500 expires tonight: wallmart-rewards.com','lookalike-noname'],
+  ['You are the beneficiary of an unclaimed estate of $2.4 million. Pay the transfer fee to claim your inheritance','advancefee'],
+  ['We accidentally overpaid you $500. Deposit the check and send back the difference via Zelle','overpayment'],
+  ['I have a video of you from your webcam. Pay $800 in bitcoin within 48 hours or I send it to every contact','sextortion'],
+  ['Help hurricane victims today — donate with Apple gift cards, any amount helps','charity'],
+  ['Your account will be frozen today. Call 888-402-1187 immediately to keep access','callback'],
+  ['Scan this QR code to receive your $100 Zelle refund instantly','qrbait'],
+  ['Coinbase support: to restore access, confirm your seed phrase with our agent','walletphrase'],
+  ['Adorable teacup puppies ready today, just send the $200 shipping deposit via Zelle','petdeposit'],
+  ['Microsoft alert: viruses were detected on your PC. Call now to avoid data loss','techsupport'],
+  ['chase.com278282: your account needs verification, sign in here','gluedtld'],
 ];
 const LEGIT: Case[] = [
   ['Hi Dad, running 10 min late for lunch, order me the soup please!','family'],
@@ -125,6 +140,15 @@ const LEGIT: Case[] = [
   ['DMV: your registration renewal was processed. New sticker mails in 2 weeks.','gov-real'],
   ['Your gym membership payment of $29 posted. Thanks!','receipt'],
   ['Lunch Thursday? My treat this time. — Carol','social'],
+  // — v3 additions: messages that LOOK scam-adjacent but are the real thing
+  ['Chase: We will never ask for your password or PIN. If you get such a call, hang up and call us directly.','bank-disclaimer'],
+  ['Your Apple ID was used to sign in to iCloud on a new Mac. If this was you, no action is needed.','account-real'],
+  ['Donate to the Red Cross at redcross.org or by calling 1-800-RED-CROSS.','charity-real'],
+  ['Your Netflix plan price is changing next month. See details in your account settings.','subscription-real'],
+  ['USPS: Your package was delivered at 2:14pm. Track more at usps.com.','delivery-real'],
+  ['Grandpa, my recital is Friday at 6! Can you and grandma come?','family'],
+  ['Reminder: flu clinic at the senior center Tuesday, walk-ins welcome, bring your Medicare card.','civic'],
+  ['Wells Fargo: your requested statement is attached. Questions? Call the number on your card.','bank-real'],
 ];
 
 let tp=0, fn=0, fp=0, tn=0; const misses:string[]=[], falses:string[]=[];
