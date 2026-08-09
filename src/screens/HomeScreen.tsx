@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import {
   Camera, Phone, Banknote, QrCode, Users, LifeBuoy, BookOpen, KeyRound,
-  Settings as SettingsIcon, ShieldCheck, ClipboardPaste, X,
+  Settings as SettingsIcon, ShieldCheck, ClipboardPaste,
 } from 'lucide-react-native';
 import { T, SHADOW, F } from '../theme';
 import Button from '../ui/Button';
@@ -17,9 +17,8 @@ import type { Settings } from '../lib/storage';
 
 export default function HomeScreen(props: {
   onCheck: (m: string) => void; go: (r: Route) => void; settings: Settings;
-  clipOffer: string | null;
-  onClipUse: (t: string) => void;
-  onClipDismiss: (t: string) => void;
+  clipAvailable: boolean;
+  onPasteCheck: () => void;
 }) {
   const [text, setText] = useState('');
 
@@ -49,21 +48,6 @@ export default function HomeScreen(props: {
         </View>
       </Entrance>
 
-      {props.clipOffer && (
-        <Card tone="accent" style={s.clipCard}>
-          <View style={s.clipRow}>
-            <ClipboardPaste size={20} color={T.accentDeep} strokeWidth={2.2} />
-            <Text style={s.clipTitle} allowFontScaling>You copied a message</Text>
-            <Pressable onPress={() => props.onClipDismiss(props.clipOffer!)} style={s.clipClose}
-              accessibilityRole="button" accessibilityLabel="Dismiss">
-              <X size={20} color={T.inkSoft} />
-            </Pressable>
-          </View>
-          <Text style={s.clipBody} allowFontScaling numberOfLines={2}>“{props.clipOffer}”</Text>
-          <Button label="Check it now" size="compact" onPress={() => props.onClipUse(props.clipOffer!)} />
-        </Card>
-      )}
-
       <Entrance index={1}>
       <View style={s.panel}>
         <TextInput
@@ -73,6 +57,9 @@ export default function HomeScreen(props: {
           value={text} onChangeText={setText}
           accessibilityLabel="Message to check"
         />
+        {props.clipAvailable && !text.trim() && (
+          <Button label="Paste what I copied" kind="secondary" icon={ClipboardPaste} onPress={props.onPasteCheck} />
+        )}
         <Button label="Check it" onPress={() => text.trim() && props.onCheck(text)} />
       </View>
       </Entrance>
@@ -117,11 +104,6 @@ const s = StyleSheet.create({
   head: { marginTop: 18, marginBottom: 14 },
   brand: { fontSize: T.giant, fontFamily: F.displayBold, color: T.ink, textAlign: 'center', letterSpacing: -0.8 },
   sub: { fontSize: T.body, fontFamily: F.body, color: T.inkSoft, textAlign: 'center', marginTop: 6, lineHeight: 27 },
-  clipCard: { paddingVertical: 14 },
-  clipRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  clipTitle: { flex: 1, fontSize: T.small, fontFamily: F.bodyBold, color: T.accentDeep },
-  clipClose: { padding: 6 },
-  clipBody: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, lineHeight: 23, marginVertical: 8 },
   panel: {
     backgroundColor: T.card, borderRadius: T.radiusLg, borderWidth: 1, borderColor: T.hairline,
     padding: 14, marginVertical: 6, ...SHADOW,

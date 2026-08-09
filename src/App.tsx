@@ -50,9 +50,8 @@ export default function App() {
   });
   const [route, setRoute] = useState<Route>({ name: 'home' });
   const [settings, setSettings] = useState<Settings | null>(null);
-  const [clipOffer, setClipOffer] = useState<string | null>(null);
+  const [clipAvailable, setClipAvailable] = useState(false);
   const recentTags = useRef<string[]>([]);      // conversation state → two-stage scam detection
-  const clipDismissed = useRef<string | null>(null);
 
   useEffect(() => { loadSettings().then(setSettings); }, []);
   const updateSettings = useCallback((s: Settings) => { setSettings(s); saveSettings(s); }, []);
@@ -120,21 +119,28 @@ export default function App() {
     return () => sub.remove();
   }, [handleUrl]);
 
-  // ---- Zero-friction entry: offer to check whatever was just copied ----
+  // ---- Zero-friction entry: show a Paste button only when the clipboard has
+  // text. hasStringAsync() reports presence WITHOUT reading the contents, so it
+  // never triggers iOS's "would like to paste" prompt — we only actually read
+  // the clipboard when the person taps Paste (an expected, explicit action). ----
   useEffect(() => {
     const peek = async () => {
       try {
-        if (settings?.role !== 'elder') return;
-        const text = (await Clipboard.getStringAsync())?.trim();
-        if (!text || text.length < 30 || text.length > 2000) return;
-        if (text === clipDismissed.current) return;
-        setClipOffer(text);
-      } catch {}
+        if (settings?.role !== 'elder') { setClipAvailable(false); return; }
+        setClipAvailable(await Clipboard.hasStringAsync());
+      } catch { setClipAvailable(false); }
     };
     peek();
     const sub = AppState.addEventListener('change', (st) => { if (st === 'active') peek(); });
     return () => sub.remove();
   }, [settings?.role]);
+
+  const pasteAndCheck = useCallback(async () => {
+    try {
+      const text = (await Clipboard.getStringAsync())?.trim();
+      if (text) check(text, { source: 'typed' });
+    } catch {}
+  }, [check]);
 
   if (!settings || !fontsLoaded) return <View style={s.root} />;
 
@@ -156,9 +162,7 @@ export default function App() {
       {route.name === 'home' && (isCare
         ? <CareHomeScreen {...common} onCheck={check} />
         : <HomeScreen onCheck={check} go={setRoute} settings={settings}
-            clipOffer={clipOffer}
-            onClipUse={(t) => { setClipOffer(null); clipDismissed.current = t; check(t); }}
-            onClipDismiss={(t) => { setClipOffer(null); clipDismissed.current = t; }} />)}
+            clipAvailable={clipAvailable} onPasteCheck={pasteAndCheck} />)}
       {route.name === 'verdict' && <VerdictScreen message={route.message} verdict={route.verdict} recordId={route.recordId} {...common} />}
       {route.name === 'alert' && <AlertScreen message={route.message} verdict={route.verdict} recordId={route.recordId} settings={settings} go={setRoute} />}
       {route.name === 'detail' && <CheckDetailScreen record={route.record} {...common} />}
