@@ -12,6 +12,7 @@ import Card from '../ui/Card';
 import Screen from '../ui/Screen';
 import Entrance from '../ui/Entrance';
 import Glass from '../ui/Glass';
+import { LinearGradient } from 'expo-linear-gradient';
 import { pickAndReadImage, OCR_AVAILABLE } from '../lib/ocr';
 import type { Route } from '../App';
 import type { Settings } from '../lib/storage';
@@ -35,7 +36,7 @@ export default function HomeScreen(props: {
 
   const Quick = ({ Icon, label, onPress }: { Icon: any; label: string; onPress: () => void }) => (
     <Pressable style={s.quick} onPress={onPress} accessibilityRole="button" accessibilityLabel={label}>
-      <Icon size={22} color={T.accent} strokeWidth={2.1} />
+      <View style={s.quickChip}><Icon size={20} color={T.accent} strokeWidth={2.2} /></View>
       <Text style={s.quickText} allowFontScaling>{label}</Text>
     </Pressable>
   );
@@ -43,7 +44,13 @@ export default function HomeScreen(props: {
   return (
     <Screen>
       <Entrance index={0}>
-        <View style={s.head}>
+        <View style={s.hero}>
+          <LinearGradient
+            colors={[T.accent, T.accentDeep]}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+            style={s.logoMark}>
+            <ShieldCheck size={38} color="#FFFFFF" strokeWidth={2.2} />
+          </LinearGradient>
           <Text style={s.brand} allowFontScaling>Loop Me In</Text>
           <Text style={s.sub} allowFontScaling>Not sure about a message? Check it here.</Text>
         </View>
@@ -51,6 +58,10 @@ export default function HomeScreen(props: {
 
       <Entrance index={1}>
       <View style={s.panel}>
+        <View style={s.panelHead}>
+          <View style={s.panelDot} />
+          <Text style={s.panelLabel} allowFontScaling>Check a message</Text>
+        </View>
         <TextInput
           style={s.box} multiline
           placeholder="Paste or type the message here"
@@ -104,22 +115,34 @@ export default function HomeScreen(props: {
 }
 
 const s = StyleSheet.create({
-  head: { marginTop: 18, marginBottom: 14 },
+  hero: { alignItems: 'center', marginTop: 20, marginBottom: 16 },
+  logoMark: {
+    width: 72, height: 72, borderRadius: 22, alignItems: 'center', justifyContent: 'center',
+    marginBottom: 14,
+    shadowColor: T.accentDeep, shadowOpacity: 0.32, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 5,
+  },
   brand: { fontSize: T.giant, fontFamily: F.displayBold, color: T.ink, textAlign: 'center', letterSpacing: -0.8 },
   sub: { fontSize: T.body, fontFamily: F.body, color: T.inkSoft, textAlign: 'center', marginTop: 6, lineHeight: 27 },
   panel: {
     backgroundColor: T.card, borderRadius: T.radiusLg, borderWidth: 1, borderColor: T.hairline,
-    padding: 14, marginVertical: 6, ...SHADOW,
+    padding: 16, marginVertical: 6, ...SHADOW,
   },
+  panelHead: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8, paddingHorizontal: 2 },
+  panelDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: T.accent },
+  panelLabel: { fontSize: T.caption, fontFamily: F.bodyBold, color: T.inkSoft, textTransform: 'uppercase', letterSpacing: 0.8 },
   box: {
-    minHeight: 132, padding: 8, fontSize: T.body, fontFamily: F.body, color: T.ink,
+    minHeight: 120, padding: 8, fontSize: T.body, fontFamily: F.body, color: T.ink,
     textAlignVertical: 'top', lineHeight: 27,
   },
   quickRow: { flexDirection: 'row', gap: 10, marginVertical: 4 },
   quick: {
     flex: 1, flexDirection: 'row', gap: 10, backgroundColor: T.card,
     borderRadius: T.radius, borderWidth: 1, borderColor: T.hairline,
-    minHeight: 58, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12,
+    minHeight: 62, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12,
+  },
+  quickChip: {
+    width: 36, height: 36, borderRadius: 11, backgroundColor: T.accentSoft,
+    alignItems: 'center', justifyContent: 'center',
   },
   quickText: { fontSize: T.small, color: T.ink, fontFamily: F.bodyBold, textAlign: 'center' },
   footer: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', marginTop: 18, paddingVertical: 12, paddingHorizontal: 4 },
