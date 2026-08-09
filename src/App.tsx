@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, SafeAreaView, StatusBar, StyleSheet, View } from 'react-native';
+import { AppState, LogBox, SafeAreaView, StatusBar, StyleSheet, View } from 'react-native';
 import * as Linking from 'expo-linking';
 import * as Clipboard from 'expo-clipboard';
 import * as Notifications from 'expo-notifications';
@@ -36,6 +36,10 @@ export type Route =
   | { name: 'careguide' }
   | { name: 'circle' } | { name: 'panic' } | { name: 'settings' } | { name: 'learn' }
   | { name: 'qr' } | { name: 'codeword' } | { name: 'callhelp' } | { name: 'money' } | { name: 'trust' };
+
+// SafeAreaView from react-native still works correctly; its deprecation notice
+// is cosmetic and would otherwise raise a warning toast over the UI.
+LogBox.ignoreLogs(['SafeAreaView has been deprecated']);
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
