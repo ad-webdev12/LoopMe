@@ -11,6 +11,7 @@ import Button from '../ui/Button';
 import Card from '../ui/Card';
 import Screen from '../ui/Screen';
 import Entrance from '../ui/Entrance';
+import Glass from '../ui/Glass';
 import { pickAndReadImage, OCR_AVAILABLE } from '../lib/ocr';
 import type { Route } from '../App';
 import type { Settings } from '../lib/storage';
@@ -82,20 +83,22 @@ export default function HomeScreen(props: {
       <Button label="I think I’ve been scammed" kind="secondary" icon={LifeBuoy} onPress={() => props.go({ name: 'panic' })} />
       </Entrance>
 
-      <View style={s.footer}>
+      <Entrance index={4}>
+      <Glass radius={22} intensity={45} style={s.footer}>
         <Pressable style={s.footBtn} onPress={() => props.go({ name: 'learn' })} accessibilityRole="button">
-          <BookOpen size={18} color={T.inkSoft} /><Text style={s.footText} allowFontScaling>Learn</Text>
+          <BookOpen size={19} color={T.accent} strokeWidth={2.1} /><Text style={s.footText} allowFontScaling>Learn</Text>
         </Pressable>
         <Pressable style={s.footBtn} onPress={() => props.go({ name: 'codeword' })} accessibilityRole="button">
-          <KeyRound size={18} color={T.inkSoft} /><Text style={s.footText} allowFontScaling>Code word</Text>
+          <KeyRound size={19} color={T.accent} strokeWidth={2.1} /><Text style={s.footText} allowFontScaling>Code word</Text>
         </Pressable>
         <Pressable style={s.footBtn} onPress={() => props.go({ name: 'trust' })} accessibilityRole="button">
-          <ShieldCheck size={18} color={T.inkSoft} /><Text style={s.footText} allowFontScaling>Our promise</Text>
+          <ShieldCheck size={19} color={T.accent} strokeWidth={2.1} /><Text style={s.footText} allowFontScaling>Promise</Text>
         </Pressable>
         <Pressable style={s.footBtn} onPress={() => props.go({ name: 'settings' })} accessibilityRole="button">
-          <SettingsIcon size={18} color={T.inkSoft} /><Text style={s.footText} allowFontScaling>Settings</Text>
+          <SettingsIcon size={19} color={T.accent} strokeWidth={2.1} /><Text style={s.footText} allowFontScaling>Settings</Text>
         </Pressable>
-      </View>
+      </Glass>
+      </Entrance>
     </Screen>
   );
 }
@@ -119,7 +122,7 @@ const s = StyleSheet.create({
     minHeight: 58, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12,
   },
   quickText: { fontSize: T.small, color: T.ink, fontFamily: F.bodyBold, textAlign: 'center' },
-  footer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 18, marginTop: 16 },
-  footBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44, paddingHorizontal: 2 },
-  footText: { fontSize: T.caption, color: T.inkSoft, fontFamily: F.bodyBold },
+  footer: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', marginTop: 18, paddingVertical: 12, paddingHorizontal: 4 },
+  footBtn: { flexDirection: 'column', alignItems: 'center', gap: 4, minHeight: 48, flex: 1 },
+  footText: { fontSize: T.caption, color: T.ink, fontFamily: F.bodyBold },
 });
