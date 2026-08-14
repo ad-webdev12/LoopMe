@@ -24,14 +24,18 @@
         "NSPrivacyAccessedAPITypes": [
           {
             "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
-            "NSPrivacyAccessedAPITypeReasons": ["CA92.1"]
+            "NSPrivacyAccessedAPITypeReasons": [
+              "CA92.1"
+            ]
           }
         ]
       },
       "infoPlist": {
-        "NSCameraUsageDescription": "Loop Me uses the camera only when you choose to check a QR code or photo of a message. Nothing is uploaded.",
+        "NSCameraUsageDescription": "Loop Me uses the camera only when you choose to photograph a message to check. The photo is read on this phone and never uploaded.",
+        "NSPhotoLibraryUsageDescription": "Loop Me opens your photos only when you choose a screenshot to check. It is read on this phone and never uploaded.",
         "NSContactsUsageDescription": "Loop Me can add a trusted family member from your contacts, so you can reach them in one tap. Your contacts stay on your phone.",
-        "NSMicrophoneUsageDescription": "Loop Me uses the microphone only when you tap ‘Speak it’ to read out a message. Nothing is uploaded.",
+        "NSMicrophoneUsageDescription": "Loop Me uses the microphone only when you tap ‘Speak it’ to say a message out loud. Nothing is uploaded.",
+        "NSSpeechRecognitionUsageDescription": "Loop Me turns your speech into text on this phone when you tap ‘Speak it’, so the message can be checked. Nothing is uploaded.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },

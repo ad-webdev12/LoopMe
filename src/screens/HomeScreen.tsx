@@ -1,17 +1,52 @@
 // Check a message (home) — source lines 211-232, matched value for value.
-import React, { useEffect, useState } from 'react';
+// Screenshot/Photo run real on-device OCR (Vision); Speak it runs real
+// on-device speech recognition. Nothing leaves the phone.
+import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
+import * as ImagePicker from 'expo-image-picker';
 import {
   Shield, Settings as Cog, ChevronRight, ArrowRight, Image as Img, Camera, Mic, OctagonX, TriangleAlert, CircleCheck,
 } from 'lucide-react-native';
 import { T, F } from '../theme';
 import { KFIn } from '../ui/kf';
+import { recognizeText, listenOnce, stopListening } from '../../modules/scam-ai';
 import type { Ctx } from '../App';
 
 export default function HomeScreen({ ctx }: { ctx: Ctx }) {
   const [text, setText] = useState('');
   const [clip, setClip] = useState(false);
+  const [listening, setListening] = useState(false);
+
+  const fromImage = async (camera: boolean) => {
+    try {
+      const perm = camera
+        ? await ImagePicker.requestCameraPermissionsAsync()
+        : await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) { ctx.flash(camera ? 'Camera access is needed to photograph a message.' : 'Photo access is needed to read a screenshot.'); return; }
+      const res = camera
+        ? await ImagePicker.launchCameraAsync({ quality: 0.9 })
+        : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.9 });
+      const uri = res.assets?.[0]?.uri;
+      if (!uri) return;
+      ctx.flash('Reading the words, on this phone…');
+      const found = (await recognizeText(uri)).trim();
+      if (found) { setText(found); ctx.check(found); }
+      else ctx.flash('We could not find any words in that picture. Try a clearer one.');
+    } catch {
+      ctx.flash('That picture could not be read. You can paste or type the message instead.');
+    }
+  };
+
+  const speakIt = async () => {
+    if (listening) { stopListening(); return; }
+    setListening(true);
+    ctx.flash('Listening. Say the message, then pause.');
+    const heard = (await listenOnce()).trim();
+    setListening(false);
+    if (heard) { setText(heard); ctx.check(heard); }
+    else ctx.flash('We could not hear that. You can also paste or type the message.');
+  };
   const careMode = ctx.settings.role === 'caretaker';
   const first = (ctx.settings.myName || '').split(' ')[0] || (careMode ? 'Maria' : 'Ruth');
   const hour = new Date().getHours();
@@ -86,13 +121,13 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
       <Text style={st.orLabel} allowFontScaling>or add it another way</Text>
       <View style={st.addRow}>
         {[
-          { Icon: Img, label: 'Screenshot', act: () => ctx.flash('Reads the words out of a screenshot, on this phone.') },
-          { Icon: Camera, label: 'Photo', act: () => ctx.flash('Opens the camera to photograph a message.') },
-          { Icon: Mic, label: 'Speak it', act: () => ctx.flash('Reading it aloud…') },
+          { Icon: Img, label: 'Screenshot', act: () => fromImage(false) },
+          { Icon: Camera, label: 'Photo', act: () => fromImage(true) },
+          { Icon: Mic, label: listening ? 'Listening…' : 'Speak it', act: speakIt },
         ].map((a) => (
           <Pressable key={a.label} style={st.addBtn} onPress={a.act} accessibilityRole="button" accessibilityLabel={a.label}>
-            <a.Icon size={21} color={T.green} strokeWidth={1.9} />
-            <Text style={st.addLabel} allowFontScaling>{a.label}</Text>
+            <a.Icon size={21} color={a.label === 'Listening…' ? T.red : T.green} strokeWidth={1.9} />
+            <Text style={[st.addLabel, a.label === 'Listening…' && { color: T.red }]} allowFontScaling>{a.label}</Text>
           </Pressable>
         ))}
       </View>

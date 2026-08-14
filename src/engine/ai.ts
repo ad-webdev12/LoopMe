@@ -87,10 +87,17 @@ export async function upgrade(message: string, rule: Verdict, opts?: DetectorOpt
     ? [...rule.signals, ai.reason]
     : rule.signals;
 
+  // When fusion moves the level, the "what to do" line must move with it.
+  const safeStep = level === rule.level ? rule.safeStep
+    : level === 'red' ? 'Do not reply and do not send anything. Delete the message.'
+    : level === 'amber' ? 'Do not tap anything yet. Contact the company yourself on a number you already trust.'
+    : 'You do not need to do anything. If it still feels off, loop someone in.';
+
   return {
     ...rule,
     level,
     reason,
+    safeStep,
     signals,
     confidence,
     ai,

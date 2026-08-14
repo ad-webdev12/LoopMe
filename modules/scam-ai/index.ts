@@ -15,6 +15,9 @@ export interface AiJudgement {
 const native = requireOptionalNativeModule<{
   availableTier(): Promise<AiTier>;
   classify(text: string): Promise<string>;
+  recognizeText(uri: string): Promise<string>;
+  listenOnce(): Promise<string>;
+  stopListening(): void;
 }>('ScamAi');
 
 export const isNativeAiLinked = () => native != null;
@@ -22,6 +25,22 @@ export const isNativeAiLinked = () => native != null;
 export async function availableTier(): Promise<AiTier> {
   if (!native) return 'none';
   try { return await native.availableTier(); } catch { return 'none'; }
+}
+
+/** On-device OCR via Vision. Returns '' when nothing is readable. */
+export async function recognizeText(uri: string): Promise<string> {
+  if (!native) return '';
+  try { return (await native.recognizeText(uri)) || ''; } catch { return ''; }
+}
+
+/** On-device speech-to-text. Listens once (stops on silence), resolves the transcript. */
+export async function listenOnce(): Promise<string> {
+  if (!native) return '';
+  try { return (await native.listenOnce()) || ''; } catch { return ''; }
+}
+
+export function stopListening(): void {
+  try { native?.stopListening(); } catch {}
 }
 
 export async function classify(text: string): Promise<AiJudgement | null> {

@@ -1,6 +1,10 @@
 import ExpoModulesCore
 import Foundation
 import NaturalLanguage
+import Vision
+import UIKit
+import Speech
+import AVFoundation
 
 #if canImport(FoundationModels)
 import FoundationModels
@@ -36,6 +40,142 @@ public class ScamAiModule: Module {
     //   reason: string, category: string }
     AsyncFunction("classify") { (text: String) -> String in
       return await ScamAI.classify(text)
+    }
+
+    // Real on-device OCR (Vision, VNRecognizeTextRequest). Takes a local file
+    // URI from the photo picker or camera, returns the recognized text with
+    // line order preserved top-to-bottom. Nothing leaves the device.
+    AsyncFunction("recognizeText") { (uri: String) -> String in
+      return try await ScamOCR.recognize(uri: uri)
+    }
+
+    // Real on-device speech-to-text (SFSpeechRecognizer). Listens once, stops
+    // after ~1.4s of silence or 20s max, resolves the transcript. Empty string
+    // when permission is denied or nothing was heard.
+    AsyncFunction("listenOnce") { () -> String in
+      return await SpeechListener.shared.listenOnce()
+    }
+
+    Function("stopListening") { () in
+      SpeechListener.shared.stop()
+    }
+  }
+}
+
+final class SpeechListener: NSObject {
+  static let shared = SpeechListener()
+  private let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
+  private var task: SFSpeechRecognitionTask?
+  private let audioEngine = AVAudioEngine()
+  private var finish: ((String) -> Void)?
+  private var latest = ""
+  private var silenceTimer: Timer?
+  private var generation = 0
+
+  func listenOnce() async -> String {
+    let speechOK = await withCheckedContinuation { (c: CheckedContinuation<Bool, Never>) in
+      SFSpeechRecognizer.requestAuthorization { c.resume(returning: $0 == .authorized) }
+    }
+    guard speechOK else { return "" }
+    let micOK = await withCheckedContinuation { (c: CheckedContinuation<Bool, Never>) in
+      AVAudioSession.sharedInstance().requestRecordPermission { c.resume(returning: $0) }
+    }
+    guard micOK, let recognizer = recognizer, recognizer.isAvailable else { return "" }
+
+    return await withCheckedContinuation { (c: CheckedContinuation<String, Never>) in
+      DispatchQueue.main.async { [self] in
+        stop()
+        latest = ""
+        finish = { text in c.resume(returning: text) }
+        let request = SFSpeechAudioBufferRecognitionRequest()
+        request.shouldReportPartialResults = true
+        // The app promises speech never leaves the phone, so on-device
+        // recognition is required, not preferred. Phones without the local
+        // asset get the graceful "could not hear" path instead of an upload.
+        request.requiresOnDeviceRecognition = true
+        do {
+          let session = AVAudioSession.sharedInstance()
+          try session.setCategory(.record, mode: .measurement, options: .duckOthers)
+          try session.setActive(true, options: .notifyOthersOnDeactivation)
+          let input = audioEngine.inputNode
+          input.removeTap(onBus: 0)
+          let format = input.outputFormat(forBus: 0)
+          // A dead input (0 Hz — common on simulators) makes installTap raise an
+          // uncatchable exception, so bail out gracefully instead.
+          guard format.sampleRate > 0, format.channelCount > 0 else { end(); return }
+          input.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in request.append(buffer) }
+          audioEngine.prepare()
+          try audioEngine.start()
+        } catch { end(); return }
+
+        // Hard stop at 20s — only for THIS listen, never a later one.
+        let gen = generation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 20) { [weak self] in
+          guard let self = self, self.generation == gen else { return }
+          self.end()
+        }
+        armSilenceTimer()
+
+        task = recognizer.recognitionTask(with: request) { [weak self] result, error in
+          DispatchQueue.main.async {
+            guard let self = self else { return }
+            if let r = result {
+              self.latest = r.bestTranscription.formattedString
+              self.armSilenceTimer()
+              if r.isFinal { self.end() }
+            }
+            if error != nil { self.end() }
+          }
+        }
+      }
+    }
+  }
+
+  private func armSilenceTimer() {
+    silenceTimer?.invalidate()
+    silenceTimer = Timer.scheduledTimer(withTimeInterval: 1.4, repeats: false) { [weak self] _ in
+      guard let self = self, !self.latest.isEmpty else { return }
+      self.end()
+    }
+  }
+
+  func stop() { end() }
+
+  private func end() {
+    generation += 1
+    silenceTimer?.invalidate(); silenceTimer = nil
+    audioEngine.inputNode.removeTap(onBus: 0)
+    if audioEngine.isRunning { audioEngine.stop() }
+    task?.cancel(); task = nil
+    try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    let text = latest
+    latest = ""
+    if let f = finish { finish = nil; f(text) }
+  }
+}
+
+enum ScamOCR {
+  static func recognize(uri: String) async throws -> String {
+    guard let url = URL(string: uri),
+          let data = try? Data(contentsOf: url.isFileURL ? url : URL(fileURLWithPath: uri)),
+          let image = UIImage(data: data),
+          let cg = image.cgImage else {
+      return ""
+    }
+    return try await withCheckedThrowingContinuation { cont in
+      let request = VNRecognizeTextRequest { req, err in
+        if let err = err { cont.resume(throwing: err); return }
+        let lines = (req.results as? [VNRecognizedTextObservation] ?? [])
+          .sorted { $0.boundingBox.midY > $1.boundingBox.midY } // top-to-bottom
+          .compactMap { $0.topCandidates(1).first?.string }
+        cont.resume(returning: lines.joined(separator: "\n"))
+      }
+      request.recognitionLevel = .accurate
+      request.usesLanguageCorrection = true
+      let handler = VNImageRequestHandler(cgImage: cg, options: [:])
+      DispatchQueue.global(qos: .userInitiated).async {
+        do { try handler.perform([request]) } catch { cont.resume(throwing: error) }
+      }
     }
   }
 }

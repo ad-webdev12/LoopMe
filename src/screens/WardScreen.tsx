@@ -4,7 +4,7 @@
 import React from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Shield, Phone, OctagonX, Info, ArrowRight } from 'lucide-react-native';
-import { T, F } from '../theme';
+import { T, F, LEVEL_META } from '../theme';
 import { KFIn } from '../ui/kf';
 import type { Ctx } from '../App';
 
@@ -86,11 +86,12 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
         <View style={st.listCard}>
           {ward.map((w, i) => {
             const red = w.level === 'red';
+            const M = LEVEL_META[w.level];
             const Icon = red ? OctagonX : Info;
             return (
               <Pressable key={w.id} style={[st.eventRow, i === ward.length - 1 && { borderBottomWidth: 0 }]} onPress={() => ctx.openWard(w.id)} accessibilityRole="button">
-                <View style={[st.eventIcon, { backgroundColor: red ? T.redTint : T.amberTint }]}>
-                  <Icon size={15} color={red ? T.red : T.amber} strokeWidth={2.4} />
+                <View style={[st.eventIcon, { backgroundColor: M.soft }]}>
+                  <Icon size={15} color={M.color} strokeWidth={2.4} />
                 </View>
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <View style={st.eventTop}>
