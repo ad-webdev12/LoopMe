@@ -30,9 +30,13 @@ export default function IntroScreen({ ctx }: { ctx: Ctx }) {
 
   const beatBg = ['#ec3013', '#ffffff', '#ffffff'][beat];
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: beatBg }}>
+    <View style={{ flex: 1, backgroundColor: beatBg }}>
+    {/* Beats 1-2: the green field runs to the very bottom edge of the phone,
+        so the home-indicator inset is filled green, never red or white. */}
+    {beat !== 0 && <View style={st.bottomFill} pointerEvents="none" />}
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
     <StatusBar barStyle={beat === 0 ? 'light-content' : 'dark-content'} />
-    <View style={[st.root, { backgroundColor: beatBg }]}>
+    <View style={st.root}>
       {/* ---------------- Beat 0 — Is this message safe? ---------------- */}
       {beat === 0 && (
         <View style={StyleSheet.absoluteFill}>
@@ -192,11 +196,13 @@ export default function IntroScreen({ ctx }: { ctx: Ctx }) {
       </View>
     </View>
     </SafeAreaView>
+    </View>
   );
 }
 
 const st = StyleSheet.create({
   root: { flex: 1 },
+  bottomFill: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 140, backgroundColor: T.green },
   abs: { position: 'absolute' },
   mask: { overflow: 'hidden' },
 
