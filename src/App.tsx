@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, SafeAreaView, StatusBar, StyleSheet, View } from 'react-native';
+import { AppState, LogBox, SafeAreaView, StatusBar, StyleSheet, View } from 'react-native';
 import * as Linking from 'expo-linking';
 import * as Clipboard from 'expo-clipboard';
 import * as Notifications from 'expo-notifications';
@@ -7,7 +7,8 @@ import { useFonts } from 'expo-font';
 import { Fraunces_600SemiBold, Fraunces_700Bold } from '@expo-google-fonts/fraunces';
 import { AtkinsonHyperlegible_400Regular, AtkinsonHyperlegible_700Bold } from '@expo-google-fonts/atkinson-hyperlegible';
 import { T } from './theme';
-import { detect, Verdict } from './engine/ScamDetector';
+import { Verdict } from './engine/ScamDetector';
+import { instant, upgrade, FusedVerdict } from './engine/ai';
 import { loadSettings, saveSettings, isPostPanic, Settings } from './lib/storage';
 import { addCheck, newRecord, updateCheck, upsertCheck, CheckRecord } from './lib/history';
 import { parseFamilyUrl } from './lib/familyLink';
@@ -37,6 +38,10 @@ export type Route =
   | { name: 'circle' } | { name: 'panic' } | { name: 'settings' } | { name: 'learn' }
   | { name: 'qr' } | { name: 'codeword' } | { name: 'callhelp' } | { name: 'money' } | { name: 'trust' };
 
+// SafeAreaView from react-native still works correctly; its deprecation notice
+// is cosmetic and would otherwise raise a warning toast over the UI.
+LogBox.ignoreLogs(['SafeAreaView has been deprecated']);
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true, shouldShowList: true, shouldPlaySound: false, shouldSetBadge: false,
@@ -50,25 +55,40 @@ export default function App() {
   });
   const [route, setRoute] = useState<Route>({ name: 'home' });
   const [settings, setSettings] = useState<Settings | null>(null);
-  const [clipOffer, setClipOffer] = useState<string | null>(null);
+  const [clipAvailable, setClipAvailable] = useState(false);
   const recentTags = useRef<string[]>([]);      // conversation state → two-stage scam detection
-  const clipDismissed = useRef<string | null>(null);
 
   useEffect(() => { loadSettings().then(setSettings); }, []);
   const updateSettings = useCallback((s: Settings) => { setSettings(s); saveSettings(s); }, []);
 
   const check = useCallback((message: string, opts?: { fromAlert?: boolean; sender?: string; source?: CheckRecord['source'] }) => {
-    const v = detect(message, {
+    const detOpts = {
       allowlist: settings?.allowlist,
       sender: opts?.sender,
       recentTags: recentTags.current,
       postPanic: settings ? isPostPanic(settings) : false,
-    });
+    };
+    // 1) Instant offline verdict (the safety floor) — shown immediately, no wait.
+    const v = instant(message, detOpts);
     recentTags.current = v.tags; // remember for the next check (fake alert → "fraud agent" pattern)
     const rec = newRecord({ message, level: v.level, score: v.score, tags: v.tags, reason: v.reason, source: opts?.source });
     addCheck(rec);
     if (opts?.fromAlert && v.level !== 'green') setRoute({ name: 'alert', message, verdict: v, recordId: rec.id });
     else setRoute({ name: 'verdict', message, verdict: v, recordId: rec.id });
+
+    // 2) Real on-device AI second opinion — fuses in when it resolves, upgrading
+    //    the verdict on screen. Never blocks, never leaves the device.
+    upgrade(message, v, detOpts).then((fused) => {
+      if (!fused.fused) return;
+      recentTags.current = fused.tags;
+      updateCheck(rec.id, { level: fused.level, reason: fused.reason });
+      setRoute((r) => {
+        if ((r.name === 'verdict' || r.name === 'alert') && r.recordId === rec.id) {
+          return { ...r, verdict: fused };
+        }
+        return r;
+      });
+    }).catch(() => {});
   }, [settings]);
 
   // ---- Deep links: check/alert (monitor & Shortcuts), family (ask/reply/pair) ----
@@ -120,21 +140,28 @@ export default function App() {
     return () => sub.remove();
   }, [handleUrl]);
 
-  // ---- Zero-friction entry: offer to check whatever was just copied ----
+  // ---- Zero-friction entry: show a Paste button only when the clipboard has
+  // text. hasStringAsync() reports presence WITHOUT reading the contents, so it
+  // never triggers iOS's "would like to paste" prompt — we only actually read
+  // the clipboard when the person taps Paste (an expected, explicit action). ----
   useEffect(() => {
     const peek = async () => {
       try {
-        if (settings?.role !== 'elder') return;
-        const text = (await Clipboard.getStringAsync())?.trim();
-        if (!text || text.length < 30 || text.length > 2000) return;
-        if (text === clipDismissed.current) return;
-        setClipOffer(text);
-      } catch {}
+        if (settings?.role !== 'elder') { setClipAvailable(false); return; }
+        setClipAvailable(await Clipboard.hasStringAsync());
+      } catch { setClipAvailable(false); }
     };
     peek();
     const sub = AppState.addEventListener('change', (st) => { if (st === 'active') peek(); });
     return () => sub.remove();
   }, [settings?.role]);
+
+  const pasteAndCheck = useCallback(async () => {
+    try {
+      const text = (await Clipboard.getStringAsync())?.trim();
+      if (text) check(text, { source: 'typed' });
+    } catch {}
+  }, [check]);
 
   if (!settings || !fontsLoaded) return <View style={s.root} />;
 
@@ -156,9 +183,7 @@ export default function App() {
       {route.name === 'home' && (isCare
         ? <CareHomeScreen {...common} onCheck={check} />
         : <HomeScreen onCheck={check} go={setRoute} settings={settings}
-            clipOffer={clipOffer}
-            onClipUse={(t) => { setClipOffer(null); clipDismissed.current = t; check(t); }}
-            onClipDismiss={(t) => { setClipOffer(null); clipDismissed.current = t; }} />)}
+            clipAvailable={clipAvailable} onPasteCheck={pasteAndCheck} />)}
       {route.name === 'verdict' && <VerdictScreen message={route.message} verdict={route.verdict} recordId={route.recordId} {...common} />}
       {route.name === 'alert' && <AlertScreen message={route.message} verdict={route.verdict} recordId={route.recordId} settings={settings} go={setRoute} />}
       {route.name === 'detail' && <CheckDetailScreen record={route.record} {...common} />}

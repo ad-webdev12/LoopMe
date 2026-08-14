@@ -1,0 +1,7 @@
+{
+  "name": "scam-ai",
+  "version": "1.0.0",
+  "description": "On-device scam intelligence (Apple Foundation Models + Core ML), fully offline.",
+  "main": "index.ts",
+  "private": true
+}

@@ -4,22 +4,23 @@ import React, { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import {
   Camera, Phone, Banknote, QrCode, Users, LifeBuoy, BookOpen, KeyRound,
-  Settings as SettingsIcon, ShieldCheck, ClipboardPaste, X,
+  Settings as SettingsIcon, ShieldCheck, ClipboardPaste,
 } from 'lucide-react-native';
 import { T, SHADOW, F } from '../theme';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import Screen from '../ui/Screen';
 import Entrance from '../ui/Entrance';
+import Glass from '../ui/Glass';
+import { LinearGradient } from 'expo-linear-gradient';
 import { pickAndReadImage, OCR_AVAILABLE } from '../lib/ocr';
 import type { Route } from '../App';
 import type { Settings } from '../lib/storage';
 
 export default function HomeScreen(props: {
   onCheck: (m: string) => void; go: (r: Route) => void; settings: Settings;
-  clipOffer: string | null;
-  onClipUse: (t: string) => void;
-  onClipDismiss: (t: string) => void;
+  clipAvailable: boolean;
+  onPasteCheck: () => void;
 }) {
   const [text, setText] = useState('');
 
@@ -35,7 +36,7 @@ export default function HomeScreen(props: {
 
   const Quick = ({ Icon, label, onPress }: { Icon: any; label: string; onPress: () => void }) => (
     <Pressable style={s.quick} onPress={onPress} accessibilityRole="button" accessibilityLabel={label}>
-      <Icon size={22} color={T.accent} strokeWidth={2.1} />
+      <View style={s.quickChip}><Icon size={20} color={T.accent} strokeWidth={2.2} /></View>
       <Text style={s.quickText} allowFontScaling>{label}</Text>
     </Pressable>
   );
@@ -43,29 +44,24 @@ export default function HomeScreen(props: {
   return (
     <Screen>
       <Entrance index={0}>
-        <View style={s.head}>
+        <View style={s.hero}>
+          <LinearGradient
+            colors={[T.accent, T.accentDeep]}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+            style={s.logoMark}>
+            <ShieldCheck size={38} color="#FFFFFF" strokeWidth={2.2} />
+          </LinearGradient>
           <Text style={s.brand} allowFontScaling>Loop Me In</Text>
           <Text style={s.sub} allowFontScaling>Not sure about a message? Check it here.</Text>
         </View>
       </Entrance>
 
-      {props.clipOffer && (
-        <Card tone="accent" style={s.clipCard}>
-          <View style={s.clipRow}>
-            <ClipboardPaste size={20} color={T.accentDeep} strokeWidth={2.2} />
-            <Text style={s.clipTitle} allowFontScaling>You copied a message</Text>
-            <Pressable onPress={() => props.onClipDismiss(props.clipOffer!)} style={s.clipClose}
-              accessibilityRole="button" accessibilityLabel="Dismiss">
-              <X size={20} color={T.inkSoft} />
-            </Pressable>
-          </View>
-          <Text style={s.clipBody} allowFontScaling numberOfLines={2}>“{props.clipOffer}”</Text>
-          <Button label="Check it now" size="compact" onPress={() => props.onClipUse(props.clipOffer!)} />
-        </Card>
-      )}
-
       <Entrance index={1}>
       <View style={s.panel}>
+        <View style={s.panelHead}>
+          <View style={s.panelDot} />
+          <Text style={s.panelLabel} allowFontScaling>Check a message</Text>
+        </View>
         <TextInput
           style={s.box} multiline
           placeholder="Paste or type the message here"
@@ -73,6 +69,9 @@ export default function HomeScreen(props: {
           value={text} onChangeText={setText}
           accessibilityLabel="Message to check"
         />
+        {props.clipAvailable && !text.trim() && (
+          <Button label="Paste what I copied" kind="secondary" icon={ClipboardPaste} onPress={props.onPasteCheck} />
+        )}
         <Button label="Check it" onPress={() => text.trim() && props.onCheck(text)} />
       </View>
       </Entrance>
@@ -95,49 +94,58 @@ export default function HomeScreen(props: {
       <Button label="I think I’ve been scammed" kind="secondary" icon={LifeBuoy} onPress={() => props.go({ name: 'panic' })} />
       </Entrance>
 
-      <View style={s.footer}>
+      <Entrance index={4}>
+      <Glass radius={22} intensity={45} style={s.footer}>
         <Pressable style={s.footBtn} onPress={() => props.go({ name: 'learn' })} accessibilityRole="button">
-          <BookOpen size={18} color={T.inkSoft} /><Text style={s.footText} allowFontScaling>Learn</Text>
+          <BookOpen size={19} color={T.accent} strokeWidth={2.1} /><Text style={s.footText} allowFontScaling>Learn</Text>
         </Pressable>
         <Pressable style={s.footBtn} onPress={() => props.go({ name: 'codeword' })} accessibilityRole="button">
-          <KeyRound size={18} color={T.inkSoft} /><Text style={s.footText} allowFontScaling>Code word</Text>
+          <KeyRound size={19} color={T.accent} strokeWidth={2.1} /><Text style={s.footText} allowFontScaling>Code word</Text>
         </Pressable>
         <Pressable style={s.footBtn} onPress={() => props.go({ name: 'trust' })} accessibilityRole="button">
-          <ShieldCheck size={18} color={T.inkSoft} /><Text style={s.footText} allowFontScaling>Our promise</Text>
+          <ShieldCheck size={19} color={T.accent} strokeWidth={2.1} /><Text style={s.footText} allowFontScaling>Promise</Text>
         </Pressable>
         <Pressable style={s.footBtn} onPress={() => props.go({ name: 'settings' })} accessibilityRole="button">
-          <SettingsIcon size={18} color={T.inkSoft} /><Text style={s.footText} allowFontScaling>Settings</Text>
+          <SettingsIcon size={19} color={T.accent} strokeWidth={2.1} /><Text style={s.footText} allowFontScaling>Settings</Text>
         </Pressable>
-      </View>
+      </Glass>
+      </Entrance>
     </Screen>
   );
 }
 
 const s = StyleSheet.create({
-  head: { marginTop: 18, marginBottom: 14 },
+  hero: { alignItems: 'center', marginTop: 20, marginBottom: 16 },
+  logoMark: {
+    width: 72, height: 72, borderRadius: 22, alignItems: 'center', justifyContent: 'center',
+    marginBottom: 14,
+    shadowColor: T.accentDeep, shadowOpacity: 0.32, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 5,
+  },
   brand: { fontSize: T.giant, fontFamily: F.displayBold, color: T.ink, textAlign: 'center', letterSpacing: -0.8 },
   sub: { fontSize: T.body, fontFamily: F.body, color: T.inkSoft, textAlign: 'center', marginTop: 6, lineHeight: 27 },
-  clipCard: { paddingVertical: 14 },
-  clipRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  clipTitle: { flex: 1, fontSize: T.small, fontFamily: F.bodyBold, color: T.accentDeep },
-  clipClose: { padding: 6 },
-  clipBody: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft, lineHeight: 23, marginVertical: 8 },
   panel: {
     backgroundColor: T.card, borderRadius: T.radiusLg, borderWidth: 1, borderColor: T.hairline,
-    padding: 14, marginVertical: 6, ...SHADOW,
+    padding: 16, marginVertical: 6, ...SHADOW,
   },
+  panelHead: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8, paddingHorizontal: 2 },
+  panelDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: T.accent },
+  panelLabel: { fontSize: T.caption, fontFamily: F.bodyBold, color: T.inkSoft, textTransform: 'uppercase', letterSpacing: 0.8 },
   box: {
-    minHeight: 132, padding: 8, fontSize: T.body, fontFamily: F.body, color: T.ink,
+    minHeight: 120, padding: 8, fontSize: T.body, fontFamily: F.body, color: T.ink,
     textAlignVertical: 'top', lineHeight: 27,
   },
   quickRow: { flexDirection: 'row', gap: 10, marginVertical: 4 },
   quick: {
     flex: 1, flexDirection: 'row', gap: 10, backgroundColor: T.card,
     borderRadius: T.radius, borderWidth: 1, borderColor: T.hairline,
-    minHeight: 58, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12,
+    minHeight: 62, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12,
+  },
+  quickChip: {
+    width: 36, height: 36, borderRadius: 11, backgroundColor: T.accentSoft,
+    alignItems: 'center', justifyContent: 'center',
   },
   quickText: { fontSize: T.small, color: T.ink, fontFamily: F.bodyBold, textAlign: 'center' },
-  footer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 18, marginTop: 16 },
-  footBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44, paddingHorizontal: 2 },
-  footText: { fontSize: T.caption, color: T.inkSoft, fontFamily: F.bodyBold },
+  footer: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', marginTop: 18, paddingVertical: 12, paddingHorizontal: 4 },
+  footBtn: { flexDirection: 'column', alignItems: 'center', gap: 4, minHeight: 48, flex: 1 },
+  footText: { fontSize: T.caption, color: T.ink, fontFamily: F.bodyBold },
 });
