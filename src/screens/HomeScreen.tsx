@@ -1,21 +1,23 @@
-// Elder home: one job above the fold — paste, check. Everything else is
-// secondary and stays out of the way until needed.
+// Elder home — Design 4. Wordmark + settings, one clear job (check a message),
+// then quiet ways to add a message and the things you might need.
 import React, { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import {
-  Camera, Phone, Banknote, QrCode, Users, LifeBuoy, BookOpen, KeyRound,
-  Settings as SettingsIcon, ShieldCheck, ClipboardPaste,
+  ShieldCheck, Settings as SettingsIcon, ImageIcon, Camera, Mic,
+  ArrowRight, ChevronRight, Phone, Banknote, Users, LifeBuoy, TriangleAlert,
 } from 'lucide-react-native';
 import { T, SHADOW, F } from '../theme';
-import Button from '../ui/Button';
-import Card from '../ui/Card';
 import Screen from '../ui/Screen';
 import Entrance from '../ui/Entrance';
-import Glass from '../ui/Glass';
-import { LinearGradient } from 'expo-linear-gradient';
 import { pickAndReadImage, OCR_AVAILABLE } from '../lib/ocr';
 import type { Route } from '../App';
 import type { Settings } from '../lib/storage';
+
+function greetingFor(): string {
+  // No Date at module scope constraints here — runtime is fine in a component.
+  const h = new Date().getHours();
+  return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+}
 
 export default function HomeScreen(props: {
   onCheck: (m: string) => void; go: (r: Route) => void; settings: Settings;
@@ -27,125 +29,135 @@ export default function HomeScreen(props: {
   const fromPhoto = async (camera: boolean) => {
     if (!OCR_AVAILABLE) {
       Alert.alert('Reading photos comes with the full app',
-        'For now, type or paste the message into the box and tap “Check it”. It works just as well.');
+        'For now, paste or type the message into the box and tap “Check this message”. It works just as well.');
       return;
     }
     const t = await pickAndReadImage(camera);
     if (t) { setText(t); props.onCheck(t); }
   };
 
-  const Quick = ({ Icon, label, onPress }: { Icon: any; label: string; onPress: () => void }) => (
-    <Pressable style={s.quick} onPress={onPress} accessibilityRole="button" accessibilityLabel={label}>
-      <View style={s.quickChip}><Icon size={20} color={T.accent} strokeWidth={2.2} /></View>
-      <Text style={s.quickText} allowFontScaling>{label}</Text>
+  const AddWay = ({ Icon, label, onPress }: { Icon: any; label: string; onPress: () => void }) => (
+    <Pressable style={s.addWay} onPress={onPress} accessibilityRole="button" accessibilityLabel={label}>
+      <Icon size={21} color={T.green} strokeWidth={1.9} />
+      <Text style={s.addWayText} allowFontScaling>{label}</Text>
+    </Pressable>
+  );
+
+  const NeedRow = ({ Icon, label, danger, first, onPress }: { Icon: any; label: string; danger?: boolean; first?: boolean; onPress: () => void }) => (
+    <Pressable style={[s.row, first && { borderTopWidth: 0 }]} onPress={onPress} accessibilityRole="button" accessibilityLabel={label}>
+      <View style={[s.rowChip, danger && { backgroundColor: T.redSoft }]}>
+        <Icon size={18} color={danger ? T.red : T.green} strokeWidth={2} />
+      </View>
+      <Text style={s.rowLabel} allowFontScaling>{label}</Text>
+      <ChevronRight size={18} color={T.inkFaint} strokeWidth={2.2} />
     </Pressable>
   );
 
   return (
     <Screen>
+      {/* wordmark + settings */}
+      <View style={s.top}>
+        <View style={s.wordmark}>
+          <ShieldCheck size={17} color={T.green} strokeWidth={2} />
+          <Text style={s.wordmarkText} allowFontScaling>LOOP ME</Text>
+        </View>
+        <Pressable style={s.gear} onPress={() => props.go({ name: 'settings' })} accessibilityRole="button" accessibilityLabel="Settings">
+          <SettingsIcon size={19} color={T.ink2} strokeWidth={2} />
+        </Pressable>
+      </View>
+
       <Entrance index={0}>
-        <View style={s.hero}>
-          <LinearGradient
-            colors={[T.accent, T.accentDeep]}
-            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-            style={s.logoMark}>
-            <ShieldCheck size={38} color="#FFFFFF" strokeWidth={2.2} />
-          </LinearGradient>
-          <Text style={s.brand} allowFontScaling>Loop Me In</Text>
-          <Text style={s.sub} allowFontScaling>Not sure about a message? Check it here.</Text>
+        <View style={s.head}>
+          <Text style={s.greeting} allowFontScaling>{greetingFor()}</Text>
+          <Text style={s.title} allowFontScaling>Check a message</Text>
         </View>
       </Entrance>
 
       <Entrance index={1}>
-      <View style={s.panel}>
-        <View style={s.panelHead}>
-          <View style={s.panelDot} />
-          <Text style={s.panelLabel} allowFontScaling>Check a message</Text>
+        <View style={s.panel}>
+          <TextInput
+            style={s.box} multiline
+            placeholder="Paste or type the message here"
+            placeholderTextColor={T.inkFaint}
+            value={text} onChangeText={setText}
+            accessibilityLabel="Message to check"
+          />
+          {props.clipAvailable && !text.trim() ? (
+            <Pressable style={s.checkBtn} onPress={props.onPasteCheck} accessibilityRole="button" accessibilityLabel="Paste what I copied and check it">
+              <Text style={s.checkBtnText} allowFontScaling>Paste what I copied</Text>
+              <ArrowRight size={19} color="#fff" strokeWidth={2.1} />
+            </Pressable>
+          ) : (
+            <Pressable style={s.checkBtn} onPress={() => text.trim() && props.onCheck(text)} accessibilityRole="button" accessibilityLabel="Check this message">
+              <Text style={s.checkBtnText} allowFontScaling>Check this message</Text>
+              <ArrowRight size={19} color="#fff" strokeWidth={2.1} />
+            </Pressable>
+          )}
         </View>
-        <TextInput
-          style={s.box} multiline
-          placeholder="Paste or type the message here"
-          placeholderTextColor={T.inkFaint}
-          value={text} onChangeText={setText}
-          accessibilityLabel="Message to check"
-        />
-        {props.clipAvailable && !text.trim() && (
-          <Button label="Paste what I copied" kind="secondary" icon={ClipboardPaste} onPress={props.onPasteCheck} />
-        )}
-        <Button label="Check it" onPress={() => text.trim() && props.onCheck(text)} />
-      </View>
       </Entrance>
 
       <Entrance index={2}>
-      <View style={s.quickRow}>
-        <Quick Icon={Camera} label="Photo" onPress={() => fromPhoto(true)} />
-        <Quick Icon={QrCode} label="QR code" onPress={() => props.go({ name: 'qr' })} />
-      </View>
-      <View style={s.quickRow}>
-        <Quick Icon={Phone} label="Someone’s calling me" onPress={() => props.go({ name: 'callhelp' })} />
-      </View>
-      <View style={s.quickRow}>
-        <Quick Icon={Banknote} label="Before you send money" onPress={() => props.go({ name: 'money' })} />
-      </View>
+        <Text style={s.orLabel} allowFontScaling>or add it another way</Text>
+        <View style={s.addRow}>
+          <AddWay Icon={ImageIcon} label="Screenshot" onPress={() => fromPhoto(false)} />
+          <AddWay Icon={Camera} label="Photo" onPress={() => fromPhoto(true)} />
+          <AddWay Icon={Mic} label="Speak it" onPress={() => props.go({ name: 'qr' })} />
+        </View>
       </Entrance>
 
       <Entrance index={3}>
-      <Button label="People you trust" kind="secondary" icon={Users} onPress={() => props.go({ name: 'circle' })} />
-      <Button label="I think I’ve been scammed" kind="secondary" icon={LifeBuoy} onPress={() => props.go({ name: 'panic' })} />
+        <Text style={s.sectionLabel} allowFontScaling>If you need it</Text>
+        <View style={s.list}>
+          <NeedRow Icon={Phone} label="Someone’s calling me" first onPress={() => props.go({ name: 'callhelp' })} />
+          <NeedRow Icon={Banknote} label="Before you send money" onPress={() => props.go({ name: 'money' })} />
+          <NeedRow Icon={Users} label="People you trust" onPress={() => props.go({ name: 'circle' })} />
+          <NeedRow Icon={LifeBuoy} label="I think I’ve been scammed" danger onPress={() => props.go({ name: 'panic' })} />
+        </View>
       </Entrance>
 
-      <Entrance index={4}>
-      <Glass radius={22} intensity={45} style={s.footer}>
-        <Pressable style={s.footBtn} onPress={() => props.go({ name: 'learn' })} accessibilityRole="button">
-          <BookOpen size={19} color={T.accent} strokeWidth={2.1} /><Text style={s.footText} allowFontScaling>Learn</Text>
-        </Pressable>
-        <Pressable style={s.footBtn} onPress={() => props.go({ name: 'codeword' })} accessibilityRole="button">
-          <KeyRound size={19} color={T.accent} strokeWidth={2.1} /><Text style={s.footText} allowFontScaling>Code word</Text>
-        </Pressable>
-        <Pressable style={s.footBtn} onPress={() => props.go({ name: 'trust' })} accessibilityRole="button">
-          <ShieldCheck size={19} color={T.accent} strokeWidth={2.1} /><Text style={s.footText} allowFontScaling>Promise</Text>
-        </Pressable>
-        <Pressable style={s.footBtn} onPress={() => props.go({ name: 'settings' })} accessibilityRole="button">
-          <SettingsIcon size={19} color={T.accent} strokeWidth={2.1} /><Text style={s.footText} allowFontScaling>Settings</Text>
-        </Pressable>
-      </Glass>
-      </Entrance>
+      <View style={{ height: 24 }} />
     </Screen>
   );
 }
 
 const s = StyleSheet.create({
-  hero: { alignItems: 'center', marginTop: 20, marginBottom: 16 },
-  logoMark: {
-    width: 72, height: 72, borderRadius: 22, alignItems: 'center', justifyContent: 'center',
-    marginBottom: 14,
-    shadowColor: T.accentDeep, shadowOpacity: 0.32, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 5,
-  },
-  brand: { fontSize: T.giant, fontFamily: F.displayBold, color: T.ink, textAlign: 'center', letterSpacing: -0.8 },
-  sub: { fontSize: T.body, fontFamily: F.body, color: T.inkSoft, textAlign: 'center', marginTop: 6, lineHeight: 27 },
+  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 8, paddingBottom: 2 },
+  wordmark: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  wordmarkText: { fontSize: 13, fontFamily: F.bold, color: T.green, letterSpacing: 1.2 },
+  gear: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginRight: -8 },
+
+  head: { paddingTop: 12 },
+  greeting: { fontSize: T.small, fontFamily: F.body, color: T.inkSoft },
+  title: { fontSize: T.headline, fontFamily: F.display, color: T.ink, letterSpacing: -0.4, marginTop: 2 },
+
   panel: {
-    backgroundColor: T.card, borderRadius: T.radiusLg, borderWidth: 1, borderColor: T.hairline,
-    padding: 16, marginVertical: 6, ...SHADOW,
+    marginTop: 14, backgroundColor: T.card, borderWidth: 1, borderColor: T.hairline,
+    borderRadius: T.radius, overflow: 'hidden', ...SHADOW,
   },
-  panelHead: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8, paddingHorizontal: 2 },
-  panelDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: T.accent },
-  panelLabel: { fontSize: T.caption, fontFamily: F.bodyBold, color: T.inkSoft, textTransform: 'uppercase', letterSpacing: 0.8 },
   box: {
-    minHeight: 120, padding: 8, fontSize: T.body, fontFamily: F.body, color: T.ink,
-    textAlignVertical: 'top', lineHeight: 27,
+    minHeight: 124, paddingHorizontal: 16, paddingTop: 15, paddingBottom: 12,
+    fontSize: T.body, fontFamily: F.body, color: T.ink, lineHeight: 24, textAlignVertical: 'top',
   },
-  quickRow: { flexDirection: 'row', gap: 10, marginVertical: 4 },
-  quick: {
-    flex: 1, flexDirection: 'row', gap: 10, backgroundColor: T.card,
-    borderRadius: T.radius, borderWidth: 1, borderColor: T.hairline,
-    minHeight: 62, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12,
+  checkBtn: {
+    height: 54, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center',
+    justifyContent: 'space-between', paddingHorizontal: 16,
   },
-  quickChip: {
-    width: 36, height: 36, borderRadius: 11, backgroundColor: T.accentSoft,
-    alignItems: 'center', justifyContent: 'center',
+  checkBtnText: { fontSize: T.body, fontFamily: F.bold, color: '#fff' },
+
+  orLabel: { fontSize: 13, fontFamily: F.body, color: T.inkSoft, paddingTop: 18 },
+  addRow: { flexDirection: 'row', gap: 6, paddingTop: 8 },
+  addWay: { flex: 1, alignItems: 'center', gap: 7, paddingVertical: 11, borderRadius: T.radiusSm },
+  addWayText: { fontSize: T.caption, fontFamily: F.semibold, color: T.ink },
+
+  sectionLabel: { fontSize: T.caption, fontFamily: F.semibold, color: T.inkSoft, paddingTop: 26, paddingBottom: 2 },
+  list: {
+    backgroundColor: T.card, borderWidth: 1, borderColor: T.hairline, borderRadius: T.radius,
+    marginTop: 8, overflow: 'hidden', ...SHADOW,
   },
-  quickText: { fontSize: T.small, color: T.ink, fontFamily: F.bodyBold, textAlign: 'center' },
-  footer: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', marginTop: 18, paddingVertical: 12, paddingHorizontal: 4 },
-  footBtn: { flexDirection: 'column', alignItems: 'center', gap: 4, minHeight: 48, flex: 1 },
-  footText: { fontSize: T.caption, color: T.ink, fontFamily: F.bodyBold },
+  row: {
+    flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, minHeight: 56,
+    borderTopWidth: 1, borderTopColor: T.hairline2,
+  },
+  rowChip: { width: 34, height: 34, borderRadius: 17, backgroundColor: T.greenSoft, alignItems: 'center', justifyContent: 'center' },
+  rowLabel: { flex: 1, fontSize: T.bodyLg, fontFamily: F.medium, color: T.ink },
 });

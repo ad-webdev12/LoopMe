@@ -4,8 +4,11 @@ import * as Linking from 'expo-linking';
 import * as Clipboard from 'expo-clipboard';
 import * as Notifications from 'expo-notifications';
 import { useFonts } from 'expo-font';
-import { Fraunces_600SemiBold, Fraunces_700Bold } from '@expo-google-fonts/fraunces';
-import { AtkinsonHyperlegible_400Regular, AtkinsonHyperlegible_700Bold } from '@expo-google-fonts/atkinson-hyperlegible';
+import { Archivo_400Regular } from '@expo-google-fonts/archivo/400Regular';
+import { Archivo_500Medium } from '@expo-google-fonts/archivo/500Medium';
+import { Archivo_600SemiBold } from '@expo-google-fonts/archivo/600SemiBold';
+import { Archivo_700Bold } from '@expo-google-fonts/archivo/700Bold';
+import { Archivo_800ExtraBold } from '@expo-google-fonts/archivo/800ExtraBold';
 import { T } from './theme';
 import { Verdict } from './engine/ScamDetector';
 import { instant, upgrade, FusedVerdict } from './engine/ai';
@@ -50,8 +53,8 @@ Notifications.setNotificationHandler({
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    Fraunces_600SemiBold, Fraunces_700Bold,
-    AtkinsonHyperlegible_400Regular, AtkinsonHyperlegible_700Bold,
+    Archivo_400Regular, Archivo_500Medium, Archivo_600SemiBold,
+    Archivo_700Bold, Archivo_800ExtraBold,
   });
   const [route, setRoute] = useState<Route>({ name: 'home' });
   const [settings, setSettings] = useState<Settings | null>(null);
