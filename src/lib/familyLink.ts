@@ -11,9 +11,13 @@ import type { Level } from '../engine/ScamDetector';
 import { LEVEL_META } from '../theme';
 
 export type FamilyPayload =
-  | { k: 'ask'; id: string; n: string; l: Level; s: number; t: string[]; r: string; e: string }
+  | { k: 'ask'; id: string; n: string; l: Level; s: number; t: string[]; r: string; e: string; st?: string }
   | { k: 'reply'; id: string; n: string; v: FamilyReply['verdict'] }
-  | { k: 'pair'; n: string; p: string };
+  | { k: 'note'; id: string; n: string; x: string }
+  | { k: 'pair'; n: string; p: string }
+  | { k: 'pairreq'; n: string; p: string; c: string }
+  | { k: 'pairok'; n: string; p: string }
+  | { k: 'pairno'; n: string };
 
 export function buildFamilyUrl(payload: FamilyPayload): string {
   return ExpoLinking.createURL('family', { queryParams: { d: JSON.stringify(payload) } });
@@ -27,7 +31,7 @@ export function parseFamilyUrl(url: string): FamilyPayload | null {
     const d = queryParams?.d;
     if (typeof d !== 'string') return null;
     const p = JSON.parse(d);
-    if (p && (p.k === 'ask' || p.k === 'reply' || p.k === 'pair')) return p as FamilyPayload;
+    if (p && ['ask', 'reply', 'note', 'pair', 'pairreq', 'pairok', 'pairno'].includes(p.k)) return p as FamilyPayload;
     return null;
   } catch { return null; }
 }
@@ -69,4 +73,26 @@ export async function sendSms(phone: string | null, body: string) {
     } catch {}
   }
   await Share.share({ message: body }); // WhatsApp, Mail, anything — the person picks.
+}
+
+export function noteText(myName: string, recId: string, text: string): string {
+  return (
+    (myName || 'Family') + ' sent a note through Loop Me:\n\n' + text +
+    '\n\nTap to see it in the app:\n' + buildFamilyUrl({ k: 'note', id: recId, n: myName || 'Family', x: text })
+  );
+}
+
+export function pairRequestText(myName: string, myPhone: string, code: string): string {
+  return (
+    (myName || 'Someone') + ' wants to be looped in on Loop Me, using the code from your phone.\n\n' +
+    'Tap to say yes or no:\n' + buildFamilyUrl({ k: 'pairreq', n: myName, p: myPhone, c: code })
+  );
+}
+
+export function pairOkText(myName: string, myPhone: string): string {
+  return ((myName || 'They') + ' said yes. You are looped in now.\n\nTap to open their activity:\n' + buildFamilyUrl({ k: 'pairok', n: myName, p: myPhone }));
+}
+
+export function pairNoText(myName: string): string {
+  return ('They tapped Not now. Nothing was shared.\n\nTap to go back:\n' + buildFamilyUrl({ k: 'pairno', n: myName }));
 }

@@ -81,10 +81,17 @@ export async function upgrade(message: string, rule: Verdict, opts?: DetectorOpt
   const confidence: Verdict['confidence'] =
     hardRed || p >= 0.82 || p <= 0.12 ? 'very' : (p >= 0.5 && p < 0.62) || (p > 0.25 && p < 0.35) ? 'unsure' : 'fairly';
 
+  // The AI's plain sentence joins the numbered reasons list (design shows the
+  // level line in the banner; every reason lives under "Why we say that").
+  const signals = ai.reason && !rule.signals.includes(ai.reason)
+    ? [...rule.signals, ai.reason]
+    : rule.signals;
+
   return {
     ...rule,
     level,
     reason,
+    signals,
     confidence,
     ai,
     aiTier: tier,

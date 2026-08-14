@@ -13,6 +13,13 @@ export interface Settings {
   codeWordSet: boolean;          // never store the word itself in plain settings exports
   codeWord: string;              // on-device only, never leaves the phone
   panicCompletedAt: number | null; // enables the 90-day recovery-scam guard
+  // Design 4 additions
+  pairCode: string;              // six digits shown on the elder's phone
+  watchedBy: string | null;      // elder side: caretaker's first name once paired
+  careName: string;              // caregiver setup: who the phone is for
+  careRel: string;               // Mother / Father / Other
+  autoCheck: boolean;            // "Check unknown texts for me"
+  introSeen: boolean;
 }
 
 const KEY = 'loopmein.settings.v3';
@@ -22,6 +29,7 @@ const DEFAULTS: Settings = {
   alerts: true, readAloud: false,
   allowlist: [], trusted: [], watching: null,
   codeWordSet: false, codeWord: '', panicCompletedAt: null,
+  pairCode: '', watchedBy: null, careName: '', careRel: 'Mother', autoCheck: true, introSeen: false,
 };
 
 export async function loadSettings(): Promise<Settings> {

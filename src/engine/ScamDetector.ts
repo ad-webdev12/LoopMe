@@ -38,11 +38,11 @@ interface Rule { re: RegExp; w: number; tag: string; plain: string; }
 
 const RULES: Rule[] = [
   // — SECRECY: the single highest-weight signal. Every real institution is fine with you calling your daughter.
-  { re: /(?:don'?t|do not) (?:tell|contact|call|inform|discuss(?: this)? with) (?:anyone|anybody|your (?:family|wife|husband|son|daughter|kids|children|lawyer|attorney|bank)|mom|dad|the police)/i, w: 55, tag: 'secrecy', plain: 'It tells you not to talk to your family or a lawyer. Honest people never need secrecy — this is the biggest warning sign there is.' },
-  { re: /keep (?:this|it) (?:a )?(?:secret|between us|confidential|private|quiet)/i, w: 55, tag: 'secrecy', plain: 'It asks you to keep this secret. Honest people never need secrecy.' },
+  { re: /(?:don'?t|do not) (?:tell|contact|call|inform|discuss(?: this)? with) (?:anyone|anybody|your (?:family|wife|husband|son|daughter|kids|children|lawyer|attorney|bank)|mom|dad|the police)/i, w: 55, tag: 'secrecy', plain: 'It asks you to keep it secret. Honest people never need secrecy.' },
+  { re: /keep (?:this|it) (?:a )?(?:secret|between us|confidential|private|quiet)/i, w: 55, tag: 'secrecy', plain: 'It asks you to keep it secret. Honest people never need secrecy.' },
   // — Digital arrest / government threats
   { re: /(?:arrest warrant|warrant (?:for|has been issued)|court order|legal action|federal (?:agent|officer|case)|you (?:will|may) be arrested|under investigation)/i, w: 45, tag: 'digital-arrest', plain: 'It threatens arrest or legal action. Real police and courts never call, text, or video-chat threats — ever.' },
-  { re: /\b(?:irs|social security(?: administration)?|ssa|medicare|dea|fbi|homeland security)\b[\s\S]{0,90}(?:suspend|arrest|owe|fine|immediately|final|blocked|frozen)/i, w: 45, tag: 'gov-impersonation', plain: 'It pretends to be the government and threatens you. The government sends letters, not scary messages.' },
+  { re: /\b(?:irs|social security(?: administration)?|ssa|medicare|dea|fbi|homeland security)\b[\s\S]{0,90}(?:suspend|arrest|owe|fine|immediately|final|blocked|frozen)/i, w: 45, tag: 'gov-impersonation', plain: 'It pretends to be the government and threatens you. The government does not text threats.' },
   // — Bank impersonation (stage 1 of the two-stage con)
   { re: /(?:did you (?:authorize|approve|make)|unauthorized|suspicious) (?:a |an |this )?(?:\$[\d,.]+ )?(?:charge|payment|transaction|transfer|purchase|zelle)/i, w: 30, tag: 'bank-alert', plain: 'It looks like a bank fraud alert. Scammers send fake ones, then call pretending to be the fraud department.' },
   { re: /reply (?:no|yes|stop|1|y|n) (?:to|if)/i, w: 12, tag: 'bank-alert', plain: 'It asks you to reply — that tells the scammer a real person is here.' },
@@ -50,28 +50,28 @@ const RULES: Rule[] = [
   { re: /(?:move|transfer) (?:your |the )?(?:money|funds|balance)[\s\S]{0,50}(?:safe|secure|protected|new) account/i, w: 90, tag: 'safe-account', plain: 'They want you to move money to a “safe account.” There is no such thing. Your bank will NEVER ask this. This is the trick itself.' },
   { re: /fraud (?:department|team|agent|specialist)[\s\S]{0,80}(?:verify|secure|move|transfer|protect)/i, w: 45, tag: 'safe-account', plain: 'A “fraud department” asking you to act is the second half of a two-part con.' },
   // — Family emergency / voice-clone territory
-  { re: /(?:grandm[ao]|grandpa|grandson|granddaughter|your (?:son|daughter|grandchild|nephew|niece))[\s\S]{0,90}(?:trouble|jail|arrest|accident|bail|hospital|hurt|money|help)/i, w: 50, tag: 'family-emergency', plain: 'It says a family member is in trouble and needs money fast. Call that person back on the number you already have.' },
+  { re: /(?:grandm[ao]|grandpa|grandson|granddaughter|your (?:son|daughter|grandchild|nephew|niece))[\s\S]{0,90}(?:trouble|jail|arrest|accident|bail|hospital|hurt|money|help)/i, w: 50, tag: 'family-emergency', plain: 'It pretends a family member is in trouble and needs money fast.' },
   { re: /(?:it'?s me|this is your grandson|this is your granddaughter)[\s\S]{0,80}(?:jail|accident|bail|trouble|hospital|money)/i, w: 50, tag: 'family-emergency', plain: 'A voice or message claiming to be family in an emergency. A cloned voice can sound exactly like them — your code word cannot be cloned.' },
   // — Gift cards, crypto, payments
-  { re: /gift\s*card|itunes\s*card|google\s*play\s*card|steam\s*card|vanilla\s*card/i, w: 50, tag: 'giftcard', plain: 'It involves gift cards. No real company, and never the government, takes gift cards. Anyone who asks is a scammer — every time.' },
-  { re: /bitcoin|crypto(?:currency)?|\bbtc\b|\busdt\b|coinbase|binance|crypto ?atm/i, w: 25, tag: 'crypto', plain: 'It involves cryptocurrency, which scammers love because payments can’t be undone.' },
+  { re: /gift\s*card|itunes\s*card|google\s*play\s*card|steam\s*card|vanilla\s*card/i, w: 50, tag: 'giftcard', plain: 'It asks about gift cards. Real companies and the government never ask for gift cards.' },
+  { re: /bitcoin|crypto(?:currency)?|\bbtc\b|\busdt\b|coinbase|binance|crypto ?atm/i, w: 25, tag: 'crypto', plain: 'It involves cryptocurrency, which scammers use because payments cannot be undone.' },
   { re: /(?:western union|moneygram)|wire (?:transfer|\$?\d)/i, w: 35, tag: 'payment', plain: 'It asks for a wire transfer, which can’t be reversed once sent.' },
-  { re: /(?:zelle|cash ?app|venmo|apple ?pay)[\s\S]{0,60}(?:send|pay|transfer|owe)|(?:send|pay|transfer)[\s\S]{0,50}(?:by |via |through )?(?:zelle|cash ?app|venmo)/i, w: 28, tag: 'payment', plain: 'It asks you to send money through a payment app — those payments usually can’t be recovered.' },
+  { re: /(?:zelle|cash ?app|venmo|apple ?pay)[\s\S]{0,60}(?:send|pay|transfer|owe)|(?:send|pay|transfer)[\s\S]{0,50}(?:by |via |through )?(?:zelle|cash ?app|venmo)/i, w: 28, tag: 'payment', plain: 'It asks you to send money by wire or app, which cannot be reversed.' },
   { re: /(?:this is your (?:son|daughter|grandson|granddaughter|mom|dad))[\s\S]{0,90}(?:money|send|broken|new number)|(?:phone (?:is |got )?broken|lost my phone|new number)[\s\S]{0,80}(?:send|money|zelle|venmo|cash)/i, w: 45, tag: 'family-emergency', plain: 'A “family member” with a broken phone asking for money is a classic con. Call their real number — the one you already have.' },
   // — Account/verify pressure
-  { re: /account (?:has been |is |was |will be )?(?:locked|suspended|closed|compromised|on hold|restricted|deactivat|frozen)/i, w: 30, tag: 'account-locked', plain: 'It claims your account is locked to scare you into clicking fast.' },
-  { re: /(?:verify|confirm|update|validate) your (?:account|identity|information|payment|card|billing|details)/i, w: 26, tag: 'verify', plain: 'It pushes you to “verify” through a link. Real companies let you log in yourself, on your own.' },
-  { re: /(?:unusual|suspicious) (?:sign[- ]?in|login|activity|attempt)/i, w: 25, tag: 'unusual-signin', plain: 'It claims suspicious activity to make you panic and click.' },
+  { re: /account (?:has been |is |was |will be )?(?:locked|suspended|closed|compromised|on hold|restricted|deactivat|frozen)/i, w: 30, tag: 'account-locked', plain: 'It claims your account is locked or suspended to scare you into clicking.' },
+  { re: /(?:verify|confirm|update|validate) your (?:account|identity|information|payment|card|billing|details)/i, w: 26, tag: 'verify', plain: 'It pushes you to \u201cverify\u201d information through a link.' },
+  { re: /(?:unusual|suspicious) (?:sign[- ]?in|login|activity|attempt)/i, w: 25, tag: 'unusual-signin', plain: 'It claims suspicious sign-in activity to make you panic and click.' },
   // — OTP theft
-  { re: /(?:send|share|read|give|tell|forward)(?: me| us)? (?:the |that |your )?(?:one[- ]?time |verification |security |6[- ]digit |four[- ]digit )?(?:code|otp|passcode|pin)\b/i, w: 55, tag: 'otp-request', plain: 'It asks for a security code. That code is the key to your account. Never share it with anyone who asks — no exceptions.' },
+  { re: /(?:send|share|read|give|tell|forward)(?: me| us)? (?:the |that |your )?(?:one[- ]?time |verification |security |6[- ]digit |four[- ]digit )?(?:code|otp|passcode|pin)\b/i, w: 55, tag: 'otp-request', plain: 'It asks for a security code. Never share codes. That is how accounts get stolen.' },
   // — Crypto wallet / seed phrase theft
   { re: /(?:seed phrase|recovery phrase|secret phrase|private key|wallet (?:key|password))/i, w: 50, tag: 'wallet-phrase', plain: 'It mentions your wallet’s secret phrase. Anyone who asks for it is stealing — no support team ever needs it.' },
   // — Delivery / toll / subscription workhorses
-  { re: /(?:re-?deliver|redelivery|package|parcel|shipment)[\s\S]{0,70}(?:fee|held|pending|customs|unable|address (?:issue|problem|incomplete))/i, w: 35, tag: 'package-fee', plain: 'It says a package needs a small fee or new address — one of the most common tricks in the world.' },
+  { re: /(?:re-?deliver|redelivery|package|parcel|shipment)[\s\S]{0,70}(?:fee|held|pending|customs|unable|address (?:issue|problem|incomplete))/i, w: 35, tag: 'package-fee', plain: 'It says a package needs a fee or a new address, a very common trick.' },
   { re: /(?:toll|e-?z ?pass|fastrak|sunpass)[\s\S]{0,70}(?:unpaid|due|fee|balance|violation|invoice)/i, w: 40, tag: 'toll', plain: 'Fake unpaid-toll texts are everywhere right now. Toll agencies send bills by mail, not text.' },
   { re: /(?:netflix|apple|amazon prime|hulu|spotify|disney)[\s\S]{0,70}(?:payment (?:failed|declined|problem)|suspend|expired|renew|update your payment)/i, w: 32, tag: 'subscription', plain: 'It claims a streaming payment failed. Check inside the app itself, never through a link in a message.' },
   // — Prizes, refunds, jobs
-  { re: /(?:you(?:'ve| have)? (?:won|been selected)|winner|prize|lottery|sweepstake|claim your (?:reward|prize)|congratulations[\s\S]{0,40}(?:won|selected))/i, w: 42, tag: 'prize', plain: 'It says you won something you never entered. Real prizes never ask for money or details first.' },
+  { re: /(?:you(?:'ve| have)? (?:won|been selected)|winner|prize|lottery|sweepstake|claim your (?:reward|prize)|congratulations[\s\S]{0,40}(?:won|selected))/i, w: 42, tag: 'prize', plain: 'It says you won a prize you never entered for.' },
   { re: /(?:tax refund|stimulus|rebate|reimbursement)[\s\S]{0,60}(?:claim|click|pending|verify)/i, w: 32, tag: 'refund', plain: 'It dangles a refund you must “claim” through a link. The IRS mails checks; it doesn’t text links.' },
   { re: /(?:work from home|easy money|earn \$\d+|make \$\d+ (?:a |per )?(?:day|week)|part[- ]time job[\s\S]{0,50}(?:no experience|apply now|telegram|whatsapp))/i, w: 34, tag: 'job-scam', plain: 'Too-easy job offers are usually after your identity, your face and voice, or an upfront fee.' },
   // — Advance-fee / inheritance
@@ -98,8 +98,8 @@ const RULES: Rule[] = [
   // — Recovery scams (weighted up further when postPanic is on)
   { re: /(?:recover|get back|retrieve|reclaim)[\s\S]{0,30}(?:money|funds|losses)|(?:funds? |asset |money )?recovery (?:firm|service|agent|department|specialist)|refund department/i, w: 30, tag: 'recovery', plain: 'It offers to recover money you lost. People who report a scam get targeted again by fake “recovery services.” This is one.' },
   // — Remote access / urgency
-  { re: /(?:anydesk|teamviewer|ultraviewer|remote access|screen shar\w+|install (?:this|the) (?:app|software))/i, w: 45, tag: 'remote-access', plain: 'It asks you to install software that lets someone control your device. Never do this for a caller or a message.' },
-  { re: /(?:act now|urgent|immediately|right away|within (?:24|48) hours|expires? (?:today|soon|tonight)|final notice|last (?:chance|warning)|asap|don'?t delay)/i, w: 15, tag: 'urgency', plain: 'It uses pressure words to rush you. Rushing is a scammer’s favorite tool — real business can always wait a day.' },
+  { re: /(?:anydesk|teamviewer|ultraviewer|remote access|screen shar\w+|install (?:this|the) (?:app|software))/i, w: 45, tag: 'remote-access', plain: 'It asks you to install remote-access software so someone can control your phone.' },
+  { re: /(?:act now|urgent|immediately|right away|within (?:24|48) hours|expires? (?:today|soon|tonight)|final notice|last (?:chance|warning)|asap|don'?t delay)/i, w: 15, tag: 'urgency', plain: 'It uses pressure words to rush you. Rushing is a scammer\u2019s favourite tool.' },
 ];
 
 // PRECISION GUARD — the false-positive killer. Trend Micro flagged a real Amazon receipt; we will not.
@@ -190,17 +190,17 @@ export function detect(message: string, opts: DetectorOptions = {}): Verdict {
       : (signals[0] || 'This is a scam.');
     safeStep = twoStage || tags.includes('safe-account')
       ? 'Hang up. Call the number on the back of your bank card — no other number.'
-      : hasBadLink ? 'Don’t tap the link. Delete the message.'
+      : hasBadLink ? 'Do not tap the link. Delete the message.'
       : tags.includes('otp-request') ? 'Don’t share the code with anyone. Delete the message.'
       : tags.includes('sextortion') ? 'Don’t pay and don’t reply — it’s a mass-sent bluff. Delete it, and tell someone you trust.'
       : codeWordMoment ? 'Before anything else, ask them for your family code word.'
-      : 'Don’t reply and don’t send anything. Delete the message.';
+      : 'Do not reply and do not send anything. Delete the message.';
   } else if (level === 'amber') {
     reason = signals[0] || 'Something’s off here.';
-    safeStep = 'Don’t tap anything yet. Contact the company or person yourself, using a number you already trust.';
+    safeStep = 'Do not tap anything yet. Contact the company yourself on a number you already trust.';
   } else {
-    reason = 'This looks okay — nothing in it matches a known scam trick.';
-    safeStep = 'You don’t have to do anything. If it still feels off, loop in someone you trust.';
+    reason = 'Nothing in this message matches a known scam trick.';
+    safeStep = 'You do not need to do anything. If it still feels off, loop someone in.';
   }
 
   return { level, reason, safeStep, signals, matches, tags, confidence, codeWordMoment, score, disguised: norm.disguised };

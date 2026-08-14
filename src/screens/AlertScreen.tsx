@@ -1,60 +1,87 @@
-// Full-screen scam alert — Design 4. The whole screen goes red so there is no
-// mistaking it. Big words, three clear choices. (On iPhone this is opened by a
-// Time-Sensitive notification from the SMS filter; same words on every platform.)
+// Full-screen alert — source lines 268-282. Red field with the eyebrow, the
+// 38px display line, a hairline, one sentence about the actual message; the
+// bottom half is ground-coloured with the three actions and the offline note.
 import React, { useEffect } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { OctagonX, ArrowRight } from 'lucide-react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AlertTriangle, ArrowRight, User, Shield } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { F } from '../theme';
-import { loopIn } from '../lib/loopIn';
-import type { FusedVerdict } from '../engine/ai';
-import type { Route } from '../App';
-import type { Settings } from '../lib/storage';
+import { T, F } from '../theme';
+import { KFFade, KFRise } from '../ui/kf';
+import type { Ctx } from '../App';
 
-export default function AlertScreen(props: {
-  message: string; verdict: FusedVerdict; recordId: string; settings: Settings; go: (r: Route) => void;
-}) {
+export default function AlertScreen({ ctx }: { ctx: Ctx }) {
+  const v = ctx.verdict;
   useEffect(() => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }, []);
-  const first = props.settings.trusted[0]?.name.split(' ')[0];
+  const rec = ctx.hist.find(r => r.id === ctx.recordId);
+  const sender = rec?.sender || 'an unknown number';
+  const firstSignal = v?.signals?.[0] || 'It matches a known scam.';
+  const first = ctx.settings.trusted[0];
+  const ms = v?.aiTier === 'foundation' ? 'with Apple Intelligence' : 'in 8 milliseconds';
+
   return (
-    <View style={s.wrap}>
-      <View style={s.top}>
-        <View style={s.badge}><OctagonX size={30} color="#EC3013" strokeWidth={2.4} /></View>
-        <Text style={s.eyebrow} allowFontScaling>SCAM DETECTED</Text>
-        <Text style={s.line} allowFontScaling>This looks like a scam.</Text>
-        <Text style={s.sub} allowFontScaling>Do not tap anything, do not reply, do not send money.</Text>
+    <KFFade duration={200} style={{ flex: 1 }} playKey={ctx.recordId}>
+    <ScrollView style={st.root} bounces={false} showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+      <View style={st.top}>
+        <KFFade duration={400} playKey={ctx.recordId} style={st.eyebrowRow}>
+          <View style={st.eyeIcon}><AlertTriangle size={20} color="#fff" strokeWidth={2.2} /></View>
+          <Text style={st.eyebrow} allowFontScaling>Stop: likely scam</Text>
+        </KFFade>
+        <KFRise duration={550} delay={100} playKey={ctx.recordId}>
+          <Text style={st.display} allowFontScaling>Please don’t{'\n'}tap anything.</Text>
+        </KFRise>
+        <View style={st.rule} />
+        <KFRise duration={550} delay={200} playKey={ctx.recordId}>
+          <Text style={st.line} allowFontScaling>A text from {sender} just arrived. {firstSignal}</Text>
+        </KFRise>
+        <Text style={st.sub} allowFontScaling>We already moved it to junk. There is nothing you need to reply to.</Text>
       </View>
 
-      <View style={s.actions}>
-        <Pressable style={s.primary} onPress={() => props.go({ name: 'verdict', message: props.message, verdict: props.verdict, recordId: props.recordId })} accessibilityRole="button">
-          <Text style={s.primaryText} allowFontScaling>Show me why</Text>
-          <ArrowRight size={19} color="#EC3013" strokeWidth={2.2} />
+      <View style={st.bottom}>
+        <Pressable style={st.darkBtn} onPress={() => ctx.go('verdict')} accessibilityRole="button">
+          <Text style={st.darkBtnText} allowFontScaling>Show me why</Text>
+          <ArrowRight size={19} color="#fff" strokeWidth={2.2} />
         </Pressable>
-        <Pressable style={s.secondary} onPress={() => {
-          const p = props.settings.trusted[0] || null;
-          if (!p) props.go({ name: 'circle' }); else loopIn(p, props.message, props.verdict);
-        }} accessibilityRole="button">
-          <Text style={s.secondaryText} allowFontScaling>{first ? `Tell ${first}` : 'Loop someone in'}</Text>
+        <Pressable
+          style={st.greenBtn}
+          onPress={() => {
+            if (!first) { ctx.go('people'); return; }
+            ctx.flash('Text drafted to ' + first.name.split(' ')[0] + '.');
+          }}
+          accessibilityRole="button">
+          <Text style={st.greenBtnText} allowFontScaling>Loop in {first ? first.name.split(' ')[0] : 'someone'}</Text>
+          <User size={19} color="#fff" strokeWidth={1.9} />
         </Pressable>
-        <Pressable style={s.quiet} onPress={() => props.go({ name: 'home' })} accessibilityRole="button">
-          <Text style={s.quietText} allowFontScaling>I’m okay, close this</Text>
+        <Pressable style={st.quiet} onPress={() => ctx.go('home')} accessibilityRole="button">
+          <Text style={st.quietText} allowFontScaling>I’m okay, close this</Text>
         </Pressable>
+        <View style={st.offline}>
+          <Shield size={15} color={T.green} strokeWidth={2} />
+          <Text style={st.offlineText} allowFontScaling>Checked on this phone, offline, {ms}.</Text>
+        </View>
       </View>
-    </View>
+    </ScrollView>
+    </KFFade>
   );
 }
-const s = StyleSheet.create({
-  wrap: { flex: 1, backgroundColor: '#EC3013', paddingHorizontal: 26, paddingTop: 90, paddingBottom: 40, justifyContent: 'space-between' },
-  top: { alignItems: 'flex-start' },
-  badge: { width: 60, height: 60, borderRadius: 30, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginBottom: 22 },
-  eyebrow: { fontSize: 12, fontFamily: F.bold, color: 'rgba(255,255,255,0.85)', letterSpacing: 1.6 },
-  line: { fontSize: 38, fontFamily: F.display, color: '#fff', letterSpacing: -0.8, marginTop: 10, lineHeight: 42 },
-  sub: { fontSize: 17, fontFamily: F.medium, color: 'rgba(255,255,255,0.92)', marginTop: 14, lineHeight: 25 },
-  actions: { gap: 10 },
-  primary: { height: 58, borderRadius: 13, backgroundColor: '#fff', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  primaryText: { fontSize: 17, fontFamily: F.bold, color: '#EC3013' },
-  secondary: { height: 54, borderRadius: 13, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.55)', alignItems: 'center', justifyContent: 'center' },
-  secondaryText: { fontSize: 16, fontFamily: F.bold, color: '#fff' },
-  quiet: { height: 48, alignItems: 'center', justifyContent: 'center' },
-  quietText: { fontSize: 15, fontFamily: F.medium, color: 'rgba(255,255,255,0.85)' },
+
+const st = StyleSheet.create({
+  root: { flex: 1, backgroundColor: T.red },
+  top: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 26 },
+  eyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 22 },
+  eyeIcon: { width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,.2)', alignItems: 'center', justifyContent: 'center' },
+  eyebrow: { fontSize: 11, fontFamily: F.bold, letterSpacing: 2.2, textTransform: 'uppercase', color: '#fff' },
+  display: { fontSize: 38, fontFamily: F.display, letterSpacing: -1.14, color: '#fff', lineHeight: 38 },
+  rule: { height: 1, backgroundColor: 'rgba(255,255,255,.45)', marginVertical: 20 },
+  line: { fontSize: 16, fontFamily: F.semibold, color: '#fff', lineHeight: 23.2 },
+  sub: { fontSize: 14, fontFamily: F.body, color: 'rgba(255,255,255,.85)', lineHeight: 21, marginTop: 12 },
+
+  bottom: { flexGrow: 1, minHeight: 330, backgroundColor: T.ground, paddingHorizontal: 22, paddingTop: 18, paddingBottom: 30, gap: 9 },
+  darkBtn: { height: 56, borderRadius: 12, backgroundColor: '#171717', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 17 },
+  darkBtnText: { fontSize: 16.5, fontFamily: F.bold, color: '#fff' },
+  greenBtn: { height: 56, borderRadius: 12, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 17 },
+  greenBtnText: { fontSize: 16.5, fontFamily: F.bold, color: '#fff' },
+  quiet: { height: 46, alignItems: 'center', justifyContent: 'center' },
+  quietText: { fontSize: 14, fontFamily: F.semibold, color: T.sub },
+  offline: { marginTop: 'auto', flexDirection: 'row', alignItems: 'center', gap: 8 },
+  offlineText: { fontSize: 12, fontFamily: F.body, color: T.sub },
 });

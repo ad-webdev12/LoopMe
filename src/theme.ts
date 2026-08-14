@@ -1,11 +1,8 @@
-// Design tokens — "Loop Me, Design 4": quieter, rounder, one hierarchy.
-// Archivo carries every word (800 for display, 400–600 for the rest — one family,
-// one weight scale). Deep green is the app's colour: primary UI AND every safe
-// action. Red is reserved strictly for danger. Warm off-white grounds, soft
-// surfaces, few boxes.
+// Design 4 tokens — taken literally from the handoff README's token table.
+// Red means danger only. Green carries every safe and primary action.
+// One weight scale: 400 body, 500/600 emphasis, 700 buttons/row titles, 800 display.
 import { OctagonX, TriangleAlert, CircleCheck } from 'lucide-react-native';
 
-// Archivo weights (from @expo-google-fonts/archivo subpaths).
 export const F = {
   display: 'Archivo_800ExtraBold',
   displayBold: 'Archivo_800ExtraBold',
@@ -17,73 +14,90 @@ export const F = {
 } as const;
 
 export const T = {
-  // surfaces
-  cream: '#F8F8F6',        // app ground (kept name so existing screens inherit)
-  ground: '#F8F8F6',
-  page: '#E7E3DC',
-  card: '#FFFFFF',
-  hairline: '#E5E5E2',
-  hairline2: '#EDECE9',
-  // text — one ink, stepped down
+  // colour — exact
+  red: '#ec3013',
+  redTint: '#fdeeea',
+  redInk: '#8c1f0c',
+  redEdge: 'rgba(236,48,19,.4)',
+  green: '#0d6b57',
+  greenPressed: '#095242',
+  greenTint: '#eef4f1',
+  greenInk: '#0d4a3b',
+  greenInk2: '#1f4f43',
+  amber: '#b8781a',
+  amberTint: '#fbf0dd',
+  amberInk: '#7a4e0d',
   ink: '#171717',
-  ink2: '#3D3D3A',
-  inkSoft: '#707070',
-  inkFaint: '#B8B8B3',
-  // GREEN — primary UI + every safe action (the app's colour)
-  accent: '#0D6B57',
+  ink2: '#3d3d3a',
+  sub: '#707070',
+  muted: '#b8b8b3',
+  ground: '#f8f8f6',
+  surface: '#ffffff',
+  hairline: '#e5e5e2',
+  divider: '#edece9',
+  fieldBorder: '#d6d6d1',
+  rowHover: '#f1f1ee',
+  imsgBubble: '#e9e9eb',
+  imsgLink: '#0076ff',
+  iosSecondary: '#8e8e93',
+  tabBg: 'rgba(247,245,241,.95)',
+  callDark: '#171717',
+
+  // legacy aliases (older screens reference these; keep them mapped)
+  cream: '#f8f8f6',
+  card: '#ffffff',
+  accent: '#0d6b57',
   accentDeep: '#095242',
-  accentSoft: '#EEF4F1',
-  green: '#0D6B57',
+  accentSoft: '#eef4f1',
+  inkSoft: '#707070',
+  inkFaint: '#b8b8b3',
+  redSoft: '#fdeeea',
+  redText: '#8c1f0c',
+  greenSoft: '#eef4f1',
+  greenText: '#0d4a3b',
+  amberSoft: '#fbf0dd',
+  amberText: '#7a4e0d',
   greenDark: '#095242',
-  greenDeep: '#0D4A3B',
-  greenSoft: '#EEF4F1',
-  greenSoft2: '#C9E3DA',
-  greenText: '#0D4A3B',
-  greenInk: '#1F4F43',
-  // RED — danger only
-  red: '#EC3013',
-  redSoft: '#FDEEEA',
-  redText: '#B7280F',
-  // AMBER — caution, warm to fit the palette
-  amber: '#B7791F',
-  amberSoft: '#FAF1DF',
-  amberText: '#7A5200',
+  greenDeep: '#0d4a3b',
+  greenSoft2: '#c9e3da',
+  hairline2: '#edece9',
+  page: '#e7e3dc',
 
-  // radii — soft, rounded
-  radius: 14,
-  radiusSm: 12,
-  radiusLg: 16,
-  radiusXl: 20,
+  // geometry — exact
+  radius: 14,      // cards
+  radiusSm: 12,    // buttons + inputs
+  gutter: 20,
+  gutterWide: 22,
+  btnPrimary: 56,
+  btnSecondary: 50,
 
-  // type scale
+  // type sizes used across screens
   caption: 12.5,
-  small: 14,
+  small: 13.5,
   label: 15,
-  body: 16,
-  bodyLg: 17,
+  body: 14.5,
+  bodyLg: 16,
   title: 19,
-  headline: 23,
-  display: 30,
-  giant: 38,
+  screenTitle: 27,
+  verdictWord: 32,
+  introDisplay: 38,
+  statNum: 24,
   button: 16,
 
-  // layout
-  tap: 54,
+  tap: 44,
   pad: 20,
 } as const;
 
-// v4 surfaces sit on a very soft 1px shadow, not a lifted card.
 export const SHADOW = {
   shadowColor: '#171717',
   shadowOpacity: 0.05,
-  shadowRadius: 3,
+  shadowRadius: 2,
   shadowOffset: { width: 0, height: 1 },
   elevation: 1,
 } as const;
 
-// Verdict language — one tint surface, a colour-filled icon chip, the word.
 export const LEVEL_META = {
-  red:   { word: 'Stop',       Icon: OctagonX,      color: T.red,   soft: T.redSoft,   text: T.redText,   line: 'This looks like a scam.' },
-  amber: { word: 'Be careful', Icon: TriangleAlert, color: T.amber, soft: T.amberSoft, text: T.amberText, line: 'This might not be safe.' },
-  green: { word: 'Looks okay', Icon: CircleCheck,   color: T.green, soft: T.greenSoft, text: T.greenText, line: 'This looks okay.' },
+  red:   { word: 'Stop',       Icon: OctagonX,      color: T.red,   soft: T.redTint,   text: T.redInk,   edge: 'rgba(236,48,19,.4)',  line: 'This looks like a scam.' },
+  amber: { word: 'Be careful', Icon: TriangleAlert, color: T.amber, soft: T.amberTint, text: T.amberInk, edge: 'rgba(184,120,26,.4)', line: 'Something about this is not right.' },
+  green: { word: 'Looks okay', Icon: CircleCheck,   color: T.green, soft: T.greenTint, text: T.greenInk, edge: 'rgba(20,112,90,.35)', line: 'Nothing here matches a known scam.' },
 } as const;

@@ -132,7 +132,7 @@ export function analyzeLinks(text: string): { hits: LinkHit[]; urlCount: number;
       continue;
     }
     if (SHORTENERS.includes(reg)) {
-      push(30, 'url-shortener', 'The link is shortened, so you can’t see where it really goes.');
+      push(30, 'url-shortener', 'The link is shortened, so you cannot see where it really goes.');
       continue;
     }
     if (host.includes('xn--')) {
