@@ -10,9 +10,9 @@ import type { Ctx } from '../App';
 
 export default function PeopleScreen({ ctx }: { ctx: Ctx }) {
   const careMode = ctx.settings.role === 'caretaker';
-  const watchName = ctx.settings.watching?.name?.split(' ')[0] || 'Ruth';
+  const watchName = ctx.settings.watching?.name?.split(' ')[0] || ctx.settings.careName.split(' ')[0] || 'them';
   const people = careMode && ctx.settings.watching
-    ? [{ name: ctx.settings.watching.name, phone: ctx.settings.watching.phone, meta: (ctx.settings.careRel || 'Mother') + ' · ' + ctx.settings.watching.phone }]
+    ? [{ name: ctx.settings.watching.name, phone: ctx.settings.watching.phone, meta: (ctx.settings.careRel || 'Family') + ' · ' + ctx.settings.watching.phone }]
     : ctx.settings.trusted.map(p => ({ ...p, meta: p.phone }));
 
   const add = async () => {
@@ -28,9 +28,11 @@ export default function PeopleScreen({ ctx }: { ctx: Ctx }) {
     } catch { ctx.flash('Opens your contacts to pick one person.'); }
   };
 
+  // The exact opening line of the real text this app sends, with the real names.
+  const me = (ctx.settings.myName || '').split(' ')[0];
   const quote = careMode
-    ? '“' + watchName + ', a text about a parcel fee just came in on your phone. Loop Me flagged it as a scam. Do not tap it.”'
-    : '“Mum checked a text about a parcel fee. Loop Me flagged it as a scam. Nothing was tapped.”';
+    ? '“' + (me || 'Someone') + ' sent a note through Loop Me:” — your words follow, under the exact check on ' + watchName + '’s phone.'
+    : '“' + (me ? me + ' would' : 'I would') + ' like a second opinion on a message.” — the message and what we found follow, with a tap-to-reply link.';
 
   return (
     <KFIn duration={260} style={{ flex: 1 }} playKey="people">
@@ -53,7 +55,7 @@ export default function PeopleScreen({ ctx }: { ctx: Ctx }) {
             </Pressable>
             <Pressable style={st.removeBtn} accessibilityRole="button" accessibilityLabel={'Remove ' + p.name}
               onPress={() => careMode
-                ? ctx.flash('She stays in your trusted list while you look after her.')
+                ? ctx.flash('They stay in your trusted list while you look after them.')
                 : ctx.update({ ...ctx.settings, trusted: ctx.settings.trusted.filter((_, j) => j !== i) })}>
               <X size={15} color={T.sub} strokeWidth={2} />
             </Pressable>

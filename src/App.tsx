@@ -218,7 +218,7 @@ export default function App() {
   if (!settings || !fontsLoaded) return <View style={st.root} />;
 
   const careMode = settings.role === 'caretaker';
-  const watchName = settings.watching?.name?.split(' ')[0] || 'Ruth';
+  const watchName = settings.watching?.name?.split(' ')[0] || settings.careName.split(' ')[0] || 'Family';
   const darkBar = screen === 'alert' || screen === 'call';
 
   const ctx: Ctx = {

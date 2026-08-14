@@ -17,8 +17,8 @@ function ago(at: number): string {
 
 export default function WardScreen({ ctx }: { ctx: Ctx }) {
   const watch = ctx.settings.watching;
-  const watchName = watch?.name?.split(' ')[0] || 'Ruth';
-  const full = watch?.name || 'Ruth Alvarez';
+  const watchName = watch?.name?.split(' ')[0] || ctx.settings.careName.split(' ')[0] || 'Family';
+  const full = watch?.name || ctx.settings.careName || 'Family';
   const initials = full.split(' ').map(w => w[0]).join('').slice(0, 2);
   const ward = ctx.hist.filter(h => h.source === 'family');
   const checked = ward.length;
@@ -66,7 +66,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
             <View style={st.needIcon}><OctagonX size={16} color="#fff" strokeWidth={2.4} /></View>
             <View style={{ flex: 1 }}>
               <Text style={st.needTitle} allowFontScaling>{latest.level === 'red' ? 'Scam text stopped' : 'Text worth a second look'}</Text>
-              <Text style={st.needMeta} allowFontScaling>Today {ago(latest.at)}, from {latest.sender || latest.from}. She has been told what to do.</Text>
+              <Text style={st.needMeta} allowFontScaling>Today {ago(latest.at)}, from {latest.sender || latest.from}. They have been told what to do.</Text>
               <View style={st.needLink}>
                 <Text style={st.needLinkText} allowFontScaling>Send a note</Text>
                 <ArrowRight size={14} color={T.redInk} strokeWidth={2.4} />
@@ -109,8 +109,8 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
         </View>
       )}
 
-      <Text style={st.privacy} allowFontScaling>You see flagged messages and calls, and the notes you send. Never {watchName}’s ordinary messages. She can end this from her own phone.</Text>
-      <Pressable style={{ paddingHorizontal: 20, paddingTop: 14 }} onPress={() => ctx.flash('Ends the pairing. ' + watchName + ' is told on her phone.')} accessibilityRole="button">
+      <Text style={st.privacy} allowFontScaling>You see flagged messages and calls, and the notes you send. Never {watchName}’s ordinary messages. They can end this from their own phone.</Text>
+      <Pressable style={{ paddingHorizontal: 20, paddingTop: 14 }} onPress={() => ctx.flash('Ends the pairing. ' + watchName + ' is told on their phone.')} accessibilityRole="button">
         <Text style={st.stop} allowFontScaling>Stop looking after {watchName}</Text>
       </Pressable>
       <View style={{ height: 110 }} />

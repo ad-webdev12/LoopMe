@@ -10,7 +10,7 @@ import type { Ctx } from '../App';
 
 export default function MoreScreen({ ctx }: { ctx: Ctx }) {
   const careMode = ctx.settings.role === 'caretaker';
-  const watchName = ctx.settings.watching?.name?.split(' ')[0] || 'Ruth';
+  const watchName = ctx.settings.watching?.name?.split(' ')[0] || ctx.settings.careName.split(' ')[0] || 'them';
   const watchedBy = ctx.settings.watchedBy;
 
   const Row = ({ Icon, color, title, sub, last, onPress }: { Icon: any; color: string; title: string; sub: string; last?: boolean; onPress: () => void }) => (
@@ -44,7 +44,7 @@ export default function MoreScreen({ ctx }: { ctx: Ctx }) {
             title={watchedBy ? 'Watched over by ' + watchedBy : 'Watched over by no one yet'}
             sub={'Your code is ' + ctx.settings.pairCode + ', read it to them'}
             last
-            onPress={() => ctx.flash(watchedBy ? 'Shows what she can and cannot see, and how to stop it.' : 'Your code is ' + ctx.settings.pairCode + '. Read it to the person who looks after you.')} />
+            onPress={() => ctx.flash(watchedBy ? 'Shows what they can and cannot see, and how to stop it.' : 'Your code is ' + ctx.settings.pairCode + '. Read it to the person who looks after you.')} />
         )}
       </View>
 

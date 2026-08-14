@@ -168,7 +168,7 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
               {careMode ? 'Warn ' + (ctx.settings.watching?.name?.split(' ')[0] || 'them') + ' about this' : 'Loop in ' + (first ? first.name.split(' ')[0] : 'someone')}
             </Text>
             <Text style={st.loopSub} allowFontScaling>
-              {careMode ? 'Send it to her phone so she knows to expect it' : 'Tell your trusted contact what arrived'}
+              {careMode ? 'Send it to their phone so they know to expect it' : 'Tell your trusted contact what arrived'}
             </Text>
           </View>
           <UserCheck size={20} color="#fff" strokeWidth={1.9} />

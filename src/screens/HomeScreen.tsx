@@ -48,10 +48,15 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
     else ctx.flash('We could not hear that. You can also paste or type the message.');
   };
   const careMode = ctx.settings.role === 'caretaker';
-  const first = (ctx.settings.myName || '').split(' ')[0] || (careMode ? 'Maria' : 'Ruth');
+  const first = (ctx.settings.myName || '').split(' ')[0];
   const hour = new Date().getHours();
-  const greeting = (hour < 12 ? 'Good morning' : 'Good afternoon') + ', ' + first;
-  const watchName = ctx.settings.watching?.name?.split(' ')[0] || 'Ruth';
+  const greeting = (hour < 12 ? 'Good morning' : 'Good afternoon') + (first ? ', ' + first : '');
+  const watchName = ctx.settings.watching?.name?.split(' ')[0] || ctx.settings.careName.split(' ')[0] || 'them';
+  const today = new Date().toDateString();
+  const flaggedToday = ctx.hist.filter(h => h.source === 'family' && h.level !== 'green' && new Date(h.at).toDateString() === today).length;
+  const careSub = flaggedToday === 0 ? 'Nothing flagged on their phone today'
+    : flaggedToday === 1 ? '1 message flagged on their phone today'
+    : flaggedToday + ' messages flagged on their phone today';
   const recent = ctx.hist[0];
   const recentMeta = recent
     ? ({ red: 'Scam stopped', amber: 'Needed a second look', green: 'Came back clear' }[recent.level] || '') + ' · ' + when(recent.at)
@@ -84,7 +89,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
             <View style={st.careAvatar}><Text style={st.careAvatarText} allowFontScaling>{watchName[0]}</Text></View>
             <View style={{ flex: 1 }}>
               <Text style={st.careTitle} allowFontScaling>Looking after {watchName}</Text>
-              <Text style={st.careSub} allowFontScaling>Nothing flagged on her phone today</Text>
+              <Text style={st.careSub} allowFontScaling>{careSub}</Text>
             </View>
             <ChevronRight size={16} color={T.green} strokeWidth={2.2} />
           </View>

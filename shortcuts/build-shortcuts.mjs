@@ -1,6 +1,6 @@
-// Builds the two Apple Shortcuts that give Loop Me In a "button inside Messages":
+// Builds the two Apple Shortcuts that give Loop Me a "button inside Messages":
 //
-//  1. "Check with Loop Me In"  — appears in the share sheet (and Siri). Receives
+//  1. "Check with Loop Me"  — appears in the share sheet (and Siri). Receives
 //     shared/selected text, URL-encodes it, opens the app's check deep link.
 //  2. "Scam Alert"             — the automation helper. Fires a danger
 //     notification, then opens the app's full-screen alert deep link. Wire it to
@@ -118,7 +118,7 @@ function build(name, xml) {
 // 1) Share-sheet checker
 {
   const enc = uuid();
-  build('Check with Loop Me In', workflow({
+  build('Check with Loop Me', workflow({
     glyph: 59855, color: 946986751, shareSheet: true,
     actions: encodeAction(enc) + openUrlAction(`${base}check?text=`, enc),
   }));
@@ -130,7 +130,7 @@ function build(name, xml) {
   build('Scam Alert', workflow({
     glyph: 59771, color: 4282601983, shareSheet: false,
     actions:
-      notifyAction('Possible scam detected', 'Do not tap anything in that message. Loop Me In is opening it safely.') +
+      notifyAction('Possible scam detected', 'Do not tap anything in that message. Loop Me is opening it safely.') +
       encodeAction(enc) +
       openUrlAction(`${base}alert?text=`, enc),
   }));

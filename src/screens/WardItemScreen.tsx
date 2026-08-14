@@ -17,7 +17,7 @@ const QUICK = [
 export default function WardItemScreen({ ctx }: { ctx: Ctx }) {
   const [draft, setDraft] = useState('');
   const rec = ctx.hist.find(h => h.id === ctx.wardOpen) || ctx.hist.find(h => h.source === 'family');
-  const watchName = ctx.settings.watching?.name?.split(' ')[0] || 'Ruth';
+  const watchName = ctx.settings.watching?.name?.split(' ')[0] || ctx.settings.careName.split(' ')[0] || 'them';
   if (!rec) return null;
   const red = rec.level !== 'amber';
   const tint = red ? T.redTint : T.amberTint;
@@ -61,7 +61,7 @@ export default function WardItemScreen({ ctx }: { ctx: Ctx }) {
         <Text style={st.told} allowFontScaling>{rec.reason}</Text>
       </View>
 
-      <Text style={[st.sectionLabel, { paddingHorizontal: 20, paddingTop: 22, paddingBottom: 8 }]} allowFontScaling>Send a note to her phone</Text>
+      <Text style={[st.sectionLabel, { paddingHorizontal: 20, paddingTop: 22, paddingBottom: 8 }]} allowFontScaling>Send a note to {watchName}’s phone</Text>
       <View style={{ paddingHorizontal: 20, gap: 7 }}>
         {QUICK.map((q) => (
           <Pressable key={q} style={st.quick} onPress={() => ctx.sendNoteTo(rec.id, q)} accessibilityRole="button">

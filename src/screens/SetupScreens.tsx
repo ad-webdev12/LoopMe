@@ -78,7 +78,7 @@ const s1 = StyleSheet.create({
 
 // ---------------- Ob2 — Who is this phone for? (caregiver) ----------------
 export function Ob2({ ctx }: { ctx: Ctx }) {
-  const [name, setName] = useState(ctx.settings.careName || 'Ruth');
+  const [name, setName] = useState(ctx.settings.careName);
   const [rel, setRel] = useState(ctx.settings.careRel || 'Mother');
   return (
     <KFIn duration={300} style={{ flex: 1 }} playKey="ob2">
@@ -90,7 +90,7 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
       <View style={s2.card}>
         <View>
           <Text style={s2.fieldLabel} allowFontScaling>Their first name</Text>
-          <TextInput style={s2.input} value={name} onChangeText={setName} accessibilityLabel="Their first name" />
+          <TextInput style={s2.input} value={name} onChangeText={setName} placeholder="First name" placeholderTextColor={T.muted} accessibilityLabel="Their first name" />
         </View>
         <View>
           <Text style={s2.fieldLabel} allowFontScaling>They are your</Text>
@@ -105,7 +105,10 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
       </View>
       <Text style={s2.note} allowFontScaling>Nothing here is hidden from them. They see every setting you choose and can switch anything off.</Text>
       <View style={{ marginTop: 'auto', paddingHorizontal: 22, paddingBottom: 30 }}>
-        <CTA label="Continue" onPress={() => { ctx.update({ ...ctx.settings, careName: name.trim() || 'Ruth', careRel: rel }); ctx.go('ob3'); }} />
+        <CTA label="Continue" onPress={() => {
+          if (!name.trim()) { ctx.flash('Add their first name so alerts and notes can use it.'); return; }
+          ctx.update({ ...ctx.settings, careName: name.trim(), careRel: rel }); ctx.go('ob3');
+        }} />
       </View>
     </View>
     </KFIn>

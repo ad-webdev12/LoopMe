@@ -16,7 +16,7 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
   const [code, setCode] = useState('');
   const [codeMsg, setCodeMsg] = useState('');
   const paired = !!ctx.settings.watching && ctx.settings.role === 'caretaker';
-  const watchName = ctx.settings.watching?.name?.split(' ')[0] || 'Ruth';
+  const watchName = ctx.settings.watching?.name?.split(' ')[0] || ctx.settings.careName.split(' ')[0] || 'They';
 
   const ask = async () => {
     if (code.length !== 6) { setCodeMsg('Type the six digits shown on their phone.'); return; }
@@ -85,11 +85,11 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
               <Check size={23} color="#fff" strokeWidth={2.6} />
             </KFPop>
             <Text style={[sw.title, { marginTop: 16 }]} allowFontScaling>You are looking after {watchName}</Text>
-            <Text style={sw.sub} allowFontScaling>{watchName} accepted on her phone. She keeps using Loop Me exactly as before, and you hear from us only when something looks wrong.</Text>
+            <Text style={sw.sub} allowFontScaling>{watchName} accepted on their phone. They keep using Loop Me exactly as before, and you hear from us only when something looks wrong.</Text>
           </View>
           <View style={sw.nextCard}>
             <Text style={sw.nextLabel} allowFontScaling>What happens next</Text>
-            <Text style={sw.nextText} allowFontScaling>The next time a text or call is flagged on her phone, it appears here within a second, and you can send her a note before she taps anything.</Text>
+            <Text style={sw.nextText} allowFontScaling>The next time a text or call is flagged on their phone, it appears here within a second, and you can send them a note before they tap anything.</Text>
           </View>
           <View style={{ paddingHorizontal: 20, paddingTop: 22, paddingBottom: 40, gap: 9 }}>
             <Pressable style={sw.cta} onPress={() => ctx.go('ward')} accessibilityRole="button">

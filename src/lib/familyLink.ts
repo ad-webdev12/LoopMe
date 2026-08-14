@@ -1,7 +1,7 @@
-// The family link — how the two sides of Loop Me In stay connected WITHOUT a
+// The family link — how the two sides of Loop Me stay connected WITHOUT a
 // server. A check travels inside a normal text message the person chooses to
 // send: the text is readable on its own (works even without the app), and it
-// carries a link that opens the other phone's Loop Me In straight to the right
+// carries a link that opens the other phone's Loop Me straight to the right
 // screen. Replies travel back the same way. Privacy falls out of the design:
 // there is nothing in the middle to breach.
 import { Linking, Platform, Share } from 'react-native';
@@ -42,7 +42,7 @@ export function askText(myName: string, rec: CheckRecord): string {
   return (
     `${who} like a second opinion on a message.\n\n` +
     `“${rec.excerpt}”\n\n` +
-    `Loop Me In says: ${m.word} — ${rec.reason}\n\n` +
+    `Loop Me says: ${m.word} — ${rec.reason}\n\n` +
     `Tap to see the full check and reply:\n${buildFamilyUrl({ k: 'ask', id: rec.id, n: myName || 'Family', l: rec.level, s: rec.score, t: rec.tags, r: rec.reason, e: rec.excerpt })}`
   );
 }
@@ -53,13 +53,13 @@ export function replyText(myName: string, rec: CheckRecord, verdict: FamilyReply
     : 'Let’s talk before you do anything — call me when you can.';
   return (
     `${myName ? myName + ' looked' : 'I looked'} at the message you checked.\n\n${word}\n\n` +
-    `Tap to save this answer in Loop Me In:\n${buildFamilyUrl({ k: 'reply', id: rec.id, n: myName || 'Family', v: verdict })}`
+    `Tap to save this answer in Loop Me:\n${buildFamilyUrl({ k: 'reply', id: rec.id, n: myName || 'Family', v: verdict })}`
   );
 }
 
 export function pairText(myName: string, myPhone: string): string {
   return (
-    `${myName || 'Someone'} wants to link Loop Me In with you, so you can watch out for each other’s messages.\n\n` +
+    `${myName || 'Someone'} wants to link Loop Me with you, so you can watch out for each other’s messages.\n\n` +
     `Tap to link:\n${buildFamilyUrl({ k: 'pair', n: myName, p: myPhone })}`
   );
 }
