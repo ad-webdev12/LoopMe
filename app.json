@@ -1,25 +1,45 @@
 {
   "expo": {
-    "name": "Loop Me In",
+    "name": "Loop Me",
     "slug": "loop-me-in",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "backgroundColor": "#F8F8F6",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/adaptive-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#0D6B57"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.loop-me-in"
+      "bundleIdentifier": "com.loopme.app",
+      "buildNumber": "1",
+      "requireFullScreen": true,
+      "privacyManifests": {
+        "NSPrivacyCollectedDataTypes": [],
+        "NSPrivacyTracking": false,
+        "NSPrivacyAccessedAPITypes": [
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
+            "NSPrivacyAccessedAPITypeReasons": ["CA92.1"]
+          }
+        ]
+      },
+      "infoPlist": {
+        "NSCameraUsageDescription": "Loop Me uses the camera only when you choose to check a QR code or photo of a message. Nothing is uploaded.",
+        "NSContactsUsageDescription": "Loop Me can add a trusted family member from your contacts, so you can reach them in one tap. Your contacts stay on your phone.",
+        "NSMicrophoneUsageDescription": "Loop Me uses the microphone only when you tap ‘Speak it’ to read out a message. Nothing is uploaded.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.loopme.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#0D6B57"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false

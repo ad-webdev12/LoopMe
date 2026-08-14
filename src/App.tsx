@@ -34,8 +34,8 @@ import TrustScreen from './screens/TrustScreen';
 
 export type Route =
   | { name: 'home' }
-  | { name: 'verdict'; message: string; verdict: Verdict; recordId: string }
-  | { name: 'alert'; message: string; verdict: Verdict; recordId: string }
+  | { name: 'verdict'; message: string; verdict: FusedVerdict; recordId: string }
+  | { name: 'alert'; message: string; verdict: FusedVerdict; recordId: string }
   | { name: 'detail'; record: CheckRecord }
   | { name: 'careguide' }
   | { name: 'circle' } | { name: 'panic' } | { name: 'settings' } | { name: 'learn' }
