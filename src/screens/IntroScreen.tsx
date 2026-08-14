@@ -2,7 +2,7 @@
 // explicit absolute offsets inside the frame (per the handoff: normal flow will
 // not reproduce it). SF depicts the iMessage bubbles; Archivo is the app voice.
 import React, { useEffect, useRef, useState } from 'react';
-import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Pressable, SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { ArrowRight } from 'lucide-react-native';
 import { T, F } from '../theme';
@@ -28,8 +28,11 @@ export default function IntroScreen({ ctx }: { ctx: Ctx }) {
     ctx.go('home');
   };
 
+  const beatBg = ['#ec3013', '#ffffff', '#ffffff'][beat];
   return (
-    <View style={[st.root, { backgroundColor: ['#ec3013', '#ffffff', '#ffffff'][beat] }]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: beatBg }}>
+    <StatusBar barStyle={beat === 0 ? 'light-content' : 'dark-content'} />
+    <View style={[st.root, { backgroundColor: beatBg }]}>
       {/* ---------------- Beat 0 — Is this message safe? ---------------- */}
       {beat === 0 && (
         <View style={StyleSheet.absoluteFill}>
@@ -171,22 +174,24 @@ export default function IntroScreen({ ctx }: { ctx: Ctx }) {
         </View>
       )}
 
-      {/* dots + CTA */}
+      {/* dots + CTA — source: dots white/white-42 on every beat; the button is
+          always white, its label #ec3013 on beat 0 and #0d4a3b after. */}
       <View style={st.ctaWrap}>
         <View style={st.dots}>
           {[0, 1, 2].map(i => (
-            <Pressable key={i} style={[st.dot, { backgroundColor: i === beat ? (beat === 0 ? '#fff' : T.green) : beat === 0 ? 'rgba(255,255,255,.42)' : 'rgba(13,107,87,.3)' }]} onPress={() => pick(i)} accessibilityRole="button" accessibilityLabel={'Beat ' + (i + 1)} />
+            <Pressable key={i} style={[st.dot, { backgroundColor: i === beat ? '#fff' : 'rgba(255,255,255,.42)' }]} onPress={() => pick(i)} accessibilityRole="button" accessibilityLabel={'Beat ' + (i + 1)} />
           ))}
         </View>
-        <Pressable style={[st.cta, { backgroundColor: beat === 0 ? '#fff' : T.green }]} onPress={start} accessibilityRole="button">
-          <Text style={[st.ctaText, { color: beat === 0 ? '#ec3013' : '#fff' }]} allowFontScaling>Get started</Text>
-          <ArrowRight size={20} color={beat === 0 ? '#ec3013' : '#fff'} strokeWidth={2.2} />
+        <Pressable style={[st.cta, { backgroundColor: '#fff' }]} onPress={start} accessibilityRole="button">
+          <Text style={[st.ctaText, { color: beat === 0 ? '#ec3013' : '#0d4a3b' }]} allowFontScaling>Get started</Text>
+          <ArrowRight size={20} color={beat === 0 ? '#ec3013' : '#0d4a3b'} strokeWidth={2.2} />
         </Pressable>
         <Pressable style={st.skip} onPress={skip} accessibilityRole="button">
-          <Text style={[st.skipText, { color: beat === 0 ? 'rgba(255,255,255,.9)' : T.ink }]} allowFontScaling>I’ve used this before</Text>
+          <Text style={[st.skipText, { color: 'rgba(255,255,255,.85)' }]} allowFontScaling>I’ve used this before</Text>
         </Pressable>
       </View>
     </View>
+    </SafeAreaView>
   );
 }
 

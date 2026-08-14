@@ -106,7 +106,7 @@ export default function App() {
       // The elder phone carries a standing six-digit code for the pairing handshake.
       if (!s.pairCode) { s = { ...s, pairCode: sixDigits() }; saveSettings(s); }
       setSettings(s);
-      setScreen(((global as any).__SWEEP__ as ScreenId) || (s.introSeen && s.role ? 'home' : 'intro'));
+      setScreen(s.introSeen && s.role ? 'home' : 'intro');
     });
     refreshHist();
   }, [refreshHist]);
@@ -219,7 +219,7 @@ export default function App() {
 
   const careMode = settings.role === 'caretaker';
   const watchName = settings.watching?.name?.split(' ')[0] || 'Ruth';
-  const darkBar = screen === 'alert' || screen === 'call' || (screen === 'intro');
+  const darkBar = screen === 'alert' || screen === 'call';
 
   const ctx: Ctx = {
     settings, update, screen, go, flash, check,
@@ -230,11 +230,14 @@ export default function App() {
 
   const goTab = (t: TabId) => go(t as ScreenId);
 
+  // The intro owns its own chrome: the status-bar field follows the beat
+  // (red on beat 0, white after), exactly like the design's barTint.
+  if (screen === 'intro') return <IntroScreen ctx={ctx} />;
+
   return (
-    <SafeAreaView style={[st.root, darkBar && { backgroundColor: screen === 'alert' ? T.red : screen === 'call' ? T.callDark : T.red }]}>
+    <SafeAreaView style={[st.root, darkBar && { backgroundColor: screen === 'alert' ? T.red : T.callDark }]}>
       <StatusBar barStyle={darkBar ? 'light-content' : 'dark-content'} />
       <View style={st.body}>
-        {screen === 'intro' && <IntroScreen ctx={ctx} />}
         {screen === 'ob1' && <Ob1 ctx={ctx} />}
         {screen === 'ob2' && <Ob2 ctx={ctx} />}
         {screen === 'ob3' && <Ob3 ctx={ctx} />}
