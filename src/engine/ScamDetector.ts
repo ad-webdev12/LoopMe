@@ -100,6 +100,18 @@ const RULES: Rule[] = [
   // — Remote access / urgency
   { re: /(?:anydesk|teamviewer|ultraviewer|remote access|screen shar\w+|install (?:this|the) (?:app|software))/i, w: 45, tag: 'remote-access', plain: 'It asks you to install remote-access software so someone can control your phone.' },
   { re: /(?:act now|urgent|immediately|right away|within (?:24|48) hours|expires? (?:today|soon|tonight)|final notice|last (?:chance|warning)|asap|don'?t delay)/i, w: 15, tag: 'urgency', plain: 'It uses pressure words to rush you. Rushing is a scammer\u2019s favourite tool.' },
+
+  // \u2014 The same cons in Spanish, French, and Portuguese. Scammers pick the
+  //   victim's language; the detector must not be English-only.
+  { re: /(?:su )?cuenta (?:ser[a\u00e1]|est[a\u00e1]|fue) (?:suspendida?|bloqueada?|cerrada?|limitada?)|verifi(?:que|car) (?:su )?(?:cuenta|informaci[o\u00f3]n|identidad)/i, w: 40, tag: 'bank-alert', plain: 'It claims an account will be suspended unless you act \u2014 the classic pressure move, written in Spanish.' },
+  { re: /(?:haga clic|pulse|presione) aqu[i\u00ed]|ingrese (?:sus? )?(?:datos|clave|contrase[n\u00f1]a)/i, w: 30, tag: 'urgency', plain: 'It pushes you to tap a link or enter private details (written in Spanish).' },
+  { re: /(?:inmediatamente|urgente|hoy mismo|[u\u00fa]ltimo aviso|aviso final)[\s\S]{0,60}(?:cuenta|pago|multa|paquete)|(?:cuenta|pago|multa|paquete)[\s\S]{0,60}(?:inmediatamente|urgente|hoy mismo|[u\u00fa]ltimo aviso|aviso final)/i, w: 30, tag: 'urgency', plain: 'It pairs pressure words with money or an account (written in Spanish). Rushing is a scammer\u2019s favourite tool.' },
+  { re: /(?:ha )?ganado (?:un |el )?(?:premio|loter[i\u00ed]a|sorteo)|reclam(?:e|ar) su premio/i, w: 42, tag: 'prize', plain: 'It says you won a prize you never entered for (written in Spanish).' },
+  { re: /(?:comparta|env[i\u00ed]e|d[i\u00ed]game)[\s\S]{0,40}c[o\u00f3]digo (?:de )?(?:verificaci[o\u00f3]n|seguridad)|c[o\u00f3]digo (?:de )?(?:verificaci[o\u00f3]n|seguridad)[\s\S]{0,40}(?:comparta|env[i\u00ed]e|responda)/i, w: 55, tag: 'otp-request', plain: 'It asks you to hand over a security code (written in Spanish). No real company ever asks for the code.' },
+  { re: /paquete (?:retenido|detenido|en espera)[\s\S]{0,80}(?:tarifa|pago|arancel|impuesto)|aduana[\s\S]{0,60}(?:tarifa|pago)/i, w: 40, tag: 'delivery-fee', plain: 'A held package with a small fee to release it (written in Spanish) \u2014 a card-harvesting trick.' },
+  { re: /(?:votre )?compte (?:sera|est|a [e\u00e9]t[e\u00e9]) (?:suspendu|bloqu[e\u00e9]|ferm[e\u00e9]|limit[e\u00e9])|v[e\u00e9]rifiez votre (?:compte|identit[e\u00e9])|cliquez ici/i, w: 40, tag: 'bank-alert', plain: 'It claims an account will be suspended unless you act \u2014 the classic pressure move, written in French.' },
+  { re: /colis (?:retenu|en attente|bloqu[e\u00e9])[\s\S]{0,70}(?:frais|paiement|douane)|code de v[e\u00e9]rification[\s\S]{0,50}(?:partagez|envoyez|donnez)/i, w: 42, tag: 'delivery-fee', plain: 'A held package with a fee, or a request for a security code (written in French).' },
+  { re: /(?:sua )?conta (?:ser[a\u00e1]|est[a\u00e1]|foi) (?:suspensa|bloqueada|encerrada|limitada)|verifique sua (?:conta|identidade)|clique aqui/i, w: 40, tag: 'bank-alert', plain: 'It claims an account will be suspended unless you act \u2014 the classic pressure move, written in Portuguese.' },
 ];
 
 // PRECISION GUARD — the false-positive killer. Trend Micro flagged a real Amazon receipt; we will not.

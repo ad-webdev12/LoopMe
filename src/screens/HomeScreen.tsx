@@ -187,7 +187,7 @@ const st = StyleSheet.create({
     borderWidth: 1, borderColor: T.hairline, borderRadius: 14, overflow: 'hidden',
     shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
   },
-  box: { minHeight: 124, paddingHorizontal: 16, paddingVertical: 15, fontSize: 16, lineHeight: 24, fontFamily: F.body, color: T.ink, textAlignVertical: 'top' },
+  box: { minHeight: 124, maxHeight: 240, paddingHorizontal: 16, paddingVertical: 15, fontSize: 16, lineHeight: 24, fontFamily: F.body, color: T.ink, textAlignVertical: 'top' },
   pasteRow: { paddingHorizontal: 16, paddingBottom: 10 },
   pasteText: { fontSize: 14, fontFamily: F.semibold, color: T.green },
   checkBtn: { height: 54, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 },

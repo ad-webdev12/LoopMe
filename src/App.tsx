@@ -101,17 +101,23 @@ export default function App() {
 
   const refreshHist = useCallback(() => { listChecks().then(setHist); }, []);
 
+  // Mirror of settings that updates the moment update() runs — handlers that
+  // write settings and navigate in the same tick read the truth, not the
+  // previous render's state.
+  const settingsRef = useRef<Settings | null>(null);
+
   useEffect(() => {
     loadSettings().then((s) => {
       // The elder phone carries a standing six-digit code for the pairing handshake.
       if (!s.pairCode) { s = { ...s, pairCode: sixDigits() }; saveSettings(s); }
+      settingsRef.current = s;
       setSettings(s);
       setScreen(s.introSeen && s.role ? 'home' : 'intro');
     });
     refreshHist();
   }, [refreshHist]);
 
-  const update = useCallback((s: Settings) => { setSettings(s); saveSettings(s); }, []);
+  const update = useCallback((s: Settings) => { settingsRef.current = s; setSettings(s); saveSettings(s); }, []);
 
   const flash = useCallback((t: string) => {
     setToast(t);
@@ -119,8 +125,15 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToast(''), 2200);
   }, []);
 
-  const go = useCallback((s: ScreenId) => { setScreen(s); }, []);
+  const go = useCallback((s: ScreenId) => {
+    // Nothing may skip setup: any road "home" before onboarding is done leads
+    // back into it (a share or Shortcut can arrive before first-run finishes).
+    const cur = settingsRef.current;
+    if (s === 'home' && cur && !(cur.introSeen && cur.role)) s = cur.introSeen ? 'ob1' : 'intro';
+    setScreen(s);
+  }, []);
 
+  const activeCheck = useRef('');
   const check = useCallback((text: string, sender?: string) => {
     const raw = (text || '').trim();
     if (!raw) { flash('Paste a message first, then tap Check.'); return; }
@@ -133,17 +146,19 @@ export default function App() {
     const v = instant(raw, detOpts);
     recentTags.current = v.tags;
     const rec = newRecord({ message: raw, level: v.level, score: v.score, tags: v.tags, reason: v.reason, source: sender ? 'link' : 'typed' });
-    rec.sender = sender || 'Pasted message';
+    if (sender) rec.sender = sender;
     addCheck(rec).then(refreshHist);
+    activeCheck.current = rec.id;
     setMsg(raw); setVerdict(v); setRecordId(rec.id); setNote(null);
     setScreen(v.level === 'red' && sender ? 'alert' : 'verdict');
-    // Real on-device AI second opinion fuses in when it resolves.
+    // Real on-device AI second opinion fuses in when it resolves. The guard
+    // keeps a slow result from an OLDER check off a newer check's screen.
     upgrade(raw, v, detOpts).then((fused) => {
       if (!fused.fused) return;
-      recentTags.current = fused.tags;
       updateCheck(rec.id, { level: fused.level, reason: fused.reason }).then(refreshHist);
-      setVerdict((cur) => (cur && rec.id === recId(cur, rec.id) ? fused : cur));
-      function recId(_c: FusedVerdict, id: string) { return id; }
+      if (activeCheck.current !== rec.id) return;
+      recentTags.current = fused.tags;
+      setVerdict(fused);
     }).catch(() => {});
   }, [settings, flash, refreshHist]);
 

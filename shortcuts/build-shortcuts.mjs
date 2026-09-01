@@ -17,7 +17,29 @@ const OFC = '￼'; // object replacement char marks the variable position in tex
 
 const uuid = () => execSync('uuidgen').toString().trim();
 
-const encodeAction = (id) => `
+// iOS drops custom-scheme URLs past ~2KB once percent-encoded, silently.
+// Every detection signal lives in a message's opening, so the shortcut keeps
+// the first 450 characters — long forwards still check instead of vanishing.
+const truncateAction = (id) => `
+    <dict>
+      <key>WFWorkflowActionIdentifier</key>
+      <string>is.workflow.actions.text.replace</string>
+      <key>WFWorkflowActionParameters</key>
+      <dict>
+        <key>UUID</key><string>${id}</string>
+        <key>WFReplaceTextFind</key><string>(?s)^(.{450}).*$</string>
+        <key>WFReplaceTextReplace</key><string>$1</string>
+        <key>WFReplaceTextRegularExpression</key><true/>
+        <key>WFReplaceTextCaseSensitive</key><false/>
+        <key>WFInput</key>
+        <dict>
+          <key>WFSerializationType</key><string>WFTextTokenAttachment</string>
+          <key>Value</key><dict><key>Type</key><string>ExtensionInput</string></dict>
+        </dict>
+      </dict>
+    </dict>`;
+
+const encodeAction = (id, srcId) => `
     <dict>
       <key>WFWorkflowActionIdentifier</key>
       <string>is.workflow.actions.urlencode</string>
@@ -28,7 +50,13 @@ const encodeAction = (id) => `
         <key>WFInput</key>
         <dict>
           <key>WFSerializationType</key><string>WFTextTokenAttachment</string>
-          <key>Value</key><dict><key>Type</key><string>ExtensionInput</string></dict>
+          <key>Value</key>
+          <dict>${srcId ? `
+            <key>Type</key><string>ActionOutput</string>
+            <key>OutputUUID</key><string>${srcId}</string>
+            <key>OutputName</key><string>Updated Text</string>` : `
+            <key>Type</key><string>ExtensionInput</string>`}
+          </dict>
         </dict>
       </dict>
     </dict>`;
@@ -117,21 +145,21 @@ function build(name, xml) {
 
 // 1) Share-sheet checker
 {
-  const enc = uuid();
+  const cut = uuid(), enc = uuid();
   build('Check with Loop Me', workflow({
     glyph: 59855, color: 946986751, shareSheet: true,
-    actions: encodeAction(enc) + openUrlAction(`${base}check?text=`, enc),
+    actions: truncateAction(cut) + encodeAction(enc, cut) + openUrlAction(`${base}check?text=`, enc),
   }));
 }
 
 // 2) Automation helper: danger notification + full-screen alert
 {
-  const enc = uuid();
+  const cut = uuid(), enc = uuid();
   build('Scam Alert', workflow({
     glyph: 59771, color: 4282601983, shareSheet: false,
     actions:
       notifyAction('Possible scam detected', 'Do not tap anything in that message. Loop Me is opening it safely.') +
-      encodeAction(enc) +
+      truncateAction(cut) + encodeAction(enc, cut) +
       openUrlAction(`${base}alert?text=`, enc),
   }));
 }

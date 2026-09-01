@@ -40,7 +40,16 @@ const BRANDS: Brand[] = [
   { label: 'the IRS', match: ['irs', 'internal revenue'], domains: ['irs.gov'] },
   { label: 'Social Security', match: ['social security', 'ssa'], domains: ['ssa.gov'] },
   { label: 'Medicare', match: ['medicare'], domains: ['medicare.gov'] },
+  { label: 'BBVA', match: ['bbva'], domains: ['bbva.com', 'bbva.mx', 'bbva.es'] },
+  { label: 'Santander', match: ['santander'], domains: ['santander.com', 'santander.com.mx', 'santander.com.br'] },
+  { label: 'Banamex', match: ['banamex', 'citibanamex'], domains: ['banamex.com'] },
+  { label: 'CaixaBank', match: ['caixa'], domains: ['caixabank.es', 'caixa.gov.br'] },
+  { label: 'Scotiabank', match: ['scotiabank', 'scotia'], domains: ['scotiabank.com'] },
 ];
+
+// Security-flavoured words scammers bake into hostnames, in the languages this
+// app defends against. A real bank's address is its name — not a sentence.
+const SECURITY_WORDS = /(?:secure|security|verify|verification|login|signin|account|alert|support|bank|banco|banque|seguro|segura|verificar|acceso|cuenta|clave|conta|verifier|compte)/;
 
 const SHORTENERS = [
   'bit.ly', 'tinyurl.com', 'goo.gl', 't.co', 'ow.ly', 'is.gd', 'buff.ly',
@@ -184,6 +193,15 @@ export function analyzeLinks(text: string): { hits: LinkHit[]; urlCount: number;
       if (flagged) break;
     }
     if (flagged) continue;
+
+    // Language-neutral: a hyphenated hostname dressed in security words
+    // ("bbva-seguro-verificar.co", "compte-securise-login.info"). Real
+    // companies' addresses are their name, not a reassuring sentence.
+    const regName = reg.split('.')[0];
+    if (regName.includes('-') && SECURITY_WORDS.test(regName)) {
+      push(38, 'url-security-theater', 'The link’s address is dressed up in security words — real companies never do that.');
+      continue;
+    }
 
     const tld = host.split('.').pop() || '';
     if (SUSPICIOUS_TLDS.includes(tld.replace(/[0-9-].*$/, ''))) {

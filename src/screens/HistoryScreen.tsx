@@ -57,11 +57,16 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
     return out;
   }, [hist]);
 
-  // Repeat sender: 3+ non-green from the same sender in the last 7 days.
+  // Repeat sender: 3+ non-green from the same REAL sender in the last 7 days.
+  // Typed/pasted checks carry no sender and never count — unrelated pastes are
+  // not one caller (records from older builds stored the literal placeholder).
   const repeat = useMemo(() => {
     const cutoff = Date.now() - 7 * 86400000;
     const bySender = new Map<string, number>();
-    for (const h of hist) if (h.at > cutoff && h.level !== 'green' && h.sender) bySender.set(h.sender, (bySender.get(h.sender) || 0) + 1);
+    for (const h of hist) {
+      if (h.at <= cutoff || h.level === 'green' || !h.sender || h.sender === 'Pasted message') continue;
+      bySender.set(h.sender, (bySender.get(h.sender) || 0) + 1);
+    }
     for (const [sender, n] of bySender) if (n >= 3) return { sender, n };
     return null;
   }, [hist]);

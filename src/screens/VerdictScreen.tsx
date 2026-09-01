@@ -34,6 +34,7 @@ const FLAGS: RegExp[] = [
 export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
   const v = ctx.verdict;
   const [why, setWhy] = useState(false);
+  const [showAll, setShowAll] = useState(false);
   const [reading, setReading] = useState(false);
   const [readIdx, setReadIdx] = useState(-1);
   const [readSlow, setReadSlow] = useState(false);
@@ -157,8 +158,14 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
         <Text style={st.sectionLabel} allowFontScaling>Message checked</Text>
         <View style={st.msgRow}>
           <View style={st.msgRule} />
-          <Text style={st.msgText} allowFontScaling>{ctx.msg}</Text>
+          {/* Long messages fold, so the answer and the buttons stay in reach. */}
+          <Text style={st.msgText} allowFontScaling numberOfLines={showAll || ctx.msg.length <= 420 ? undefined : 8}>{ctx.msg}</Text>
         </View>
+        {ctx.msg.length > 420 && (
+          <Pressable onPress={() => setShowAll(v => !v)} accessibilityRole="button">
+            <Text style={st.showAll} allowFontScaling>{showAll ? 'Show less' : 'Show the whole message'}</Text>
+          </Pressable>
+        )}
       </View>
 
       <View style={st.actions}>
@@ -265,6 +272,7 @@ const st = StyleSheet.create({
   msgRow: { flexDirection: 'row', gap: 12, marginTop: 8 },
   msgRule: { width: 3, borderRadius: 2, backgroundColor: T.fieldBorder },
   msgText: { flex: 1, fontSize: 15, fontFamily: F.body, color: T.ink2, lineHeight: 23.25 },
+  showAll: { fontSize: 14, fontFamily: F.semibold, color: T.green, paddingTop: 8, paddingLeft: 15 },
 
   actions: { paddingHorizontal: 20, paddingTop: 24, gap: 9 },
   loopBtn: { height: 62, borderRadius: 12, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 17, gap: 10 },
