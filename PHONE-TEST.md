@@ -1,7 +1,7 @@
 # Test Loop Me on your iPhone — every feature, no examples
 
-The app installs signed with your free Apple ID (deysaurav77@gmail.com). No paid
-account needed for this. A free-signed install runs for 7 days, then just
+The app installs signed with your own free Apple ID. No paid account is
+needed for this. A free-signed install runs for 7 days, then just
 reinstall with the same command.
 
 ## One-time phone setup (2 minutes)
@@ -10,13 +10,13 @@ reinstall with the same command.
    Developer Mode → On → restart the phone. (If you don't see the menu item,
    plug the phone in, run the install once, and it will appear.)
 2. **Trust the app** — after the first install: Settings → General →
-   VPN & Device Management → tap "Apple Development: deysaurav77@gmail.com" →
+   VPN & Device Management → tap "Apple Development: your Apple ID" →
    Trust.
 
 ## Install / reinstall
 
 ```bash
-cd ~/fresh/LoopMe && npx expo run:ios --device "Aarav’s iPhone" --configuration Release
+cd ~/fresh/LoopMe && npx expo run:ios --device "<your iPhone name>" --configuration Release
 ```
 
 Release builds are self-contained — the phone does not need your Mac after
@@ -76,7 +76,7 @@ Everything below is real data — nothing is pre-filled.
 
 ## What the AI tier shows on this phone
 
-This iPhone runs iOS 17, which has no Apple Intelligence — so the second
+An iPhone on iOS 17, which has no Apple Intelligence — so the second
 opinion comes from the bundled Core ML model (the verdict footer says
 "On-device model"). On an iPhone 15 Pro or newer with iOS 26, the same build
 automatically uses Apple Intelligence instead. Both are fully on-device; the
