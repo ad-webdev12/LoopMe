@@ -4,7 +4,7 @@ Two shortcut files live in `shortcuts/` (copies are on the Mac's Desktop):
 
 | File | What it does |
 |---|---|
-| `Check with Loop Me In.shortcut` | Adds Loop Me In to the **share sheet** and **Siri** |
+| `Check with Loop Me.shortcut` | Adds Loop Me to the **share sheet** and **Siri** |
 | `Scam Alert.shortcut` | The automation payload: **danger notification** + opens the full-screen red alert |
 
 Both point at the dev tunnel (`exp://jccots4-anonymous-8081.exp.direct/--/…`), so they
@@ -22,14 +22,14 @@ then tap each — Shortcuts opens and asks to add it. They're signed, so no
 1. In Messages, **long-press** the scam message bubble
 2. Tap **More…** (the bubble gets a checkmark)
 3. Tap the **share arrow** (bottom-left)
-4. Tap **Check with Loop Me In**
+4. Tap **Check with Loop Me**
 
-Loop Me In opens instantly with the verdict. Four taps, no copying, no typing.
+Loop Me opens instantly with the verdict. Four taps, no copying, no typing.
 This is the "exception" to Apple's rules: apps can't *read* Messages, but Messages
 will happily *hand* a message to a shortcut.
 
 Same shortcut also works from Mail, WhatsApp, Safari — anywhere text can be shared —
-and by voice: **"Hey Siri, Check with Loop Me In."**
+and by voice: **"Hey Siri, Check with Loop Me."**
 
 ## Flow 2 — automatic danger notifications (the bold one)
 
@@ -44,7 +44,7 @@ Shortcuts automations CAN see incoming Messages content. Wire the keywords once:
    - `arrest` · `bail` · `Bitcoin` · `redelivery fee` · `suspended`
 
 Now when a text arrives containing any of those, the phone immediately shows
-**"Possible scam detected — do not tap anything"** and opens Loop Me In's
+**"Possible scam detected — do not tap anything"** and opens Loop Me's
 full-screen red alert with the message already analyzed. That's the danger
 notification Apple doesn't let any App Store app deliver — built from parts
 Apple ships in every iPhone.

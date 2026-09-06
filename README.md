@@ -1,11 +1,36 @@
-# Loop Me In
+# Loop Me
 
 **Check any message before you trust it — and keep your family in the loop.**
 
-Loop Me In is a scam-safety app for iPhone built for the people scammers actually target:
+Loop Me is a scam-safety app for iPhone built for the people scammers actually target:
 older adults, and the family members who look out for them. Paste, share, or speak a
 suspicious message and get a committed verdict in plain words — **Stop**, **Be careful**,
 or **Looks okay** — with one safe step and a one-tap way to ask family for a second opinion.
+
+## Run it on your Mac (5 minutes)
+
+Anyone with a Mac can build and test the full app — simulator needs **no Apple
+account** of any kind.
+
+Prerequisites: Xcode 16+ (with the iOS platform installed) and Node 20+.
+
+```bash
+git clone https://github.com/ad-webdev12/LoopMe.git
+cd LoopMe
+npm install
+npx expo run:ios
+```
+
+That one last command generates the native project, installs CocoaPods, builds,
+boots an iPhone simulator, and launches the app. First build takes a few
+minutes; after that it is seconds.
+
+- **On a real iPhone:** plug it in, enable Developer Mode on the phone, sign
+  into Xcode once with any free Apple ID (Xcode -> Settings -> Accounts), then
+  `bash install-on-iphone.sh` (or `npx expo run:ios --device`). A full
+  on-device feature walkthrough is in [PHONE-TEST.md](PHONE-TEST.md).
+- **Engine only (no Xcode):** `npm test` runs the 153-case detection suite in
+  plain Node.
 
 ## Why it's different
 
@@ -30,19 +55,20 @@ forensics (look-alike domains by edit distance, brand-as-subdomain disguises, sh
 raw IPs, throwaway TLDs, offline blocklist), precision guards that subtract score for
 known-good patterns, and the urgency × payment × secrecy triangle.
 
-Measured, not vibes: `npm test` runs a 142-case labeled suite —
-**100% recall on 74 scams, 0% false positives on 68 legit messages.**
+Measured, not vibes: `npm test` runs a 153-case labeled suite —
+**100% recall on 82 scams, 0% false positives on 71 legit messages** —
+including Spanish, French, and Portuguese scam families.
 
 ## Zero-friction entry
 
 - **The button inside Messages** — long-press a message → More → Share →
-  *Check with Loop Me In*. Signed Shortcuts in `shortcuts/`; setup in
+  *Check with Loop Me*. Signed Shortcuts in `shortcuts/`; setup in
   [MESSAGES-BUTTON.md](MESSAGES-BUTTON.md).
 - **Danger notifications** — keyword-triggered Message automations fire
   *"Possible scam detected"* and open the full-screen alert automatically. Built from
   parts Apple ships in every iPhone; no App Store app is allowed to do this natively.
 - **Clipboard auto-offer** — copy a message anywhere, open the app, tap once.
-- **Siri / Action Button** — *"Hey Siri, Check with Loop Me In."*
+- **Siri / Action Button** — *"Hey Siri, Check with Loop Me."*
 
 ## Run it
 

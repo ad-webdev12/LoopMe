@@ -4,21 +4,21 @@ The app already ships two of these; the third takes two minutes of setup on the 
 
 ## 1. Copy → open (built in, works today)
 
-Copy any suspicious text anywhere (Messages, WhatsApp, Mail), then open Loop Me In.
+Copy any suspicious text anywhere (Messages, WhatsApp, Mail), then open Loop Me.
 A card appears at the top of the home screen: **"You copied a message — Check it now."**
 One tap runs the check. Nothing is uploaded; the clipboard is read on the device only.
 
 ## 2. Family links (built in, works today)
 
 "Ask my family" sends a normal text that carries a deep link. Tapping it on the family
-phone opens Loop Me In directly on the answer screen. Replies come back the same way.
+phone opens Loop Me directly on the answer screen. Replies come back the same way.
 
 ## 3. Share sheet + Siri, via an Apple Shortcut (two-minute setup)
 
 Until the native build ships a true Share Extension, an Apple Shortcut gives the same
 one-tap flow:
 
-1. Open the **Shortcuts** app → **+** → name it **Check with Loop Me In**.
+1. Open the **Shortcuts** app → **+** → name it **Check with Loop Me**.
 2. Add action **Receive Text from Share Sheet** (turn on "Show in Share Sheet").
 3. Add action **URL** — set it to:
    - Expo Go (development): the URL that `npx expo start` prints, plus
@@ -26,14 +26,14 @@ one-tap flow:
    - Installed app (native build): `loopmein://check?text=` + **Shortcut Input**.
 4. Add action **Open URLs**.
 
-Now any message can be shared → **Check with Loop Me In**, and
-"Hey Siri, Check with Loop Me In" works too (Siri runs Shortcuts by name).
+Now any message can be shared → **Check with Loop Me**, and
+"Hey Siri, Check with Loop Me" works too (Siri runs Shortcuts by name).
 
 ## What deliberately waits for the native Xcode build
 
 These need capabilities Expo Go cannot load. They are designed, not half-built:
 
-- **True Share Extension** — Loop Me In appears natively in every share sheet.
+- **True Share Extension** — Loop Me appears natively in every share sheet.
 - **SMS Filter Extension** — unknown-sender texts checked automatically (Apple's
   `ILMessageFilterExtension`; the engine is already fast and offline, so it qualifies).
 - **Live Activity** — after a red verdict with "ask family" pending, a Lock-Screen
