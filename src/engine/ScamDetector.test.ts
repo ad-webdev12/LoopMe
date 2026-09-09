@@ -86,6 +86,13 @@ const SCAMS: Case[] = [
   ['Adorable teacup puppies ready today, just send the $200 shipping deposit via Zelle','petdeposit'],
   ['Microsoft alert: viruses were detected on your PC. Call now to avoid data loss','techsupport'],
   ['chase.com278282: your account needs verification, sign in here','gluedtld'],
+  // — Gaps found by probing the detector with messages written outside this
+  //   suite. Each of these scored a clean 0 before the rules were widened.
+  ['Hi mum, my phone broke, this is my new number. Can you help me pay a bill today?','family-newnumber'],
+  ['Hi mum its me, lost my phone, new number. Can you transfer me £250 today?','family-newnumber'],
+  ['Amazon: your order for $1,299.99 has shipped. If this wasn\u2019t you call 888-555-0142 immediately.','callback'],
+  ['Hello dear, I am a widow with $4.5 million and I need your help transferring it.','advance-fee'],
+  ['I am a widower dying of cancer and wish to donate my $2 million estate to you.','advance-fee'],
 ];
 const LEGIT: Case[] = [
   ['Hi Dad, running 10 min late for lunch, order me the soup please!','family'],
@@ -160,6 +167,12 @@ const LEGIT: Case[] = [
   ['Grandpa, my recital is Friday at 6! Can you and grandma come?','family'],
   ['Reminder: flu clinic at the senior center Tuesday, walk-ins welcome, bring your Medicare card.','civic'],
   ['Wells Fargo: your requested statement is attached. Questions? Call the number on your card.','bank-real'],
+  // — Near-miss legitimate messages that sit close to the widened family rules.
+  ['Hi mum, just landed. Battery about to die, will call you tomorrow.','legit-family'],
+  ['My phone broke so I\u2019m on Sarah\u2019s for now — no rush, just letting you know.','legit-family'],
+  ['Hey dad, can you pay the window cleaner if he comes? I\u2019ll transfer you back.','legit-family'],
+  ['I am a widower and I\u2019d like to join the Tuesday walking group please.','legit-community'],
+  ['Amazon: your order has shipped and is arriving tomorrow. No action needed.','legit-delivery'],
 ];
 
 let tp=0, fn=0, fp=0, tn=0; const misses:string[]=[], falses:string[]=[];
@@ -177,6 +190,13 @@ const twoStage = detect('This is the Chase fraud department, we will move your m
 const codeword = detect('Grandma its me your grandson, I\u2019m in jail and need bail money fast');
 const postPanic = detect('Our recovery firm can get back your lost funds, small retainer required', { postPanic: true });
 const allow = detect('Chase alert: unusual sign-in detected, verify now', { allowlist: ['chase'], sender: 'Chase 24273' });
+// Smart punctuation must not change a verdict: iOS types \u2019, not ', and the
+// rules are written with '. Before normalize.ts folded it, the secrecy rule
+// (the heaviest in the table) silently stopped firing on iPhone-typed text.
+const APOS_PROBE = "Fraud department here. Don't tell anyone, and confirm you've not moved the money yourself.";
+const apStraight = detect(APOS_PROBE);
+const apCurly = detect(APOS_PROBE.replace(/'/g, '\u2019'));
+const apostropheStable = apStraight.score === apCurly.score && apStraight.level === apCurly.level;
 
 const recall = tp/(tp+fn), fpRate = fp/(fp+tn), precisionOk = fpRate <= 0.05;
 console.log(`\nSCAMS caught: ${tp}/${SCAMS.length}  (recall ${(recall*100).toFixed(1)}%)`);
@@ -186,8 +206,9 @@ console.log(`two-stage → ${twoStage.level} (${twoStage.tags.includes('two-stag
 console.log(`code-word moment → ${codeword.codeWordMoment ? 'surfaced' : 'MISSED'}`);
 console.log(`post-panic recovery guard → ${postPanic.level}`);
 console.log(`allowlist → ${allow.level}`);
+console.log(`smart punctuation → ${apostropheStable ? `stable (${apCurly.score})` : `DRIFTS ${apStraight.score} → ${apCurly.score}`}`);
 if (misses.length) { console.log('\nMISSED SCAMS:'); misses.forEach(x=>console.log('  '+x)); }
 if (falses.length) { console.log('\nFALSE POSITIVES:'); falses.forEach(x=>console.log('  '+x)); }
-const pass = recall >= 0.95 && precisionOk && maxMs < 200 && twoStage.level==='red' && codeword.codeWordMoment && postPanic.level==='red' && allow.level==='green';
+const pass = recall >= 0.95 && precisionOk && maxMs < 200 && twoStage.level==='red' && codeword.codeWordMoment && postPanic.level==='red' && allow.level==='green' && apostropheStable;
 console.log(pass ? '\nALL PASS' : '\nFAIL');
 process.exit(pass ? 0 : 1);

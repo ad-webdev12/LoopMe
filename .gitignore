@@ -37,5 +37,15 @@ yarn-error.*
 *.tsbuildinfo
 
 # generated native folders
-/ios
 /android
+
+# iOS — the Xcode project IS committed, so the app can be opened directly in
+# Xcode after `npm install && cd ios && pod install`. Only the parts that are
+# regenerated, machine-specific, or too large for GitHub are excluded:
+#   Pods/ is 923MB and contains four React.xcframework binaries of 105-109MB
+#   each, over GitHub's 100MB per-file hard limit — it can never be committed.
+ios/Pods/
+ios/build/
+ios/.xcode.env.local
+**/xcuserdata/
+DerivedData/

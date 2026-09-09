@@ -1,9 +1,10 @@
-// Call screening — source lines 358-386. Dark ringing state → live transcript
-// (a scripted demonstration; one line every ~1800ms, red captions on flagged
-// lines, the red "Hang up now." bar when a code is asked for) → ended state.
+// Practice call — a rehearsal, not a live feature. iOS gives no app access to
+// the audio of a real phone call, so nothing here listens to anything: it is a
+// scripted run-through of the commonest impersonation scam, so the pattern is
+// familiar before it arrives for real. Every label on this screen says so.
 import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { AlertTriangle, Phone, PhoneOff, Ban } from 'lucide-react-native';
+import { AlertTriangle, Phone, PhoneOff, RotateCcw } from 'lucide-react-native';
 import { T, F } from '../theme';
 import { KFFade, KFIn } from '../ui/kf';
 import type { Ctx } from '../App';
@@ -45,24 +46,24 @@ export default function CallScreen({ ctx }: { ctx: Ctx }) {
       <KFFade duration={250} style={st.dark} playKey="ringing">
         <View style={{ flex: 1, paddingHorizontal: 26, paddingTop: 36, paddingBottom: 34 }}>
           <View style={{ alignItems: 'center' }}>
-            <Text style={st.unknown} allowFontScaling>Unknown caller</Text>
+            <Text style={st.unknown} allowFontScaling>Practice call</Text>
             <Text style={st.number} allowFontScaling>+1 (628) 555-0117</Text>
             <View style={st.notContact}>
               <AlertTriangle size={14} color="#ff9783" strokeWidth={2.2} />
-              <Text style={st.notContactText} allowFontScaling>Not in your contacts</Text>
+              <Text style={st.notContactText} allowFontScaling>Pretend caller · nobody is really calling</Text>
             </View>
           </View>
           <View style={st.listenCard}>
-            <Text style={st.listenTitle} allowFontScaling>Loop Me can listen with you</Text>
-            <Text style={st.listenBody} allowFontScaling>We write down what they say and warn you the moment they ask for something a real caller never would. They cannot tell.</Text>
+            <Text style={st.listenTitle} allowFontScaling>A practice run, so it is familiar</Text>
+            <Text style={st.listenBody} allowFontScaling>This is a rehearsal of the call that catches the most people. iPhone does not let any app hear a real call, so Loop Me cannot listen in — what it can do is show you the pattern now, while it is safe.</Text>
           </View>
           <View style={{ marginTop: 'auto', gap: 11 }}>
             <Pressable style={st.answerBtn} onPress={answer} accessibilityRole="button">
-              <Text style={st.answerText} allowFontScaling>Answer with screening</Text>
+              <Text style={st.answerText} allowFontScaling>Start the practice call</Text>
               <Phone size={20} color="#fff" strokeWidth={1.9} />
             </Pressable>
             <Pressable style={st.declineBtn} onPress={hangUp} accessibilityRole="button">
-              <Text style={st.declineText} allowFontScaling>Do not answer</Text>
+              <Text style={st.declineText} allowFontScaling>Not now</Text>
             </Pressable>
           </View>
         </View>
@@ -76,12 +77,12 @@ export default function CallScreen({ ctx }: { ctx: Ctx }) {
         <View style={st.liveHead}>
           <View>
             <Text style={st.liveNumber} allowFontScaling>+1 (628) 555-0117</Text>
-            <Text style={st.liveMeta} allowFontScaling>0:{String(secs).padStart(2, '0')} · screening on</Text>
+            <Text style={st.liveMeta} allowFontScaling>0:{String(secs).padStart(2, '0')} · practice call</Text>
           </View>
           <View style={st.bars}>{[9, 14, 6, 12].map((h, i) => <View key={i} style={[st.bar, { height: h }]} />)}</View>
         </View>
         <ScrollView style={st.transcript} contentContainerStyle={{ paddingHorizontal: 22, paddingTop: 16 }}>
-          <Text style={st.transLabel} allowFontScaling>What they are saying</Text>
+          <Text style={st.transLabel} allowFontScaling>What a caller like this says</Text>
           {lines.map((l, i) => (
             <KFIn key={i} duration={300} playKey={i} style={{ marginBottom: 11 }}>
               <View style={st.lineCard}><Text style={st.lineText} allowFontScaling>{l.text}</Text></View>
@@ -117,17 +118,17 @@ export default function CallScreen({ ctx }: { ctx: Ctx }) {
   return (
     <View style={st.ended}>
       <View style={{ paddingHorizontal: 22, paddingTop: 26, paddingBottom: 20 }}>
-        <Text style={st.endedTitle} allowFontScaling>Call ended</Text>
-        <Text style={st.endedSub} allowFontScaling>You did the right thing. Nothing was given away.</Text>
+        <Text style={st.endedTitle} allowFontScaling>Practice finished</Text>
+        <Text style={st.endedSub} allowFontScaling>That is exactly what to do on a real one: hang up.</Text>
       </View>
       <View style={st.savedCard}>
-        <Text style={st.savedLabel} allowFontScaling>Saved to your history</Text>
-        <Text style={st.savedText} allowFontScaling>A caller claiming to be the fraud department asked you to read out a code, and told you to keep it quiet. Both are scam signs.</Text>
+        <Text style={st.savedLabel} allowFontScaling>The two signs to remember</Text>
+        <Text style={st.savedText} allowFontScaling>The caller asked you to read out a code, and told you to keep it from your family. No real bank or police officer does either. One is enough to hang up.</Text>
       </View>
       <View style={{ marginTop: 'auto', paddingHorizontal: 22, paddingBottom: 30, gap: 9 }}>
-        <Pressable style={st.blockBtn} onPress={() => ctx.flash('That number is blocked. Nothing from it will reach you.')} accessibilityRole="button">
-          <Text style={st.blockText} allowFontScaling>Block this number</Text>
-          <Ban size={19} color="#fff" strokeWidth={2} />
+        <Pressable style={st.blockBtn} onPress={() => { setLines([]); setSecs(4); setStage('ringing'); }} accessibilityRole="button">
+          <Text style={st.blockText} allowFontScaling>Run it again</Text>
+          <RotateCcw size={19} color="#fff" strokeWidth={2} />
         </Pressable>
         <Pressable style={st.backHome} onPress={() => ctx.go('home')} accessibilityRole="button">
           <Text style={st.backHomeText} allowFontScaling>Back to Loop Me</Text>

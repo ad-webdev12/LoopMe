@@ -21,7 +21,15 @@ export default function PanicScreen({ ctx }: { ctx: Ctx }) {
   ];
   const step = STEPS[i];
   const doAction = async () => {
-    if (i === 2) ctx.flash('Call the number on my card…');
+    if (i === 2) {
+      // Loop Me deliberately does not hold the bank's number — supplying one
+      // would be the exact mistake this step warns against. Open the keypad so
+      // the number can be read straight off the back of the card.
+      try {
+        if (await Linking.canOpenURL('tel:')) { await Linking.openURL('tel:'); return; }
+      } catch {}
+      ctx.flash('Turn your card over and dial the number printed on the back.');
+    }
     else if (i === 3) {
       if (!first) { ctx.go('people'); return; }
       await sendSms(first.phone, 'I think I may have been caught by a scam and could use a hand. Can you call me when you have a minute?');

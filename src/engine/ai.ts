@@ -11,6 +11,8 @@
 // Nothing leaves the device. If no AI tier is present, the rule verdict stands.
 
 import { detect, Verdict, DetectorOptions } from './ScamDetector';
+import { normalizeText } from './normalize';
+import { modelProbability, SCAM_THRESHOLD } from './model';
 import { availableTier, classify, AiTier, AiJudgement } from '../../modules/scam-ai';
 
 export interface FusedVerdict extends Verdict {
@@ -27,7 +29,10 @@ export async function getAiTier(): Promise<AiTier> {
 
 // Human-readable name for the active tier (for the UI badge).
 export function tierLabel(t: AiTier): string {
-  return t === 'foundation' ? 'Apple Intelligence' : t === 'coreml' ? 'On-device model' : 'Built-in checks';
+  return t === 'foundation' ? 'Apple Intelligence'
+    : t === 'coreml' ? 'On-device model'
+    : t === 'builtin' ? 'On-device model'
+    : 'Built-in checks';
 }
 
 const RULE_WEIGHT = 0.6;
@@ -40,10 +45,47 @@ function ruleProb(v: Verdict): number {
   return Math.min(0.25, v.score / 200);
 }
 
-/** Instant rule verdict — synchronous, offline, always available. */
+/**
+ * Instant verdict: deterministic rules PLUS the portable learned model, fused
+ * synchronously. Both run on every device, offline, in well under a millisecond.
+ *
+ * The model may only ever RAISE the alarm. It is trained on a synthetic corpus,
+ * so it is treated as a second opinion that can spot something the rules missed
+ * — never as grounds for talking the person out of a rule hit. That asymmetry is
+ * deliberate: a missed alarm the rules caught anyway costs nothing, while a
+ * model-driven downgrade of a real scam could cost someone their savings.
+ */
 export function instant(message: string, opts?: DetectorOptions): FusedVerdict {
   const v = detect(message, opts);
-  return { ...v, aiTier: 'none', fused: false };
+
+  // An allowlisted sender is the person's own explicit decision; nothing overrides it.
+  if (v.tags.includes('allowlist')) return { ...v, aiTier: 'none', fused: false };
+
+  let p = 0;
+  try { p = modelProbability(normalizeText((message || '').trim()).text); } catch { return { ...v, aiTier: 'none', fused: false }; }
+  if (p < SCAM_THRESHOLD) return { ...v, aiTier: 'builtin', fused: false };
+
+  // Above the threshold the model is, by construction, right ~98% of the time on
+  // held-out data. Green becomes amber; a weak amber hardens. Red stays red.
+  const level: Verdict['level'] = v.level === 'red' ? 'red'
+    : v.level === 'amber' && p >= 0.9 ? 'red'
+    : v.level === 'green' ? 'amber'
+    : 'amber';
+  if (level === v.level) return { ...v, aiTier: 'builtin', fused: false };
+
+  const note = 'The on-device model recognises the shape of this message as a scam, even though it does not match a specific known trick.';
+  return {
+    ...v,
+    level,
+    reason: v.level === 'green' ? 'This does not match a named trick, but it reads like a scam.' : v.reason,
+    safeStep: level === 'red'
+      ? 'Do not reply and do not send anything. Delete the message.'
+      : 'Do not tap anything yet. Contact the company yourself on a number you already trust.',
+    signals: v.signals.includes(note) ? v.signals : [...v.signals, note],
+    confidence: p >= 0.9 ? 'fairly' : 'unsure',
+    aiTier: 'builtin',
+    fused: true,
+  };
 }
 
 /** The AI upgrade. Call after showing instant(); resolves with the fused verdict. */
@@ -61,6 +103,7 @@ export async function upgrade(message: string, rule: Verdict, opts?: DetectorOpt
   // Hard floor: the rules' most dangerous, unambiguous signals are never softened
   // by the AI. AI may only push the alarm UP for these.
   const hardRed = rule.tags.includes('safe-account') || rule.tags.includes('two-stage') ||
+    rule.tags.includes('courier-fraud') ||
     (rule.tags.includes('otp-request') && rule.level === 'red') || rule.tags.includes('giftcard');
   if (hardRed) p = Math.max(p, 0.85);
 

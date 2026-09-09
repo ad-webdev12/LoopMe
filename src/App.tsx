@@ -150,7 +150,10 @@ export default function App() {
     addCheck(rec).then(refreshHist);
     activeCheck.current = rec.id;
     setMsg(raw); setVerdict(v); setRecordId(rec.id); setNote(null);
-    setScreen(v.level === 'red' && sender ? 'alert' : 'verdict');
+    // 'Warn me straight away' (Settings) chooses the full-screen red alert;
+    // with it off, a red verdict still lands, just on the calmer screen.
+    const wantsAlert = settings?.alerts !== false;
+    setScreen(v.level === 'red' && sender && wantsAlert ? 'alert' : 'verdict');
     // Real on-device AI second opinion fuses in when it resolves. The guard
     // keeps a slow result from an OLDER check off a newer check's screen.
     upgrade(raw, v, detOpts).then((fused) => {
@@ -221,7 +224,10 @@ export default function App() {
     const { hostname, path, queryParams } = Linking.parse(url);
     const where = hostname || path || '';
     const text = typeof queryParams?.text === 'string' ? queryParams.text : '';
-    if ((where === 'check' || where === 'alert') && text) check(text, where === 'alert' ? 'an unknown number' : undefined);
+    // 'Check unknown texts for me' (Settings) gates the unknown-sender path.
+    // A check the person asked for by hand always runs.
+    if (where === 'alert' && text) { if (settings?.autoCheck !== false) check(text, 'an unknown number'); return; }
+    if (where === 'check' && text) check(text);
   }, [settings, check, flash, refreshHist, update, verdict]);
 
   useEffect(() => {

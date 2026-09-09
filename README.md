@@ -7,30 +7,88 @@ older adults, and the family members who look out for them. Paste, share, or spe
 suspicious message and get a committed verdict in plain words — **Stop**, **Be careful**,
 or **Looks okay** — with one safe step and a one-tap way to ask family for a second opinion.
 
-## Run it on your Mac (5 minutes)
+## Run it on your Mac
 
-Anyone with a Mac can build and test the full app — simulator needs **no Apple
-account** of any kind.
+Anyone with a Mac can build and run the full app. The simulator needs **no
+Apple account** of any kind.
 
-Prerequisites: Xcode 16+ (with the iOS platform installed) and Node 20+.
+**Prerequisites:** Xcode 16+ with the iOS platform installed, and Node 20+.
 
 ```bash
 git clone https://github.com/ad-webdev12/LoopMe.git
 cd LoopMe
 npm install
+```
+
+Then start the bundler and build, in **two terminals**:
+
+```bash
+# terminal 1 — leave this running
+npx expo start
+```
+
+```bash
+# terminal 2 — builds the native app and launches it
 npx expo run:ios
 ```
 
-That one last command generates the native project, installs CocoaPods, builds,
-boots an iPhone simulator, and launches the app. First build takes a few
-minutes; after that it is seconds.
+The first build generates the native iOS project, installs CocoaPods, compiles
+and launches. It takes several minutes; later builds take seconds.
+
+> **Why two terminals?** `npx expo run:ios` finishes by trying to open the app
+> through the `expo-development-client` URL scheme, which this project does not
+> install. That last step fails and takes the bundler down with it — the app
+> still builds and installs correctly, but nothing loads. Starting the bundler
+> separately avoids it entirely.
+
+### Opening it in Xcode
+
+The Xcode project is committed, so it opens directly. Open the **workspace**,
+not the `.xcodeproj` — the project alone cannot see the CocoaPods dependencies.
+
+```bash
+git clone https://github.com/ad-webdev12/LoopMe.git
+cd LoopMe
+npm install
+cd ios && pod install
+open LoopMe.xcworkspace
+```
+
+Then press ▶ in Xcode.
+
+Two things that are easy to trip over:
+
+- **The bundler must be running.** ▶ produces a Debug build, which loads its
+  JavaScript over the network from Metro. Run `npx expo start` in a terminal
+  first, or the app opens to a red screen.
+- **`pod install` is not optional.** `ios/Pods/` is not in this repository: it
+  is 923MB and contains four `React.xcframework` binaries of 105-109MB each,
+  past GitHub's 100MB per-file limit. `pod install` fetches them, and takes a
+  few minutes the first time.
+
+If `pod install` fails with `Unicode Normalization not appropriate for
+ASCII-8BIT`, your shell has no UTF-8 locale. Fix it with:
+
+```bash
+export LANG=en_US.UTF-8
+```
+
+If the build cannot find Node, create `ios/.xcode.env.local` pointing at your
+own install — it is git-ignored precisely because the path differs per machine:
+
+```bash
+echo "export NODE_BINARY=$(which node)" > ios/.xcode.env.local
+```
+
+### Other ways to run it
 
 - **On a real iPhone:** plug it in, enable Developer Mode on the phone, sign
   into Xcode once with any free Apple ID (Xcode -> Settings -> Accounts), then
   `bash install-on-iphone.sh` (or `npx expo run:ios --device`). A full
-  on-device feature walkthrough is in [PHONE-TEST.md](PHONE-TEST.md).
-- **Engine only (no Xcode):** `npm test` runs the 153-case detection suite in
-  plain Node.
+  on-device walkthrough is in [PHONE-TEST.md](PHONE-TEST.md).
+- **Engine only, no Xcode needed:** `npm test` runs the full detection suite and
+  the fused-pipeline test in plain Node — no simulator, no build, a few seconds.
+  `npm run bench` runs the six held-out benchmarks.
 
 ## Why it's different
 
@@ -55,7 +113,7 @@ forensics (look-alike domains by edit distance, brand-as-subdomain disguises, sh
 raw IPs, throwaway TLDs, offline blocklist), precision guards that subtract score for
 known-good patterns, and the urgency × payment × secrecy triangle.
 
-Measured, not vibes: `npm test` runs a 153-case labeled suite —
+Measured, not vibes: `npm test` runs a 163-case labeled suite —
 **100% recall on 82 scams, 0% false positives on 71 legit messages** —
 including Spanish, French, and Portuguese scam families.
 

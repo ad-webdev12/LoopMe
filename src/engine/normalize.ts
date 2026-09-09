@@ -3,6 +3,9 @@
 //   • homoglyphs: Cyrillic/Greek look-alikes (раypal, аpple, miсrosoft)
 //   • zero-width characters splitting words (pass​word)
 //   • full-width / styled unicode (ｐａｓｓｗｏｒｄ, 𝗉𝖺𝗌𝗌𝗐𝗈𝗋𝖽)
+//   • typographic punctuation: iOS autocorrects ' to ’, and NFKC does NOT
+//     fold it back, so every rule spelling "don't" silently missed messages
+//     typed on an iPhone. Folded here so the rules can stay ASCII.
 // Pure-ASCII messages pass through unchanged.
 
 const CONFUSABLES: Record<string, string> = {
@@ -15,6 +18,16 @@ const CONFUSABLES: Record<string, string> = {
   // misc look-alikes
   ӏ: 'l',
 };
+
+// Smart punctuation → ASCII. Not evasion, just what phones type by default,
+// but it breaks rules just as thoroughly, so it is folded on the same pass.
+const PUNCT: Record<string, string> = {
+  '\u2018': "'", '\u2019': "'", '\u201a': "'", '\u201b': "'", '\u2032': "'", '\u00b4': "'", '\u0060': "'",
+  '\u201c': '"', '\u201d': '"', '\u201e': '"', '\u201f': '"', '\u2033': '"',
+  '\u2010': '-', '\u2011': '-', '\u2012': '-', '\u2013': '-', '\u2014': '-', '\u2015': '-', '\u2212': '-',
+  '\u2026': '...', '\u00a0': ' ', '\u202f': ' ', '\u2009': ' ',
+};
+const PUNCT_RE = new RegExp(`[${Object.keys(PUNCT).join('')}]`, 'g');
 
 const CONFUSABLE_RE = new RegExp(`[${Object.keys(CONFUSABLES).join('')}]`, 'g');
 // zero-width space/joiner/non-joiner, BOM, word-joiner, soft hyphen
@@ -57,6 +70,7 @@ export function normalizeText(input: string): Normalized {
   t = t.normalize('NFKC');
   t = t.replace(ZERO_WIDTH_RE, '');
   t = t.replace(CONFUSABLE_RE, (ch) => CONFUSABLES[ch] || ch);
+  t = t.replace(PUNCT_RE, (ch) => PUNCT[ch] || ch);
   t = t.replace(/[^\S\n]+/g, ' ');
   return { text: t, disguised };
 }

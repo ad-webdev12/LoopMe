@@ -1,6 +1,9 @@
 import { requireOptionalNativeModule } from 'expo';
 
-export type AiTier = 'foundation' | 'coreml' | 'none';
+// 'builtin' is the portable logistic-regression model in src/engine/model.ts.
+// It needs no native module and no particular iOS version, so it is the tier
+// that actually runs for most people — the other two are upgrades on top.
+export type AiTier = 'foundation' | 'coreml' | 'builtin' | 'none';
 
 export interface AiJudgement {
   tier: AiTier;

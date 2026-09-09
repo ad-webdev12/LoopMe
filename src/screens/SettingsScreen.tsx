@@ -1,8 +1,8 @@
 // Settings — source lines 327-338. Three toggles, the iPhone auto-check note,
 // safe senders, setup rows, version line.
 import React, { useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ChevronLeft, ChevronRight, Plus, KeyRound } from 'lucide-react-native';
 import { T, F } from '../theme';
 import { KFIn } from '../ui/kf';
 import type { Ctx } from '../App';
@@ -10,6 +10,12 @@ import type { Ctx } from '../App';
 export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
   const st_ = ctx.settings;
   const [toggles, setToggles] = useState({ alerts: st_.alerts, auto: st_.autoCheck, aloud: st_.readAloud });
+  const [word, setWord] = useState(st_.codeWord);
+  const saveWord = () => {
+    const w = word.trim();
+    ctx.update({ ...st_, codeWord: w, codeWordSet: !!w });
+    ctx.flash(w ? 'Code word saved. It stays on this phone.' : 'Code word removed.');
+  };
   const flip = (key: 'alerts' | 'auto' | 'aloud') => {
     const next = { ...toggles, [key]: !toggles[key] };
     setToggles(next);
@@ -57,6 +63,42 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
         <Pressable onPress={() => Linking.openSettings()} accessibilityRole="button">
           <Text style={st.autoLink} allowFontScaling>Open iPhone Settings ›</Text>
         </Pressable>
+      </View>
+
+      <Text style={[st.section, { paddingTop: 14 }]} allowFontScaling>YOUR FAMILY CODE WORD</Text>
+      <View style={st.card}>
+        <View style={st.cwHead}>
+          <KeyRound size={17} color={T.green} strokeWidth={2.2} />
+          <Text style={st.cwTitle} allowFontScaling>A word only your family knows</Text>
+        </View>
+        <Text style={st.cwBody} allowFontScaling>
+          If someone calls sounding like family and asks for money, ask them for this word. A
+          stranger cannot know it — not even one using a recording of a voice you love.
+        </Text>
+        <TextInput
+          style={st.cwInput}
+          value={word}
+          onChangeText={setWord}
+          placeholder="Pick a word — a pet, a street, anything"
+          placeholderTextColor={T.sub}
+          autoCorrect={false}
+          autoCapitalize="none"
+          returnKeyType="done"
+          onSubmitEditing={saveWord}
+          accessibilityLabel="Family code word"
+          allowFontScaling
+        />
+        <View style={st.cwActions}>
+          <Pressable style={st.cwSave} onPress={saveWord} accessibilityRole="button">
+            <Text style={st.cwSaveText} allowFontScaling>{st_.codeWordSet ? 'Update the word' : 'Save the word'}</Text>
+          </Pressable>
+          {st_.codeWordSet && (
+            <Pressable onPress={() => { setWord(''); ctx.update({ ...st_, codeWord: '', codeWordSet: false }); ctx.flash('Code word removed.'); }} accessibilityRole="button">
+              <Text style={st.cwRemove} allowFontScaling>Remove</Text>
+            </Pressable>
+          )}
+        </View>
+        <Text style={st.cwNote} allowFontScaling>Kept on this phone only. It is never sent anywhere, and never shown in a shared check.</Text>
       </View>
 
       <Text style={st.section} allowFontScaling>SENDERS YOU TRUST</Text>
@@ -110,6 +152,19 @@ const st = StyleSheet.create({
   rowWhy: { fontSize: 12.5, fontFamily: F.body, color: T.sub, lineHeight: 18.1, marginTop: 3 },
   track: { width: 52, height: 31, borderRadius: 16, borderWidth: 1, padding: 2 },
   thumb: { width: 25, height: 25, borderRadius: 13, backgroundColor: '#fff', shadowColor: '#d6d6d1', shadowOpacity: 1, shadowRadius: 2, shadowOffset: { width: 0, height: 1 } },
+  cwHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 15, paddingTop: 14 },
+  cwTitle: { fontSize: 15, fontFamily: F.bold, color: T.ink },
+  cwBody: { fontSize: 12.5, fontFamily: F.body, color: T.sub, lineHeight: 18.1, paddingHorizontal: 15, paddingTop: 6 },
+  cwInput: {
+    marginHorizontal: 15, marginTop: 12, paddingHorizontal: 13, paddingVertical: 12,
+    borderWidth: 1, borderColor: T.fieldBorder, borderRadius: 10, backgroundColor: T.ground,
+    fontSize: 16, fontFamily: F.body, color: T.ink,
+  },
+  cwActions: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingHorizontal: 15, paddingTop: 11 },
+  cwSave: { backgroundColor: T.green, paddingHorizontal: 16, paddingVertical: 11, borderRadius: 10 },
+  cwSaveText: { fontSize: 14, fontFamily: F.semibold, color: '#fff' },
+  cwRemove: { fontSize: 14, fontFamily: F.semibold, color: T.sub },
+  cwNote: { fontSize: 11.5, fontFamily: F.body, color: T.sub, lineHeight: 17, paddingHorizontal: 15, paddingTop: 11, paddingBottom: 14 },
   autoCard: { marginHorizontal: 22, marginVertical: 14, backgroundColor: T.greenTint, paddingHorizontal: 16, paddingVertical: 14 },
   autoTitle: { fontSize: 13, fontFamily: F.bold, color: T.green, marginBottom: 5 },
   autoBody: { fontSize: 12.5, fontFamily: F.body, color: T.greenInk2, lineHeight: 18.75 },

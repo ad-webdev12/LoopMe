@@ -5,14 +5,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Speech from 'expo-speech';
-import * as Notifications from 'expo-notifications';
 import {
   ChevronLeft, ChevronDown, ChevronUp, ChevronRight, ArrowRight,
-  OctagonX, Info, Check, UserCheck,
+  OctagonX, Info, Check, UserCheck, KeyRound,
 } from 'lucide-react-native';
 import { T, F } from '../theme';
 import { KFIn, KFFade, KFSlide } from '../ui/kf';
 import { askText, sendSms } from '../lib/familyLink';
+import { scheduleReminder } from '../lib/notify';
 import { listChecks, updateCheck } from '../lib/history';
 import type { Ctx } from '../App';
 
@@ -35,6 +35,7 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
   const v = ctx.verdict;
   const [why, setWhy] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const [showWord, setShowWord] = useState(false);
   const [reading, setReading] = useState(false);
   const [readIdx, setReadIdx] = useState(-1);
   const [readSlow, setReadSlow] = useState(false);
@@ -43,6 +44,18 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
   const readingRef = useRef(false);
   const slowRef = useRef(false);
   useEffect(() => () => { clearTimeout(timer.current); Speech.stop(); }, []);
+
+  // "Read answers out loud" (Settings): speak the verdict as it lands, once per
+  // check. The message itself still waits behind "Read this to me, slowly".
+  const spokenFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!v || !ctx.settings.readAloud || spokenFor.current === ctx.recordId) return;
+    spokenFor.current = ctx.recordId;
+    const m = META[v.level];
+    Speech.stop();
+    Speech.speak(`${m.word}. ${m.line} ${v.safeStep}`, { rate: 0.88 });
+  }, [v, ctx.settings.readAloud, ctx.recordId]);
+
   if (!v) return null;
 
   const meta = META[v.level];
@@ -85,13 +98,8 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
         [1800, `No answer from ${first.name.split(' ')[0]} yet about that message. Until then: do not reply, do not pay, do not tap anything.`],
         [7200, `Still waiting on ${first.name.split(' ')[0]}. The message will keep. If it is urgent, call them directly.`],
       ] as const) {
-        try {
-          const id = await Notifications.scheduleNotificationAsync({
-            content: { title: 'Your check is still open', body },
-            trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds },
-          });
-          reminderIds.push(id);
-        } catch {}
+        const id = await scheduleReminder('Your check is still open', body, seconds);
+        if (id) reminderIds.push(id);
       }
     }
     await updateCheck(rec.id, { askedFamily: true, reminderIds });
@@ -125,6 +133,40 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
         <Text style={st.sectionLabel} allowFontScaling>What to do</Text>
         <Text style={st.step} allowFontScaling>{v.safeStep}</Text>
       </View>
+
+      {/* The engine flags impersonation-of-family moments; this is the one
+          defence a voice clone cannot beat, so it sits above everything else. */}
+      {v.codeWordMoment && (
+        <View style={st.cwCard}>
+          <View style={st.cwTop}>
+            <KeyRound size={16} color={T.amberInk} strokeWidth={2.4} />
+            <Text style={st.cwKicker} allowFontScaling>Ask for your code word</Text>
+          </View>
+          {ctx.settings.codeWordSet ? (
+            <>
+              <Text style={st.cwLine} allowFontScaling>
+                Whoever this is, ask them for the word your family agreed on. Someone using a
+                recording of a familiar voice will not have it.
+              </Text>
+              <Pressable onPress={() => setShowWord(w => !w)} accessibilityRole="button">
+                <Text style={st.cwReveal} allowFontScaling>
+                  {showWord ? ctx.settings.codeWord : 'Show me my word'}
+                </Text>
+              </Pressable>
+            </>
+          ) : (
+            <>
+              <Text style={st.cwLine} allowFontScaling>
+                You have not set one yet. It is a single word only your family knows — the surest
+                way to tell a real relative from someone imitating one.
+              </Text>
+              <Pressable onPress={() => ctx.go('settings')} accessibilityRole="button">
+                <Text style={st.cwReveal} allowFontScaling>Set a code word ›</Text>
+              </Pressable>
+            </>
+          )}
+        </View>
+      )}
 
       <Pressable style={st.whyRow} onPress={() => setWhy(!why)} accessibilityRole="button">
         <Text style={st.whyLabel} allowFontScaling>{why ? 'Hide the reasons' : 'Why we say that'}</Text>
@@ -231,6 +273,11 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
 }
 
 const st = StyleSheet.create({
+  cwCard: { marginHorizontal: 22, marginTop: 4, marginBottom: 14, backgroundColor: T.amberTint, borderRadius: 12, paddingHorizontal: 15, paddingVertical: 13 },
+  cwTop: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 6 },
+  cwKicker: { fontSize: 11, fontFamily: F.semibold, letterSpacing: 0.9, color: T.amberInk, textTransform: 'uppercase' },
+  cwLine: { fontSize: 14.5, fontFamily: F.body, color: T.amberInk, lineHeight: 21 },
+  cwReveal: { fontSize: 16, fontFamily: F.bold, color: T.amberInk, paddingTop: 10, minHeight: 34 },
   root: { flex: 1, backgroundColor: T.ground },
   topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 8, paddingHorizontal: 16, paddingBottom: 12 },
   back: { height: 44, flexDirection: 'row', alignItems: 'center', gap: 4, paddingRight: 8 },
