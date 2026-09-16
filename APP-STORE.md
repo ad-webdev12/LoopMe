@@ -35,7 +35,7 @@ Scam texts and calls target older adults every day — fake bank alerts, "your p
 Paste, share, or speak a message you're unsure about. In seconds, Loop Me gives you one plain answer — Stop, Be careful, or Looks okay — the one thing to do next, and a clear "show me why." No jargon. No judgment. Checking is never foolish.
 
 **Real on-device intelligence.**
-Loop Me reads each message right on your iPhone using Apple Intelligence, with a built-in model as backup on every device. Your messages never leave your phone. It works in airplane mode. There is no account, no ads, and nothing to pay.
+Loop Me reads each message right on your iPhone — using Apple Intelligence on the devices that support it, and a built-in model on every other iPhone. Your messages never leave your phone. It works in airplane mode. There is no account, no ads, and nothing to pay.
 
 **Keep your family in the loop.**
 Worried about a message? One tap sends it to someone you trust — they get an ordinary text, tap it, and answer with one button. Their reply comes straight back to your phone. If you look after a parent or grandparent, switch to the family side and see the checks they send you, answer instantly, and learn how each trick works so you can talk it through.
