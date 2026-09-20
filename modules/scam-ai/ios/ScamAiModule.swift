@@ -1,10 +1,10 @@
 import ExpoModulesCore
 import Foundation
 import NaturalLanguage
-import Vision
+@preconcurrency import Vision
 import UIKit
-import Speech
-import AVFoundation
+@preconcurrency import Speech
+@preconcurrency import AVFoundation
 
 #if canImport(FoundationModels)
 import FoundationModels
@@ -62,7 +62,10 @@ public class ScamAiModule: Module {
   }
 }
 
-final class SpeechListener: NSObject {
+// All mutable state below is touched only on the main queue (every entry point
+// hops there first), so the class is safe to hand across concurrency domains
+// even though the compiler cannot prove it.
+final class SpeechListener: NSObject, @unchecked Sendable {
   static let shared = SpeechListener()
   private let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
   private var task: SFSpeechRecognitionTask?

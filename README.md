@@ -107,15 +107,39 @@ echo "export NODE_BINARY=$(which node)" > ios/.xcode.env.local
 
 ## The engine
 
-Deterministic, on-device, and fast (<10 ms): 40+ weighted intent rules across every major
-scam family, unicode de-obfuscation (homoglyphs, zero-width characters), full link
-forensics (look-alike domains by edit distance, brand-as-subdomain disguises, shorteners,
-raw IPs, throwaway TLDs, offline blocklist), precision guards that subtract score for
-known-good patterns, and the urgency × payment × secrecy triangle.
+Two layers, both on the phone, both offline.
 
-Measured, not vibes: `npm test` runs a 163-case labeled suite —
-**100% recall on 82 scams, 0% false positives on 71 legit messages** —
-including Spanish, French, and Portuguese scam families.
+**Deterministic rules** — 40+ weighted intent rules across every major scam family,
+unicode de-obfuscation (homoglyphs, zero-width characters), full link forensics
+(look-alike domains by edit distance, brand-as-subdomain disguises, shorteners, raw IPs,
+throwaway TLDs, offline blocklist), precision guards that subtract score for known-good
+patterns, and the urgency × payment × secrecy triangle. English, Spanish, French and
+Portuguese. Typically well under a millisecond.
+
+**A learned second opinion** — a logistic-regression classifier over hashed character and
+word features (`src/engine/model.ts`, trained by `scripts/train-classifier.mjs`), shipped
+as a flat array of weights. It runs synchronously alongside the rules and is allowed to
+*raise* an alarm the rules missed, never to lower one. That asymmetry is deliberate: a
+model-driven downgrade of a real scam could cost someone their savings.
+
+### What the numbers do and do not mean
+
+`npm test` runs a 163-case labeled suite (87 scam, 76 legit). It passes at 100% / 0%, but
+that suite was written alongside the rules, so treat it as a **regression guard, not a
+measure of generalisation** — it proves changes do not break known behaviour.
+
+The honest evidence that the second layer earns its place is `npm run test:fusion`, whose
+32 cases appear nowhere in the training corpus:
+
+```
+rules alone : caught  8/12   false alarms 0/12
+fused       : caught 12/12   false alarms 0/12
+```
+
+Note for anyone reading `scripts/bench/*`: those sets share templates with the training
+corpus, and the shipped model is deliberately trained on everything, so their headline
+accuracies are optimistic. The model's own held-out figures are recorded in the header of
+`src/engine/model.ts`.
 
 ## Zero-friction entry
 

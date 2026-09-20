@@ -19,7 +19,14 @@ export interface FusedVerdict extends Verdict {
   ai?: AiJudgement;         // the raw AI second opinion, if any
   aiTier: AiTier;           // which real AI tier produced it
   fused: boolean;           // true if AI changed/confirmed the rule result
+  elapsedMs?: number;       // measured time this verdict took, for honest UI
 }
+
+// performance.now() where it exists (sub-millisecond), Date.now() otherwise.
+const nowMs = (): number =>
+  typeof performance !== 'undefined' && typeof performance.now === 'function'
+    ? performance.now()
+    : Date.now();
 
 let cachedTier: AiTier | null = null;
 export async function getAiTier(): Promise<AiTier> {
@@ -56,6 +63,12 @@ function ruleProb(v: Verdict): number {
  * model-driven downgrade of a real scam could cost someone their savings.
  */
 export function instant(message: string, opts?: DetectorOptions): FusedVerdict {
+  const started = nowMs();
+  const out = instantVerdict(message, opts);
+  return { ...out, elapsedMs: nowMs() - started };
+}
+
+function instantVerdict(message: string, opts?: DetectorOptions): FusedVerdict {
   const v = detect(message, opts);
 
   // An allowlisted sender is the person's own explicit decision; nothing overrides it.
@@ -65,8 +78,9 @@ export function instant(message: string, opts?: DetectorOptions): FusedVerdict {
   try { p = modelProbability(normalizeText((message || '').trim()).text); } catch { return { ...v, aiTier: 'none', fused: false }; }
   if (p < SCAM_THRESHOLD) return { ...v, aiTier: 'builtin', fused: false };
 
-  // Above the threshold the model is, by construction, right ~98% of the time on
-  // held-out data. Green becomes amber; a weak amber hardens. Red stays red.
+  // Above the threshold the model is deliberately conservative: measured on the
+  // repo suite it never trained on, it fires rarely and almost never on a
+  // genuine message. Green becomes amber; a weak amber hardens. Red stays red.
   const level: Verdict['level'] = v.level === 'red' ? 'red'
     : v.level === 'amber' && p >= 0.9 ? 'red'
     : v.level === 'green' ? 'amber'

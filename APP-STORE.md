@@ -86,6 +86,11 @@ That's it. Loop Me collects nothing: no analytics, no accounts, no identifiers, 
 
 ## Screenshots
 
+The app ships **iPhone-only** (`supportsTablet: false`), so **no iPad screenshots are
+required** — that is deliberate: the layouts are designed for a phone held in one hand,
+and on an iPad they stretch badly. iPad owners can still install it and run it in iPhone
+compatibility mode.
+
 Required sizes: **6.7"** (iPhone 15/16/17 Pro Max) and **6.5"** are the main ones; App Store Connect accepts the 6.9"/6.7" set. Capture 3–5 from the simulator:
 
 1. Home — "Check a message"

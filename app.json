@@ -14,7 +14,7 @@
       "backgroundColor": "#0D6B57"
     },
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.loopme.app",
       "buildNumber": "1",
       "requireFullScreen": true,

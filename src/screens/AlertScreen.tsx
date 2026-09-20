@@ -16,7 +16,13 @@ export default function AlertScreen({ ctx }: { ctx: Ctx }) {
   const sender = rec?.sender || 'an unknown number';
   const firstSignal = v?.signals?.[0] || 'It matches a known scam.';
   const first = ctx.settings.trusted[0];
-  const ms = v?.aiTier === 'foundation' ? 'with Apple Intelligence' : 'in 8 milliseconds';
+  // Measured, not asserted: the time this very check actually took.
+  const took = v?.elapsedMs;
+  const speed = took == null ? 'in an instant'
+    : took < 1 ? 'in under a millisecond'
+    : 'in ' + Math.round(took) + (Math.round(took) === 1 ? ' millisecond' : ' milliseconds');
+  const usedAppleIntelligence = v?.aiTier === 'foundation' && v?.ai != null;
+  const ms = usedAppleIntelligence ? 'with Apple Intelligence' : speed;
 
   return (
     <KFFade duration={200} style={{ flex: 1 }} playKey={ctx.recordId}>
