@@ -10,7 +10,7 @@ Everything you paste into App Store Connect. Written and ready.
 |---|---|
 | **App name** | Loop Me |
 | **Subtitle** (30 char max) | Check any message for scams |
-| **Bundle ID** | `com.loopme.app` |
+| **Bundle ID** | `com.loopmescamsafety.app` |
 | **Primary category** | Utilities |
 | **Secondary category** | Lifestyle |
 | **Age rating** | 4+ |
@@ -115,7 +115,7 @@ Frame them with device bezels in App Store Connect's media manager, or upload ra
 
 ## Submission steps (once your Apple Developer account is active)
 
-1. **App Store Connect** → **Apps** → **+** → **New App**. Platform iOS, name "Loop Me", primary language English (U.S.), bundle ID `com.loopme.app`, SKU `loopme-1`.
+1. **App Store Connect** → **Apps** → **+** → **New App**. Platform iOS, name "Loop Me", primary language English (U.S.), bundle ID `com.loopmescamsafety.app`, SKU `loopme-1`.
 2. Fill the fields above (description, keywords, subtitle, promo text, category, URLs, App Privacy = No data collected).
 3. In **Xcode**: open `ios/*.xcworkspace`, select **Any iOS Device (arm64)**, set the **Signing Team** to your account (Automatically manage signing), bump version if needed.
 4. **Product → Archive** → when it finishes, **Distribute App → App Store Connect → Upload**.

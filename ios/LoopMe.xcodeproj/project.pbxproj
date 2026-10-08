@@ -22,7 +22,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = LoopMe/Info.plist; sourceTree = "<group>"; };
 		35F6485172735D415D209CC3 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-LoopMe/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		498CB0075CA0E9FEEAA5ED39 /* Pods-LoopMe.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LoopMe.debug.xcconfig"; path = "Target Support Files/Pods-LoopMe/Pods-LoopMe.debug.xcconfig"; sourceTree = "<group>"; };
-		644635D9F1E34418844BF8A0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = PrivacyInfo.xcprivacy; path = LoopMe/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		644635D9F1E34418844BF8A0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = PrivacyInfo.xcprivacy; path = LoopMe/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		6EAB95A3D3A419B7BDF41BAF /* libPods-LoopMe.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-LoopMe.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F8510B5AC47DFE60E38D3E8 /* Pods-LoopMe.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LoopMe.release.xcconfig"; path = "Target Support Files/Pods-LoopMe/Pods-LoopMe.release.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = LoopMe/SplashScreen.storyboard; sourceTree = "<group>"; };
@@ -103,7 +103,6 @@
 				498CB0075CA0E9FEEAA5ED39 /* Pods-LoopMe.debug.xcconfig */,
 				8F8510B5AC47DFE60E38D3E8 /* Pods-LoopMe.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -347,6 +346,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = LoopMe/LoopMe.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -365,7 +365,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.loopme.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app;
 				PRODUCT_NAME = LoopMe;
 				SWIFT_OBJC_BRIDGING_HEADER = "LoopMe/LoopMe-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -383,6 +383,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = LoopMe/LoopMe.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				INFOPLIST_FILE = LoopMe/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -396,7 +397,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.loopme.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app;
 				PRODUCT_NAME = LoopMe;
 				SWIFT_OBJC_BRIDGING_HEADER = "LoopMe/LoopMe-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;

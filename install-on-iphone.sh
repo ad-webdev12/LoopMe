@@ -38,7 +38,7 @@ echo "== Installing $APP ..."
 xcrun devicectl device install app --device "$UDID" "$APP"
 
 echo "== Launching..."
-xcrun devicectl device process launch --device "$UDID" com.loopme.app || true
+xcrun devicectl device process launch --device "$UDID" com.loopmescamsafety.app || true
 
 echo "== Done. If the app will not open, trust the developer first:"
 echo "   iPhone Settings -> General -> VPN & Device Management -> Trust."

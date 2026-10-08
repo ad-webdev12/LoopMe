@@ -1,7 +1,7 @@
 # Privacy Policy — Loop Me
 
 **Last updated: 9 September 2026**
-**Applies to: Loop Me for iPhone (`com.loopme.app`), version 1.0.0**
+**Applies to: Loop Me for iPhone (`com.loopmescamsafety.app`), version 1.0.0**
 
 ## The short version
 

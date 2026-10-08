@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.loopme.app",
+      "bundleIdentifier": "com.loopmescamsafety.app",
       "buildNumber": "1",
       "requireFullScreen": true,
       "privacyManifests": {
@@ -40,7 +40,7 @@
       }
     },
     "android": {
-      "package": "com.loopme.app",
+      "package": "com.loopmescamsafety.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0D6B57"
