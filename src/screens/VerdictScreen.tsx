@@ -5,6 +5,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Speech from 'expo-speech';
+import { speak } from '../lib/speech';
 import {
   ChevronLeft, ChevronDown, ChevronUp, ChevronRight, ArrowRight,
   OctagonX, Info, Check, UserCheck, KeyRound,
@@ -52,8 +53,7 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
     if (!v || !ctx.settings.readAloud || spokenFor.current === ctx.recordId) return;
     spokenFor.current = ctx.recordId;
     const m = META[v.level];
-    Speech.stop();
-    Speech.speak(`${m.word}. ${m.line} ${v.safeStep}`, { rate: 0.88 });
+    void speak(`${m.word}. ${m.line} ${v.safeStep}`, { rate: 0.88 });
   }, [v, ctx.settings.readAloud, ctx.recordId]);
 
   if (!v) return null;
@@ -75,8 +75,7 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
     if (!toks.length) { ctx.flash('Nothing to read yet.'); return; }
     readingRef.current = true;
     setReading(true); setReadIdx(-1); setOnFlag(false);
-    Speech.stop();
-    Speech.speak(ctx.msg, { rate: slowRef.current ? 0.62 : 0.88 });
+    void speak(ctx.msg, { rate: slowRef.current ? 0.62 : 0.88 });
     let i = -1;
     const step = () => {
       i += 1;

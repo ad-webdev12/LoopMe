@@ -6,6 +6,7 @@ import * as Contacts from 'expo-contacts';
 import { ChevronRight, ArrowRight, Shield, Check, Plus } from 'lucide-react-native';
 import { T, F } from '../theme';
 import { KFIn } from '../ui/kf';
+import { pickTrustedPerson, samePhone } from '../lib/contacts';
 import type { Ctx } from '../App';
 
 function Kicker({ text, amber }: { text: string; amber?: boolean }) {
@@ -176,12 +177,12 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
     try {
       const { granted } = await Contacts.requestPermissionsAsync();
       if (!granted) { ctx.flash('Opens your contacts to pick one person.'); return; }
-      const picked = await Contacts.presentContactPickerAsync();
-      const num = picked?.phoneNumbers?.[0]?.number;
-      if (picked?.name && num) {
-        ctx.update({ ...ctx.settings, trusted: [{ name: picked.name, phone: num }, ...ctx.settings.trusted].slice(0, 3) });
-      }
-    } catch { ctx.flash('Opens your contacts to pick one person.'); }
+      const res = await pickTrustedPerson();
+      if (!res.ok) { if (res.reason) ctx.flash(res.reason); return; }
+      const rest = ctx.settings.trusted.filter(x => !samePhone(x.phone, res.person.phone));
+      ctx.update({ ...ctx.settings, trusted: [res.person, ...rest].slice(0, 3) });
+      ctx.flash(res.person.name.split(' ')[0] + ' is saved.');
+    } catch { ctx.flash('Your contacts could not be opened. You can try again in a moment.'); }
   };
   return (
     <KFIn duration={300} style={{ flex: 1 }} playKey="ob4">

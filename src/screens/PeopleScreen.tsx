@@ -6,6 +6,7 @@ import * as Contacts from 'expo-contacts';
 import { Phone, Plus, X } from 'lucide-react-native';
 import { T, F } from '../theme';
 import { KFIn } from '../ui/kf';
+import { pickTrustedPerson, samePhone } from '../lib/contacts';
 import type { Ctx } from '../App';
 
 export default function PeopleScreen({ ctx }: { ctx: Ctx }) {
@@ -16,16 +17,18 @@ export default function PeopleScreen({ ctx }: { ctx: Ctx }) {
     : ctx.settings.trusted.map(p => ({ ...p, meta: p.phone }));
 
   const add = async () => {
-    try {
-      const { granted } = await Contacts.requestPermissionsAsync();
-      if (!granted) { ctx.flash('Opens your contacts to pick one person.'); return; }
-      const picked = await Contacts.presentContactPickerAsync();
-      const num = picked?.phoneNumbers?.[0]?.number;
-      if (picked?.name && num) {
-        if (ctx.settings.trusted.length >= 3) { ctx.flash('Up to three people is plenty. Remove one to add another.'); return; }
-        ctx.update({ ...ctx.settings, trusted: [...ctx.settings.trusted, { name: picked.name, phone: num }] });
-      }
-    } catch { ctx.flash('Opens your contacts to pick one person.'); }
+    if (ctx.settings.trusted.length >= 3) {
+      ctx.flash('Up to three people is plenty. Remove one to add another.');
+      return;
+    }
+    const res = await pickTrustedPerson();
+    if (!res.ok) { if (res.reason) ctx.flash(res.reason); return; }
+    if (ctx.settings.trusted.some(x => samePhone(x.phone, res.person.phone))) {
+      ctx.flash(res.person.name.split(' ')[0] + ' is already on your list.');
+      return;
+    }
+    ctx.update({ ...ctx.settings, trusted: [...ctx.settings.trusted, res.person] });
+    ctx.flash(res.person.name.split(' ')[0] + ' is saved. One tap now tells them.');
   };
 
   // The exact opening line of the real text this app sends, with the real names.

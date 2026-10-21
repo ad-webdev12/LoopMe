@@ -21,6 +21,7 @@ const native = requireOptionalNativeModule<{
   recognizeText(uri: string): Promise<string>;
   listenOnce(): Promise<string>;
   stopListening(): void;
+  prepareAudioForSpeech(): Promise<boolean>;
 }>('ScamAi');
 
 export const isNativeAiLinked = () => native != null;
@@ -44,6 +45,15 @@ export async function listenOnce(): Promise<string> {
 
 export function stopListening(): void {
   try { native?.stopListening(); } catch {}
+}
+
+/**
+ * Put the audio session into playback so speech is heard even when the phone's
+ * ring/silent switch is on. Safe to call before every utterance.
+ */
+export async function prepareAudioForSpeech(): Promise<void> {
+  if (!native) return;
+  try { await native.prepareAudioForSpeech(); } catch {}
 }
 
 export async function classify(text: string): Promise<AiJudgement | null> {

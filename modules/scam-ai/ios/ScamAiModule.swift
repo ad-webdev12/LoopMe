@@ -59,12 +59,38 @@ public class ScamAiModule: Module {
     Function("stopListening") { () in
       SpeechListener.shared.stop()
     }
+
+    // Read-aloud is useless if the phone's ring/silent switch mutes it, and
+    // older users very often keep that switch on silent. AVSpeechSynthesizer
+    // follows the switch unless the session category is .playback, so the app
+    // asks for playback before it speaks. This also repairs the session after
+    // "Speak it", which has to put it into .record.
+    AsyncFunction("prepareAudioForSpeech") { () -> Bool in
+      return AudioSession.activatePlayback()
+    }
   }
 }
 
 // All mutable state below is touched only on the main queue (every entry point
 // hops there first), so the class is safe to hand across concurrency domains
 // even though the compiler cannot prove it.
+
+enum AudioSession {
+  /// Playback that is heard even with the ring/silent switch on, ducking any
+  /// other audio rather than stopping it. Returns false if iOS refuses.
+  @discardableResult
+  static func activatePlayback() -> Bool {
+    let session = AVAudioSession.sharedInstance()
+    do {
+      try session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+      try session.setActive(true, options: .notifyOthersOnDeactivation)
+      return true
+    } catch {
+      return false
+    }
+  }
+}
+
 final class SpeechListener: NSObject, @unchecked Sendable {
   static let shared = SpeechListener()
   private let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
@@ -150,7 +176,9 @@ final class SpeechListener: NSObject, @unchecked Sendable {
     audioEngine.inputNode.removeTap(onBus: 0)
     if audioEngine.isRunning { audioEngine.stop() }
     task?.cancel(); task = nil
-    try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    // Hand the session back to playback. Deactivating alone used to leave the
+    // category on .record, which silently killed read-aloud until relaunch.
+    AudioSession.activatePlayback()
     let text = latest
     latest = ""
     if let f = finish { finish = nil; f(text) }
