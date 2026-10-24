@@ -6,7 +6,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const which = ['dev','holdout','final','fresh4','fresh5','fresh6'].includes(process.argv[2]) ? process.argv[2] : 'dev';
+const which = ['dev','holdout','final','fresh4','fresh5','fresh6','wild'].includes(process.argv[2]) ? process.argv[2] : 'dev';
 const { SCAM, LEGIT } = await import(`./${which}.mjs`);
 
 const w = mkdtempSync(join(tmpdir(), 'lm-bench-'));

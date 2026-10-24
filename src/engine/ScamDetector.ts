@@ -180,6 +180,36 @@ const RULES: Rule[] = [
   { re: /(?:recover|get back|retrieve|reclaim|claw back)[\s\S]{0,40}(?:money|funds|losses|what you lost)|(?:funds? |asset |money )?recovery (?:firm|service|agent|department|specialist)|refund department/i, w: 30, tag: 'recovery', plain: 'It offers to recover money you lost. People who report a scam get targeted again by fake “recovery services.” This is one.' },
   // — Remote access / urgency
   { re: /(?:anydesk|teamviewer|ultraviewer|remote access|screen shar\w+|install (?:this|the) (?:app|software)|(?:fix|sort|repair|secure)[^.]{0,20}remotely|(?:let|allow) me (?:on|in|connect)|walk you through (?:securing|installing|fixing)|get to (?:a|your) computer)/i, w: 45, tag: 'remote-access', plain: 'It asks you to install remote-access software so someone can control your phone.' },
+  // The long tail. Most real scams are not a famous trick with a famous
+  // keyword — they are an organisation you did not contact saying money is
+  // owed. Measured on 110 unseen scams of this shape, the rest of this file
+  // caught 7. The structure itself is the signal.
+  //
+  // Deliberately AMBER on its own, never red: a genuine overdue bill reads the
+  // same, and for a genuine bill "ring them on a number you already have"
+  // costs nothing. Note this matches a DEMAND, not a notification — "a payment
+  // was taken" and "your statement is ready" must stay green, which is why
+  // settled/taken/authorised wording is excluded below.
+  { re: /\b(?:fee|levy|charge|charges|arrears|balance|deposit|surcharge|instalment|installment|contribution|shortfall|excess|top-?up|dues|premium|payment|amount|cost|sum)\b[\s\S]{0,80}?\b(?:due|owed|owing|outstanding|unpaid|overdue|payable|must be (?:paid|settled|received|cleared)|applies|accrued|required|remit|settle)\b|\b(?:pay|settle|remit|clear|reinstate|renew)\b[\s\S]{0,60}?\b(?:fee|levy|charge|arrears|balance|deposit|surcharge|instalment|installment|shortfall|excess|dues|premium|subscription|bond)\b/i,
+    w: 22, tag: 'payment-demand', plain: 'Someone who contacted you first is asking for money. Whether or not it is genuine, pay nobody who approaches you \u2014 ring the organisation on a number you already have.' },
+  // Pay-to-be-paid. The oldest structure in fraud: money is waiting for you,
+  // but a fee must clear first. A real payer never needs money from you to
+  // give you money.
+  { re: /\b(?:fee|levy|charge|deposit|payment|contribution|bond|insurance)\b[\s\S]{0,90}?\b(?:release[sd]?|to receive|before (?:it|they|the \w+) can be (?:paid|released|sent|disbursed|issued|collected)|refundable (?:on|upon)|unlocks?|to claim|to collect|disbursement|before (?:disbursement|release|collection|pickup))|\b(?:release|receive|claim|collect|reclaim)\b[\s\S]{0,70}?\b(?:fee|levy|charge|deposit|processing payment|handling (?:fee|charge|payment))\b/i,
+    w: 34, tag: 'advance-fee', plain: 'It wants a payment before money can reach you. Nobody who genuinely owes you money needs you to pay first.' },
+
+  // The doorstep trade: unsolicited work on your property, priced to be
+  // decided on the spot, paid outside any paper trail.
+  { re: /\b(?:cash (?:only|now|in hand|today)|half[- ]price|discount(?:ed)?|cheaper (?:today|now)|while we(?:'| a)re (?:in the (?:area|neighbourhood|neighborhood)|here)|left (?:over )?on the truck|special price)\b/i,
+    w: 26, tag: 'doorstep', plain: 'An unexpected offer of work for cash, decided on the spot, is how doorstep fraud works. Never agree on the doorstep and never pay cash up front.' },
+
+  // Renewal pressure: something has supposedly lapsed and you lose protection,
+  // a place, or a service unless you act now.
+  { re: /\b(?:expired|lapsed|has lapsed|not renewed|out of date|no longer valid|due for renewal|under review|deregistration)\b[\s\S]{0,110}?\b(?:renew|reinstate|pay|settle|re-?register|replacement|retention|or you (?:will )?lose|without (?:renewal|payment)|unless)\b/i,
+    w: 20, tag: 'renewal-pressure', plain: 'It says something has run out and presses you to renew immediately. Check directly with the organisation before paying anything.' },
+
+  { re: /(?:\bor\b|\bunless\b|otherwise|failure to|non-?payment|if not (?:settled|paid|received|cleared))[\s\S]{0,90}?(?:revoked|cancelled|canceled|removed|suspended|withdrawn|void|lapse[sd]?|auction|lien|collections?|credit file|bench warrant|citation|reassessed|released to|destroyed|purged|disconnected|blocked|doubles?|terminated|struck off|waiting list|recovery (?:unit|agent)|investigation)/i,
+    w: 16, tag: 'pay-or-lose', plain: 'It threatens to take something away if you do not pay. Real organisations put that in writing and never need it settled the same day.' },
   { re: /(?:act now|urgent|immediately|right away|within (?:24|48) hours|expires? (?:today|soon|tonight)|final notice|last (?:chance|warning)|asap|don'?t delay)/i, w: 15, tag: 'urgency', plain: 'It uses pressure words to rush you. Rushing is a scammer\u2019s favourite tool.' },
 
   // \u2014 The same cons in Spanish, French, and Portuguese. Scammers pick the
