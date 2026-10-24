@@ -41,7 +41,26 @@ export async function pickTrustedPerson(): Promise<PickResult> {
     }
   }
 
-  if (!picked) return { ok: false, reason: '' };           // cancelled: say nothing
+  if (!picked) {
+    // A null result is ambiguous: the person cancelled, OR the picker never
+    // opened because contacts access is denied. Those must not look the same —
+    // treating both as "cancelled" is what made this button feel dead. Ask iOS
+    // which it was, and only stay quiet for a real cancel.
+    try {
+      const { granted, canAskAgain } = await Contacts.getPermissionsAsync();
+      if (!granted) {
+        return {
+          ok: false,
+          reason: canAskAgain
+            ? 'Loop Me needs permission to open your contacts. Tap again and choose Continue.'
+            : 'Contacts are turned off for Loop Me. Turn them on in Settings, Privacy, Contacts, then try again.',
+        };
+      }
+    } catch {
+      return { ok: false, reason: 'Your contacts could not be opened. You can try again in a moment.' };
+    }
+    return { ok: false, reason: '' };                      // genuinely cancelled: say nothing
+  }
 
   const numbers = picked.phoneNumbers || [];
   // Prefer a mobile number when the contact has several.
