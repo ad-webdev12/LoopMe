@@ -8,15 +8,18 @@ Everything you paste into App Store Connect. Written and ready.
 
 | Field | Value |
 |---|---|
-| **App name** | Loop Me |
+| **App name** (App Store listing) | Loop Me Scam Safety |
+| **Display name** (under the icon) | Loop Me |
 | **Subtitle** (30 char max) | Check any message for scams |
 | **Bundle ID** | `com.loopmescamsafety.app` |
 | **Primary category** | Utilities |
-| **Secondary category** | Lifestyle |
+| **Secondary category** | Productivity |
 | **Age rating** | 4+ |
 | **Price** | Free |
 
-> If "Loop Me" is taken in App Store Connect, fallbacks: **Loop Me — Scam Check**, **Loop Me Safe**, **LoopMe Guard**.
+> The listing name is **Loop Me Scam Safety** because plain "LoopMe" is already taken on
+> the US App Store by LoopMe Group AB. The name under the icon stays the short "Loop Me",
+> which is normal and allowed — Apple only requires the *listing* name to be unique.
 
 ---
 
@@ -78,9 +81,13 @@ That's it. Loop Me collects nothing: no analytics, no accounts, no identifiers, 
 
 ## URLs you must provide (create these — one page each is fine)
 
-- **Support URL:** a simple page with an email address (required)
-- **Privacy Policy URL:** required. Draft text is in `PRIVACY.md` — host it anywhere (GitHub Pages, Notion, a Google Doc set to public).
-- **Marketing URL:** optional.
+- **Privacy Policy URL** (required) — **live now**:
+  `https://ad-webdev12.github.io/LoopMe/privacy.html`
+  Generated from `PRIVACY.md` into `docs/` and served by GitHub Pages, so the page and the
+  repo copy cannot drift apart. Re-run the generator and push to update it.
+- **Support URL** (required) — still to create. The repo's GitHub page works in a pinch:
+  `https://github.com/ad-webdev12/LoopMe`, though a one-page site with an email address reads better.
+- **Marketing URL:** optional, leave blank.
 
 ---
 
@@ -104,6 +111,27 @@ Capture command (per screen, with the app open on it):
 xcrun simctl io booted screenshot ~/Desktop/loopme-01.png
 ```
 Frame them with device bezels in App Store Connect's media manager, or upload raw — Apple accepts full-resolution simulator shots.
+
+---
+
+## Before you submit — the fields only you can answer
+
+- **Category**: Primary **Utilities**, Secondary **Productivity**. (Was still empty last I saw.)
+- **Age rating questionnaire**: everything "None" gives 4+.
+- **EU trader status** (Business tab): required, and it blocks submission until answered.
+- **App Privacy**: "Do you collect data from this app?" → **No**.
+
+---
+
+## When CloudKit ships (v1.1) these must change
+
+The family link currently travels as a text message. Once checks sync through the elder's
+own iCloud, three things stop being accurate and have to be revised together:
+
+1. The description line "they get an ordinary text message" — the caretaker will need the app.
+2. `PRIVACY.md` (and therefore the hosted page): "no server at all" becomes "your own iCloud,
+   never ours". Still no server of mine, but it is no longer literally nothing leaving the phone.
+3. App Privacy answers, if any data is judged to leave the device.
 
 ---
 

@@ -230,11 +230,24 @@ export default function App() {
     if (where === 'check' && text) check(text);
   }, [settings, check, flash, refreshHist, update, verdict]);
 
+  // The URL the app was COLD-LAUNCHED with must be handled exactly once.
+  // getInitialURL() keeps returning it for the life of the process, and
+  // handleUrl's identity changes whenever a check lands (it closes over the
+  // verdict) — so re-running this effect re-handled the same link, which
+  // re-ran the check, which changed the verdict again. That loop filled
+  // history with 200 copies of one message in a second and left the screen
+  // stuck mid-render. The ref breaks it; the settings guard stops a link
+  // arriving before storage has loaded from being dropped on the floor.
+  const initialUrlHandled = useRef(false);
   useEffect(() => {
-    Linking.getInitialURL().then(handleUrl);
+    if (!settings) return;
+    if (!initialUrlHandled.current) {
+      initialUrlHandled.current = true;
+      Linking.getInitialURL().then(handleUrl);
+    }
     const sub = Linking.addEventListener('url', e => handleUrl(e.url));
     return () => sub.remove();
-  }, [handleUrl]);
+  }, [handleUrl, settings]);
 
   if (!settings || !fontsLoaded) return <View style={st.root} />;
 

@@ -37,10 +37,24 @@ function useDriver(playKey: unknown) {
 function run(v: Animated.Value, p: P) {
   v.setValue(reduceMotion ? 1 : 0);
   if (reduceMotion) return;
+
+  // These components start fully transparent, so anything that stops the
+  // animation from finishing leaves the screen blank rather than un-animated.
+  // That is exactly what happened when a share or Shortcut cold-launched the
+  // app straight onto the alert: correct colours, no content. The settled
+  // value is therefore guaranteed two ways — on completion, and by a timer
+  // that fires slightly after the animation should have ended.
+  const settle = () => { v.setValue(1); };
+  const total = (p.duration ?? 0) + (p.delay ?? 0);
+  const guard = setTimeout(settle, total + 400);
+
   Animated.timing(v, {
     toValue: 1, duration: p.duration, delay: p.delay ?? 0,
     easing: p.easing ?? EASE, useNativeDriver: true,
-  }).start();
+  }).start(({ finished }) => {
+    clearTimeout(guard);
+    if (!finished) settle();
+  });
 }
 
 /** v2in — opacity 0→1, translateY 10→0 */
