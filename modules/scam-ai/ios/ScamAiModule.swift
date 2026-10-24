@@ -60,6 +60,34 @@ public class ScamAiModule: Module {
       SpeechListener.shared.stop()
     }
 
+    // ---- Family link over CloudKit -------------------------------------
+    // "available" | "noAccount" | "restricted" | "unknown"
+    AsyncFunction("cloudAccountState") { () -> String in
+      return await CloudLink.shared.accountState()
+    }
+
+    // Elder: returns a share URL to text to the caretaker, once.
+    AsyncFunction("cloudCreateInvite") { (myName: String) -> String in
+      return try await CloudLink.shared.createInvite(myName: myName)
+    }
+
+    // Elder: push one flagged check into the shared zone.
+    AsyncFunction("cloudPublishCheck") { (id: String, level: String, excerpt: String, reason: String, at: Double) -> Bool in
+      try await CloudLink.shared.publish(id: id, level: level, excerpt: excerpt, reason: reason, at: at)
+      return true
+    }
+
+    // Caretaker: everything shared with me, newest first.
+    AsyncFunction("cloudFetchShared") { () -> [[String: Any]] in
+      return try await CloudLink.shared.fetchShared()
+    }
+
+    // Caretaker: silent push whenever a new check arrives.
+    AsyncFunction("cloudSubscribe") { () -> Bool in
+      try await CloudLink.shared.subscribe()
+      return true
+    }
+
     // Read-aloud is useless if the phone's ring/silent switch mutes it, and
     // older users very often keep that switch on silent. AVSpeechSynthesizer
     // follows the switch unless the session category is .playback, so the app

@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.loopmescamsafety.app",
-      "buildNumber": "2",
+      "buildNumber": "3",
       "requireFullScreen": true,
       "privacyManifests": {
         "NSPrivacyCollectedDataTypes": [],
@@ -36,7 +36,20 @@
         "NSContactsUsageDescription": "Loop Me can add a trusted family member from your contacts, so you can reach them in one tap. Your contacts stay on your phone.",
         "NSMicrophoneUsageDescription": "Loop Me uses the microphone only when you tap ‘Speak it’ to say a message out loud. Nothing is uploaded.",
         "NSSpeechRecognitionUsageDescription": "Loop Me turns your speech into text on this phone when you tap ‘Speak it’, so the message can be checked. Nothing is uploaded.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
+      },
+      "entitlements": {
+        "com.apple.developer.icloud-container-identifiers": [
+          "iCloud.com.loopmescamsafety.app"
+        ],
+        "com.apple.developer.icloud-services": [
+          "CloudKit"
+        ],
+        "com.apple.developer.ubiquity-kvstore-identifier": "$(TeamIdentifierPrefix)$(CFBundleIdentifier)",
+        "aps-environment": "production"
       }
     },
     "android": {
