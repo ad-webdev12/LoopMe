@@ -1,4 +1,4 @@
-// Text normalization — defeats the evasion tricks scammers use to slip past
+// Text normalization: defeats the evasion tricks scammers use to slip past
 // keyword detection, so the rules see the message the way a person reads it:
 //   • homoglyphs: Cyrillic/Greek look-alikes (раypal, аpple, miсrosoft)
 //   • zero-width characters splitting words (pass​word)
@@ -39,7 +39,7 @@ const SENSITIVE = /^(?:apple|paypal|amazon|chase|netflix|microsoft|google|accoun
 
 export interface Normalized {
   text: string;
-  /** true when look-alike letters were hidden inside sensitive Latin words — itself a scam signal */
+  /** true when look-alike letters were hidden inside sensitive Latin words. Itself a scam signal */
   disguised: boolean;
 }
 
@@ -49,7 +49,7 @@ export function normalizeText(input: string): Normalized {
   let t = String(input);
 
   // Words that mix Latin letters with confusables, and fold to a sensitive
-  // keyword, are deliberate disguise — legit foreign text doesn't do this.
+  // keyword, are deliberate disguise. Legit foreign text doesn't do this.
   for (const word of t.split(/[^\p{L}\p{N}]+/u)) {
     if (!CONFUSABLE_RE.test(word)) continue;
     CONFUSABLE_RE.lastIndex = 0;

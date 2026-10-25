@@ -1,4 +1,4 @@
-// Check history — the shared record that links the two sides of the app.
+// Check history: the shared record that links the two sides of the app.
 // Every entry is redacted before it's written; raw message text is never stored.
 // History travels between family phones only inside messages the person
 // chooses to send (an "ask family" text carries the entry; the reply carries
@@ -26,7 +26,7 @@ export interface CheckRecord {
   from?: string;                 // ask-link sender's name (caretaker side)
   askedFamily: boolean;
   reply?: FamilyReply;
-  reminderIds?: string[];        // scheduled "still waiting" notifications, cancelled on reply
+  reminderIds?: string[];        // scheduled "still waiting" notifications, canceled on reply
   notes?: { text: string; meta: string }[]; // caretaker notes attached to this event
   sender?: string;               // display sender line for the history list
 }
@@ -79,7 +79,7 @@ export async function updateCheck(id: string, patch: Partial<CheckRecord>): Prom
   return list[i];
 }
 
-/** Upsert by id — used when the same ask-link is opened twice. */
+/** Upsert by id. Used when the same ask-link is opened twice. */
 export async function upsertCheck(rec: CheckRecord): Promise<void> {
   const list = await readAll();
   const i = list.findIndex(r => r.id === rec.id);

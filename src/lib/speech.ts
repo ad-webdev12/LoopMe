@@ -2,7 +2,7 @@
 //
 // On iOS the speech synthesiser obeys the ring/silent switch unless the audio
 // session is in playback, so read-aloud was silent for anyone with that switch
-// on — which is most of the people this app is for. prepareAudioForSpeech()
+// on: which is most of the people this app is for. prepareAudioForSpeech()
 // sets that up, and is cheap enough to call before each utterance.
 import * as Speech from 'expo-speech';
 import { prepareAudioForSpeech } from '../../modules/scam-ai';

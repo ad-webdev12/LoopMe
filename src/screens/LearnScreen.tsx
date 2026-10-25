@@ -1,4 +1,4 @@
-// Learn the tricks — source lines 340-345. Five numbered tricks with the
+// Learn the tricks. Source lines 340-345. Five numbered tricks with the
 // "What to do:" line coloured by tone.
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';

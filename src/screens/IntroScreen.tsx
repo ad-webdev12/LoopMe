@@ -1,4 +1,4 @@
-// Animated intro — three beats, auto-advancing every 4200ms, every child at
+// Animated intro: three beats, auto-advancing every 4200ms, every child at
 // explicit absolute offsets inside the frame (per the handoff: normal flow will
 // not reproduce it). SF depicts the iMessage bubbles; Archivo is the app voice.
 import React, { useEffect, useRef, useState } from 'react';
@@ -37,7 +37,7 @@ export default function IntroScreen({ ctx }: { ctx: Ctx }) {
     <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
     <StatusBar barStyle={beat === 0 ? 'light-content' : 'dark-content'} />
     <View style={st.root}>
-      {/* ---------------- Beat 0 — Is this message safe? ---------------- */}
+      {/* ---------------- Beat 0. Is this message safe? ---------------- */}
       {beat === 0 && (
         <View style={StyleSheet.absoluteFill}>
           <KFFade duration={600} delay={550} playKey={beat} style={st.b0card}>
@@ -77,7 +77,7 @@ export default function IntroScreen({ ctx }: { ctx: Ctx }) {
         </View>
       )}
 
-      {/* ---------------- Beat 1 — One plain answer ---------------- */}
+      {/* ---------------- Beat 1. One plain answer ---------------- */}
       {beat === 1 && (
         <View style={StyleSheet.absoluteFill}>
           <KFWipe duration={800} height={H - 378} playKey={beat} easing={bez(0.2, 0.9, 0.2, 1)}
@@ -118,7 +118,7 @@ export default function IntroScreen({ ctx }: { ctx: Ctx }) {
         </View>
       )}
 
-      {/* ---------------- Beat 2 — One tap and someone knows ---------------- */}
+      {/* ---------------- Beat 2. One tap and someone knows ---------------- */}
       {beat === 2 && (
         <View style={StyleSheet.absoluteFill}>
           <KFWipe duration={800} height={H - 434} playKey={beat} easing={bez(0.2, 0.9, 0.2, 1)}
@@ -178,7 +178,7 @@ export default function IntroScreen({ ctx }: { ctx: Ctx }) {
         </View>
       )}
 
-      {/* dots + CTA — source: dots white/white-42 on every beat; the button is
+      {/* dots + CTA. Source: dots white/white-42 on every beat; the button is
           always white, its label #ec3013 on beat 0 and #0d4a3b after. */}
       <View style={st.ctaWrap}>
         <View style={st.dots}>

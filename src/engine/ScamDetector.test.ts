@@ -71,7 +71,7 @@ const SCAMS: Case[] = [
   ['Send the money by Zelle now, my phone is broken, this is your son','familypay'],
   ['Sweepstakes winner! To receive your car, pay taxes upfront via MoneyGram','prize'],
   ['Verify your Medicare card number now or your benefits will be suspended immediately','gov'],
-  // — v3 additions: evasion, look-alikes, and newer scam families
+  //: v3 additions: evasion, look-alikes, and newer scam families
   ['Yоur Аpple ID has been lоcked. Verify nоw at apple-id-verify.top','homoglyph'],
   ['Send me the gi​ft ca​rd codes right away please','zerowidth'],
   ['Update your billing information here: netfl1x-billing.com','lookalike-noname'],
@@ -79,14 +79,14 @@ const SCAMS: Case[] = [
   ['You are the beneficiary of an unclaimed estate of $2.4 million. Pay the transfer fee to claim your inheritance','advancefee'],
   ['We accidentally overpaid you $500. Deposit the check and send back the difference via Zelle','overpayment'],
   ['I have a video of you from your webcam. Pay $800 in bitcoin within 48 hours or I send it to every contact','sextortion'],
-  ['Help hurricane victims today — donate with Apple gift cards, any amount helps','charity'],
+  ['Help hurricane victims today. Donate with Apple gift cards, any amount helps','charity'],
   ['Your account will be frozen today. Call 888-402-1187 immediately to keep access','callback'],
   ['Scan this QR code to receive your $100 Zelle refund instantly','qrbait'],
   ['Coinbase support: to restore access, confirm your seed phrase with our agent','walletphrase'],
   ['Adorable teacup puppies ready today, just send the $200 shipping deposit via Zelle','petdeposit'],
   ['Microsoft alert: viruses were detected on your PC. Call now to avoid data loss','techsupport'],
   ['chase.com278282: your account needs verification, sign in here','gluedtld'],
-  // — Gaps found by probing the detector with messages written outside this
+  //: gaps found by probing the detector with messages written outside this
   //   suite. Each of these scored a clean 0 before the rules were widened.
   ['Hi mum, my phone broke, this is my new number. Can you help me pay a bill today?','family-newnumber'],
   ['Hi mum its me, lost my phone, new number. Can you transfer me £250 today?','family-newnumber'],
@@ -152,13 +152,13 @@ const LEGIT: Case[] = [
   ['The pharmacy called: your new dose starts tomorrow, take with food.','pharmacy'],
   ['Your appointment with the eye doctor is confirmed for April 2 at 1:30.','appointment'],
   ['Zelle: you received $50.00 from Sarah Miller. It\u2019s in your account.','bank-real'],
-  ['Your водоmeter reading is due — submit in the utility app this week.','utility'],
+  ['Your водоmeter reading is due. Submit in the utility app this week.','utility'],
   ['Grandpa, beat my chess record! Rematch this weekend?','family'],
   ['Reminder from Trinity Church: choir practice Wednesday 7pm.','social'],
   ['DMV: your registration renewal was processed. New sticker mails in 2 weeks.','gov-real'],
   ['Your gym membership payment of $29 posted. Thanks!','receipt'],
-  ['Lunch Thursday? My treat this time. — Carol','social'],
-  // — v3 additions: messages that LOOK scam-adjacent but are the real thing
+  ['Lunch Thursday? My treat this time. Carol x','social'],
+  //: v3 additions: messages that LOOK scam-adjacent but are the real thing
   ['Chase: We will never ask for your password or PIN. If you get such a call, hang up and call us directly.','bank-disclaimer'],
   ['Your Apple ID was used to sign in to iCloud on a new Mac. If this was you, no action is needed.','account-real'],
   ['Donate to the Red Cross at redcross.org or by calling 1-800-RED-CROSS.','charity-real'],
@@ -167,9 +167,9 @@ const LEGIT: Case[] = [
   ['Grandpa, my recital is Friday at 6! Can you and grandma come?','family'],
   ['Reminder: flu clinic at the senior center Tuesday, walk-ins welcome, bring your Medicare card.','civic'],
   ['Wells Fargo: your requested statement is attached. Questions? Call the number on your card.','bank-real'],
-  // — Near-miss legitimate messages that sit close to the widened family rules.
+  //: near-miss legitimate messages that sit close to the widened family rules.
   ['Hi mum, just landed. Battery about to die, will call you tomorrow.','legit-family'],
-  ['My phone broke so I\u2019m on Sarah\u2019s for now — no rush, just letting you know.','legit-family'],
+  ['My phone broke so I\u2019m on Sarah\u2019s for now. No rush, just letting you know.','legit-family'],
   ['Hey dad, can you pay the window cleaner if he comes? I\u2019ll transfer you back.','legit-family'],
   ['I am a widower and I\u2019d like to join the Tuesday walking group please.','legit-community'],
   ['Amazon: your order has shipped and is arriving tomorrow. No action needed.','legit-delivery'],

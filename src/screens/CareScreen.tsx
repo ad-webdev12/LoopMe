@@ -1,4 +1,4 @@
-// Caregiver mode — source lines 347-356. Amber badge, four checkable steps,
+// Caregiver mode: source lines 347-356. Amber badge, four checkable steps,
 // done counter, hand the phone back.
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';

@@ -1,4 +1,4 @@
-// History — source lines 284-301. Stats strip, last-7-days chart, the
+// History: source lines 284-301. Stats strip, last-7-days chart, the
 // repeat-sender warning, then day-grouped rows. All fed by real saved checks.
 import React, { useMemo } from 'react';
 import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
@@ -58,7 +58,7 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
   }, [hist]);
 
   // Repeat sender: 3+ non-green from the same REAL sender in the last 7 days.
-  // Typed/pasted checks carry no sender and never count — unrelated pastes are
+  // Typed/pasted checks carry no sender and never count. Unrelated pastes are
   // not one caller (records from older builds stored the literal placeholder).
   const repeat = useMemo(() => {
     const cutoff = Date.now() - 7 * 86400000;
@@ -74,7 +74,7 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
   const exportLog = async () => {
     const lines = hist.map(h => `${dayLabel(h.at)} ${hm(h.at)} · ${h.sender || 'Pasted message'} · ${MARK[h.level].mark}\n  “${h.excerpt}”\n  ${h.reason}`);
     try {
-      await Share.share({ message: 'Loop Me — check history\n\n' + (lines.join('\n\n') || 'No checks yet.') });
+      await Share.share({ message: 'Loop Me. Check history\n\n' + (lines.join('\n\n') || 'No checks yet.') });
     } catch {}
     ctx.flash('Made a one-page log you can print or show.');
   };

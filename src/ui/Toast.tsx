@@ -1,4 +1,4 @@
-// Toast — #171717 on white shadow, 13.5/1.4 semibold, v2in .2s, sits above the
+// Toast: #171717 on white shadow, 13.5/1.4 semibold, v2in .2s, sits above the
 // tab bar (bottom 104). Dismissed by the app after 2200ms.
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';

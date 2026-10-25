@@ -1,4 +1,4 @@
-// GENERATED FILE — do not edit by hand.
+// GENERATED FILE: do not edit by hand.
 // Produced by scripts/train-classifier.mjs. To change the model, change the
 // corpus or the trainer and re-run that script.
 //

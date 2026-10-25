@@ -1,4 +1,4 @@
-// Caretaker, alert detail — source lines 411-429. Tinted header, what arrived,
+// Caretaker, alert detail. Source lines 411-429. Tinted header, what arrived,
 // what she was told, three one-tap notes + free text, send (a real SMS with a
 // deep link that lands the note on her phone), call instead, notes thread.
 import React, { useState } from 'react';

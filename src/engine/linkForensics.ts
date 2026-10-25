@@ -1,4 +1,4 @@
-// Link forensics — fully offline. Catches the tricks scam links rely on:
+// Link forensics: fully offline. Catches the tricks scam links rely on:
 //   • look-alike / impersonation domains (netfl1x-billing.com → "Netflix")
 //   • brand-as-subdomain disguises (chase.secure-login.xyz)
 //   • URL shorteners that hide the destination
@@ -48,7 +48,7 @@ const BRANDS: Brand[] = [
 ];
 
 // Security-flavoured words scammers bake into hostnames, in the languages this
-// app defends against. A real bank's address is its name — not a sentence.
+// app defends against. A real bank's address is its name. Not a sentence.
 const SECURITY_WORDS = /(?:secure|security|verify|verification|login|signin|account|alert|support|bank|banco|banque|seguro|segura|verificar|acceso|cuenta|clave|conta|verifier|compte)/;
 
 const SHORTENERS = [
@@ -137,7 +137,7 @@ export function analyzeLinks(text: string): { hits: LinkHit[]; urlCount: number;
       continue;
     }
     if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) {
-      push(40, 'url-ip', 'The link goes to a bare numeric address — real companies never do that.');
+      push(40, 'url-ip', 'The link goes to a bare numeric address. Real companies never do that.');
       continue;
     }
     if (SHORTENERS.includes(reg)) {
@@ -149,7 +149,7 @@ export function analyzeLinks(text: string): { hits: LinkHit[]; urlCount: number;
       continue;
     }
 
-    // Impersonation checks — only against brands actually named in the message,
+    // Impersonation checks: only against brands actually named in the message,
     // so unrelated legit domains never false-match.
     let flagged = false;
     const bare = leet(host);
@@ -159,11 +159,11 @@ export function analyzeLinks(text: string): { hits: LinkHit[]; urlCount: number;
       const hostCore = leet(host.split('.')[0]);
       const nearMiss = core.length >= 5 && levenshtein(hostCore, core) <= 2 && hostCore !== core;
       if (nearMiss || (!bare.includes(core) && core.length >= 4 && bare.replace(/-/g, '').includes(core))) {
-        push(55, 'url-lookalike', `The link is spelled almost like ${b.label} to fool the eye — it is not ${b.label}’s real website (${b.domains[0]}).`);
+        push(55, 'url-lookalike', `The link is spelled almost like ${b.label} to fool the eye. It is not ${b.label}’s real website (${b.domains[0]}).`);
         flagged = true; break;
       }
       if (bare.includes(core) && !bareReg.includes(core)) {
-        push(50, 'url-brand-subdomain', `The link puts “${b.label}” in front of a website ${b.label} doesn’t own — a disguise. The real address is ${b.domains[0]}.`);
+        push(50, 'url-brand-subdomain', `The link puts “${b.label}” in front of a website ${b.label} doesn’t own. A disguise. The real address is ${b.domains[0]}.`);
         flagged = true; break;
       }
       if (bare.includes(core) && bareReg.includes(core)) {
@@ -186,7 +186,7 @@ export function analyzeLinks(text: string): { hits: LinkHit[]; urlCount: number;
         const exactFold = fold === core && seg.toLowerCase() !== b.domains[0].split('.')[0];
         const nearMiss = core.length >= 6 && fold !== core && levenshtein(fold, core) <= 1;
         if (exactFold || nearMiss) {
-          push(55, 'url-lookalike', `The link is spelled almost like ${b.label} to fool the eye — it is not ${b.label}’s real website (${b.domains[0]}).`);
+          push(55, 'url-lookalike', `The link is spelled almost like ${b.label} to fool the eye. It is not ${b.label}’s real website (${b.domains[0]}).`);
           flagged = true; break;
         }
       }
@@ -199,7 +199,7 @@ export function analyzeLinks(text: string): { hits: LinkHit[]; urlCount: number;
     // companies' addresses are their name, not a reassuring sentence.
     const regName = reg.split('.')[0];
     if (regName.includes('-') && SECURITY_WORDS.test(regName)) {
-      push(38, 'url-security-theater', 'The link’s address is dressed up in security words — real companies never do that.');
+      push(38, 'url-security-theater', 'The link’s address is dressed up in security words. Real companies never do that.');
       continue;
     }
 
@@ -209,7 +209,7 @@ export function analyzeLinks(text: string): { hits: LinkHit[]; urlCount: number;
       continue;
     }
     if (/\.[a-z]{2,}[0-9]/.test(host)) {
-      push(30, 'url-glued', 'The link has numbers glued onto the end of the address — real websites never look like that.');
+      push(30, 'url-glued', 'The link has numbers glued onto the end of the address. Real websites never look like that.');
     }
   }
 

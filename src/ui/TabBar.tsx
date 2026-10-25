@@ -1,4 +1,4 @@
-// Tab bar — exact per handoff: rgba(247,245,241,.95) ground, 1px hairline top,
+// Tab bar: exact per handoff: rgba(247,245,241,.95) ground, 1px hairline top,
 // 0 -2px 10px shadow, 25px icons, 11px labels, then a 132×5 home-indicator pill.
 // Tabs swap by role. Active: green, stroke 2.4, weight 800. Inactive: #6b6b68.
 import React from 'react';

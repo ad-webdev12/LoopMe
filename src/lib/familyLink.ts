@@ -1,4 +1,4 @@
-// The family link — how the two sides of Loop Me stay connected WITHOUT a
+// The family link. How the two sides of Loop Me stay connected WITHOUT a
 // server. A check travels inside a normal text message the person chooses to
 // send: the text is readable on its own (works even without the app), and it
 // carries a link that opens the other phone's Loop Me straight to the right
@@ -42,15 +42,15 @@ export function askText(myName: string, rec: CheckRecord): string {
   return (
     `${who} like a second opinion on a message.\n\n` +
     `“${rec.excerpt}”\n\n` +
-    `Loop Me says: ${m.word} — ${rec.reason}\n\n` +
+    `Loop Me says: ${m.word}. ${rec.reason}\n\n` +
     `Tap to see the full check and reply:\n${buildFamilyUrl({ k: 'ask', id: rec.id, n: myName || 'Family', l: rec.level, s: rec.score, t: rec.tags, r: rec.reason, e: rec.excerpt })}`
   );
 }
 
 export function replyText(myName: string, rec: CheckRecord, verdict: FamilyReply['verdict']): string {
-  const word = verdict === 'scam' ? 'This is a scam — please don’t reply to it or send anything.'
+  const word = verdict === 'scam' ? 'This is a scam. Please don’t reply to it or send anything.'
     : verdict === 'safe' ? 'This one looks okay to me.'
-    : 'Let’s talk before you do anything — call me when you can.';
+    : 'Let’s talk before you do anything. Call me when you can.';
   return (
     `${myName ? myName + ' looked' : 'I looked'} at the message you checked.\n\n${word}\n\n` +
     `Tap to save this answer in Loop Me:\n${buildFamilyUrl({ k: 'reply', id: rec.id, n: myName || 'Family', v: verdict })}`
@@ -72,7 +72,7 @@ export async function sendSms(phone: string | null, body: string) {
       if (await Linking.canOpenURL(url)) { await Linking.openURL(url); return; }
     } catch {}
   }
-  await Share.share({ message: body }); // WhatsApp, Mail, anything — the person picks.
+  await Share.share({ message: body }); // WhatsApp, Mail, anything. The person picks.
 }
 
 export function noteText(myName: string, recId: string, text: string): string {

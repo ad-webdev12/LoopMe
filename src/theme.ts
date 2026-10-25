@@ -1,4 +1,4 @@
-// Design 4 tokens — taken literally from the handoff README's token table.
+// Design 4 tokens. Taken literally from the handoff README's token table.
 // Red means danger only. Green carries every safe and primary action.
 // One weight scale: 400 body, 500/600 emphasis, 700 buttons/row titles, 800 display.
 import { OctagonX, TriangleAlert, CircleCheck } from 'lucide-react-native';
@@ -14,7 +14,7 @@ export const F = {
 } as const;
 
 export const T = {
-  // colour — exact
+  // color: exact
   red: '#ec3013',
   redTint: '#fdeeea',
   redInk: '#8c1f0c',
@@ -63,7 +63,7 @@ export const T = {
   hairline2: '#edece9',
   page: '#e7e3dc',
 
-  // geometry — exact
+  // geometry: exact
   radius: 14,      // cards
   radiusSm: 12,    // buttons + inputs
   gutter: 20,

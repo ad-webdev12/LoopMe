@@ -1,4 +1,4 @@
-// Loop Me — Design 4. This is the design's state machine, verbatim in shape:
+// Loop Me: design 4. This is the design's state machine, verbatim in shape:
 // screens intro/ob1..ob4/watch/watchWait/pairAsk/home/verdict/alert/history/
 // people/panic/settings/learn/care/more/call/ward/wardItem, a role-swapped tab
 // bar, and 2200ms toasts. Underneath, everything is real: the detector + the
@@ -101,7 +101,7 @@ export default function App() {
 
   const refreshHist = useCallback(() => { listChecks().then(setHist); }, []);
 
-  // Mirror of settings that updates the moment update() runs — handlers that
+  // Mirror of settings that updates the moment update() runs. Handlers that
   // write settings and navigate in the same tick read the truth, not the
   // previous render's state.
   const settingsRef = useRef<Settings | null>(null);
@@ -233,7 +233,7 @@ export default function App() {
   // The URL the app was COLD-LAUNCHED with must be handled exactly once.
   // getInitialURL() keeps returning it for the life of the process, and
   // handleUrl's identity changes whenever a check lands (it closes over the
-  // verdict) — so re-running this effect re-handled the same link, which
+  // verdict): so re-running this effect re-handled the same link, which
   // re-ran the check, which changed the verdict again. That loop filled
   // history with 200 copies of one message in a second and left the screen
   // stuck mid-render. The ref breaks it; the settings guard stops a link

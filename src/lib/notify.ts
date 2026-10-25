@@ -1,5 +1,5 @@
 // Reminders need permission before iOS will deliver anything. Scheduling
-// without it fails silently — the person simply never hears back — so every
+// without it fails silently. The person simply never hears back. So every
 // scheduling path goes through here first.
 import * as Notifications from 'expo-notifications';
 

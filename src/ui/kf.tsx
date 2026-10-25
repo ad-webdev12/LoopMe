@@ -41,8 +41,8 @@ function run(v: Animated.Value, p: P) {
   // These components start fully transparent, so anything that stops the
   // animation from finishing leaves the screen blank rather than un-animated.
   // That is exactly what happened when a share or Shortcut cold-launched the
-  // app straight onto the alert: correct colours, no content. The settled
-  // value is therefore guaranteed two ways — on completion, and by a timer
+  // app straight onto the alert: correct colors, no content. The settled
+  // value is therefore guaranteed two ways. On completion, and by a timer
   // that fires slightly after the animation should have ended.
   const settle = () => { v.setValue(1); };
   const total = (p.duration ?? 0) + (p.delay ?? 0);
@@ -57,7 +57,7 @@ function run(v: Animated.Value, p: P) {
   });
 }
 
-/** v2in — opacity 0→1, translateY 10→0 */
+/** v2in: opacity 0→1, translateY 10→0 */
 export function KFIn(p: P) {
   const { v } = useDriver(p.playKey);
   useEffect(() => { run(v, p); }, [p.playKey]);
@@ -68,14 +68,14 @@ export function KFIn(p: P) {
   );
 }
 
-/** v2fade — opacity 0→1 */
+/** v2fade: opacity 0→1 */
 export function KFFade(p: P) {
   const { v } = useDriver(p.playKey);
   useEffect(() => { run(v, p); }, [p.playKey]);
   return <Animated.View style={[p.style, { opacity: v }]}>{p.children}</Animated.View>;
 }
 
-/** v2rise — opacity 0→1, translateY 26→0. Wrap in an overflow:hidden mask for the intro. */
+/** v2rise: opacity 0→1, translateY 26→0. Wrap in an overflow:hidden mask for the intro. */
 export function KFRise(p: P) {
   const { v } = useDriver(p.playKey);
   useEffect(() => { run(v, p); }, [p.playKey]);
@@ -86,7 +86,7 @@ export function KFRise(p: P) {
   );
 }
 
-/** v2bub — opacity 0→1, translateY 22→0, scale .96→1 */
+/** v2bub: opacity 0→1, translateY 22→0, scale .96→1 */
 export function KFBub(p: P) {
   const { v } = useDriver(p.playKey);
   useEffect(() => { run(v, p); }, [p.playKey]);
@@ -103,7 +103,7 @@ export function KFBub(p: P) {
   );
 }
 
-/** v2pop — opacity 0→1; scale .5 → 1.08 (at 70%) → 1 */
+/** v2pop: opacity 0→1; scale .5 → 1.08 (at 70%) → 1 */
 export function KFPop(p: P) {
   const { v } = useDriver(p.playKey);
   useEffect(() => { run(v, p); }, [p.playKey]);
@@ -117,7 +117,7 @@ export function KFPop(p: P) {
   );
 }
 
-/** v2slide — opacity 0→1, translateX -14→0 */
+/** v2slide: opacity 0→1, translateX -14→0 */
 export function KFSlide(p: P) {
   const { v } = useDriver(p.playKey);
   useEffect(() => { run(v, p); }, [p.playKey]);
@@ -128,7 +128,7 @@ export function KFSlide(p: P) {
   );
 }
 
-/** v2wipe — translateY 101% → 0. Pass the field's pixel height. */
+/** v2wipe: translateY 101% → 0. Pass the field's pixel height. */
 export function KFWipe(p: P & { height: number }) {
   const { v } = useDriver(p.playKey);
   useEffect(() => { run(v, p); }, [p.playKey]);
@@ -139,7 +139,7 @@ export function KFWipe(p: P & { height: number }) {
   );
 }
 
-/** v2scan — loops: translateY 0→105, opacity 0→1 (12%) →1 (88%) →0 */
+/** v2scan: loops: translateY 0→105, opacity 0→1 (12%) →1 (88%) →0 */
 export function KFScan(p: { delay?: number; style?: StyleProp<ViewStyle>; children?: React.ReactNode; playKey?: unknown }) {
   const v = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -162,7 +162,7 @@ export function KFScan(p: { delay?: number; style?: StyleProp<ViewStyle>; childr
   );
 }
 
-/** v2link — width 0 → 64px is a layout prop; animate scaleX from a left origin instead. */
+/** v2link: width 0 → 64px is a layout prop; animate scaleX from a left origin instead. */
 export function KFLink(p: P & { width: number }) {
   const { v } = useDriver(p.playKey);
   useEffect(() => { run(v, p); }, [p.playKey]);

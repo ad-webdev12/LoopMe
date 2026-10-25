@@ -1,7 +1,7 @@
-// AI orchestration — the real, on-device intelligence layer.
+// AI orchestration: the real, on-device intelligence layer.
 //
 // Flow (this is the honest architecture the app ships):
-//   1. detect() runs instantly, offline, on every phone — the safety floor.
+//   1. detect() runs instantly, offline, on every phone. The safety floor.
 //   2. If Apple Intelligence (Foundation Models) or the bundled Core ML model is
 //      available, we ask it for a second opinion and FUSE it with the rule result.
 //   3. The fused verdict never drops below the deterministic floor for the most
@@ -58,7 +58,7 @@ function ruleProb(v: Verdict): number {
  *
  * The model may only ever RAISE the alarm. It is trained on a synthetic corpus,
  * so it is treated as a second opinion that can spot something the rules missed
- * — never as grounds for talking the person out of a rule hit. That asymmetry is
+ *: never as grounds for talking the person out of a rule hit. That asymmetry is
  * deliberate: a missed alarm the rules caught anyway costs nothing, while a
  * model-driven downgrade of a real scam could cost someone their savings.
  */
@@ -87,7 +87,7 @@ function instantVerdict(message: string, opts?: DetectorOptions): FusedVerdict {
     : 'amber';
   if (level === v.level) return { ...v, aiTier: 'builtin', fused: false };
 
-  const note = 'The on-device model recognises the shape of this message as a scam, even though it does not match a specific known trick.';
+  const note = 'The on-device model recognizes the shape of this message as a scam, even though it does not match a specific known trick.';
   return {
     ...v,
     level,

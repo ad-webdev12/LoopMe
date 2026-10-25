@@ -1,4 +1,4 @@
-// Full-screen alert — source lines 268-282. Red field with the eyebrow, the
+// Full-screen alert: source lines 268-282. Red field with the eyebrow, the
 // 38px display line, a hairline, one sentence about the actual message; the
 // bottom half is ground-coloured with the three actions and the offline note.
 import React, { useEffect } from 'react';

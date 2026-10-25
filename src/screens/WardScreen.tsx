@@ -1,4 +1,4 @@
-// Caretaker, activity — source lines 389-409. Header with avatar/status/call,
+// Caretaker, activity: source lines 389-409. Header with avatar/status/call,
 // three stats, "Worth a word", the activity list, privacy limits, stop row.
 // Fed from real received family events (history records with source 'family').
 import React from 'react';

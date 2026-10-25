@@ -1,4 +1,4 @@
-// Panic — source lines 312-325. Five steps, progress bars, the amber action
+// Panic: source lines 312-325. Five steps, progress bars, the amber action
 // row on the steps that carry one, read-aloud, forward and back.
 import React, { useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -22,7 +22,7 @@ export default function PanicScreen({ ctx }: { ctx: Ctx }) {
   const step = STEPS[i];
   const doAction = async () => {
     if (i === 2) {
-      // Loop Me deliberately does not hold the bank's number — supplying one
+      // Loop Me deliberately does not hold the bank's number. Supplying one
       // would be the exact mistake this step warns against. Open the keypad so
       // the number can be read straight off the back of the card.
       try {

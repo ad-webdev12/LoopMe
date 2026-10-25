@@ -1,4 +1,4 @@
-// Onboarding — source lines 122-209. Ob1 whose phone · Ob2 caregiver name/rel ·
+// Onboarding: source lines 122-209. Ob1 whose phone · Ob2 caregiver name/rel ·
 // Ob3 privacy · Ob4 trusted person. Copy verbatim; contacts picker is real.
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -30,7 +30,7 @@ const k = StyleSheet.create({
   ctaText: { fontSize: 16.5, fontFamily: F.bold, color: '#fff' },
 });
 
-// ---------------- Ob1 — Whose phone is this? ----------------
+// ---------------- Ob1: whose phone is this? ----------------
 export function Ob1({ ctx }: { ctx: Ctx }) {
   const Choice = ({ title, body, amber, bold, onPress }: { title: string; body: string; amber?: boolean; bold?: boolean; onPress: () => void }) => (
     <Pressable style={s1.choice} onPress={onPress} accessibilityRole="button">
@@ -77,7 +77,7 @@ const s1 = StyleSheet.create({
   reassureText: { flex: 1, fontSize: 13, fontFamily: F.body, color: T.green, lineHeight: 19.5 },
 });
 
-// ---------------- Ob2 — Who is this phone for? (caregiver) ----------------
+// ---------------- Ob2: who is this phone for? (caregiver) ----------------
 export function Ob2({ ctx }: { ctx: Ctx }) {
   const [name, setName] = useState(ctx.settings.careName);
   const [rel, setRel] = useState(ctx.settings.careRel || 'Mother');
@@ -129,7 +129,7 @@ const s2 = StyleSheet.create({
   note: { marginHorizontal: 22, marginTop: 18, fontSize: 13.5, fontFamily: F.body, color: T.sub, lineHeight: 20.9 },
 });
 
-// ---------------- Ob3 — Nothing leaves this phone ----------------
+// ---------------- Ob3: nothing leaves this phone ----------------
 export function Ob3({ ctx }: { ctx: Ctx }) {
   const care = !!ctx.settings.careName;
   const rows = [
@@ -169,7 +169,7 @@ const s3 = StyleSheet.create({
   text: { flex: 1, fontSize: 14.5, fontFamily: F.body, color: T.ink, lineHeight: 21.75 },
 });
 
-// ---------------- Ob4 — Who should we loop in? ----------------
+// ---------------- Ob4: who should we loop in? ----------------
 export function Ob4({ ctx }: { ctx: Ctx }) {
   const care = !!ctx.settings.careName;
   const first = ctx.settings.trusted[0];

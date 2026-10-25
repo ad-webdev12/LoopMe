@@ -1,6 +1,6 @@
 // Feature extraction for the on-device learned classifier.
 //
-// Shared by BOTH training and inference — that is the point of it living here.
+// Shared by BOTH training and inference. That is the point of it living here.
 // If the trainer and the app ever disagreed about what a feature is, the model
 // would silently score garbage, so there is exactly one implementation.
 //
@@ -15,7 +15,7 @@ export const DIM = 4096;
 // stop transferring to anything new. Held down, they help; loose, they hurt.
 export const CHAR_W = 0.35;
 
-/** FNV-1a — small, fast, and stable across engines (no locale or Math.random). */
+/** FNV-1a: small, fast, and stable across engines (no locale or Math.random). */
 function hash(s: string): number {
   let h = 0x811c9dc5;
   for (let i = 0; i < s.length; i++) {

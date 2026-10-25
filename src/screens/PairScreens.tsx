@@ -1,4 +1,4 @@
-// The pairing handshake — source lines 132-182, made real over the family's
+// The pairing handshake. Source lines 132-182, made real over the family's
 // own text messages: the caretaker types the six-digit code read from the
 // elder's phone; "Ask them to accept" sends a real SMS deep link carrying the
 // code; the elder's phone raises the consent screen only if the code matches;

@@ -1,4 +1,4 @@
-// Practice call — a rehearsal, not a live feature. iOS gives no app access to
+// Practice call: a rehearsal, not a live feature. iOS gives no app access to
 // the audio of a real phone call, so nothing here listens to anything: it is a
 // scripted run-through of the commonest impersonation scam, so the pattern is
 // familiar before it arrives for real. Every label on this screen says so.
@@ -55,7 +55,7 @@ export default function CallScreen({ ctx }: { ctx: Ctx }) {
           </View>
           <View style={st.listenCard}>
             <Text style={st.listenTitle} allowFontScaling>A practice run, so it is familiar</Text>
-            <Text style={st.listenBody} allowFontScaling>This is a rehearsal of the call that catches the most people. iPhone does not let any app hear a real call, so Loop Me cannot listen in — what it can do is show you the pattern now, while it is safe.</Text>
+            <Text style={st.listenBody} allowFontScaling>This is a rehearsal of the call that catches the most people. iPhone does not let any app hear a real call, so Loop Me cannot listen in. What it can do is show you the pattern now, while it is safe.</Text>
           </View>
           <View style={{ marginTop: 'auto', gap: 11 }}>
             <Pressable style={st.answerBtn} onPress={answer} accessibilityRole="button">

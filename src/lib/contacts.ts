@@ -20,7 +20,7 @@ function displayName(c: Contacts.Contact): string {
 /**
  * Opens the system contact picker and returns one person with a phone number.
  * The picker is user-mediated, so it is attempted even when the contacts
- * permission was previously denied — on modern iOS it still works, and
+ * permission was previously denied. On modern iOS it still works, and
  * refusing to open it was stranding people with no way back.
  */
 export async function pickTrustedPerson(): Promise<PickResult> {
@@ -42,9 +42,9 @@ export async function pickTrustedPerson(): Promise<PickResult> {
   }
 
   if (!picked) {
-    // A null result is ambiguous: the person cancelled, OR the picker never
-    // opened because contacts access is denied. Those must not look the same —
-    // treating both as "cancelled" is what made this button feel dead. Ask iOS
+    // A null result is ambiguous: the person canceled, OR the picker never
+    // opened because contacts access is denied. Those must not look the same -
+    // treating both as "canceled" is what made this button feel dead. Ask iOS
     // which it was, and only stay quiet for a real cancel.
     try {
       const { granted, canAskAgain } = await Contacts.getPermissionsAsync();
@@ -59,7 +59,7 @@ export async function pickTrustedPerson(): Promise<PickResult> {
     } catch {
       return { ok: false, reason: 'Your contacts could not be opened. You can try again in a moment.' };
     }
-    return { ok: false, reason: '' };                      // genuinely cancelled: say nothing
+    return { ok: false, reason: '' };                      // genuinely canceled: say nothing
   }
 
   const numbers = picked.phoneNumbers || [];

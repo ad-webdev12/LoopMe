@@ -1,4 +1,4 @@
-// Verdict — source lines 234-266. Tinted answer banner, one step, expandable
+// Verdict: source lines 234-266. Tinted answer banner, one step, expandable
 // numbered signals, the caretaker note card, the quoted message, loop-in, and
 // "Read this to me, slowly": each word lights as it is spoken, flagged words go
 // red and bold and dwell 620ms (250ms otherwise), ×1.6 in slow mode.
@@ -134,7 +134,7 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
       </View>
 
       {/* The engine flags impersonation-of-family moments; this is the one
-          defence a voice clone cannot beat, so it sits above everything else. */}
+          defense a voice clone cannot beat, so it sits above everything else. */}
       {v.codeWordMoment && (
         <View style={st.cwCard}>
           <View style={st.cwTop}>
@@ -156,7 +156,7 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
           ) : (
             <>
               <Text style={st.cwLine} allowFontScaling>
-                You have not set one yet. It is a single word only your family knows — the surest
+                You have not set one yet. It is a single word only your family knows. The surest
                 way to tell a real relative from someone imitating one.
               </Text>
               <Pressable onPress={() => ctx.go('settings')} accessibilityRole="button">

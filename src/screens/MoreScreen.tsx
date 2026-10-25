@@ -1,4 +1,4 @@
-// More — source lines 431-448. Live protection rows, learn-and-set-up rows,
+// More: source lines 431-448. Live protection rows, learn-and-set-up rows,
 // the red-edged panic row, and the version line. The "Watched over by" row
 // shows this phone's six-digit pairing code when tapped.
 import React from 'react';
@@ -33,7 +33,7 @@ export default function MoreScreen({ ctx }: { ctx: Ctx }) {
 
       <Text style={st.section} allowFontScaling>Live protection</Text>
       <View style={st.card}>
-        <Row Icon={Phone} color={T.green} title="Practise a scam call" sub="A safe run-through of the call that catches the most people." onPress={() => ctx.go('call')} />
+        <Row Icon={Phone} color={T.green} title="Practice a scam call" sub="A safe run-through of the call that catches the most people." onPress={() => ctx.go('call')} />
         <Row Icon={HandHeart} color={T.green}
           title={careMode ? 'Looking after ' + watchName : 'Look after someone else'}
           sub={careMode ? 'You get their scam alerts and can send notes.' : 'Get their scam alerts on your own phone.'}

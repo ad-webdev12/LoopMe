@@ -1,4 +1,4 @@
-// Settings — source lines 327-338. Three toggles, the iPhone auto-check note,
+// Settings: source lines 327-338. Three toggles, the iPhone auto-check note,
 // safe senders, setup rows, version line.
 import React, { useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -73,13 +73,13 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
         </View>
         <Text style={st.cwBody} allowFontScaling>
           If someone calls sounding like family and asks for money, ask them for this word. A
-          stranger cannot know it — not even one using a recording of a voice you love.
+          stranger cannot know it. Not even one using a recording of a voice you love.
         </Text>
         <TextInput
           style={st.cwInput}
           value={word}
           onChangeText={setWord}
-          placeholder="Pick a word — a pet, a street, anything"
+          placeholder="Pick a word: a pet, a street, anything"
           placeholderTextColor={T.sub}
           autoCorrect={false}
           autoCapitalize="none"

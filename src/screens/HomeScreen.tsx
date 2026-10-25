@@ -1,4 +1,4 @@
-// Check a message (home) — source lines 211-232, matched value for value.
+// Check a message (home). Source lines 211-232, matched value for value.
 // Screenshot/Photo run real on-device OCR (Vision); Speak it runs real
 // on-device speech recognition. Nothing leaves the phone.
 import React, { useEffect, useRef, useState } from 'react';

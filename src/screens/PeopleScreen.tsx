@@ -1,4 +1,4 @@
-// People you trust — source lines 303-310. Up to three; call + remove per row;
+// People you trust. Source lines 303-310. Up to three; call + remove per row;
 // add from contacts (real picker); the quoted sample text at the bottom.
 import React from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -34,8 +34,8 @@ export default function PeopleScreen({ ctx }: { ctx: Ctx }) {
   // The exact opening line of the real text this app sends, with the real names.
   const me = (ctx.settings.myName || '').split(' ')[0];
   const quote = careMode
-    ? '“' + (me || 'Someone') + ' sent a note through Loop Me:” — your words follow, under the exact check on ' + watchName + '’s phone.'
-    : '“' + (me ? me + ' would' : 'I would') + ' like a second opinion on a message.” — the message and what we found follow, with a tap-to-reply link.';
+    ? '“' + (me || 'Someone') + ' sent a note through Loop Me:”. Your words follow, under the exact check on ' + watchName + '’s phone.'
+    : '“' + (me ? me + ' would' : 'I would') + ' like a second opinion on a message.”. The message and what we found follow, with a tap-to-reply link.';
 
   return (
     <KFIn duration={260} style={{ flex: 1 }} playKey="people">
