@@ -6,6 +6,7 @@ import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } fro
 import { ChevronLeft, ArrowRight, OctagonX, Info } from 'lucide-react-native';
 import { T, F } from '../theme';
 import { KFIn } from '../ui/kf';
+import { timeLabel } from '../lib/clock';
 import type { Ctx } from '../App';
 
 const QUICK = [
@@ -26,7 +27,7 @@ export default function WardItemScreen({ ctx }: { ctx: Ctx }) {
   const Icon = red ? OctagonX : Info;
   const when = new Date(rec.at);
   const isToday = when.toDateString() === new Date().toDateString();
-  const whenLabel = (isToday ? 'Today at ' : '') + when.getHours() + ':' + String(when.getMinutes()).padStart(2, '0');
+  const whenLabel = (isToday ? 'Today at ' : '') + timeLabel(when);
   const notes = (rec.notes || []).slice().reverse();
 
   return (

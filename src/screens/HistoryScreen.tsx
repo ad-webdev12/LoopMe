@@ -5,6 +5,7 @@ import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-nati
 import { Download, OctagonX, Info, Check } from 'lucide-react-native';
 import { T, F } from '../theme';
 import { KFIn } from '../ui/kf';
+import { timeLabel } from '../lib/clock';
 import type { Ctx } from '../App';
 import type { CheckRecord } from '../lib/history';
 
@@ -23,7 +24,7 @@ function dayLabel(at: number): string {
 }
 function hm(at: number): string {
   const d = new Date(at);
-  return d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+  return timeLabel(d);
 }
 
 export default function HistoryScreen({ ctx }: { ctx: Ctx }) {

@@ -6,11 +6,12 @@ import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-na
 import { Shield, Phone, OctagonX, Info, ArrowRight } from 'lucide-react-native';
 import { T, F, LEVEL_META } from '../theme';
 import { KFIn } from '../ui/kf';
+import { timeLabel } from '../lib/clock';
 import type { Ctx } from '../App';
 
 function ago(at: number): string {
   const d = new Date(at), now = new Date();
-  if (d.toDateString() === now.toDateString()) return d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+  if (d.toDateString() === now.toDateString()) return timeLabel(d);
   if (d.toDateString() === new Date(now.getTime() - 86400000).toDateString()) return 'Yesterday';
   return d.toLocaleDateString(undefined, { weekday: 'long' });
 }

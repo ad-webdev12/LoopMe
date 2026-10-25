@@ -11,6 +11,7 @@ import {
 import { T, F } from '../theme';
 import { KFIn } from '../ui/kf';
 import { recognizeText, listenOnce, stopListening } from '../../modules/scam-ai';
+import { timeLabel } from '../lib/clock';
 import type { Ctx } from '../App';
 
 export default function HomeScreen({ ctx }: { ctx: Ctx }) {
@@ -160,7 +161,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
 
 function when(at: number): string {
   const d = new Date(at), now = new Date();
-  const hm = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+  const hm = timeLabel(d);
   return d.toDateString() === now.toDateString() ? 'today, ' + hm : hm;
 }
 

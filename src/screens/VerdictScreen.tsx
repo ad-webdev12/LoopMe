@@ -15,6 +15,7 @@ import { KFIn, KFFade, KFSlide } from '../ui/kf';
 import { askText, sendSms } from '../lib/familyLink';
 import { scheduleReminder } from '../lib/notify';
 import { listChecks, updateCheck } from '../lib/history';
+import { timeLabel } from '../lib/clock';
 import type { Ctx } from '../App';
 
 const META = {
@@ -64,7 +65,7 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
   const signals = v.signals.length ? v.signals : ['Nothing in this message matches a known scam trick.'];
   const toks = ctx.msg.split(/\s+/).filter(Boolean).map(w => ({ w, flag: FLAGS.some(re => re.test(w)) }));
   const checkedAt = new Date();
-  const vTime = 'Checked at ' + checkedAt.getHours() + ':' + String(checkedAt.getMinutes()).padStart(2, '0');
+  const vTime = 'Checked at ' + timeLabel(checkedAt);
 
   const stopRead = () => {
     clearTimeout(timer.current); Speech.stop();
