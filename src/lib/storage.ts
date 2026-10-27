@@ -13,13 +13,19 @@ export interface Settings {
   codeWordSet: boolean;          // never store the word itself in plain settings exports
   codeWord: string;              // on-device only, never leaves the phone
   panicCompletedAt: number | null; // enables the 90-day recovery-scam guard
-  // Design 4 additions
-  pairCode: string;              // six digits shown on the elder's phone
-  watchedBy: string | null;      // elder side: caretaker's first name once paired
+  pairCode: string;              // kept for people upgrading; no longer shown
+  watchedBy: string | null;      // elder side: caretaker's name once the family link is up
   careName: string;              // caregiver setup: who the phone is for
   careRel: string;               // Mother / Father / Other
   autoCheck: boolean;            // "Check unknown texts for me"
   introSeen: boolean;
+  // The family link over iCloud. Mirrored from the native side at launch so
+  // screens can read it synchronously.
+  familyLinked: boolean;
+  familyRole: 'owner' | 'caretaker' | null;
+  familyInvited: boolean;        // owner sent an invite nobody has tapped yet
+  blocked: string[];             // numbers the person chose to block (call directory)
+  installedAt: number;           // for "looking out for you since"
 }
 
 const KEY = 'loopmein.settings.v3';
@@ -30,20 +36,25 @@ const DEFAULTS: Settings = {
   allowlist: [], trusted: [], watching: null,
   codeWordSet: false, codeWord: '', panicCompletedAt: null,
   pairCode: '', watchedBy: null, careName: '', careRel: 'Mother', autoCheck: true, introSeen: false,
+  familyLinked: false, familyRole: null, familyInvited: false, blocked: [], installedAt: 0,
 };
 
 export async function loadSettings(): Promise<Settings> {
   try {
     const raw = await AsyncStorage.getItem(KEY);
-    if (raw) return { ...DEFAULTS, ...JSON.parse(raw) };
+    if (raw) return stamp({ ...DEFAULTS, ...JSON.parse(raw) });
     const old = await AsyncStorage.getItem(OLD_KEY);
     if (old) {
-      const migrated = { ...DEFAULTS, ...JSON.parse(old) };
+      const migrated = stamp({ ...DEFAULTS, ...JSON.parse(old) });
       await AsyncStorage.setItem(KEY, JSON.stringify(migrated));
       return migrated;
     }
-    return { ...DEFAULTS };
-  } catch { return { ...DEFAULTS }; }
+    return stamp({ ...DEFAULTS });
+  } catch { return stamp({ ...DEFAULTS }); }
+}
+
+function stamp(s: Settings): Settings {
+  return s.installedAt ? s : { ...s, installedAt: Date.now() };
 }
 
 export async function saveSettings(s: Settings) {

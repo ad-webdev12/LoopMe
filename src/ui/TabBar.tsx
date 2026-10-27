@@ -54,7 +54,7 @@ const st = StyleSheet.create({
   },
   row: { flexDirection: 'row', paddingTop: 11, paddingHorizontal: 4 },
   tab: { flex: 1, alignItems: 'center', gap: 4, paddingTop: 3 },
-  label: { fontSize: 11, letterSpacing: 0.11 },
+  label: { fontSize: 13, letterSpacing: 0.11 },
   pillWrap: { alignItems: 'center', paddingVertical: 9 },
   pill: { width: 132, height: 5, borderRadius: 3, backgroundColor: T.fieldBorder },
 });

@@ -1,5 +1,6 @@
 import Expo
 import React
+import CloudKit
 import ReactAppDependencyProvider
 
 @UIApplicationMain
@@ -39,6 +40,12 @@ public class AppDelegate: ExpoAppDelegate {
     options: [UIApplication.OpenURLOptionsKey: Any] = [:]
   ) -> Bool {
     return super.application(app, open: url, options: options) || RCTLinkingManager.application(app, open: url, options: options)
+  }
+
+  // CloudKit share links (the family invite). The module's push subscriber
+  // listens for this and accepts the share, so nothing here imports the pod.
+  public func application(_ application: UIApplication, userDidAcceptCloudKitShareWith metadata: CKShare.Metadata) {
+    NotificationCenter.default.post(name: Notification.Name("LoopMeShareAccepted"), object: metadata)
   }
 
   // Universal Links

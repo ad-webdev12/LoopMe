@@ -1,7 +1,9 @@
-// Check a message (home). Source lines 211-232, matched value for value.
-// Screenshot/Photo run real on-device OCR (Vision); Speak it runs real
-// on-device speech recognition. Nothing leaves the phone.
-import React, { useEffect, useRef, useState } from 'react';
+// Check a message (home). Screenshot/Photo run real on-device OCR (Vision);
+// Speak it runs real on-device speech recognition. Nothing leaves the phone.
+// The strip under the title is the running tally: what the app, the text
+// filter and the share sheet have caught, so the person can see it working
+// even on the days nothing happens.
+import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
@@ -48,20 +50,31 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
     if (heard) { setText(heard); ctx.check(heard); }
     else ctx.flash('We could not hear that. You can also paste or type the message.');
   };
-  const careMode = ctx.settings.role === 'caretaker';
-  const first = (ctx.settings.myName || '').split(' ')[0];
+  const s = ctx.settings;
+  const careMode = s.role === 'caretaker';
+  const first = (s.myName || '').split(' ')[0];
   const hour = new Date().getHours();
-  const greeting = (hour < 12 ? 'Good morning' : 'Good afternoon') + (first ? ', ' + first : '');
-  const watchName = ctx.settings.watching?.name?.split(' ')[0] || ctx.settings.careName.split(' ')[0] || 'them';
+  const greeting = (hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening') + (first ? ', ' + first : '');
+  const watchName = s.watching?.name?.split(' ')[0] || 'them';
   const today = new Date().toDateString();
   const flaggedToday = ctx.hist.filter(h => h.source === 'family' && h.level !== 'green' && new Date(h.at).toDateString() === today).length;
-  const careSub = flaggedToday === 0 ? 'Nothing flagged on their phone today'
-    : flaggedToday === 1 ? '1 message flagged on their phone today'
-    : flaggedToday + ' messages flagged on their phone today';
-  const recent = ctx.hist[0];
+  const careSub = !s.familyLinked ? 'Not linked yet. Tap to see how.'
+    : flaggedToday === 0 ? 'Nothing flagged on their phone today'
+    : flaggedToday === 1 ? '1 text flagged on their phone today'
+    : flaggedToday + ' texts flagged on their phone today';
+  const recent = ctx.hist.find(h => h.source !== 'family');
   const recentMeta = recent
     ? ({ red: 'Scam stopped', amber: 'Needed a second look', green: 'Came back clear' }[recent.level] || '') + ' · ' + when(recent.at)
     : '';
+
+  // The month so far: everything checked here, plus what the text filter and
+  // the share sheet did on their own. Real counts, nothing padded.
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+  const mine = ctx.hist.filter(h => h.source !== 'family' && h.at >= monthStart.getTime());
+  const stopped = mine.filter(h => h.level === 'red').length;
+  const beforeYou = mine.filter(h => h.source === 'filter' && h.level === 'red').length;
+  const since = s.installedAt ? new Date(s.installedAt) : null;
+  const sinceLabel = since ? since.toLocaleDateString(undefined, { month: 'long', day: 'numeric' }) : '';
 
   useEffect(() => {
     Clipboard.hasStringAsync().then(setClip).catch(() => {});
@@ -85,7 +98,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
       </View>
 
       {careMode && (
-        <Pressable style={st.careStripWrap} onPress={() => ctx.go('ward')} accessibilityRole="button">
+        <Pressable style={st.careStripWrap} onPress={() => ctx.go(s.familyLinked ? 'ward' : 'watch')} accessibilityRole="button">
           <View style={st.careStrip}>
             <View style={st.careAvatar}><Text style={st.careAvatarText} allowFontScaling>{watchName[0]}</Text></View>
             <View style={{ flex: 1 }}>
@@ -132,11 +145,22 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
           { Icon: Mic, label: listening ? 'Listening…' : 'Speak it', act: speakIt },
         ].map((a) => (
           <Pressable key={a.label} style={st.addBtn} onPress={a.act} accessibilityRole="button" accessibilityLabel={a.label}>
-            <a.Icon size={21} color={a.label === 'Listening…' ? T.red : T.green} strokeWidth={1.9} />
+            <a.Icon size={22} color={a.label === 'Listening…' ? T.red : T.green} strokeWidth={1.9} />
             <Text style={[st.addLabel, a.label === 'Listening…' && { color: T.red }]} allowFontScaling>{a.label}</Text>
           </Pressable>
         ))}
       </View>
+
+      {(mine.length > 0 || ctx.tallies.junk > 0) && (
+        <View style={st.tallyCard}>
+          <View style={st.tallyRow}>
+            <View style={[st.tally, st.tallyB]}><Text style={st.tallyNum} allowFontScaling>{mine.length}</Text><Text style={st.tallyLabel} allowFontScaling>checked{'\n'}this month</Text></View>
+            <View style={[st.tally, st.tallyB]}><Text style={[st.tallyNum, { color: T.red }]} allowFontScaling>{stopped}</Text><Text style={st.tallyLabel} allowFontScaling>scams{'\n'}stopped</Text></View>
+            <View style={st.tally}><Text style={[st.tallyNum, { color: T.green }]} allowFontScaling>{Math.max(beforeYou, ctx.tallies.junk)}</Text><Text style={st.tallyLabel} allowFontScaling>stopped before{'\n'}you saw them</Text></View>
+          </View>
+          {!!sinceLabel && <Text style={st.tallySince} allowFontScaling>Looking out for you since {sinceLabel}</Text>}
+        </View>
+      )}
 
       {recent && (
         <View>
@@ -170,42 +194,53 @@ const st = StyleSheet.create({
   brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, paddingHorizontal: 20, paddingBottom: 2 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   brandText: { fontSize: 13, fontFamily: F.bold, letterSpacing: 0.65, color: T.green },
-  gear: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginRight: -9 },
+  gear: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', marginRight: -9 },
 
   careStripWrap: { paddingHorizontal: 20, paddingTop: 12 },
   careStrip: { flexDirection: 'row', alignItems: 'center', gap: 11, backgroundColor: T.greenTint, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 13 },
-  careAvatar: { width: 30, height: 30, borderRadius: 15, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center' },
-  careAvatarText: { color: '#fff', fontSize: 12, fontFamily: F.semibold },
-  careTitle: { fontSize: 14, fontFamily: F.semibold, color: T.greenInk },
-  careSub: { fontSize: 12.5, fontFamily: F.body, color: T.greenInk2, marginTop: 1 },
+  careAvatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center' },
+  careAvatarText: { color: '#fff', fontSize: 13, fontFamily: F.semibold },
+  careTitle: { fontSize: 16, fontFamily: F.semibold, color: T.greenInk },
+  careSub: { fontSize: 14, fontFamily: F.body, color: T.greenInk2, marginTop: 1 },
 
   head: { paddingHorizontal: 20, paddingTop: 12 },
-  greeting: { fontSize: 14, fontFamily: F.body, color: T.sub },
-  title: { fontSize: 23, fontFamily: F.display, letterSpacing: -0.41, color: T.ink, marginTop: 2, lineHeight: 26 },
+  greeting: { fontSize: 16, fontFamily: F.body, color: T.sub },
+  title: { fontSize: 25, fontFamily: F.display, letterSpacing: -0.41, color: T.ink, marginTop: 2, lineHeight: 28 },
 
   card: {
     marginHorizontal: 20, marginTop: 14, backgroundColor: T.surface,
     borderWidth: 1, borderColor: T.hairline, borderRadius: 14, overflow: 'hidden',
     shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
   },
-  box: { minHeight: 124, maxHeight: 240, paddingHorizontal: 16, paddingVertical: 15, fontSize: 16, lineHeight: 24, fontFamily: F.body, color: T.ink, textAlignVertical: 'top' },
+  box: { minHeight: 124, maxHeight: 240, paddingHorizontal: 16, paddingVertical: 15, fontSize: 17, lineHeight: 25, fontFamily: F.body, color: T.ink, textAlignVertical: 'top' },
   pasteRow: { paddingHorizontal: 16, paddingBottom: 10 },
-  pasteText: { fontSize: 14, fontFamily: F.semibold, color: T.green },
-  checkBtn: { height: 54, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 },
-  checkText: { fontSize: 16, fontFamily: F.bold, color: '#fff' },
+  pasteText: { fontSize: 16, fontFamily: F.semibold, color: T.green },
+  checkBtn: { height: 58, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 },
+  checkText: { fontSize: 17, fontFamily: F.bold, color: '#fff' },
 
-  orLabel: { paddingHorizontal: 20, paddingTop: 18, fontSize: 13, fontFamily: F.body, color: T.sub },
+  orLabel: { paddingHorizontal: 20, paddingTop: 18, fontSize: 15, fontFamily: F.body, color: T.sub },
   addRow: { flexDirection: 'row', gap: 6, paddingHorizontal: 16, paddingTop: 8 },
   addBtn: { flex: 1, borderRadius: 12, paddingTop: 11, paddingBottom: 12, alignItems: 'center', gap: 7 },
-  addLabel: { fontSize: 12.5, fontFamily: F.semibold, color: T.ink },
+  addLabel: { fontSize: 14, fontFamily: F.semibold, color: T.ink },
 
-  recentLabel: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 8, fontSize: 12.5, fontFamily: F.semibold, color: T.sub },
+  tallyCard: {
+    marginHorizontal: 20, marginTop: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14,
+    shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
+  },
+  tallyRow: { flexDirection: 'row' },
+  tally: { flex: 1, paddingHorizontal: 14, paddingVertical: 13 },
+  tallyB: { borderRightWidth: 1, borderRightColor: T.divider },
+  tallyNum: { fontSize: 26, fontFamily: F.display, color: T.ink, lineHeight: 28 },
+  tallyLabel: { fontSize: 13, fontFamily: F.semibold, color: T.sub, marginTop: 4, lineHeight: 17 },
+  tallySince: { paddingHorizontal: 14, paddingVertical: 10, borderTopWidth: 1, borderTopColor: T.divider, fontSize: 14, fontFamily: F.body, color: T.sub },
+
+  recentLabel: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 8, fontSize: 14, fontFamily: F.semibold, color: T.sub },
   recentCard: {
     marginHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 12,
     backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, padding: 15,
     shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
   },
   recentIcon: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
-  recentTitle: { fontSize: 15, fontFamily: F.semibold, color: T.ink },
-  recentMeta: { fontSize: 13, fontFamily: F.body, color: T.sub, marginTop: 2 },
+  recentTitle: { fontSize: 16, fontFamily: F.semibold, color: T.ink },
+  recentMeta: { fontSize: 14, fontFamily: F.body, color: T.sub, marginTop: 2 },
 });

@@ -49,3 +49,6 @@ ios/build/
 ios/.xcode.env.local
 **/xcuserdata/
 DerivedData/
+
+# local simulator builds
+ios/build-sim/

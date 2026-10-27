@@ -19,5 +19,5 @@ const st = StyleSheet.create({
     backgroundColor: '#171717', paddingHorizontal: 15, paddingVertical: 13, zIndex: 30,
     shadowColor: '#d6d6d1', shadowOpacity: 1, shadowRadius: 18, shadowOffset: { width: 0, height: 6 },
   },
-  text: { color: '#fff', fontSize: 13.5, lineHeight: 19, fontFamily: F.semibold },
+  text: { color: '#fff', fontSize: 15.5, lineHeight: 21.8, fontFamily: F.semibold },
 });

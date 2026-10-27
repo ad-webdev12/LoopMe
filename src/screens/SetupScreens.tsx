@@ -24,10 +24,10 @@ function CTA({ label, onPress }: { label: string; onPress: () => void }) {
   );
 }
 const k = StyleSheet.create({
-  kicker: { fontSize: 10, fontFamily: F.semibold, letterSpacing: 1.8, textTransform: 'uppercase', color: T.green, marginBottom: 12, lineHeight: 10 },
+  kicker: { fontSize: 12, fontFamily: F.semibold, letterSpacing: 1.8, textTransform: 'uppercase', color: T.green, marginBottom: 12, lineHeight: 12 },
   title: { fontSize: 27, fontFamily: F.display, letterSpacing: -0.54, color: T.ink, lineHeight: 29.16 },
   cta: { height: 56, borderRadius: 12, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18 },
-  ctaText: { fontSize: 16.5, fontFamily: F.bold, color: '#fff' },
+  ctaText: { fontSize: 17.5, fontFamily: F.bold, color: '#fff' },
 });
 
 // ---------------- Ob1: whose phone is this? ----------------
@@ -72,9 +72,9 @@ const s1 = StyleSheet.create({
     shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
   },
   choiceTitle: { fontSize: 17, fontFamily: F.display, color: T.ink },
-  choiceBody: { fontSize: 13.5, fontFamily: F.body, color: T.sub, lineHeight: 19.6, marginTop: 3 },
+  choiceBody: { fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 22.5, marginTop: 3 },
   reassure: { marginHorizontal: 22, marginTop: 22, backgroundColor: T.greenTint, paddingHorizontal: 16, paddingVertical: 14, flexDirection: 'row', gap: 11 },
-  reassureText: { flex: 1, fontSize: 13, fontFamily: F.body, color: T.green, lineHeight: 19.5 },
+  reassureText: { flex: 1, fontSize: 15, fontFamily: F.body, color: T.green, lineHeight: 22.5 },
 });
 
 // ---------------- Ob2: who is this phone for? (caregiver) ----------------
@@ -121,12 +121,12 @@ const s2 = StyleSheet.create({
     borderRadius: 14, padding: 18, gap: 18,
     shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
   },
-  fieldLabel: { fontSize: 10, fontFamily: F.semibold, letterSpacing: 1.4, textTransform: 'uppercase', color: T.sub, marginBottom: 7 },
-  input: { height: 48, borderWidth: 1, borderColor: '#c9c9c4', backgroundColor: T.ground, paddingHorizontal: 14, fontSize: 16, fontFamily: F.body, color: T.ink },
+  fieldLabel: { fontSize: 12, fontFamily: F.semibold, letterSpacing: 1.4, textTransform: 'uppercase', color: T.sub, marginBottom: 7 },
+  input: { height: 48, borderWidth: 1, borderColor: '#c9c9c4', backgroundColor: T.ground, paddingHorizontal: 14, fontSize: 17, fontFamily: F.body, color: T.ink },
   rel: { flex: 1, height: 44, borderWidth: 1, borderColor: T.fieldBorder, backgroundColor: T.surface, alignItems: 'center', justifyContent: 'center' },
   relOn: { backgroundColor: T.greenTint, borderColor: T.green },
-  relText: { fontSize: 13.5, fontFamily: F.bold, color: T.sub },
-  note: { marginHorizontal: 22, marginTop: 18, fontSize: 13.5, fontFamily: F.body, color: T.sub, lineHeight: 20.9 },
+  relText: { fontSize: 15.5, fontFamily: F.bold, color: T.sub },
+  note: { marginHorizontal: 22, marginTop: 18, fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 24 },
 });
 
 // ---------------- Ob3: nothing leaves this phone ----------------
@@ -134,7 +134,7 @@ export function Ob3({ ctx }: { ctx: Ctx }) {
   const care = !!ctx.settings.careName;
   const rows = [
     'Messages are checked right here, with no internet needed.',
-    'No account, no password, nothing kept once you close a check.',
+    'No account, no password. Your history stays on this phone, nowhere else.',
     'A message is shared only if you choose to loop someone in.',
   ];
   return (
@@ -165,8 +165,8 @@ const s3 = StyleSheet.create({
     shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
   },
   row: { flexDirection: 'row', gap: 13, paddingHorizontal: 17, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: T.divider },
-  num: { color: T.green, fontSize: 13, fontFamily: F.bold, width: 14 },
-  text: { flex: 1, fontSize: 14.5, fontFamily: F.body, color: T.ink, lineHeight: 21.75 },
+  num: { color: T.green, fontSize: 15, fontFamily: F.bold, width: 14 },
+  text: { flex: 1, fontSize: 17, fontFamily: F.body, color: T.ink, lineHeight: 25.5 },
 });
 
 // ---------------- Ob4: who should we loop in? ----------------
@@ -214,17 +214,17 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
   );
 }
 const s4 = StyleSheet.create({
-  sub: { fontSize: 14.5, fontFamily: F.body, color: T.sub, lineHeight: 22.5, marginTop: 10 },
+  sub: { fontSize: 17, fontFamily: F.body, color: T.sub, lineHeight: 26.4, marginTop: 10 },
   addRow: {
     marginHorizontal: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14,
     paddingHorizontal: 17, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', gap: 13,
     shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
   },
   addIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: T.greenTint, alignItems: 'center', justifyContent: 'center' },
-  addText: { fontSize: 15.5, fontFamily: F.bold, color: T.ink },
+  addText: { fontSize: 17, fontFamily: F.bold, color: T.ink },
   picked: { marginHorizontal: 22, marginTop: 10, backgroundColor: T.greenTint, paddingHorizontal: 16, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', gap: 12 },
   pickedAvatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center' },
-  pickedInitials: { color: '#fff', fontSize: 13, fontFamily: F.bold },
-  pickedName: { fontSize: 15, fontFamily: F.bold, color: T.ink },
-  pickedMeta: { fontSize: 13, fontFamily: F.body, color: T.sub },
+  pickedInitials: { color: '#fff', fontSize: 15, fontFamily: F.bold },
+  pickedName: { fontSize: 17, fontFamily: F.bold, color: T.ink },
+  pickedMeta: { fontSize: 15, fontFamily: F.body, color: T.sub },
 });

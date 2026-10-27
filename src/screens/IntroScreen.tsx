@@ -172,7 +172,7 @@ export default function IntroScreen({ ctx }: { ctx: Ctx }) {
               <Text style={st.wipeHeadline} allowFontScaling>One tap and{'\n'}someone knows.</Text>
             </KFRise></View>
             <KFRise duration={650} delay={1350} playKey={beat}>
-              <Text style={st.wipeSub} allowFontScaling>They get an ordinary text message. Nothing to install, nothing to set up.</Text>
+              <Text style={st.wipeSub} allowFontScaling>It lands on their phone the moment it happens, with nothing to forward.</Text>
             </KFRise>
           </View>
         </View>

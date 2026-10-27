@@ -61,31 +61,84 @@ public class ScamAiModule: Module {
     }
 
     // ---- Family link over CloudKit -------------------------------------
+    Events("cloudEvent")
+    OnStartObserving { CloudBus.shared.attach { [weak self] e in self?.sendEvent("cloudEvent", e) } }
+    OnStopObserving { CloudBus.shared.detach() }
+
     // "available" | "noAccount" | "restricted" | "unknown"
     AsyncFunction("cloudAccountState") { () -> String in
       return await CloudLink.shared.accountState()
     }
 
-    // Elder: returns a share URL to text to the caretaker, once.
+    // Owner: returns a share URL to text to the caretaker, once.
     AsyncFunction("cloudCreateInvite") { (myName: String) -> String in
       return try await CloudLink.shared.createInvite(myName: myName)
     }
 
-    // Elder: push one flagged check into the shared zone.
-    AsyncFunction("cloudPublishCheck") { (id: String, level: String, excerpt: String, reason: String, at: Double) -> Bool in
-      try await CloudLink.shared.publish(id: id, level: level, excerpt: excerpt, reason: reason, at: at)
+    // Either side: { linked, role: owner|caretaker|none, name }
+    AsyncFunction("cloudLinkStatus") { () -> [String: Any] in
+      return await CloudLink.shared.linkStatus()
+    }
+
+    // Owner: push one flagged check into the shared zone.
+    AsyncFunction("cloudPublishCheck") { (check: [String: Any]) -> Bool in
+      try await CloudLink.shared.publish(check)
       return true
     }
 
-    // Caretaker: everything shared with me, newest first.
-    AsyncFunction("cloudFetchShared") { () -> [[String: Any]] in
-      return try await CloudLink.shared.fetchShared()
+    // Caretaker: write a note back under a check.
+    AsyncFunction("cloudSendNote") { (checkId: String, text: String, verdict: String, from: String) -> Bool in
+      try await CloudLink.shared.sendNote(checkId: checkId, text: text, verdict: verdict, from: from)
+      return true
     }
 
-    // Caretaker: silent push whenever a new check arrives.
+    // Either side: pull what is new. Returns how many new items arrived.
+    AsyncFunction("cloudSync") { () -> Int in
+      return try await CloudLink.shared.sync(notify: false)
+    }
+
+    // Everything this phone has received, newest first, plus names.
+    Function("cloudSnapshot") { () -> [String: Any] in
+      return FamilyStore.shared.snapshot()
+    }
+
+    // Silent-push subscriptions for both databases.
     AsyncFunction("cloudSubscribe") { () -> Bool in
       try await CloudLink.shared.subscribe()
       return true
+    }
+
+    // Owner revokes the share; caretaker leaves it. Same button, either side.
+    AsyncFunction("cloudUnlink") { () -> Bool in
+      if FamilyStore.shared.joinedZone != nil { try await CloudLink.shared.leave() }
+      else { try await CloudLink.shared.revoke() }
+      return true
+    }
+
+    // ---- App group: what the extensions see ------------------------------
+    Function("sharedPutConfig") { (allowlist: [String], blocked: [String], flagged: [String], autoCheck: Bool) in
+      SharedStore.allowlist = allowlist
+      SharedStore.blockedNumbers = blocked.map(SharedStore.canonical).filter { !$0.isEmpty }
+      SharedStore.flaggedNumbers = flagged.map(SharedStore.canonical).filter { !$0.isEmpty }
+      SharedStore.autoCheck = autoCheck
+    }
+
+    // Verdicts the text filter and share sheet produced while the app was closed.
+    Function("sharedDrainLog") { () -> [[String: Any]] in
+      return SharedStore.drainLog()
+    }
+
+    Function("sharedTallies") { () -> [String: Int] in
+      let d = SharedStore.defaults
+      return ["filtered": d.integer(forKey: "tally.filtered"), "junk": d.integer(forKey: "tally.junk"), "shared": d.integer(forKey: "tally.shared")]
+    }
+
+    AsyncFunction("callDirectoryReload") { () -> String in
+      return await SharedStore.reloadCallDirectory()
+    }
+
+    AsyncFunction("callDirectoryStatus") { () -> String in
+      return await SharedStore.callDirectoryStatus()
     }
 
     // Read-aloud is useless if the phone's ring/silent switch mutes it, and

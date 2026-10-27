@@ -2,7 +2,7 @@
 // "What to do:" line coloured by tone.
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft, Phone, ChevronRight } from 'lucide-react-native';
 import { T, F } from '../theme';
 import { KFIn } from '../ui/kf';
 import { readAloud } from '../lib/speech';
@@ -28,8 +28,16 @@ export default function LearnScreen({ ctx }: { ctx: Ctx }) {
       </View>
       <View style={{ paddingHorizontal: 22, paddingBottom: 14 }}>
         <Text style={st.title} allowFontScaling>Five tricks worth knowing</Text>
-        <Text style={st.sub} allowFontScaling>Once you have seen them, they are much easier to spot.</Text>
+        <Text style={st.sub} allowFontScaling>Once you have seen them, they are much easier to spot. Tap one to hear it read out.</Text>
       </View>
+      <Pressable style={st.practice} onPress={() => ctx.go('call')} accessibilityRole="button">
+        <View style={st.practiceIcon}><Phone size={18} color={T.green} strokeWidth={2.2} /></View>
+        <View style={{ flex: 1 }}>
+          <Text style={st.practiceTitle} allowFontScaling>Practice a scam call</Text>
+          <Text style={st.practiceBody} allowFontScaling>A rehearsal of the call that catches the most people. Nobody really calls.</Text>
+        </View>
+        <ChevronRight size={17} color={T.green} strokeWidth={2.2} />
+      </Pressable>
       <View style={st.card}>
         {TRICKS.map((t, i) => {
           const edge = t.tone === 'red' ? T.red : T.amber;
@@ -56,16 +64,20 @@ const st = StyleSheet.create({
   root: { flex: 1, backgroundColor: T.ground },
   topRow: { paddingHorizontal: 18, paddingTop: 8, paddingBottom: 10 },
   back: { height: 44, flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start' },
-  backText: { fontSize: 14, fontFamily: F.semibold, color: T.ink },
-  title: { fontSize: 27, fontFamily: F.display, letterSpacing: -0.54, color: T.ink, lineHeight: 28.6 },
-  sub: { fontSize: 13.5, fontFamily: F.body, color: T.sub, lineHeight: 20.25, marginTop: 6 },
+  backText: { fontSize: 16, fontFamily: F.semibold, color: T.ink },
+  title: { fontSize: 27, fontFamily: F.display, letterSpacing: -0.54, color: T.ink, lineHeight: 30 },
+  sub: { fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 22.5, marginTop: 6 },
+  practice: { marginHorizontal: 22, marginBottom: 14, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: T.greenTint, borderRadius: 14, padding: 15 },
+  practiceIcon: { width: 38, height: 38, borderRadius: 19, backgroundColor: T.surface, alignItems: 'center', justifyContent: 'center' },
+  practiceTitle: { fontSize: 16.5, fontFamily: F.bold, color: T.greenInk },
+  practiceBody: { fontSize: 14.5, fontFamily: F.body, color: T.greenInk2, lineHeight: 20, marginTop: 2 },
   card: {
     marginHorizontal: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, overflow: 'hidden',
     shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
   },
   row: { flexDirection: 'row', gap: 13, paddingHorizontal: 15, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: T.divider },
-  num: { fontSize: 14, fontFamily: F.bold, width: 15, paddingTop: 1 },
-  rowTitle: { fontSize: 16, fontFamily: F.bold, color: T.ink },
-  rowBody: { fontSize: 13.5, fontFamily: F.body, color: T.sub, lineHeight: 20.25, marginTop: 4 },
-  doThis: { fontSize: 12.5, fontFamily: F.bold, lineHeight: 18.1, marginTop: 9 },
+  num: { fontSize: 16, fontFamily: F.bold, width: 15, paddingTop: 1 },
+  rowTitle: { fontSize: 17.5, fontFamily: F.bold, color: T.ink },
+  rowBody: { fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 22.5, marginTop: 4 },
+  doThis: { fontSize: 15, fontFamily: F.bold, lineHeight: 21, marginTop: 9 },
 });

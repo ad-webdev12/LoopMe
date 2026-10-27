@@ -81,3 +81,61 @@ opinion comes from the bundled Core ML model (the verdict footer says
 "On-device model"). On an iPhone 15 Pro or newer with iOS 26, the same build
 automatically uses Apple Intelligence instead. Both are fully on-device; the
 deterministic engine is always underneath both.
+
+## Build 7: the parts that only work on real phones
+
+The simulator cannot do any of these. You need the app on two iPhones signed
+in to two different iCloud accounts (yours and a family member's, or a second
+Apple ID on a spare phone).
+
+**Family link, end to end (10 minutes)**
+
+1. Phone A (the one being looked after): More, Watched over by, Choose someone
+   and send the invite. Pick phone B's owner from contacts. Messages opens with
+   one text containing a link. Send it.
+2. Phone B: tap the link in the text. iOS asks to open it in Loop Me. The app
+   opens on "You are looking after ...". Allow notifications when asked.
+3. Phone A: the Watched over by screen fills in with B's name on its own
+   within a few seconds.
+4. Phone B: lock it and put it face down.
+5. Phone A: paste "Your account is locked. Read me the 6 digit code we just
+   sent you" and tap Check.
+6. Phone B: within seconds a time-sensitive notification arrives with three
+   buttons. Long-press it and tap "Tell them it is a scam" without opening
+   the app.
+7. Phone A: a green full-screen note appears on its own: "... says: it is a
+   scam."
+8. Phone B: open Loop Me. The same check is waiting full screen with the
+   reply buttons. Tap "Write your own note", send one. Phone A gets it.
+9. Either phone: Stop looking after / Stop ... hearing from this phone. The
+   other phone's next check does not travel.
+
+**Text filter (2 minutes)**
+
+1. Settings, Apps, Messages, Unknown & Junk, pick Loop Me.
+2. From a number that is not in phone A's contacts, text it: "Your parcel is
+   held, pay the 1.99 redelivery fee at bit.ly/x8s2".
+3. It lands in the Junk folder in Messages, silently. Open Loop Me: History
+   shows it with "Stopped before it reached you", Home's tally counts it, and
+   if the family link is on, phone B gets the alert.
+4. Text "See you at 6, bring the photos". It arrives normally.
+
+**Call directory (2 minutes)**
+
+1. Settings, Apps, Phone, Call Blocking & Identification, switch Loop Me on.
+2. In History, after three flagged texts from one number, tap Block this
+   number. Ring from that number: it does not ring.
+3. A number that sent one flagged text shows "Flagged by Loop Me" when it
+   calls.
+
+**Share sheet (1 minute)**
+
+In Messages, long-press a text, More, Share (or select text in Safari or a
+screenshot in Photos), tap Loop Me in the share sheet. The verdict card
+appears over the app you were in. Open in Loop Me lands on the full verdict.
+
+**Report (1 minute)**
+
+On a red verdict, tap "Report it". Forward to 7726 opens Messages addressed to
+7726 with the text. Report to the FTC copies the details and opens
+reportfraud.ftc.gov.

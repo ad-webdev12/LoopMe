@@ -37,6 +37,8 @@ const ZERO_WIDTH_RE = /[​-‍﻿⁠­]/g;
 // letters are an evasion attempt or just ordinary foreign-language text.
 const SENSITIVE = /^(?:apple|paypal|amazon|chase|netflix|microsoft|google|account|verify|password|passcode|code|bank|login|secure|security|wallet|bitcoin|zelle|venmo|medicare|irs|usps|fedex|refund|gift|card)$/i;
 
+export const NORMALIZE_TABLES = { CONFUSABLES, PUNCT, SENSITIVE };
+
 export interface Normalized {
   text: string;
   /** true when look-alike letters were hidden inside sensitive Latin words. Itself a scam signal */

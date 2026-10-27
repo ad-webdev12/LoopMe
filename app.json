@@ -2,7 +2,7 @@
   "expo": {
     "name": "Loop Me",
     "slug": "loop-me-in",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.loopmescamsafety.app",
-      "buildNumber": "6",
+      "buildNumber": "7",
       "requireFullScreen": true,
       "privacyManifests": {
         "NSPrivacyCollectedDataTypes": [],
@@ -34,9 +34,25 @@
         "NSCameraUsageDescription": "Loop Me uses the camera only when you choose to photograph a message to check. The photo is read on this phone and never uploaded.",
         "NSPhotoLibraryUsageDescription": "Loop Me opens your photos only when you choose a screenshot to check. It is read on this phone and never uploaded.",
         "NSContactsUsageDescription": "Loop Me can add a trusted family member from your contacts, so you can reach them in one tap. Your contacts stay on your phone.",
-        "NSMicrophoneUsageDescription": "Loop Me uses the microphone only when you tap ‘Speak it’ to say a message out loud. Nothing is uploaded.",
-        "NSSpeechRecognitionUsageDescription": "Loop Me turns your speech into text on this phone when you tap ‘Speak it’, so the message can be checked. Nothing is uploaded.",
-        "ITSAppUsesNonExemptEncryption": false
+        "NSMicrophoneUsageDescription": "Loop Me uses the microphone only when you tap \u2018Speak it\u2019 to say a message out loud. Nothing is uploaded.",
+        "NSSpeechRecognitionUsageDescription": "Loop Me turns your speech into text on this phone when you tap \u2018Speak it\u2019, so the message can be checked. Nothing is uploaded.",
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
+      },
+      "entitlements": {
+        "aps-environment": "development",
+        "com.apple.developer.icloud-container-identifiers": [
+          "iCloud.com.loopmescamsafety.app"
+        ],
+        "com.apple.developer.icloud-services": [
+          "CloudKit"
+        ],
+        "com.apple.developer.usernotifications.time-sensitive": true,
+        "com.apple.security.application-groups": [
+          "group.com.loopmescamsafety.app"
+        ]
       }
     },
     "android": {

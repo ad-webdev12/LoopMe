@@ -190,7 +190,7 @@ const RULES: Rule[] = [
   // costs nothing. Note this matches a DEMAND, not a notification. "a payment
   // was taken" and "your statement is ready" must stay green, which is why
   // settled/taken/authorised wording is excluded below.
-  { re: /\b(?:fee|levy|charge|charges|arrears|balance|deposit|surcharge|installment|installment|contribution|shortfall|excess|top-?up|dues|premium|payment|amount|cost|sum)\b[\s\S]{0,80}?\b(?:due|owed|owing|outstanding|unpaid|overdue|payable|must be (?:paid|settled|received|cleared)|applies|accrued|required|remit|settle)\b|\b(?:pay|settle|remit|clear|reinstate|renew)\b[\s\S]{0,60}?\b(?:fee|levy|charge|arrears|balance|deposit|surcharge|installment|installment|shortfall|excess|dues|premium|subscription|bond)\b/i,
+  { re: /\b(?:fee|levy|charge|charges|arrears|balance|deposit|surcharge|installment|installment|contribution|shortfall|excess|top-?up|dues|premium|payment|amount|cost|sum)\b[\s\S]{0,80}?\b(?:due|owed|owing|outstanding|unpaid|overdue|payable|must be (?:paid|settled|received|cleared)|(?:is|are|be) (?:paid|settled|cleared|received)|applies|accrued|required|remit|settle|stands|needed|taken)\b|\b(?:pay|settle|remit|clear|reinstate|renew|wire|transfer|cover|top up)\b[\s\S]{0,60}?\b(?:fee|levy|charge|arrears|balance|deposit|surcharge|installment|installment|shortfall|excess|dues|premium|subscription|bond|contribution|adjustment|difference|replacement|top-?up)\b/i,
     w: 22, tag: 'payment-demand', plain: 'Someone who contacted you first is asking for money. Whether or not it is genuine, pay nobody who approaches you \u2014 ring the organization on a number you already have.' },
   // Pay-to-be-paid. The oldest structure in fraud: money is waiting for you,
   // but a fee must clear first. A real payer never needs money from you to
@@ -208,6 +208,18 @@ const RULES: Rule[] = [
   { re: /\b(?:expired|lapsed|has lapsed|not renewed|out of date|no longer valid|due for renewal|under review|deregistration)\b[\s\S]{0,110}?\b(?:renew|reinstate|pay|settle|re-?register|replacement|retention|or you (?:will )?lose|without (?:renewal|payment)|unless)\b/i,
     w: 20, tag: 'renewal-pressure', plain: 'It says something has run out and presses you to renew immediately. Check directly with the organization before paying anything.' },
 
+  // Money with a clock on it. A named weekday, midnight, "within 48 hours":
+  // the deadline is what turns a bill into a con, because a real creditor
+  // does not need it settled before Friday. Amber on its own.
+  { re: /\b(?:fee|fees|payment|arrears|balance|contribution|levy|charge|installment|installment|top-?up|shortfall|premium|subscription|dues|deposit|bond|adjustment|difference|replacement|reconciliation|renewal|re-?registration|re-?inspection)\b[\s\S]{0,110}?\b(?:by|before|until|within|no later than|from) (?:friday|monday|tuesday|wednesday|thursday|saturday|sunday|midnight|noon|today|tonight|tomorrow|the \d{1,2}(?:st|nd|rd|th)|\d+ ?(?:hours|hrs|days))\b|\b(?:by|before|until|within|no later than) (?:friday|monday|tuesday|wednesday|thursday|saturday|sunday|midnight|noon|today|tonight|tomorrow|the \d{1,2}(?:st|nd|rd|th)|\d+ ?(?:hours|hrs|days))\b[\s\S]{0,80}?\b(?:fee|fees|payment|pay|arrears|balance|contribution|levy|charge|installment|installment|top-?up|shortfall|premium|subscription|dues|deposit|renew\w*|settle)\b/i,
+    w: 20, tag: 'money-deadline', plain: 'It puts a deadline on a payment. Real bills do not need settling by Friday. Ring the organization on a number you already have before paying anything.' },
+  // A service, place or cover that stops unless money arrives. Said without
+  // "or" or "unless", the threat is still the threat.
+  { re: /\b(?:service|services|collection|collections|delivery|deliveries|supply|cover|coverage|membership|permit|access|repeat prescriptions?|seats?|place|slot|transport|line|unit|account|page|site|plan|policy|guarantee|warranty|insurance)\b[\s\S]{0,70}?\b(?:paus\w+|suspend\w*|stops?|ceases?|lapse[sd]?|void\w*|withdrawn|goes offline|is classed as|excluded?|excludes|not covered|cannot attend|invalid|purged|doubles)\b[\s\S]{0,90}?\b(?:fee|payment|pay|paid|arrears|balance|contribution|levy|charge|instal?lment|top-?up|shortfall|premium|subscription|dues|renew\w*|settle\w*|clears?|cleared|collected|re-?regist\w+|reinstate\w*|replacement)\b|\b(?:fee|payment|pay|paid|arrears|balance|contribution|levy|charge|instal?lment|top-?up|shortfall|premium|subscription|dues|renew\w*|settle\w*)\b[\s\S]{0,90}?\b(?:service|collection|delivery|supply|cover|coverage|membership|permit|access|repeat prescriptions?|seats?|place|slot|transport|line|unit|account|page|site|plan|policy|guarantee|warranty|insurance)\b[\s\S]{0,60}?\b(?:paus\w+|suspend\w*|stops?|ceases?|lapse[sd]?|void\w*|withdrawn|goes offline|is classed as|excluded?|excludes|not covered|cannot attend|invalid|purged|doubles)\b/i,
+    w: 20, tag: 'service-cutoff', plain: 'It says something stops, lapses or is withdrawn unless money arrives. That pressure is the con. Check with the organization directly, on a number you already have.' },
+  // "Confirm your account/routing/card details" to receive or keep something.
+  { re: /\b(?:confirm|provide|submit|verify|enter|re-?enter)\b[^.]{0,40}\b(?:account|routing|bank|card|payment|billing|sort code|direct debit|date of birth|national insurance|medicare|ssn|social security) (?:details|information|number|numbers|and routing)/i,
+    w: 24, tag: 'detail-harvest', plain: 'It asks you to hand over account, card or identity details. A real organization already has what it needs and never asks for it this way.' },
   { re: /(?:\bor\b|\bunless\b|otherwise|failure to|non-?payment|if not (?:settled|paid|received|cleared))[\s\S]{0,90}?(?:revoked|canceled|canceled|removed|suspended|withdrawn|void|lapse[sd]?|auction|lien|collections?|credit file|bench warrant|citation|reassessed|released to|destroyed|purged|disconnected|blocked|doubles?|terminated|struck off|waiting list|recovery (?:unit|agent)|investigation)/i,
     w: 16, tag: 'pay-or-lose', plain: 'It threatens to take something away if you do not pay. Real organizations put that in writing and never need it settled the same day.' },
   { re: /(?:act now|urgent|immediately|right away|within (?:24|48) hours|expires? (?:today|soon|tonight)|final notice|last (?:chance|warning)|asap|don'?t delay)/i, w: 15, tag: 'urgency', plain: 'It uses pressure words to rush you. Rushing is a scammer\u2019s favorite tool.' },
@@ -254,11 +266,17 @@ const KNOWN_GOOD: Rule[] = [
   // and cannot see "no ... needed" in front of it.
   { re: /no (?:deposit|payment|fee|charge|card details?)[^.]{0,20}(?:needed|required|necessary|to pay)|(?:without|no need for) (?:a )?deposit|no obligation/i, w: -30, tag: 'good-nodeposit', plain: '' },
   { re: /(?:no|zero) fee for this|at no (?:cost|charge) to you|we (?:will|'?ll) not charge/i, w: -22, tag: 'good-nofee', plain: '' },
+  // No pressure at all. A scam cannot afford to say "whenever suits you".
+  { re: /shop around|if you like|at your leisure|whenever (?:suits|is convenient|you (?:can|like|get a chance))|no rush|not urgent|no hurry|take your time|no need to (?:reply|respond|do anything)|renews automatically|at the same (?:price|premium|rate)|nothing (?:you need|for you) to do/i, w: -24, tag: 'good-norush', plain: '' },
 ];
 
 const PAY_TAGS = new Set(['giftcard','crypto','payment','package-fee','toll','refund','investment','recovery','advance-fee','overpayment','charity','pet-deposit','wallet-phrase']);
 const URG_TAGS = new Set(['urgency','account-locked','gov-impersonation','family-emergency','digital-arrest','bank-alert','safe-account','subscription','sextortion','tech-support','callback']);
 const CODE_WORD_TAGS = new Set(['family-emergency']);
+
+// The raw tables, so the native port in ios/Shared/Engine can be generated
+// from this file and checked against it. Not used by the app itself.
+export const ENGINE_TABLES = { RULES, KNOWN_GOOD, PAY_TAGS, URG_TAGS, CODE_WORD_TAGS };
 
 export function detect(message: string, opts: DetectorOptions = {}): Verdict {
   const norm = normalizeText((message || '').trim());
@@ -340,7 +358,7 @@ export function detect(message: string, opts: DetectorOptions = {}): Verdict {
     safeStep = 'Do not tap anything yet. Contact the company yourself on a number you already trust.';
   } else {
     reason = 'Nothing in this message matches a known scam trick.';
-    safeStep = 'You do not need to do anything. If it still feels off, loop someone in.';
+    safeStep = 'Nothing to do now. If it later asks for money, a code or a password, treat it as a scam.';
   }
 
   return { level, reason, safeStep, signals, matches, tags, confidence, codeWordMoment, score, disguised: norm.disguised };

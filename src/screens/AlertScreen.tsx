@@ -1,6 +1,6 @@
-// Full-screen alert: source lines 268-282. Red field with the eyebrow, the
-// 38px display line, a hairline, one sentence about the actual message; the
-// bottom half is ground-coloured with the three actions and the offline note.
+// Full-screen alert. Red field with the eyebrow, the display line, a hairline,
+// one sentence about the actual message; the bottom half is ground-colored
+// with the three actions and the offline note.
 import React, { useEffect } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AlertTriangle, ArrowRight, User, Shield } from 'lucide-react-native';
@@ -15,7 +15,9 @@ export default function AlertScreen({ ctx }: { ctx: Ctx }) {
   const rec = ctx.hist.find(r => r.id === ctx.recordId);
   const sender = rec?.sender || 'an unknown number';
   const firstSignal = v?.signals?.[0] || 'It matches a known scam.';
-  const first = ctx.settings.trusted[0];
+  const s = ctx.settings;
+  const linked = s.familyLinked && s.familyRole === 'owner';
+  const who = linked ? (s.watchedBy?.split(' ')[0] || 'family') : (s.trusted[0]?.name.split(' ')[0] || 'someone');
   // Measured, not asserted: the time this very check actually took.
   const took = v?.elapsedMs;
   const speed = took == null ? 'in an instant'
@@ -39,7 +41,9 @@ export default function AlertScreen({ ctx }: { ctx: Ctx }) {
         <KFRise duration={550} delay={200} playKey={ctx.recordId}>
           <Text style={st.line} allowFontScaling>A text from {sender} just arrived. {firstSignal}</Text>
         </KFRise>
-        <Text style={st.sub} allowFontScaling>We already moved it to junk. There is nothing you need to reply to.</Text>
+        <Text style={st.sub} allowFontScaling>
+          {linked ? who + ' has been told as well. ' : ''}Nothing happens unless you tap something, so you can simply leave it.
+        </Text>
       </View>
 
       <View style={st.bottom}>
@@ -47,14 +51,8 @@ export default function AlertScreen({ ctx }: { ctx: Ctx }) {
           <Text style={st.darkBtnText} allowFontScaling>Show me why</Text>
           <ArrowRight size={19} color="#fff" strokeWidth={2.2} />
         </Pressable>
-        <Pressable
-          style={st.greenBtn}
-          onPress={() => {
-            if (!first) { ctx.go('people'); return; }
-            ctx.flash('Text drafted to ' + first.name.split(' ')[0] + '.');
-          }}
-          accessibilityRole="button">
-          <Text style={st.greenBtnText} allowFontScaling>Loop in {first ? first.name.split(' ')[0] : 'someone'}</Text>
+        <Pressable style={st.greenBtn} onPress={() => ctx.loopIn(ctx.recordId)} accessibilityRole="button">
+          <Text style={st.greenBtnText} allowFontScaling>{linked ? 'Ask ' + who + ' about it' : 'Loop in ' + who}</Text>
           <User size={19} color="#fff" strokeWidth={1.9} />
         </Pressable>
         <Pressable style={st.quiet} onPress={() => ctx.go('home')} accessibilityRole="button">
@@ -75,19 +73,19 @@ const st = StyleSheet.create({
   top: { paddingHorizontal: 22, paddingTop: 24, paddingBottom: 26 },
   eyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 22 },
   eyeIcon: { width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,.2)', alignItems: 'center', justifyContent: 'center' },
-  eyebrow: { fontSize: 11, fontFamily: F.bold, letterSpacing: 2.2, textTransform: 'uppercase', color: '#fff' },
+  eyebrow: { fontSize: 12, fontFamily: F.bold, letterSpacing: 2, textTransform: 'uppercase', color: '#fff' },
   display: { fontSize: 38, fontFamily: F.display, letterSpacing: -1.14, color: '#fff', lineHeight: 38 },
   rule: { height: 1, backgroundColor: 'rgba(255,255,255,.45)', marginVertical: 20 },
-  line: { fontSize: 16, fontFamily: F.semibold, color: '#fff', lineHeight: 23.2 },
-  sub: { fontSize: 14, fontFamily: F.body, color: 'rgba(255,255,255,.85)', lineHeight: 21, marginTop: 12 },
+  line: { fontSize: 18, fontFamily: F.semibold, color: '#fff', lineHeight: 26 },
+  sub: { fontSize: 16, fontFamily: F.body, color: 'rgba(255,255,255,.85)', lineHeight: 23, marginTop: 12 },
 
   bottom: { flexGrow: 1, minHeight: 330, backgroundColor: T.ground, paddingHorizontal: 22, paddingTop: 18, paddingBottom: 30, gap: 9 },
-  darkBtn: { height: 56, borderRadius: 12, backgroundColor: '#171717', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 17 },
-  darkBtnText: { fontSize: 16.5, fontFamily: F.bold, color: '#fff' },
-  greenBtn: { height: 56, borderRadius: 12, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 17 },
-  greenBtnText: { fontSize: 16.5, fontFamily: F.bold, color: '#fff' },
-  quiet: { height: 46, alignItems: 'center', justifyContent: 'center' },
-  quietText: { fontSize: 14, fontFamily: F.semibold, color: T.sub },
+  darkBtn: { height: 58, borderRadius: 12, backgroundColor: '#171717', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 17 },
+  darkBtnText: { fontSize: 17, fontFamily: F.bold, color: '#fff' },
+  greenBtn: { height: 58, borderRadius: 12, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 17 },
+  greenBtnText: { fontSize: 17, fontFamily: F.bold, color: '#fff' },
+  quiet: { height: 48, alignItems: 'center', justifyContent: 'center' },
+  quietText: { fontSize: 16, fontFamily: F.semibold, color: T.sub },
   offline: { marginTop: 'auto', flexDirection: 'row', alignItems: 'center', gap: 8 },
-  offlineText: { fontSize: 12, fontFamily: F.body, color: T.sub },
+  offlineText: { fontSize: 13.5, fontFamily: F.body, color: T.sub },
 });

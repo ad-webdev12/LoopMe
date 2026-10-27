@@ -70,7 +70,7 @@ const BLOCKED_DOMAINS = new Set([
   'account-verify.click', 'usps-redelivery.top', 'paypal-resolve.xyz',
   'apple-icloud-locked.top', 'irs-refund.click', 'ezpass-toll.top',
 ]);
-const BLOCKED_PATTERNS = [
+const BLOCKED_PATTERNS: RegExp[] = [
   /secure.*login.*\.(top|xyz|click|live|vip)$/i,
   /verify.*account.*\.(top|xyz|click)$/i,
   /\b(icloud|apple|paypal|chase|wellsfargo|usps|fedex)-[a-z-]+\.(top|xyz|click|vip|live|sbs)$/i,
@@ -78,6 +78,8 @@ const BLOCKED_PATTERNS = [
 
 // Trailing [a-z0-9-]* catches garbage glued to the TLD ("chase.com278282") so it
 // reads as a non-official host instead of slipping through as chase.com.
+export const LINK_TABLES = { BRANDS, SECURITY_WORDS, SHORTENERS, SUSPICIOUS_TLDS, BLOCKED_DOMAINS, BLOCKED_PATTERNS };
+
 const URL_RE = /\b(?:https?:\/\/)?(?:\d{1,3}(?:\.\d{1,3}){3}|(?:[a-z0-9@-]+\.)+[a-z]{2,}[a-z0-9-]*)(?:\/[^\s,]*)?/gi;
 
 function leet(s: string): string {

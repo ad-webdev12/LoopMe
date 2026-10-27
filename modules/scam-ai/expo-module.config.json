@@ -1,6 +1,7 @@
 {
   "platforms": ["apple"],
   "apple": {
-    "modules": ["ScamAiModule"]
+    "modules": ["ScamAiModule"],
+    "appDelegateSubscribers": ["CloudPushDelegate"]
   }
 }

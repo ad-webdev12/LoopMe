@@ -39,7 +39,6 @@ export default function CallScreen({ ctx }: { ctx: Ctx }) {
   };
   const hangUp = () => { clearInterval(iv.current); setStage('ended'); };
   const alarm = lines.some(l => l.alarm);
-  const first = ctx.settings.trusted[0];
 
   if (stage === 'ringing') {
     return (
@@ -107,9 +106,6 @@ export default function CallScreen({ ctx }: { ctx: Ctx }) {
             <Text style={st.hangText} allowFontScaling>Hang up</Text>
             <PhoneOff size={20} color="#fff" strokeWidth={2} />
           </Pressable>
-          <Pressable style={st.loopBtn} onPress={() => ctx.flash('Text drafted to ' + (first ? first.name.split(' ')[0] : 'your contact') + '.')} accessibilityRole="button">
-            <Text style={st.loopText} allowFontScaling>Loop in {first ? first.name.split(' ')[0] : 'someone'}</Text>
-          </Pressable>
         </View>
       </View>
     );
@@ -140,46 +136,46 @@ export default function CallScreen({ ctx }: { ctx: Ctx }) {
 
 const st = StyleSheet.create({
   dark: { flex: 1, backgroundColor: T.callDark },
-  unknown: { fontSize: 15, color: 'rgba(255,255,255,.6)' },
+  unknown: { fontSize: 17, color: 'rgba(255,255,255,.6)' },
   number: { fontSize: 30, fontWeight: '600', color: '#fff', marginTop: 8, lineHeight: 34.5 },
   notContact: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 16, backgroundColor: 'rgba(255,255,255,.12)', paddingHorizontal: 11, paddingVertical: 6 },
-  notContactText: { fontSize: 11.5, fontFamily: F.bold, color: '#ff9783' },
+  notContactText: { fontSize: 13.5, fontFamily: F.bold, color: '#ff9783' },
   listenCard: { marginTop: 34, backgroundColor: 'rgba(255,255,255,.08)', padding: 15 },
-  listenTitle: { fontSize: 12, fontFamily: F.bold, color: '#fff', marginBottom: 6 },
-  listenBody: { fontSize: 13.5, fontFamily: F.body, color: 'rgba(255,255,255,.72)', lineHeight: 20.25 },
+  listenTitle: { fontSize: 14, fontFamily: F.bold, color: '#fff', marginBottom: 6 },
+  listenBody: { fontSize: 16, fontFamily: F.body, color: 'rgba(255,255,255,.78)', lineHeight: 23.5 },
   answerBtn: { height: 58, borderRadius: 12, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18 },
-  answerText: { fontSize: 16.5, fontFamily: F.bold, color: '#fff' },
+  answerText: { fontSize: 17, fontFamily: F.bold, color: '#fff' },
   declineBtn: { height: 52, borderWidth: 1, borderColor: 'rgba(255,255,255,.35)', alignItems: 'center', justifyContent: 'center' },
-  declineText: { fontSize: 15, fontFamily: F.bold, color: '#fff' },
+  declineText: { fontSize: 16, fontFamily: F.bold, color: '#fff' },
 
   liveHead: { backgroundColor: T.callDark, paddingHorizontal: 22, paddingTop: 20, paddingBottom: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   liveNumber: { fontSize: 17, fontWeight: '600', color: '#fff' },
-  liveMeta: { fontSize: 13, color: 'rgba(255,255,255,.6)', marginTop: 3 },
+  liveMeta: { fontSize: 15, color: 'rgba(255,255,255,.6)', marginTop: 3 },
   bars: { flexDirection: 'row', alignItems: 'flex-end', gap: 3, height: 20 },
   bar: { width: 4, backgroundColor: '#7bd6b6' },
   transcript: { flex: 1, backgroundColor: T.ground },
-  transLabel: { fontSize: 12, fontFamily: F.bold, color: T.sub, marginBottom: 12 },
+  transLabel: { fontSize: 14, fontFamily: F.bold, color: T.sub, marginBottom: 12 },
   lineCard: { backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, paddingHorizontal: 13, paddingVertical: 11 },
-  lineText: { fontSize: 15, lineHeight: 21, color: T.ink },
+  lineText: { fontSize: 17, lineHeight: 24, color: T.ink },
   flagRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 6 },
-  flagText: { fontSize: 12, fontFamily: F.bold, color: T.red },
+  flagText: { fontSize: 14, fontFamily: F.bold, color: T.red },
   alarm: { backgroundColor: T.red, paddingHorizontal: 22, paddingVertical: 15 },
-  alarmTitle: { fontSize: 17, fontFamily: F.display, color: '#fff', lineHeight: 21.25 },
-  alarmBody: { fontSize: 13.5, fontFamily: F.body, color: 'rgba(255,255,255,.9)', lineHeight: 19.6, marginTop: 5 },
+  alarmTitle: { fontSize: 19, fontFamily: F.display, color: '#fff', lineHeight: 21.25 },
+  alarmBody: { fontSize: 16, fontFamily: F.body, color: 'rgba(255,255,255,.9)', lineHeight: 23, marginTop: 5 },
   liveActions: { backgroundColor: T.ground, borderTopWidth: 1, borderTopColor: T.hairline, paddingHorizontal: 22, paddingTop: 12, paddingBottom: 26, gap: 9 },
   hangBtn: { height: 56, borderRadius: 12, backgroundColor: T.red, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 17 },
-  hangText: { fontSize: 16.5, fontFamily: F.bold, color: '#fff' },
+  hangText: { fontSize: 17, fontFamily: F.bold, color: '#fff' },
   loopBtn: { height: 48, borderWidth: 1, borderColor: T.fieldBorder, backgroundColor: T.surface, alignItems: 'center', justifyContent: 'center' },
   loopText: { fontSize: 14, fontFamily: F.bold, color: T.ink },
 
   ended: { flex: 1, backgroundColor: T.ground },
   endedTitle: { fontSize: 27, fontFamily: F.display, letterSpacing: -0.54, color: T.ink, lineHeight: 29.16 },
-  endedSub: { fontSize: 14.5, fontFamily: F.body, color: T.sub, lineHeight: 22.5, marginTop: 8 },
+  endedSub: { fontSize: 17, fontFamily: F.body, color: T.sub, lineHeight: 25, marginTop: 8 },
   savedCard: { marginHorizontal: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, padding: 15 },
-  savedLabel: { fontSize: 12.5, fontFamily: F.bold, color: T.sub, marginBottom: 8 },
-  savedText: { fontSize: 14.5, fontFamily: F.body, color: T.ink, lineHeight: 21.75 },
+  savedLabel: { fontSize: 14, fontFamily: F.bold, color: T.sub, marginBottom: 8 },
+  savedText: { fontSize: 17, fontFamily: F.body, color: T.ink, lineHeight: 25 },
   blockBtn: { height: 54, borderRadius: 12, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 17 },
   blockText: { fontSize: 16, fontFamily: F.bold, color: '#fff' },
   backHome: { height: 44, alignItems: 'center', justifyContent: 'center' },
-  backHomeText: { fontSize: 13.5, fontFamily: F.semibold, color: T.sub },
+  backHomeText: { fontSize: 15.5, fontFamily: F.semibold, color: T.sub },
 });

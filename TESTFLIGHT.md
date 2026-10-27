@@ -6,7 +6,7 @@ Everything in "Already done" is finished and verified. Start at Step 1.
 
 - Bundle ID `com.loopmescamsafety.app` matches the App Store Connect record,
   in app.json, both Xcode build configs, and the Info.plist URL scheme.
-- Version 1.0.0, build 1.
+- Version 1.0.1, build 7 (1.0.0 build 5 is the one in review).
 - iPhone-only, icon alpha-free, launch screen, all five privacy strings,
   privacy manifest, export-compliance flag set.
 - The empty `ReactNativeDependencies.xcframework` that broke archiving is

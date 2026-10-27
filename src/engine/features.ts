@@ -37,6 +37,7 @@ const CODE_RE = /\b\d{4,8}\b/;
 // the direction is given its own feature.
 const CODE_DELIVERED_RE = /(?:your|the)[^.]{0,40}\b(?:code|otp|pin|password)\b[^.]{0,20}\bis\b[:\s]*\d{3,8}|\b\d{3,8}\b[^.]{0,20}is your[^.]{0,30}\b(?:code|otp|pin)\b/i;
 const CODE_REQUESTED_RE = /(?:send|share|read|give|tell|forward|reply with|confirm|provide|enter)(?:\s+(?:me|us|back))?[^.]{0,40}\b(?:code|otp|pin|passcode)\b|\b(?:code|otp|pin|passcode)\b[^.]{0,30}(?:back to us|to verify|to confirm|so (?:i|we) can)/i;
+export const FEATURE_TABLES = () => ({ URL_RE, SHORTENER_RE, RISKY_TLD_RE, MONEY_RE, PHONE_RE, CODE_RE, CODE_DELIVERED_RE, CODE_REQUESTED_RE, NEVER_SHARE_RE });
 const NEVER_SHARE_RE = /(?:never|do ?n'?t|will never)\s+(?:ask|share|give|request)[^.]{0,50}(?:code|pin|password|otp)|(?:code|otp)[^.]{0,30}(?:do ?n'?t|never) share/i;
 
 /**

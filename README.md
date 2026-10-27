@@ -4,8 +4,15 @@
 
 Loop Me is a scam-safety app for iPhone built for the people scammers actually target:
 older adults, and the family members who look out for them. Paste, share, or speak a
-suspicious message and get a committed verdict in plain words — **Stop**, **Be careful**,
-or **Looks okay** — with one safe step and a one-tap way to ask family for a second opinion.
+suspicious message and get a committed verdict in plain words, **Stop**, **Be careful**,
+or **Looks okay**, with one safe step. Link one family member and a scam text on one phone
+appears on the other the moment it lands, over the family's own iCloud.
+
+It also runs while the app is closed: a text filter for numbers you do not know, a call
+directory that labels scam callers, and a share sheet that checks anything from any app.
+All three are iOS app extensions in `ios/` that run a Swift port of the detector
+(`ios/Shared/Engine`), generated from the TypeScript engine and checked against it
+message by message with `scripts/check-engine.sh`.
 
 ## Run it on your Mac
 

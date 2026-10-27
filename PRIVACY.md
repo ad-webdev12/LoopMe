@@ -1,16 +1,16 @@
-# Privacy Policy — Loop Me
+# Privacy Policy, Loop Me
 
-**Last updated: 9 September 2026**
-**Applies to: Loop Me for iPhone (`com.loopmescamsafety.app`), version 1.0.0**
+**Last updated: 27 October 2026**
+**Applies to: Loop Me for iPhone (`com.loopmescamsafety.app`), version 1.0.1 and later**
 
 ## The short version
 
-Loop Me collects nothing.
+Loop Me collects nothing, and has no server.
 
-There is no account to create, no server to sign in to, and no company database
-holding anything about you. Every message you check is read and answered on your
-own iPhone. Nothing you check is transmitted to us, because there is nowhere for
-it to go — Loop Me has no server at all.
+Every message you check is read and answered on your own iPhone. The only thing
+that ever leaves your phone is what you choose to send to one family member,
+and it travels through your own iCloud account, not through us. We cannot see
+it, because there is nowhere for it to go.
 
 If that is all you wanted to know, you can stop reading here.
 
@@ -21,7 +21,8 @@ messages you check, not how often you use the app, not your location, not an
 advertising identifier, not a crash report, not an analytics event.
 
 We do not use any third-party analytics, advertising, attribution, or crash
-reporting service.
+reporting service. We have no server, so there is nothing for anything to be
+sent to.
 
 ## What stays on your phone
 
@@ -30,10 +31,11 @@ work between launches:
 
 | What | Why |
 |---|---|
-| Your first name | To sign the text messages you send to family |
+| Your first name | So notes to family say who they are from |
 | Trusted contacts you add | So you can reach them in one tap |
 | Your check history | So you can look back at what you have checked |
 | Your family code word | So the app can remind you to ask for it |
+| Numbers you blocked, senders you trust | So the text filter and call directory know them |
 | Your settings | To remember your preferences |
 
 All of this lives only on your device. It is included in your encrypted iPhone
@@ -43,35 +45,71 @@ We never receive any of it.
 **Your family code word is never transmitted, never included in a shared check,
 and never leaves your phone.**
 
-## How family members are looped in
+Phone numbers, email addresses and long account-style numbers inside a message
+are blanked out before the message is stored in history or shown to family.
 
-When you ask a family member about a message, Loop Me does not send anything
-itself. It writes a normal text message and hands it to your iPhone's Messages
-app for you to send — the same as if you had typed it yourself.
+## The family link
 
-That message travels over your ordinary phone carrier or iMessage, exactly like
-any other text you send. It is covered by Apple's and your carrier's privacy
-terms, not ours. We never see it. There is no server in the middle.
+If you choose to link one family member, Loop Me uses Apple's iCloud (CloudKit)
+to carry two things between your two phones:
+
+- a check that was flagged on your phone: a shortened, blanked copy of the
+  message, the reason it was flagged, when, and who it was from;
+- notes the family member writes back.
+
+These records are stored in **your own iCloud account**, in a private area that
+only the one person you invited can see. They are not stored on any server of
+ours, we have no account that can read them, and Apple's iCloud terms cover them.
+Either of you can end the link from inside the app, which removes the other
+phone's access at once.
+
+The family member receives the invitation as an ordinary text message that you
+send yourself from the Messages app, exactly as if you had typed it.
+
+When the family link is not set up, "Loop in" writes a plain text message and
+hands it to Messages for you to send. Nothing else is sent anywhere.
+
+## The text filter, the call directory and the share sheet
+
+Loop Me includes three small iPhone extensions. You switch each one on yourself
+in the iPhone Settings app, and each one runs entirely on your phone:
+
+- **Text filter.** When you turn it on under Messages, iOS shows Loop Me each
+  text from a number that is not in your contacts, before it reaches you.
+  Loop Me reads it on the phone and tells iOS whether it is junk. The text is
+  not sent anywhere, and texts from people in your contacts are never shown
+  to Loop Me at all.
+- **Call directory.** When you turn it on under Phone, iOS reads a list of
+  numbers you blocked, and numbers that sent a flagged text, so those calls
+  are blocked or labeled. The list is built from your own history and never
+  downloaded.
+- **Share sheet.** When you share a message, link or screenshot to Loop Me
+  from another app, it is checked on the phone and the answer is shown right
+  there.
+
+What these extensions see is kept in a storage area shared only between them
+and the app, on your phone.
 
 ## Permissions Loop Me asks for
 
 Loop Me asks only when you tap something that needs it, and each one is used for
 that purpose alone:
 
-- **Camera** — only when you choose to photograph a message. The photo is read on
+- **Camera.** Only when you choose to photograph a message. The photo is read on
   your phone and is not uploaded or stored by us.
-- **Photos** — only when you pick a screenshot to check. Read on your phone,
+- **Photos.** Only when you pick a screenshot to check. Read on your phone,
   not uploaded.
-- **Contacts** — only when you choose to add a trusted family member. Your
-  contacts are not read otherwise, not copied, and not uploaded.
-- **Microphone and Speech Recognition** — only when you tap "Speak it". Your
+- **Contacts.** Only when you choose to add a trusted family member or pick who
+  to invite. Your contacts are not read otherwise, not copied, and not uploaded.
+- **Microphone and Speech Recognition.** Only when you tap "Speak it". Your
   speech is turned into text using Apple's on-device recognition. Nothing is
   uploaded.
-- **Notifications** — only to remind you that a check you sent to family is still
-  unanswered. These reminders are created and delivered by your own iPhone.
-  There is no push server, so we cannot send you anything.
+- **Notifications.** To show a flagged check or a family note on the other
+  phone, and to remind you that a check is still open. The family notifications
+  are delivered through Apple's push service as part of iCloud; their content
+  is written by your own phone.
 
-You can withdraw any of these at any time in **Settings → Loop Me** on your
+You can withdraw any of these at any time in **Settings, Loop Me** on your
 iPhone. The app keeps working without them; the features that need them simply
 ask again.
 
@@ -81,6 +119,13 @@ Loop Me's scam detection runs entirely on your iPhone. Where your device
 supports it, Loop Me uses Apple's on-device intelligence and a small model
 bundled inside the app. No message text is ever sent to us, to Apple, to OpenAI,
 or to any other company for analysis.
+
+## Reporting a scam
+
+If you choose to report a message, Loop Me either hands a text to the Messages
+app addressed to your carrier's spam number (7726), or copies a short write-up
+to your clipboard and opens the FTC's reporting page in your browser. You decide
+whether to send either one. Loop Me does not report anything on its own.
 
 ## Children
 
@@ -94,7 +139,8 @@ or delete the personal data a company holds about you.
 
 We hold no data about you, so there is nothing for us to access, export, or
 delete. To erase everything Loop Me has stored on your own device, delete the
-app; iOS removes its storage completely.
+app; iOS removes its storage completely. Records in your iCloud account are
+yours, and ending the family link inside the app removes the shared area.
 
 We do not sell or share personal information, because we do not have any.
 

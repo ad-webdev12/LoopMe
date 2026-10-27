@@ -148,7 +148,7 @@ export async function upgrade(message: string, rule: Verdict, opts?: DetectorOpt
   const safeStep = level === rule.level ? rule.safeStep
     : level === 'red' ? 'Do not reply and do not send anything. Delete the message.'
     : level === 'amber' ? 'Do not tap anything yet. Contact the company yourself on a number you already trust.'
-    : 'You do not need to do anything. If it still feels off, loop someone in.';
+    : 'Nothing to do now. If it later asks for money, a code or a password, treat it as a scam.';
 
   return {
     ...rule,
