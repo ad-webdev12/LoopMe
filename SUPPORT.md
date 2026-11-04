@@ -8,7 +8,7 @@ account, and keeps nothing on any server.
 
 ## Getting help
 
-**[REPLACE WITH YOUR SUPPORT EMAIL]**
+**aaravdey18@gmail.com**
 
 We aim to reply within two working days. It helps if you tell us which iPhone
 you have and what version of iOS it is running (**Settings → General → About**).

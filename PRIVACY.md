@@ -154,4 +154,4 @@ anything, we will say so here, plainly, before it does.
 
 Questions about this policy:
 
-**[REPLACE WITH YOUR SUPPORT EMAIL]**
+**aaravdey18@gmail.com**
