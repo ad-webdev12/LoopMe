@@ -10,6 +10,7 @@ import Vision
 // written to the shared log so it shows in History and reaches the caretaker
 // the next time Loop Me opens.
 final class ShareViewController: UIViewController {
+  static let model = CoreModel.named("ScamText", threshold: 0.8)
   private let card = UIView()
   private let stack = UIStackView()
   private let spinner = UIActivityIndicatorView(style: .large)
@@ -124,7 +125,7 @@ final class ShareViewController: UIViewController {
     checkedText = text
     var opts = DetectorOptions()
     opts.allowlist = SharedStore.allowlist
-    let v = Engine.instant(text, opts)
+    let v = Engine.check(text, opts, model: ShareViewController.model)
     SharedStore.bump("shared")
     SharedStore.logVerdict([
       "id": "s-" + UUID().uuidString,

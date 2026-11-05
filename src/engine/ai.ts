@@ -42,16 +42,6 @@ export function tierLabel(t: AiTier): string {
     : 'Built-in checks';
 }
 
-const RULE_WEIGHT = 0.6;
-const AI_WEIGHT = 0.4;
-
-// Rule score (0..~150) → rough probability, so it can blend with the AI's 0..1.
-function ruleProb(v: Verdict): number {
-  if (v.level === 'red') return Math.min(1, 0.75 + v.score / 400);
-  if (v.level === 'amber') return Math.min(0.7, 0.35 + v.score / 200);
-  return Math.min(0.25, v.score / 200);
-}
-
 /**
  * Instant verdict: deterministic rules PLUS the portable learned model, fused
  * synchronously. Both run on every device, offline, in well under a millisecond.
@@ -102,61 +92,53 @@ function instantVerdict(message: string, opts?: DetectorOptions): FusedVerdict {
   };
 }
 
-/** The AI upgrade. Call after showing instant(); resolves with the fused verdict. */
+/**
+ * The AI upgrade. Call after showing instant(); resolves with the fused verdict.
+ *
+ * Same policy as instant(), applied to the stronger on-device model (Apple
+ * Intelligence where present, otherwise the bundled BERT classifier, the one
+ * measured in ml/eval.swift): it may only raise the alarm. Green becomes amber
+ * from 0.8, an amber hardens to red from 0.9, and a rule red is never touched.
+ * The model never lowers a level. That asymmetry is the whole point: a missed
+ * raise costs nothing the rules did not already catch, while a model-driven
+ * downgrade of a real scam could cost someone their savings.
+ */
+export const COREML_THRESHOLD = 0.8;
+
 export async function upgrade(message: string, rule: Verdict, opts?: DetectorOptions): Promise<FusedVerdict> {
   const tier = await getAiTier();
   if (tier === 'none') return { ...rule, aiTier: 'none', fused: false };
+  if (rule.tags.includes('allowlist') || rule.level === 'red') return { ...rule, aiTier: tier, fused: false };
 
   const ai = await classify(message);
   if (!ai) return { ...rule, aiTier: tier, fused: false };
 
-  const rp = ruleProb(rule);
-  const aiP = ai.label === 'safe' ? Math.min(ai.probability, 0.3) : ai.probability;
-  let p = (RULE_WEIGHT * rp + AI_WEIGHT * aiP) / (RULE_WEIGHT + AI_WEIGHT);
+  // Apple Intelligence returns a label with a looser probability; the Core ML
+  // classifier returns a calibrated probability. Normalize to one number.
+  const p = tier === 'foundation'
+    ? (ai.label === 'scam' ? Math.max(ai.probability, 0.8) : ai.label === 'suspicious' ? Math.min(Math.max(ai.probability, 0.5), 0.89) : 0)
+    : ai.probability;
+  if (p < (tier === 'foundation' ? 0.5 : COREML_THRESHOLD)) return { ...rule, ai, aiTier: tier, fused: false };
 
-  // Hard floor: the rules' most dangerous, unambiguous signals are never softened
-  // by the AI. AI may only push the alarm UP for these.
-  const hardRed = rule.tags.includes('safe-account') || rule.tags.includes('two-stage') ||
-    rule.tags.includes('courier-fraud') ||
-    (rule.tags.includes('otp-request') && rule.level === 'red') || rule.tags.includes('giftcard');
-  if (hardRed) p = Math.max(p, 0.85);
-
-  // AI catches something the rules rated calm.
-  const aiAlarms = ai.label === 'scam' && ai.probability >= 0.7;
-
-  let level: Verdict['level'] = p >= 0.62 ? 'red' : p >= 0.3 ? 'amber' : 'green';
-  if (hardRed) level = 'red';
-  if (aiAlarms && level === 'green') level = 'amber';
-
-  // Prefer the AI's plain-language reason when it meaningfully agrees and the
-  // rules didn't already produce a strong committed message.
-  let reason = rule.reason;
-  if (!hardRed && ai.reason && ((level !== 'green' && ai.label !== 'safe') || (level === 'green' && ai.label === 'safe'))) {
-    reason = ai.reason;
+  const level: Verdict['level'] = rule.level === 'amber' && p >= 0.9 ? 'red' : 'amber';
+  if (level === rule.level) {
+    // Agreement: keep the rules' wording, add the model's sentence to the reasons.
+    const signals = ai.reason && !rule.signals.includes(ai.reason) ? [...rule.signals, ai.reason] : rule.signals;
+    return { ...rule, signals, confidence: rule.confidence === 'unsure' ? 'fairly' : rule.confidence, ai, aiTier: tier, fused: true };
   }
 
-  const confidence: Verdict['confidence'] =
-    hardRed || p >= 0.82 || p <= 0.12 ? 'very' : (p >= 0.5 && p < 0.62) || (p > 0.25 && p < 0.35) ? 'unsure' : 'fairly';
-
-  // The AI's plain sentence joins the numbered reasons list (design shows the
-  // level line in the banner; every reason lives under "Why we say that").
-  const signals = ai.reason && !rule.signals.includes(ai.reason)
-    ? [...rule.signals, ai.reason]
-    : rule.signals;
-
-  // When fusion moves the level, the "what to do" line must move with it.
-  const safeStep = level === rule.level ? rule.safeStep
-    : level === 'red' ? 'Do not reply and do not send anything. Delete the message.'
-    : level === 'amber' ? 'Do not tap anything yet. Contact the company yourself on a number you already trust.'
-    : 'Nothing to do now. If it later asks for money, a code or a password, treat it as a scam.';
-
+  const note = tier === 'foundation' && ai.reason
+    ? ai.reason
+    : 'The on-device model recognizes the shape of this message as a scam, even though it does not match a specific known trick.';
   return {
     ...rule,
     level,
-    reason,
-    safeStep,
-    signals,
-    confidence,
+    reason: rule.level === 'green' ? (tier === 'foundation' && ai.reason ? ai.reason : 'This does not match a named trick, but it reads like a scam.') : rule.reason,
+    safeStep: level === 'red'
+      ? 'Do not reply and do not send anything. Delete the message.'
+      : 'Do not tap anything yet. Contact the company yourself on a number you already trust.',
+    signals: rule.signals.includes(note) ? rule.signals : [...rule.signals, note],
+    confidence: p >= 0.9 ? 'fairly' : 'unsure',
     ai,
     aiTier: tier,
     fused: true,

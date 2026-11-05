@@ -267,6 +267,7 @@ const KNOWN_GOOD: Rule[] = [
   { re: /no (?:deposit|payment|fee|charge|card details?)[^.]{0,20}(?:needed|required|necessary|to pay)|(?:without|no need for) (?:a )?deposit|no obligation/i, w: -30, tag: 'good-nodeposit', plain: '' },
   { re: /(?:no|zero) fee for this|at no (?:cost|charge) to you|we (?:will|'?ll) not charge/i, w: -22, tag: 'good-nofee', plain: '' },
   // No pressure at all. A scam cannot afford to say "whenever suits you".
+  { re: /did(?: not|n[’']t) win|no (?:win|prize) this (?:time|week)|better luck next time|not a winner|unsuccessful this time/i, w: -40, tag: 'good-nowin', plain: '' },
   { re: /shop around|if you like|at your leisure|whenever (?:suits|is convenient|you (?:can|like|get a chance))|no rush|not urgent|no hurry|take your time|no need to (?:reply|respond|do anything)|renews automatically|at the same (?:price|premium|rate)|nothing (?:you need|for you) to do/i, w: -24, tag: 'good-norush', plain: '' },
 ];
 

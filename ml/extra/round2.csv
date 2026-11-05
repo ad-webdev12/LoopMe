@@ -1,0 +1,155 @@
+text,label
+"Bank of America: your statement is ready. Log in to your app to view it.",safe
+"Chase: your monthly statement is available. View it in the Chase app as usual.",safe
+"Wells Fargo: a deposit of 1,200.00 was made to your account ending 4411.",safe
+"Capital One: your payment of 85.00 was received. Thank you.",safe
+"Citi: your card ending 2210 was used for 14.99 at a coffee shop. Reply if you have questions.",safe
+"HSBC: your new statement is in the app. Nothing to action.",safe
+"Barclays: your direct debit to the council was paid today.",safe
+"Lloyds: you have a new message in your secure inbox. Open the app to read it.",safe
+"NatWest: your card has been dispatched and will arrive in 5 days.",safe
+"Monzo: you spent 3.20 at the bakery. Balance 412.60.",safe
+"Santander: your mortgage payment went out today as scheduled.",safe
+"Nationwide: your ISA interest has been paid. Log in to the app to see your balance.",safe
+"TD Bank: your e-statement is ready. View it through online banking.",safe
+"RBC: a cheque you deposited has cleared.",safe
+"Commonwealth Bank: your salary has been credited. Log in to NetBank through the app as usual.",safe
+"ANZ: your credit card payment is due on the 20th. It will be taken by direct debit.",safe
+"Westpac: your term deposit has matured and rolled over at the same rate.",safe
+"HDFC Bank: Rs 12,000 credited to your account on 3 Apr. Available balance Rs 54,120.",safe
+"ICICI: your credit card statement is ready. Pay through the iMobile app as usual.",safe
+"DBS: your fixed deposit has been renewed. Details in digibank.",safe
+"AIB: your statement is now available in the app.",safe
+"Bank of Ireland: your standing order to your daughter was paid today.",safe
+"Donate to the Red Cross at redcross.org or by calling 1-800-RED-CROSS.",safe
+"Support Cancer Research UK at cancerresearchuk.org. Every gift helps.",safe
+"Give to the food bank at trusselltrust.org or drop items at the supermarket collection point.",safe
+"The RNLI shop is open Saturday. All proceeds go to the lifeboats.",safe
+"Macmillan coffee morning on Friday at the village hall. Bring a cake, give what you like.",safe
+"Thank you for giving to Oxfam. Your receipt is attached. No further payment will be taken.",safe
+"Salvation Army: the Christmas appeal is open. Give at salvationarmy.org.uk if you wish.",safe
+"Your monthly gift to Guide Dogs was taken today as usual. Thank you.",safe
+"Poppy Appeal collectors will be outside the supermarket this weekend. Cash or card.",safe
+"The hospice lottery draw results are on their website. Thank you for playing.",safe
+"St John Ambulance first aid course Saturday. Free for over 65s. Book at sja.org.uk.",safe
+"Amazon: your package was delivered. See the photo in your orders.",safe
+"Amazon: your order of a kettle has been dispatched. Arriving Thursday.",safe
+"Apple: your iCloud storage plan renewed for 0.99. Manage it in Settings.",safe
+"Netflix: a new device signed in to your account. If this was you, no action is needed.",safe
+"Spotify: your Premium payment went through. Enjoy the music.",safe
+"Google: a new sign-in on your phone. If this was you, you can ignore this.",safe
+"Microsoft: your subscription renews next month at the same price.",safe
+"PayPal: you received 25.00 from your daughter. It is in your balance.",safe
+"eBay: your item sold. Post it within 3 days. Payment is in your account.",safe
+"Vinted: your parcel has been delivered to the buyer. Payment released to your wallet.",safe
+"Facebook: you have 3 new notifications. Open the app to see them.",safe
+"WhatsApp: your backup completed overnight.",safe
+"Uber Eats: your order is being prepared. Estimated arrival 25 minutes.",safe
+"Deliveroo: your rider is 2 minutes away.",safe
+"Just Eat: your order has been delivered. Enjoy your meal.",safe
+"Tesco: your Clubcard vouchers are ready. See them in the app.",safe
+"Sainsbury's: your delivery is on its way, arriving 2 to 3pm.",safe
+"Boots: your prescription is ready for collection at the Market Street store.",safe
+"Specsavers: your glasses are ready. Pop in any time.",safe
+"Argos: your order is ready for collection. Bring your order number.",safe
+"B&Q: your order has been delivered. Thank you.",safe
+"Costco: your membership renewal receipt is attached.",safe
+"Target: your order is ready for pickup at the store. Show the barcode in the app.",safe
+"CVS: your prescription is ready. Pharmacy open until 9.",safe
+"Walgreens: your photos are ready for pickup.",safe
+"Kroger: your fuel points expire at the end of the month.",safe
+"Home Depot: your order has shipped.",safe
+"Your Medicare summary notice is available online. This is not a bill.",safe
+"Your Social Security benefit statement is ready at ssa.gov. Sign in the way you normally do.",safe
+"IRS: your payment plan instalment was received. Thank you.",safe
+"NHS App: your appointment on the 12th has been confirmed.",safe
+"HMRC: your self assessment payment was received. No further action.",safe
+"gov.uk: your passport has been printed and will be delivered by courier. No fee is due.",safe
+"myGov: your tax return has been processed. Any refund will be deposited automatically.",safe
+"Service Canada: your EI report was received. Your next payment is on schedule.",safe
+"Your council has posted your new bin calendar. Download it from the council website.",safe
+"Your library card has been renewed for another 3 years. No fee.",safe
+"Your dentist has sent your treatment plan. Nothing to pay today.",safe
+"Your account is locked after too many password attempts. It will unlock in 30 minutes on its own.",safe
+"Your account will remain open. We are writing to let you know our terms have changed. No action is required.",safe
+"Your statement shows an unfamiliar charge? You can dispute any transaction in the app under Help.",safe
+"You will not be charged for the cancelled order. Any pending amount will drop off in 3 to 5 days.",safe
+"Your overdraft was used this month. There is no fee for the first 50.",safe
+"Your paper statements have been switched to online as you asked.",safe
+"Your pension transfer has completed. The funds are in your new plan.",safe
+"Your mortgage offer has been extended by 3 months at no cost.",safe
+"Your bill is higher than usual this month because of the cold snap. You can spread the cost in the app if you like.",safe
+"Your meter has been read by our engineer. Your next bill will be accurate, not estimated.",safe
+"Your energy supplier has changed names. Your tariff, price and direct debit are unchanged.",safe
+"Your water company is doing works in your street next week. You may see low pressure for a few hours.",safe
+"Your library account shows a 2019 reference volume never returned. The balance has gone to collections and will hit your credit file unless settled today.",scam
+"Your mobility scooter warranty servicing is overdue. Unserviced units are not covered if the battery fails. Book and pay the servicing fee now.",scam
+"You have an unreturned hospital loan item recorded in your name. The replacement cost is charged to your account if not settled by Friday.",scam
+"Dental plan audit: a treatment was billed in error and you owe the difference. Non-payment refers the account to collections.",scam
+"Your freezer guarantee requires a compressor check this year. Unchecked units void the food-spoilage cover. Pay the inspection fee today.",scam
+"Your broadband line test failed overnight. An engineer slot requires a reserved booking payment, refunded on your bill.",scam
+"Email archive migration: mailboxes not renewed by Thursday are purged, including everything before 2020. Renew now.",scam
+"Your charity direct debit failed. Children's meals in the programme are suspended pending reinstatement. Reinstate now.",scam
+"Your raffle book was never returned to the committee. Either return the stubs or settle the face value tonight.",scam
+"Allotment shed break-ins: the association is collecting for a shared CCTV fund. Your share is 35 by Friday. Transfer to the account below.",scam
+"Passport office: your renewal needs an expedited handling payment or the application is returned unprocessed.",scam
+"Your hospital car park appeal was rejected. The charge doubles at midnight. Pay now.",scam
+"Your council parking permit has been revoked for non-payment. Reinstate it by paying the arrears today.",scam
+"Records show your boiler has not had its annual safety certificate. Properties without one are reported to the insurer. Book and pay now.",scam
+"Your hearing test results indicate a device is required. A deposit secures the fitting. Pay today.",scam
+"Your supermarket loyalty account has been merged. Confirm your card details to keep your points.",scam
+"The crematorium has a records error on your late wife's plot. A correction fee is required before the anniversary.",scam
+"Your late husband's unused rail card refund is held. A release charge applies. Pay to receive it.",scam
+"Your optician has flagged a lens recall. Replacement is chargeable in advance.",scam
+"Your water meter was found to be under-reading. Back-billing of 640 is due in 7 days.",scam
+"Your pet's vaccination certificate is invalid. Re-issue fee of 25 is due before travel.",scam
+"The condo board has levied a special assessment. Pay 850 by Friday to avoid a lien.",scam
+"Your deceased mother's unclaimed dividend is held. A disbursement fee is due before release.",scam
+"The cemetery is relocating plots. A transfer fee is required to keep your reserved space.",scam
+"Your doctor's surgery is going private. Patients not paying the registration fee by the 30th are removed from the list.",scam
+"Your subscription to the parish magazine has been passed to a collector. Settle 48 now to avoid a court fee.",scam
+"Your gym has been taken over. Members not confirming card details by Friday lose their membership.",scam
+"Your storage heater is on a recall list. A safety inspection fee is payable in advance.",scam
+"The street lighting upgrade requires a contribution of 60 per household. Pay to the council officer below.",scam
+"Your drains were inspected from the road and show a collapse. Immediate work is required, 1,200, half today.",scam
+"Your chimney has been reported as unsafe by a neighbour. An inspection fee is required to clear the notice.",scam
+"Your electricity meter is being replaced with a prepay meter for arrears. Pay 310 today to stop the swap.",scam
+"Your bank has merged. All customers must confirm their details with our migration team by phone today.",scam
+"Your telephone line is being disconnected due to fraudulent use. Press 1 to speak to an officer.",scam
+"Your Social Security number has been linked to a crime in Texas. Call this number to avoid arrest.",scam
+"This is the Sheriff's office. You missed jury duty. Pay the fine by card to avoid a warrant.",scam
+"Your Medicare benefits are being suspended. Call to verify your Medicare number.",scam
+"Your Amazon Prime membership has been renewed for 139. If you did not authorise this, call this number.",scam
+"Your Apple ID was used to buy an iPhone. Call now to cancel.",scam
+"Netflix: we could not process your payment. Update your details here to avoid suspension.",scam
+"Spotify: your account has been hacked. Secure it at the link.",scam
+"PayPal: your account is limited. Verify your identity at the link within 24 hours.",scam
+"eBay: a buyer has paid. Release the item by confirming your bank details at the link.",scam
+"Vinted: your payment is held. Verify your card at the link.",scam
+"Facebook: your account will be deleted for a policy violation. Appeal at the link.",scam
+"WhatsApp: your account is being transferred. Enter the code you receive to stop it.",scam
+"Uber Eats: a refund of 42 is waiting. Enter your card details to receive it.",scam
+"Tesco: you have won a 500 voucher. Claim at the link.",scam
+"Boots: your prescription is held pending a 9.65 payment at the link.",scam
+"Costco: your membership is cancelled. Reactivate at the link with your card.",scam
+"Target: your order is on hold. Confirm your payment at the link.",scam
+"CVS: your prescription has an outstanding balance. Pay at the link to collect.",scam
+"Walgreens: a reward of 50 is waiting. Enter your card to claim it.",scam
+"Home Depot: your order has a delivery charge outstanding. Pay at the link.",scam
+"gov.uk: your passport application is on hold. Pay the verification fee at the link.",scam
+"NHS: you are due a free health check. Confirm your NHS number and card at the link.",scam
+"Your council has overcharged your council tax. Claim 240 by entering your bank details at the link.",scam
+"Your library card has expired. Renew for 5 at the link.",scam
+"Your dentist has a refund for you. Enter your card details at the link to receive it.",scam
+"Your account is locked. Call this number to unlock it with your card details.",scam
+"Your account will be closed in 24 hours. Confirm your details at the link.",scam
+"An unfamiliar charge of 320 is on your statement. Call this number to cancel it.",scam
+"Your cancelled order was charged. Claim your refund by entering your card at the link.",scam
+"Your overdraft fee is due. Pay at the link today.",scam
+"Your paper statements will stop unless you confirm your address and card at the link.",scam
+"Your pension transfer is on hold. Pay the 200 release fee to this account.",scam
+"Your mortgage offer has expired. Pay the 150 extension fee at the link.",scam
+"Your bill is overdue. Pay 120 at the link today or your supply is cut.",scam
+"Your meter reading was rejected. Confirm your bank details at the link to avoid an estimated bill of 900.",scam
+"Your supplier has gone bust. Transfer your account at the link with your bank details.",scam
+"Your water company detected a leak. Pay the 80 inspection fee at the link.",scam

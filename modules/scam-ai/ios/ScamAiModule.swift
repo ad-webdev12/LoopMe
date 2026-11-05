@@ -374,14 +374,23 @@ final class ScamClassifier {
   var isLoaded: Bool { model != nil }
 
   private init() {
-    if let url = Bundle.main.url(forResource: "ScamText", withExtension: "mlmodelc"),
-       let m = try? NLModel(contentsOf: url) {
+    if let url = Bundle.main.url(forResource: "ScamText", withExtension: "mlmodelc"), let m = try? NLModel(contentsOf: url) {
       model = m
-    } else if let url = Bundle.main.url(forResource: "ScamText", withExtension: "mlmodel"),
-              let compiled = try? MLModel.compileModel(at: url),
-              let m = try? NLModel(contentsOf: compiled) {
-      model = m
+      return
     }
+    // The pod copies the raw .mlmodel. Compile it once and keep the result in
+    // Caches, keyed by the file's modification date, so launches stay fast.
+    guard let raw = Bundle.main.url(forResource: "ScamText", withExtension: "mlmodel") else { return }
+    let fm = FileManager.default
+    let stamp = (try? fm.attributesOfItem(atPath: raw.path)[.modificationDate] as? Date)?.timeIntervalSince1970 ?? 0
+    let cacheDir = fm.urls(for: .cachesDirectory, in: .userDomainMask).first ?? fm.temporaryDirectory
+    let cached = cacheDir.appendingPathComponent("ScamText-\(Int(stamp)).mlmodelc")
+    if !fm.fileExists(atPath: cached.path) {
+      guard let tmp = try? MLModel.compileModel(at: raw) else { return }
+      try? fm.removeItem(at: cached)
+      guard (try? fm.moveItem(at: tmp, to: cached)) != nil else { return }
+    }
+    model = try? NLModel(contentsOf: cached)
   }
 
   func classify(_ text: String) -> String? {
@@ -389,7 +398,8 @@ final class ScamClassifier {
     guard let label = model.predictedLabel(for: text) else { return nil }
     let hypotheses = model.predictedLabelHypotheses(for: text, maximumCount: 2)
     let scamProb = hypotheses["scam"] ?? (label == "scam" ? 0.8 : 0.15)
-    let isScam = label == "scam"
+    // The JS side applies the 0.8 threshold; the label here only drives wording.
+    let isScam = scamProb >= 0.8
     let reason = isScam
       ? "The on-device model recognizes the wording and structure of a known scam."
       : "The on-device model does not match this to a known scam pattern."

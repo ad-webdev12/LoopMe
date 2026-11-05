@@ -16,14 +16,18 @@
 		20A70092BEE5A2CB175EB574 /* engine.json in Resources */ = {isa = PBXBuildFile; fileRef = 7425BA7C6F3DEEAC8357EDA8 /* engine.json */; };
 		2505D1E2294CEE7976317129 /* Links.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B562C1AAA3540A9060ACC35 /* Links.swift */; };
 		25E9D7CA906BAB17D58754F4 /* Normalize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 945077E77B5E2962B39434D8 /* Normalize.swift */; };
+		2BB01F7EF2684036CAFA3955 /* CoreModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49312EEB42FDF8F28BCEFC21 /* CoreModel.swift */; };
 		2DB0372AC0C8F8789A355254 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389B4380A6D0BE5521D3E969 /* Engine.swift */; };
 		36F5DEEC29A2F0AF7DF541CB /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F6485172735D415D209CC3 /* ExpoModulesProvider.swift */; };
 		39B363F38E5085852ACA2610 /* Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8EDDE520E38DDFCAF7795B /* Features.swift */; };
 		39E63B7C4EA07B55DFE2807F /* Redact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E5E20DE30DBF5658A97F933 /* Redact.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		4AEB60AE0802914E84CBD35B /* Redact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E5E20DE30DBF5658A97F933 /* Redact.swift */; };
+		4D116B87D01D06B207F93C9C /* CoreModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49312EEB42FDF8F28BCEFC21 /* CoreModel.swift */; };
+		4E9621969F662760A3C2C6E6 /* ScamFilter.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 2DD78DC50CE9ACB4842E9A7C /* ScamFilter.mlmodel */; };
 		52D5D4417BB83C41051B891C /* Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8EDDE520E38DDFCAF7795B /* Features.swift */; };
 		5FFE864ACB26EBC91345C2A0 /* engine.json in Resources */ = {isa = PBXBuildFile; fileRef = 7425BA7C6F3DEEAC8357EDA8 /* engine.json */; };
+		6515549980DA10932E89B689 /* CoreModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49312EEB42FDF8F28BCEFC21 /* CoreModel.swift */; };
 		68C5DC205265B688AC9F0327 /* Links.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B562C1AAA3540A9060ACC35 /* Links.swift */; };
 		6BC1FB859D2A450AD9DC73FF /* EngineTables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00E8730011997697DCFBAF71 /* EngineTables.swift */; };
 		6C228B9E6006065741A1137A /* libPods-LoopMe.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EAB95A3D3A419B7BDF41BAF /* libPods-LoopMe.a */; };
@@ -35,6 +39,7 @@
 		9C2901DEF2B1204A51E83A47 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3880F1449DE7286E50DBC971 /* Foundation.framework */; };
 		A162B6201CD5FF6DC05DB226 /* Normalize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 945077E77B5E2962B39434D8 /* Normalize.swift */; };
 		A317AEB29EE8A4299FCE612B /* CallKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D04B69602AE0096904881CE /* CallKit.framework */; };
+		A5286901C25156D4ED133459 /* ScamText.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = B76AA3FEB71AB627E6DE44E9 /* ScamText.mlmodel */; };
 		A8C82D08746870F55127BD84 /* TextFilter.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E225C34A5A7CA6D1A7AA0BC9 /* TextFilter.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B1403F4F326A4FA4ABC6703B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 644635D9F1E34418844BF8A0 /* PrivacyInfo.xcprivacy */; };
 		B9B402692B25BC52AC5AD7CD /* IdentityLookup.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F287993CA910A0BA96FC21A1 /* IdentityLookup.framework */; };
@@ -100,9 +105,11 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = LoopMe/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = LoopMe/Info.plist; sourceTree = "<group>"; };
 		25B6B2818200D3D2F554CF34 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = DEVELOPER_DIR; };
+		2DD78DC50CE9ACB4842E9A7C /* ScamFilter.mlmodel */ = {isa = PBXFileReference; includeInIndex = 1; path = ScamFilter.mlmodel; sourceTree = "<group>"; };
 		35F6485172735D415D209CC3 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-LoopMe/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		3880F1449DE7286E50DBC971 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		389B4380A6D0BE5521D3E969 /* Engine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Engine.swift; sourceTree = "<group>"; };
+		49312EEB42FDF8F28BCEFC21 /* CoreModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoreModel.swift; sourceTree = "<group>"; };
 		498CB0075CA0E9FEEAA5ED39 /* Pods-LoopMe.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LoopMe.debug.xcconfig"; path = "Target Support Files/Pods-LoopMe/Pods-LoopMe.debug.xcconfig"; sourceTree = "<group>"; };
 		4B562C1AAA3540A9060ACC35 /* Links.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Links.swift; sourceTree = "<group>"; };
 		4D04B69602AE0096904881CE /* CallKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CallKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/CallKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -117,6 +124,7 @@
 		945077E77B5E2962B39434D8 /* Normalize.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Normalize.swift; sourceTree = "<group>"; };
 		A4D265154FE44392D71A81F4 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Vision.framework; sourceTree = DEVELOPER_DIR; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = LoopMe/SplashScreen.storyboard; sourceTree = "<group>"; };
+		B76AA3FEB71AB627E6DE44E9 /* ScamText.mlmodel */ = {isa = PBXFileReference; includeInIndex = 1; path = ScamText.mlmodel; sourceTree = "<group>"; };
 		B797DD6CA6B87E34E708590B /* CallDirectoryHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CallDirectoryHandler.swift; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		BC8EDDE520E38DDFCAF7795B /* Features.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Features.swift; sourceTree = "<group>"; };
@@ -202,6 +210,15 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
+		77C4068D250B0B03037E23AE /* scam-ai */ = {
+			isa = PBXGroup;
+			children = (
+				B76AA3FEB71AB627E6DE44E9 /* ScamText.mlmodel */,
+			);
+			name = "scam-ai";
+			path = "../modules/scam-ai/ios/Resources";
+			sourceTree = "<group>";
+		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
@@ -222,6 +239,7 @@
 				A85A8DEBE9BA45B0359084E8 /* TextFilter */,
 				E1ADDBB6792EDD390FB1695D /* CallDirectory */,
 				FEC5853BEAD657DC7EBD7570 /* ShareCheck */,
+				77C4068D250B0B03037E23AE /* scam-ai */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -249,6 +267,8 @@
 				945077E77B5E2962B39434D8 /* Normalize.swift */,
 				8E5E20DE30DBF5658A97F933 /* Redact.swift */,
 				7425BA7C6F3DEEAC8357EDA8 /* engine.json */,
+				49312EEB42FDF8F28BCEFC21 /* CoreModel.swift */,
+				2DD78DC50CE9ACB4842E9A7C /* ScamFilter.mlmodel */,
 			);
 			name = Engine;
 			path = Engine;
@@ -625,6 +645,8 @@
 				A162B6201CD5FF6DC05DB226 /* Normalize.swift in Sources */,
 				C2537CAFF147A3EE134E529A /* Redact.swift in Sources */,
 				0FCD1BCEB49F519FED6A51CF /* SharedStore.swift in Sources */,
+				4D116B87D01D06B207F93C9C /* CoreModel.swift in Sources */,
+				A5286901C25156D4ED133459 /* ScamText.mlmodel in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -640,6 +662,7 @@
 				070952F80708AA30DBB168B8 /* Normalize.swift in Sources */,
 				39E63B7C4EA07B55DFE2807F /* Redact.swift in Sources */,
 				05BA01DBBE0888A3DE62E4D0 /* SharedStore.swift in Sources */,
+				6515549980DA10932E89B689 /* CoreModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -655,6 +678,8 @@
 				25E9D7CA906BAB17D58754F4 /* Normalize.swift in Sources */,
 				4AEB60AE0802914E84CBD35B /* Redact.swift in Sources */,
 				96180CD5B36FBC0D31F12A64 /* SharedStore.swift in Sources */,
+				2BB01F7EF2684036CAFA3955 /* CoreModel.swift in Sources */,
+				4E9621969F662760A3C2C6E6 /* ScamFilter.mlmodel in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

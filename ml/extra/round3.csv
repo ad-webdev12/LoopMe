@@ -1,0 +1,164 @@
+text,label
+"Hi, it's Mike from the garage. Your car is ready. 240 as quoted, pay at the counter when you pick it up. Open till 5:30.",safe
+"The tyre place here. All four fitted, 310 total. Card machine at the desk, see you when you're ready.",safe
+"Plumber here. Tap's fixed. 85 as agreed. Pay me when I see you next week, no rush.",safe
+"The electrician says the job came to 160. He'll take card at the door on Friday.",safe
+"Hairdresser: your colour is booked for Thursday at 10. Pay in the salon as usual.",safe
+"Dry cleaner: your coat is ready. 14.50 payable on collection.",safe
+"Shoe repair: your boots are done. 22 at the counter.",safe
+"The bike shop: service complete, 60. Pay when you collect, we're open till 6.",safe
+"Mobile mechanic here. Battery replaced, 110 as quoted. I'll take cash or card when I see you.",safe
+"Cobbler: your watch strap is fitted. Pop in and pay any time this week.",safe
+"The upholsterer here. Your chair is ready. 190 as we agreed, pay when you collect.",safe
+"Your prescription glasses have been adjusted. No charge for that. Collect any time.",safe
+"The chimney sweep: all done. 55, pay me at the door when I drop the certificate round.",safe
+"Carpet cleaner here. Finished the lounge. 90 as quoted. Pay by card when I return the key.",safe
+"The handyman: shelves are up. 70, I'll take it when I collect my ladder on Tuesday.",safe
+"Virgin Media: we're fixing a fault in your area. Service should be back by 4pm. No action needed.",safe
+"BT: there is a broadband outage affecting your postcode. Engineers are on site. You do not need to call.",safe
+"Sky: your box will update overnight. It may restart. Nothing to do.",safe
+"EE: planned work in your area tonight between 1am and 5am. Calls may drop briefly.",safe
+"Three: your network is back to normal after this morning's outage. Sorry for the disruption.",safe
+"Vodafone: we've credited 5 to your account for last week's outage. It will show on your next bill.",safe
+"O2: your data allowance has reset for the new month.",safe
+"Octopus Energy: your smart meter sent its readings. Your bill is accurate this month.",safe
+"British Gas: your annual service is due. Book a slot in the app, it's included in your plan.",safe
+"EDF: we've received your meter reading. Thank you.",safe
+"Thames Water: a burst main in your road is being repaired. Pressure may be low until 3pm.",safe
+"Scottish Power: your direct debit has been reviewed and stays at 92 a month.",safe
+"Comcast: your area has a service interruption. We expect to restore it by 6pm. No action needed.",safe
+"Verizon: network maintenance tonight. You may notice a brief loss of signal.",safe
+"AT&T: your bill is ready. It will be paid by AutoPay on the 18th.",safe
+"T-Mobile: your plan has been updated as requested. No change to your price.",safe
+"Spectrum: your service has been restored. Thank you for your patience.",safe
+"Telstra: we're upgrading the tower near you. Expect a short outage Thursday morning.",safe
+"Optus: your bill of 65 will be direct debited on the 22nd.",safe
+"Rogers: service in your area is back to normal.",safe
+"Bell: your internet upgrade is complete. Restart your modem if you notice slow speeds.",safe
+"Airtel: your plan renews on the 9th. Same price.",safe
+"Singtel: fibre maintenance in your block on Saturday 2am to 4am.",safe
+"Eir: there's an outage in your area. We'll text when it's fixed.",safe
+"Your Tesco Clubcard points balance is 1,840. Points are valid for two years from when you earned them.",safe
+"Boots Advantage Card: you have 620 points, worth 6.20. Spend them in store whenever you like.",safe
+"Nectar: your points balance is 3,200. Points do not expire while you use your card.",safe
+"Your pharmacy loyalty balance is 4,100 points. Points stay valid as long as your account is active.",safe
+"Costa Club: you have 4 beans. One more for a free drink.",safe
+"Your Avios balance is 12,400. Points stay active as long as you earn or spend once in 36 months.",safe
+"Marriott Bonvoy: your points balance is 20,100. Your status is unchanged.",safe
+"Starbucks: you have 45 stars. 5 more for a free drink.",safe
+"Your airline miles balance is 8,300. No expiry while the account is active.",safe
+"Woolworths Rewards: you have 1,200 points. Redeem at the checkout whenever you like.",safe
+"PC Optimum: your points balance is 42,000. No action needed.",safe
+"Your gift card balance is 32.10. The card has no expiry.",safe
+"Your store credit of 18.00 is on your account and can be used in store or online.",safe
+"Your deposit of 450 from Mike has been received and is in your account.",safe
+"A transfer of 200 from your daughter arrived today. Available now.",safe
+"Your salary has been paid in. Balance available.",safe
+"Your pension credit arrived today. Available balance 1,840.20.",safe
+"Your state pension payment has been credited as usual.",safe
+"Interac: 120 from Sarah has been deposited automatically to your savings.",safe
+"Zelle: you received 50 from your son. It's in your account.",safe
+"Venmo: your daughter paid you 30 for groceries.",safe
+"PayID: 75 from Tom has arrived in your account.",safe
+"UPI: Rs 2,000 received from Rahul. Balance updated.",safe
+"PayNow: you received 40 from Mei.",safe
+"Reminder: the school zone speed limit is 20 during term time. Please drive carefully.",safe
+"The parish council reminds residents that the recycling centre opens at 8 on Saturdays.",safe
+"Neighbourhood watch: please keep sheds locked over the holiday weekend.",safe
+"Police: a reminder to lock your car and not leave valuables on show. No incidents reported in your street.",safe
+"Fire service: free home safety visits are available. Call the station to book if you'd like one.",safe
+"The council reminds residents that garden bonfires are not permitted on Sundays.",safe
+"Road closure on Mill Lane Monday to Wednesday for resurfacing. Access for residents only.",safe
+"Your street's water will be off Thursday 9 to 12 for pipe work. Sorry for the inconvenience.",safe
+"Gritters are out tonight. Take care on the pavements in the morning.",safe
+"The library's opening hours change next month. The new times are on the door and the website.",safe
+"Your account balance is 1,204.50. Your next statement is on the 1st.",safe
+"Your savings interest rate is changing to 3.1 percent from May. No action needed.",safe
+"Your mortgage balance after this month's payment is 84,120.",safe
+"Your credit card statement balance is 230.10. Minimum payment will be taken by direct debit.",safe
+"Your overdraft limit remains 500. No changes to your account.",safe
+"Your current account has moved to the new app. Download it from the App Store when you're ready, your login is the same.",safe
+"Your card is due to expire next month. A new one will be posted automatically.",safe
+"Your PIN reminder has been posted and should arrive in 3 days.",safe
+"Your cheque book has been dispatched.",safe
+"Your standing order to the gardener was paid today as usual.",safe
+"Your subscription to the garden magazine has been renewed at the same price, 24 for the year.",safe
+"Your prescription prepayment certificate renews next month. It saves you money, keep it if you want to.",safe
+"Your Railcard is valid until next April. Renew then if you'd like to keep it.",safe
+"Your gym direct debit of 24 was taken today.",safe
+"Your bus pass is valid until 2027. No renewal is needed yet.",safe
+"Garage here. Your car needs a part we don't stock. Pay 380 by transfer tonight to this account so I can order it before the supplier closes.",scam
+"Tyre place: your card was declined at the desk. Transfer 310 to this account and we'll release the car.",scam
+"Plumber: I've had to buy a part. Send 140 to this account today or I can't finish the job tomorrow.",scam
+"Electrician: the job came to 160. I'm changing banks so send it to the new account below today.",scam
+"Hairdresser: a 20 deposit is now required for all bookings. Pay at the link before Thursday.",scam
+"Dry cleaner: your coat is ready but there's an unpaid balance. Pay at the link to collect.",scam
+"Bike shop: pay 60 at the link to release your bike.",scam
+"Mobile mechanic: battery fitted but you must pay by transfer to this account before I leave.",scam
+"Upholsterer: your chair is ready. Our bank has changed, send 190 to the new details below.",scam
+"Chimney sweep: pay 55 at this link before I attend.",scam
+"Virgin Media: we could not take your payment. Pay at the link within 24 hours to avoid disconnection.",scam
+"BT: your broadband will be disconnected tonight for an unpaid balance. Pay here.",scam
+"Sky: your account is suspended. Update your card at the link to restore service.",scam
+"EE: a bill of 212 is overdue. Pay now at the link.",scam
+"Three: unusual roaming charges of 400 have been added. Dispute them by entering your card at the link.",scam
+"Vodafone: your account has been accessed from an unknown device. Verify at the link.",scam
+"O2: your number will be deactivated unless you confirm your details at the link.",scam
+"Octopus Energy: your smart meter shows arrears of 480. Pay at the link or your supply switches to prepay.",scam
+"British Gas: your boiler cover has lapsed. Pay 120 at the link to be covered.",scam
+"EDF: your refund of 140 is waiting. Enter your bank details at the link to receive it.",scam
+"Thames Water: your bill is unpaid. Pay at the link to avoid a restriction notice.",scam
+"Comcast: your service will be interrupted for non-payment. Pay here within 2 hours.",scam
+"Verizon: your account has a suspended status. Call this number to reactivate.",scam
+"AT&T: your bill is past due. Pay at the link to avoid disconnection.",scam
+"T-Mobile: a refund of 89 is due. Enter your card at the link to claim.",scam
+"Spectrum: your payment failed. Update your card here to keep your service.",scam
+"Telstra: your account is overdue. Pay now or your services stop tonight.",scam
+"Optus: your SIM is being swapped. If this was not you, call this number now.",scam
+"Rogers: a credit of 60 is waiting. Enter your banking details at the link.",scam
+"Airtel: your KYC has expired. Update at the link in 24 hours or your SIM is blocked.",scam
+"Singtel: confirm your NRIC at the link to avoid suspension.",scam
+"Eir: your refund is ready. Enter your IBAN at the link.",scam
+"Tesco Clubcard: your 1,840 points expire tonight. Convert them at the link with your card.",scam
+"Boots: your Advantage Card points are about to be lost. Claim at the link.",scam
+"Nectar: your points have been frozen. Verify your account at the link.",scam
+"Pharmacy rewards: your 4,100 points will be deleted unless you confirm your card at the link.",scam
+"Avios: your account has been compromised. Secure it at the link.",scam
+"Marriott: your points are expiring. Redeem at the link within 24 hours.",scam
+"Airline miles: your balance will be wiped unless you log in at the link today.",scam
+"Woolworths Rewards: you have won a 500 voucher. Claim at the link.",scam
+"PC Optimum: your points were redeemed by someone else. Call this number to recover them.",scam
+"Your gift card balance has been locked. Enter the card number and PIN at the link to unlock it.",scam
+"Your deposit of 450 is pending. Confirm your account number and sort code at the link to release it.",scam
+"A transfer of 200 could not be completed. Verify your identity at the link.",scam
+"Your salary could not be paid in because your details are outdated. Update them at the link.",scam
+"Your pension credit is on hold. Confirm your bank details at the link within 24 hours.",scam
+"Interac: a deposit is waiting. Select your bank and sign in at the link to accept.",scam
+"Zelle: a payment of 950 was sent from your account. If this was not you, call this number now.",scam
+"Venmo: your account is frozen. Verify your card at the link.",scam
+"PayID: an incoming payment needs your approval. Enter your banking login at the link.",scam
+"UPI: your account is blocked. Call this number with your PIN to unblock it.",scam
+"PayNow: a transfer requires verification. Enter your bank login at the link.",scam
+"School zone camera: your vehicle was recorded. Pay the 90 fine at the link today or face a court summons.",scam
+"Parish council: a 25 levy for the village green is due from every household. Pay to the account below.",scam
+"Neighbourhood watch: register your valuables and pay the 10 membership fee at the link.",scam
+"Police: an arrest warrant has been issued in your name. Call this number immediately to resolve it.",scam
+"Fire service: your home failed a safety check. A 60 inspection fee is due at the link.",scam
+"Council: a bonfire complaint has been made against you. Pay the 80 penalty at the link to avoid court.",scam
+"Road closure permit: residents must pay 15 at the link for access during resurfacing.",scam
+"Water supply: a compensation payment is due. Enter your bank details at the link.",scam
+"Your account balance has been frozen due to suspicious activity. Call this number to release it.",scam
+"Your savings rate has dropped. Move your money to our new bond at the link today to lock in 8 percent.",scam
+"Your mortgage account has been flagged. Confirm your details at the link to avoid repossession proceedings.",scam
+"Your credit card has been cloned. Read the agent your card number so we can cancel it.",scam
+"Your overdraft has been withdrawn. Pay 500 at the link today to avoid charges.",scam
+"Your account has not been migrated to the new app. Verify your identity at the link or lose access.",scam
+"Your card expires tonight. Confirm your details at the link to receive a replacement.",scam
+"Your PIN has been compromised. Reply with your current PIN so we can issue a new one.",scam
+"Your cheque book was intercepted. Confirm your account number at the link.",scam
+"Your standing order failed. Re-enter your bank details at the link.",scam
+"Your magazine subscription has been passed to debt recovery. Pay 48 at the link.",scam
+"Your prescription prepayment certificate is invalid. Pay 9.65 at the link to avoid a penalty.",scam
+"Your Railcard has been cancelled. Pay 30 at the link to reinstate it.",scam
+"Your gym payment failed. Pay 24 at the link or a 50 fee applies.",scam
+"Your bus pass has been suspended. Verify your details at the link.",scam

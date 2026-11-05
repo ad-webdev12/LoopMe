@@ -4,12 +4,18 @@ import IdentityLookup
 // person's contacts to this extension before it reaches Messages, provided
 // the person switched Loop Me on under Settings > Messages > Unknown & Junk.
 //
-// It runs the same detector as the app (ios/Shared/Engine), fully offline:
+// It runs the same detector as the app (ios/Shared/Engine) plus a small
+// learned model, fully offline:
 // a message that comes back red goes to the Junk folder and never rings the
 // phone; anything amber is let through but written to the shared log, so the
 // app can show it and the caretaker can hear about it the next time Loop Me
 // opens. The extension has no network and never sees contacts' messages.
-final class MessageFilterExtension: ILMessageFilterExtension {}
+final class MessageFilterExtension: ILMessageFilterExtension {
+  // The small learned model, loaded once per extension process. The filter
+  // runs under a tight memory cap, so this is the bag-of-words classifier,
+  // not the BERT one the app uses. See ios/Shared/Engine/CoreModel.swift.
+  static let model = CoreModel.named("ScamFilter", threshold: 0.6)
+}
 
 extension MessageFilterExtension: ILMessageFilterQueryHandling {
   func handle(_ queryRequest: ILMessageFilterQueryRequest, context: ILMessageFilterExtensionContext,
@@ -33,7 +39,7 @@ extension MessageFilterExtension: ILMessageFilterQueryHandling {
     var opts = DetectorOptions()
     opts.allowlist = SharedStore.allowlist
     opts.sender = sender
-    let v = Engine.instant(body, opts)
+    let v = Engine.check(body, opts, model: MessageFilterExtension.model)
     SharedStore.bump("filtered")
 
     switch v.level {
