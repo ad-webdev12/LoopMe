@@ -32,7 +32,7 @@ export default function WardItemScreen({ ctx }: { ctx: Ctx }) {
   const whenLabel = (isToday ? 'Today at ' : '') + timeLabel(when);
   const notes = (rec.notes || []).slice().reverse();
   const blocked = (rec.notes || []).some(n => n.mine && n.verdict === 'block');
-  const hasNumber = !!rec.sender && /\d{7,}/.test(rec.sender);
+  const hasNumber = !!rec.sender && rec.sender.replace(/\D/g, '').length >= 7;
 
   return (
     <KFIn duration={240} style={{ flex: 1 }} playKey={rec.id}>

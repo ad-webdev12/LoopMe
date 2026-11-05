@@ -12,7 +12,7 @@ import {
 } from 'lucide-react-native';
 import { T, F } from '../theme';
 import { KFIn } from '../ui/kf';
-import { recognizeText, listenOnce, stopListening } from '../../modules/scam-ai';
+import { recognizeText, listenOnce, stopListening, callDirectoryStatus } from '../../modules/scam-ai';
 import { timeLabel } from '../lib/clock';
 import type { Ctx } from '../App';
 
@@ -80,7 +80,26 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
 
   useEffect(() => {
     Clipboard.hasStringAsync().then(setClip).catch(() => {});
+    callDirectoryStatus().then(setCalls).catch(() => {});
   }, []);
+  const [calls, setCalls] = useState<'enabled' | 'disabled' | 'unknown'>('unknown');
+
+  // What is running right now, in real state. A quiet day should read as
+  // protection, not as an empty screen.
+  const filterOn = Date.now() - (ctx.tallies.lastFilteredAt || 0) < 7 * 86400000;
+  const callsOn = calls === 'enabled';
+  const watchedBy = s.familyLinked && s.familyRole === 'owner' ? (s.watchedBy || '').split(' ')[0] : '';
+  const flaggedForMeToday = ctx.hist.filter(h => h.source !== 'family' && h.level !== 'green' && new Date(h.at).toDateString() === today).length;
+  const nowLine = !filterOn && !callsOn && !watchedBy
+    ? 'Nothing is running on its own yet. Two switches in iOS Settings change that.'
+    : flaggedForMeToday > 0
+      ? (flaggedForMeToday === 1 ? 'One text today needed a look. ' : flaggedForMeToday + ' texts today needed a look. ') + 'It is in your history.'
+      : filterOn ? 'Texts from numbers you do not know are being checked before they reach you.' : 'Nothing today needed a look.';
+  const pills: { label: string; on: boolean }[] = careMode ? [] : [
+    { label: 'Unknown texts', on: filterOn },
+    { label: 'Scam callers', on: callsOn },
+    { label: watchedBy ? 'Watched by ' + watchedBy : 'Watched by no one', on: !!watchedBy },
+  ];
 
   const RecentIcon = recent?.level === 'red' ? OctagonX : recent?.level === 'amber' ? TriangleAlert : CircleCheck;
   const recentTint = recent?.level === 'red' ? T.redTint : recent?.level === 'amber' ? T.amberTint : T.greenTint;
@@ -153,6 +172,23 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
         ))}
       </View>
 
+      {!careMode && (
+        <Pressable style={st.now} onPress={() => ctx.go('more')} accessibilityRole="button" accessibilityLabel="What is running right now">
+          <View style={st.nowTop}>
+            <View style={[st.nowDot, { backgroundColor: filterOn || callsOn || watchedBy ? T.green : T.amber }]} />
+            <Text style={st.nowLabel} allowFontScaling>Right now</Text>
+          </View>
+          <Text style={st.nowLine} allowFontScaling>{nowLine}</Text>
+          <View style={st.pillRow}>
+            {pills.map(pl => (
+              <View key={pl.label} style={[st.pill, pl.on ? st.pillOn : st.pillOff]}>
+                <Text style={[st.pillText, pl.on ? { color: T.greenInk } : { color: T.sub }]} allowFontScaling>{pl.label}{pl.on ? '' : ' · off'}</Text>
+              </View>
+            ))}
+          </View>
+        </Pressable>
+      )}
+
       {(mine.length > 0 || ctx.tallies.junk > 0) && (
         <View style={st.tallyCard}>
           <View style={st.tallyRow}>
@@ -193,6 +229,16 @@ function when(at: number): string {
 
 const st = StyleSheet.create({
   root: { flex: 1, backgroundColor: T.ground },
+  now: { marginHorizontal: 20, marginTop: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, paddingHorizontal: 16, paddingTop: 13, paddingBottom: 14, shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 } },
+  nowTop: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  nowDot: { width: 8, height: 8, borderRadius: 4 },
+  nowLabel: { fontSize: 13, fontFamily: F.semibold, color: T.sub, letterSpacing: 0.3 },
+  nowLine: { fontSize: 16.5, fontFamily: F.medium, color: T.ink, lineHeight: 23, marginTop: 6 },
+  pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 11 },
+  pill: { borderRadius: 8, paddingHorizontal: 9, height: 28, justifyContent: 'center' },
+  pillOn: { backgroundColor: T.greenTint },
+  pillOff: { backgroundColor: T.ground, borderWidth: 1, borderColor: T.hairline },
+  pillText: { fontSize: 13, fontFamily: F.semibold },
   brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, paddingHorizontal: 20, paddingBottom: 2 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   brandText: { fontSize: 13, fontFamily: F.bold, letterSpacing: 0.65, color: T.green },

@@ -130,7 +130,7 @@ export async function drainExtensions(s: Settings): Promise<CheckRecord[]> {
 /** Keep the extensions' view of settings current. Cheap; call on every settings change. */
 export function pushConfig(s: Settings, hist: CheckRecord[]) {
   const flagged = hist
-    .filter(h => h.level === 'red' && h.sender && /\d{7,}/.test(h.sender))
+    .filter(h => h.level === 'red' && h.sender && h.sender.replace(/\D/g, '').length >= 7)
     .map(h => h.sender as string);
   sharedPutConfig({ allowlist: s.allowlist, blocked: s.blocked, flagged, autoCheck: s.autoCheck });
 }
@@ -169,7 +169,7 @@ export async function sendPulse(s: Settings, hist: CheckRecord[], force = false)
 export function repeatSenders(hist: CheckRecord[]): { sender: string; count: number; last: number; blocked: boolean }[] {
   const by = new Map<string, { count: number; last: number; blocked: boolean }>();
   for (const h of hist) {
-    if (h.source !== 'family' || !h.sender || !/\d{7,}/.test(h.sender)) continue;
+    if (h.source !== 'family' || !h.sender || h.sender.replace(/\D/g, '').length < 7) continue;
     const cur = by.get(h.sender) || { count: 0, last: 0, blocked: false };
     cur.count++; cur.last = Math.max(cur.last, h.at);
     if ((h.notes || []).some(n => n.mine && n.verdict === 'block')) cur.blocked = true;

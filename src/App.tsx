@@ -201,8 +201,8 @@ export default function App() {
     const drained = await Family.drainExtensions(next);
     const { newChecks, newNotes, newBlocks } = await Family.sync();
     if (drained.length || newChecks.length || newNotes.length) refreshHist();
+    if (next.role === 'caretaker') setPulse(Family.pulse());
     if (next.familyRole === 'caretaker') {
-      setPulse(Family.pulse());
       void scheduleWeeklySummary(next);
       const unseen = (await listChecks()).find(r => r.source === 'family' && !r.seen && Date.now() - r.at < 12 * 3600 * 1000 && !(r.notes || []).some(n => n.mine));
       if (unseen) { setAlertId(unseen.id); setScreen('familyAlert'); }
