@@ -1,15 +1,14 @@
-// Reporting, in one tap each. Two real routes exist in the US and neither
-// takes a form the app could fill in for you, so the app does the next best
-// thing: hands the carrier the text itself, and hands the FTC a write-up that
-// is already on the clipboard when their page opens.
-//   7726 (SPAM): every US carrier accepts a forwarded scam text at this short
-//   code. Forwarding is how numbers get cut off at the network.
-//   ReportFraud.ftc.gov: the report goes into the database law enforcement
-//   actually uses.
+// Reporting, in one tap each. No reporting office takes a form the app could
+// fill in for you, so the app does the next best thing: hands the carrier the
+// text itself where a short code exists (7726 in the US, Canada, UK and New
+// Zealand), and hands the official office a write-up that is already on the
+// clipboard when their page opens. The office depends on the phone's country,
+// see region.ts. Where Loop Me does not know the office it says so.
 import { ActionSheetIOS, Alert, Linking, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { listChecks, updateCheck } from './history';
 import { sendSms } from './familyLink';
+import { reportRoute } from './region';
 import type { Ctx } from '../App';
 
 export function reportText(excerpt: string, sender: string | undefined, reason: string, when: number): string {
@@ -28,8 +27,9 @@ export async function reportScam(ctx: Ctx, recId: string) {
   const rec = (await listChecks()).find(r => r.id === recId);
   if (!rec) return;
   const digits = (rec.sender || '').replace(/\D/g, '');
+  const route = reportRoute();
   const forward = async () => {
-    await sendSms('7726', (rec.sender && digits.length >= 7 ? 'From ' + rec.sender + ': ' : '') + rec.excerpt);
+    await sendSms(route.smsCode || '7726', (rec.sender && digits.length >= 7 ? 'From ' + rec.sender + ': ' : '') + rec.excerpt);
     await updateCheck(recId, { reported: true });
     ctx.refreshHist();
   };
@@ -38,19 +38,31 @@ export async function reportScam(ctx: Ctx, recId: string) {
     await updateCheck(recId, { reported: true });
     ctx.refreshHist();
     ctx.flash('The details are copied. Paste them into the form.');
-    setTimeout(() => Linking.openURL('https://reportfraud.ftc.gov').catch(() => {}), 900);
+    setTimeout(() => Linking.openURL(route.site!).catch(() => {}), 900);
   };
-  const options = ['Forward it to 7726 (your carrier)', 'Report it to the FTC', 'Not now'];
+  const copyOnly = async () => {
+    await Clipboard.setStringAsync(reportText(rec.excerpt, rec.sender, rec.reason, rec.at));
+    await updateCheck(recId, { reported: true });
+    ctx.refreshHist();
+    ctx.flash('The details are copied. Paste them to your country\u2019s fraud office or your bank.');
+  };
+  const acts: { text: string; run: () => Promise<void> }[] = [];
+  if (route.smsCode) acts.push({ text: route.smsLabel!, run: forward });
+  if (route.site) acts.push({ text: route.siteLabel!, run: ftc });
+  if (!acts.length) acts.push({ text: 'Copy the details to report it', run: copyOnly });
+  const message = route.site
+    ? 'Takes a minute. It is free and nobody will blame you for anything.'
+    : 'Loop Me does not know the reporting office for your country yet. The details are copied so you can send them to your bank or the police.';
+  const options = [...acts.map(a => a.text), 'Not now'];
   if (Platform.OS === 'ios') {
     ActionSheetIOS.showActionSheetWithOptions(
-      { title: 'Report this scam', message: 'Takes a minute. Both are free and nobody will blame you for anything.', options, cancelButtonIndex: 2 },
-      (i) => { if (i === 0) void forward(); else if (i === 1) void ftc(); },
+      { title: 'Report this scam', message, options, cancelButtonIndex: options.length - 1 },
+      (i) => { const a = acts[i]; if (a) void a.run(); },
     );
   } else {
-    Alert.alert('Report this scam', undefined, [
-      { text: options[0], onPress: () => void forward() },
-      { text: options[1], onPress: () => void ftc() },
-      { text: 'Not now', style: 'cancel' },
+    Alert.alert('Report this scam', message, [
+      ...acts.map(a => ({ text: a.text, onPress: () => void a.run() })),
+      { text: 'Not now', style: 'cancel' as const },
     ]);
   }
 }

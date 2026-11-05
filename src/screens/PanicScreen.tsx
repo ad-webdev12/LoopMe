@@ -7,18 +7,23 @@ import { T, F } from '../theme';
 import { KFIn } from '../ui/kf';
 import { readAloud } from '../lib/speech';
 import { sendSms, panicText } from '../lib/familyLink';
+import { reportRoute } from '../lib/region';
 import * as Clipboard from 'expo-clipboard';
 import type { Ctx } from '../App';
 
 export default function PanicScreen({ ctx }: { ctx: Ctx }) {
   const [i, setI] = useState(0);
   const first = ctx.settings.trusted[0];
+  const route = reportRoute();
   const STEPS = [
     { t: 'First: you are okay.', b: 'This happens to millions of careful people every year. Take one slow breath. We will go one step at a time.' },
     { t: 'Stop all contact now.', b: 'Do not reply, do not answer their calls, and do not send anything more, whatever they say will happen.' },
     { t: 'Call your bank.', b: 'Use the number on the back of your card, never a number from a message. They deal with this every day.', a: 'Call the number on my card' },
     { t: 'Loop in someone you trust.', b: 'You do not have to handle this alone. One tap sends them a short note explaining what happened.', a: 'Send a note to ' + (first ? first.name.split(' ')[0] : 'someone') },
-    { t: 'Report it.', b: 'Reporting at ReportFraud.ftc.gov helps stop them doing it to someone else. The details of your last flagged message are copied for you, so you can paste them in. It takes a few minutes and no one will blame you.', a: 'Open ReportFraud.ftc.gov' },
+    { t: 'Report it.', b: route.site
+        ? 'Reporting to ' + route.siteName + ' helps stop them doing it to someone else. The details of your last flagged message are copied for you, so you can paste them in. It takes a few minutes and no one will blame you.'
+        : 'Tell your bank and the police. The details of your last flagged message are copied for you, so you can paste them in. No one will blame you.',
+      a: route.site ? route.siteLabel : 'Copy the details' },
   ];
   const step = STEPS[i];
   const doAction = async () => {
@@ -41,7 +46,8 @@ export default function PanicScreen({ ctx }: { ctx: Ctx }) {
         await Clipboard.setStringAsync('Received ' + d.toLocaleDateString() + ' from ' + (last.sender || 'an unknown number') + ': "' + last.excerpt + '" Flagged because: ' + last.reason);
         ctx.flash('The details are copied. Paste them into the form.');
       }
-      setTimeout(() => Linking.openURL('https://reportfraud.ftc.gov').catch(() => {}), last ? 900 : 0);
+      if (route.site) setTimeout(() => Linking.openURL(route.site!).catch(() => {}), last ? 900 : 0);
+      else if (!last) ctx.flash('Nothing flagged yet to copy. Tell your bank what happened in your own words.');
     }
   };
   const next = () => {
