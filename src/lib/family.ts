@@ -4,20 +4,23 @@
 // receives into its own history. The transport is CloudKit, in the family's
 // own iCloud (modules/scam-ai/ios/CloudLink.swift).
 import {
-  cloudCreateInvite, cloudLinkStatus, cloudPublishCheck, cloudSendNote, cloudSnapshot, cloudSubscribe,
-  cloudSync, cloudUnlink, addCloudListener, sharedDrainLog, sharedPutConfig,
-  CloudEvent, FamilyNote, LinkStatus, SharedCheck, FilterLogEntry,
+  cloudCreateInvite, cloudLinkStatus, cloudPublishCheck, cloudPublishPulse, cloudSendNote, cloudSnapshot, cloudSubscribe,
+  cloudSync, cloudUnlink, addCloudListener, sharedDrainLog, sharedPutConfig, sharedTallies, callDirectoryStatus,
+  CloudEvent, FamilyNote, FamilyPulse, LinkStatus, SharedCheck, FilterLogEntry,
 } from '../../modules/scam-ai';
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { CheckRecord, Note, listChecks, upsertMany, updateCheck } from './history';
 import { timeLabel } from './clock';
 import type { Settings } from './storage';
 
-export type { FamilyNote, LinkStatus, SharedCheck, CloudEvent };
+export type { FamilyNote, FamilyPulse, LinkStatus, SharedCheck, CloudEvent };
 
-const QUICK: Record<'scam' | 'safe' | 'call', string> = {
+const QUICK: Record<'scam' | 'safe' | 'call' | 'block', string> = {
   scam: 'It is fake. Please delete it and do not reply.',
   safe: 'That one is genuine, you are fine to open it.',
   call: 'Do not tap anything, I will call you now.',
+  block: 'I have blocked that number for you. It cannot ring or text you any more.',
 };
 export const QUICK_NOTES = QUICK;
 
@@ -48,7 +51,7 @@ export async function sendNote(checkId: string, text: string, verdict: FamilyNot
 }
 
 /** The three one-tap replies, with their text. */
-export function quickNote(verdict: 'scam' | 'safe' | 'call'): string { return QUICK[verdict]; }
+export function quickNote(verdict: 'scam' | 'safe' | 'call' | 'block'): string { return QUICK[verdict]; }
 
 function noteOf(n: FamilyNote): Note {
   return { text: n.text, meta: (n.mine ? 'Sent ' : (n.from || 'Family') + ', ') + timeLabel(new Date(n.at)), from: n.from, verdict: n.verdict, mine: n.mine, at: n.at };
@@ -60,7 +63,7 @@ function noteOf(n: FamilyNote): Note {
  * the notes attach to the checks they answer. Returns ids of checks that are
  * new on this phone (for the full-screen alert).
  */
-export async function fold(): Promise<{ newChecks: CheckRecord[]; newNotes: FamilyNote[] }> {
+export async function fold(): Promise<{ newChecks: CheckRecord[]; newNotes: FamilyNote[]; newBlocks: string[] }> {
   const snap = cloudSnapshot();
   const existing = await listChecks();
   const known = new Set(existing.map(r => r.id));
@@ -79,8 +82,10 @@ export async function fold(): Promise<{ newChecks: CheckRecord[]; newNotes: Fami
   await upsertMany(recs);
   const newChecks = recs.filter(r => !known.has(r.id));
 
-  // Owner side: attach the caretaker's notes to my own checks.
+  // Owner side: attach the caretaker's notes to my own checks. A 'block' note
+  // also names the sender to block; the app does that and tells the person.
   const newNotes: FamilyNote[] = [];
+  const newBlocks: string[] = [];
   for (const r of existing) {
     const theirs = (notesByCheck.get(r.id) || []).filter(n => !n.mine);
     if (!theirs.length) continue;
@@ -88,6 +93,7 @@ export async function fold(): Promise<{ newChecks: CheckRecord[]; newNotes: Fami
     const fresh = theirs.filter(n => !have.has(n.at));
     if (!fresh.length) continue;
     newNotes.push(...fresh);
+    if (r.sender && fresh.some(n => n.verdict === 'block')) newBlocks.push(r.sender);
     const merged = [...(r.notes || []), ...fresh.map(noteOf)].sort((a, b) => (a.at || 0) - (b.at || 0));
     const last = fresh[fresh.length - 1];
     await updateCheck(r.id, {
@@ -95,11 +101,11 @@ export async function fold(): Promise<{ newChecks: CheckRecord[]; newNotes: Fami
       reply: last.verdict ? { by: last.from, verdict: last.verdict, note: last.text, at: last.at } : r.reply,
     });
   }
-  return { newChecks, newNotes };
+  return { newChecks, newNotes, newBlocks };
 }
 
 /** Pull, then fold. */
-export async function sync(): Promise<{ newChecks: CheckRecord[]; newNotes: FamilyNote[] }> {
+export async function sync(): Promise<{ newChecks: CheckRecord[]; newNotes: FamilyNote[]; newBlocks: string[] }> {
   await cloudSync();
   return fold();
 }
@@ -127,4 +133,47 @@ export function pushConfig(s: Settings, hist: CheckRecord[]) {
     .filter(h => h.level === 'red' && h.sender && /\d{7,}/.test(h.sender))
     .map(h => h.sender as string);
   sharedPutConfig({ allowlist: s.allowlist, blocked: s.blocked, flagged, autoCheck: s.autoCheck });
+}
+
+/** Caretaker: the owner's latest weekly picture, or null before the first one lands. */
+export function pulse(): FamilyPulse | null {
+  return cloudSnapshot().pulse;
+}
+
+/**
+ * Owner: write the weekly picture. Counts only. Called whenever the app comes
+ * to the front, at most once an hour, and whenever a check is added.
+ */
+let lastPulseAt = 0;
+export async function sendPulse(s: Settings, hist: CheckRecord[], force = false): Promise<void> {
+  if (!s.familyLinked || s.familyRole !== 'owner') return;
+  if (!force && Date.now() - lastPulseAt < 3600 * 1000) return;
+  lastPulseAt = Date.now();
+  const day = 86400000, now = Date.now();
+  const mine = hist.filter(h => h.source !== 'family');
+  const w = mine.filter(h => now - h.at < 7 * day);
+  const m = mine.filter(h => now - h.at < 30 * day);
+  const t = sharedTallies();
+  let notifOn = false;
+  try { notifOn = (await Notifications.getPermissionsAsync()).status === 'granted'; } catch {}
+  const callsOn = (await callDirectoryStatus()) === 'enabled';
+  await cloudPublishPulse({
+    checked7: w.length, stopped7: w.filter(h => h.level === 'red').length, flagged7: w.filter(h => h.level === 'amber').length,
+    checked30: m.length, stopped30: m.filter(h => h.level === 'red').length,
+    filterOn: now - t.lastFilteredAt < 7 * day, callsOn, notifOn,
+    version: String(Constants.expoConfig?.version || ''), since: s.installedAt, lastFiltered: t.lastFilteredAt,
+  });
+}
+
+/** Repeat senders among the checks this caretaker has seen: numbers that keep trying. */
+export function repeatSenders(hist: CheckRecord[]): { sender: string; count: number; last: number; blocked: boolean }[] {
+  const by = new Map<string, { count: number; last: number; blocked: boolean }>();
+  for (const h of hist) {
+    if (h.source !== 'family' || !h.sender || !/\d{7,}/.test(h.sender)) continue;
+    const cur = by.get(h.sender) || { count: 0, last: 0, blocked: false };
+    cur.count++; cur.last = Math.max(cur.last, h.at);
+    if ((h.notes || []).some(n => n.mine && n.verdict === 'block')) cur.blocked = true;
+    by.set(h.sender, cur);
+  }
+  return [...by.entries()].filter(([, v]) => v.count >= 2).map(([sender, v]) => ({ sender, ...v })).sort((a, b) => b.count - a.count);
 }

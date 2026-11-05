@@ -25,7 +25,7 @@ export interface FamilyNote {
   id: string;
   checkId: string;
   text: string;
-  verdict: 'scam' | 'safe' | 'call' | '';
+  verdict: 'scam' | 'safe' | 'call' | 'block' | '';   // 'block': the owner's phone blocks the sender
   from: string;
   at: number;
   mine: boolean;      // written on this phone
@@ -39,12 +39,33 @@ export interface LinkStatus {
   account?: CloudAccountState;
 }
 
+/**
+ * The owner's weekly picture, one record overwritten each time. Counts only,
+ * never message text: what was checked, what was stopped, and which
+ * protections are switched on. The caretaker's screens are built from this.
+ */
+export interface FamilyPulse {
+  checked7: number;    // texts checked in the last 7 days, in the app or by the filter
+  stopped7: number;    // of those, scams (red)
+  flagged7: number;    // of those, worth a look (amber)
+  checked30: number;
+  stopped30: number;
+  filterOn: boolean;   // the text filter has run at least once in the last 7 days
+  callsOn: boolean;    // the call directory is enabled in iOS Settings
+  notifOn: boolean;    // Loop Me may notify on that phone
+  version: string;
+  since: number;       // installedAt
+  lastFiltered: number;
+  at: number;          // when this was written
+}
+
 export interface FamilySnapshot {
   checks: SharedCheck[];
   notes: FamilyNote[];
   ownerName: string | null;
   caretakerName: string | null;
   joinedOwnerName: string | null;
+  pulse: FamilyPulse | null;
 }
 
 export type CloudEvent =
@@ -52,6 +73,7 @@ export type CloudEvent =
   | { kind: 'joinFailed'; message: string }
   | { kind: 'check'; check: SharedCheck }
   | { kind: 'note'; note: FamilyNote }
+  | { kind: 'pulse'; pulse: FamilyPulse }
   | { kind: 'synced' };
 
 /** A verdict the text filter or the share sheet produced while the app was closed. */
@@ -90,6 +112,7 @@ const native = requireOptionalNativeModule<{
   cloudCreateInvite(myName: string): Promise<string>;
   cloudLinkStatus(): Promise<LinkStatus>;
   cloudPublishCheck(check: Record<string, unknown>): Promise<boolean>;
+  cloudPublishPulse(pulse: Omit<FamilyPulse, 'at'>): Promise<boolean>;
   cloudSendNote(checkId: string, text: string, verdict: string, from: string): Promise<boolean>;
   cloudSync(): Promise<number>;
   cloudSnapshot(): FamilySnapshot;
@@ -173,6 +196,12 @@ export async function cloudPublishCheck(c: Omit<SharedCheck, 'at'> & { at?: numb
   try { return await native.cloudPublishCheck({ ...c, at: c.at ?? Date.now() }); } catch { return false; }
 }
 
+/** Owner: the weekly picture, overwritten each time. */
+export async function cloudPublishPulse(p: Omit<FamilyPulse, 'at'>): Promise<boolean> {
+  if (!native) return false;
+  try { return await native.cloudPublishPulse(p); } catch { return false; }
+}
+
 /** Caretaker: a note back under one check. */
 export async function cloudSendNote(checkId: string, text: string, verdict: FamilyNote['verdict'], from: string): Promise<boolean> {
   if (!native) return false;
@@ -186,7 +215,7 @@ export async function cloudSync(): Promise<number> {
 }
 
 export function cloudSnapshot(): FamilySnapshot {
-  const empty: FamilySnapshot = { checks: [], notes: [], ownerName: null, caretakerName: null, joinedOwnerName: null };
+  const empty: FamilySnapshot = { checks: [], notes: [], ownerName: null, caretakerName: null, joinedOwnerName: null, pulse: null };
   if (!native) return empty;
   try { return { ...empty, ...native.cloudSnapshot() }; } catch { return empty; }
 }
@@ -220,9 +249,10 @@ export function sharedDrainLog(): FilterLogEntry[] {
   try { return native.sharedDrainLog() || []; } catch { return []; }
 }
 
-export function sharedTallies(): { filtered: number; junk: number; shared: number } {
-  if (!native) return { filtered: 0, junk: 0, shared: 0 };
-  try { return native.sharedTallies(); } catch { return { filtered: 0, junk: 0, shared: 0 }; }
+export function sharedTallies(): { filtered: number; junk: number; shared: number; lastFilteredAt: number } {
+  const none = { filtered: 0, junk: 0, shared: 0, lastFilteredAt: 0 };
+  if (!native) return none;
+  try { return { ...none, ...native.sharedTallies() }; } catch { return none; }
 }
 
 export async function callDirectoryReload(): Promise<boolean> {

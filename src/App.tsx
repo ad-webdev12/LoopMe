@@ -21,7 +21,7 @@ import { loadSettings, saveSettings, isPostPanic, Settings } from './lib/storage
 import { addCheck, listChecks, newRecord, updateCheck, CheckRecord } from './lib/history';
 import { sendSms, loopInText } from './lib/familyLink';
 import * as Family from './lib/family';
-import { registerFamilyCategories, ensureNotificationPermission, cancelReminders } from './lib/notify';
+import { registerFamilyCategories, ensureNotificationPermission, cancelReminders, scheduleWeekly } from './lib/notify';
 import { callDirectoryReload, sharedTallies } from '../modules/scam-ai';
 import TabBar, { TabId } from './ui/TabBar';
 import Toast from './ui/Toast';
@@ -76,11 +76,13 @@ export interface Ctx {
   /** Elder: tell the caretaker (family link) or a trusted contact (plain text). */
   loopIn: (recId: string) => Promise<void>;
   /** Caretaker: a note to the other phone. Lands as a full-screen note there. */
-  sendNoteTo: (recId: string, text: string, verdict?: 'scam' | 'safe' | 'call' | '') => Promise<void>;
+  sendNoteTo: (recId: string, text: string, verdict?: 'scam' | 'safe' | 'call' | 'block' | '') => Promise<void>;
+  /** Caretaker: the other phone's weekly picture, counts only. Null until the first one lands. */
+  pulse: Family.FamilyPulse | null;
   refreshFamily: () => Promise<void>;
   unlinkFamily: () => void;
   blockNumber: (phone: string) => Promise<void>;
-  tallies: { filtered: number; junk: number; shared: number };
+  tallies: { filtered: number; junk: number; shared: number; lastFilteredAt: number };
 }
 
 const TAB_SCREENS: ScreenId[] = ['home', 'history', 'people', 'more', 'learn', 'settings', 'care', 'ward'];
@@ -119,7 +121,8 @@ export default function App() {
   const [wardOpen, setWardOpen] = useState<string | null>(null);
   const [alertId, setAlertId] = useState<string | null>(null);
   const [noteOpen, setNoteOpen] = useState<Ctx['noteOpen']>(null);
-  const [tallies, setTallies] = useState({ filtered: 0, junk: 0, shared: 0 });
+  const [tallies, setTallies] = useState({ filtered: 0, junk: 0, shared: 0, lastFilteredAt: 0 });
+  const [pulse, setPulse] = useState<Family.FamilyPulse | null>(null);
   const recentTags = useRef<string[]>([]);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -151,6 +154,30 @@ export default function App() {
     setScreen(s);
   }, []);
 
+  // Owner side, on the caretaker's say-so: block without a toast, the
+  // full-screen note tells the person in the caretaker's own words.
+  const blockQuietly = useCallback(async (phone: string) => {
+    const s = settingsRef.current;
+    if (!s) return;
+    const digits = phone.replace(/\D/g, '');
+    if (digits.length < 7 || s.blocked.includes(digits)) return;
+    update({ ...s, blocked: [...s.blocked, digits] });
+    await callDirectoryReload();
+  }, [update]);
+
+  // Caretaker side: one Sunday-evening line, built from real counts.
+  const scheduleWeeklySummary = useCallback(async (s: Settings) => {
+    const p = Family.pulse();
+    const who = s.watching?.name?.split(' ')[0] || 'them';
+    if (!p) return;
+    const body = p.checked7 === 0
+      ? 'No unknown texts reached ' + who + ' this week. Loop Me is still running on their phone.'
+      : p.checked7 + (p.checked7 === 1 ? ' text was' : ' texts were') + ' checked on ' + who + '’s phone this week'
+        + (p.stopped7 ? ', ' + p.stopped7 + (p.stopped7 === 1 ? ' scam stopped' : ' scams stopped') : '')
+        + (p.flagged7 ? ', ' + p.flagged7 + ' worth a look' : '') + '.';
+    await scheduleWeekly('This week on ' + who + '’s phone', body);
+  }, []);
+
   // ---- The family link -------------------------------------------------
   // Ask the native side where we stand, fold anything new into history, and
   // raise the full-screen alert or note if something is waiting.
@@ -172,17 +199,24 @@ export default function App() {
     };
     if (JSON.stringify(next) !== JSON.stringify(s)) update(next);
     const drained = await Family.drainExtensions(next);
-    const { newChecks, newNotes } = await Family.sync();
+    const { newChecks, newNotes, newBlocks } = await Family.sync();
     if (drained.length || newChecks.length || newNotes.length) refreshHist();
     if (next.familyRole === 'caretaker') {
+      setPulse(Family.pulse());
+      void scheduleWeeklySummary(next);
       const unseen = (await listChecks()).find(r => r.source === 'family' && !r.seen && Date.now() - r.at < 12 * 3600 * 1000 && !(r.notes || []).some(n => n.mine));
       if (unseen) { setAlertId(unseen.id); setScreen('familyAlert'); }
-    } else if (newNotes.length) {
+      return;
+    }
+    // Owner: the caretaker may have blocked a sender from their phone.
+    for (const sender of newBlocks) await blockQuietly(sender);
+    void Family.sendPulse(next, await listChecks());
+    if (newNotes.length) {
       const n = newNotes[newNotes.length - 1];
       setNoteOpen({ from: n.from, text: n.text, checkId: n.checkId, verdict: n.verdict });
       setScreen('note');
     }
-  }, [update, refreshHist]);
+  }, [update, refreshHist, blockQuietly, scheduleWeeklySummary]);
 
   useEffect(() => {
     loadSettings().then(async (s) => {
@@ -223,19 +257,22 @@ export default function App() {
           setScreen('familyAlert');
         });
       } else if (e.kind === 'note') {
-        Family.fold().then(() => {
+        Family.fold().then(({ newBlocks }) => {
+          for (const b of newBlocks) void blockQuietly(b);
           refreshHist();
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
           setNoteOpen({ from: e.note.from, text: e.note.text, checkId: e.note.checkId, verdict: e.note.verdict });
           setNote({ from: e.note.from, text: e.note.text });
           setScreen('note');
         });
+      } else if (e.kind === 'pulse') {
+        setPulse(e.pulse);
       } else if (e.kind === 'synced') {
         Family.fold().then(refreshHist);
       }
     });
     return off;
-  }, [settings != null, update, flash, refreshHist]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [settings != null, update, flash, refreshHist, blockQuietly]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Coming back to the foreground: pull what arrived while we were away.
   useEffect(() => {
@@ -298,7 +335,7 @@ export default function App() {
     recentTags.current = v.tags;
     const rec = newRecord({ message: raw, level: v.level, score: v.score, tags: v.tags, reason: v.reason, source: sender ? 'link' : 'typed' });
     if (sender) rec.sender = sender;
-    addCheck(rec).then(refreshHist);
+    addCheck(rec).then(() => { refreshHist(); if (s) listChecks().then(h => Family.sendPulse(s, h)); });
     activeCheck.current = rec.id;
     setMsg(raw); setVerdict(v); setRecordId(rec.id); setNote(null);
     // 'Warn me straight away' (Settings) chooses the full-screen red alert;
@@ -343,7 +380,7 @@ export default function App() {
 
   // Caretaker side. A note always travels over the family link; there is no
   // text-message version of it any more.
-  const sendNoteTo = useCallback(async (recId: string, text: string, verdict: 'scam' | 'safe' | 'call' | '' = '') => {
+  const sendNoteTo = useCallback(async (recId: string, text: string, verdict: 'scam' | 'safe' | 'call' | 'block' | '' = '') => {
     const s = settingsRef.current;
     if (!s) return;
     const t = text.trim();
@@ -434,7 +471,7 @@ export default function App() {
     closeFamilyAlert: () => { if (alertId) updateCheck(alertId, { seen: true }).then(refreshHist); setAlertId(null); setScreen('ward'); },
     noteOpen,
     closeNote: () => { setNoteOpen(null); setScreen(verdict ? 'verdict' : 'home'); },
-    loopIn, sendNoteTo, refreshFamily, unlinkFamily, blockNumber, tallies,
+    loopIn, sendNoteTo, refreshFamily, unlinkFamily, blockNumber, tallies, pulse,
   };
 
   const goTab = (t: TabId) => go(t as ScreenId);

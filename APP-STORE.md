@@ -151,7 +151,9 @@ signing adds them when you archive, but check the developer portal if signing co
 on its own, but App Store builds use the Production environment, which starts empty:
 
 1. Run the app from Xcode on a real phone signed in to iCloud, open More › Watched over by,
-   and send one invite. That creates the `Check` and `Note` record types in Development.
+   and send one invite, then paste any text and tap Check. That creates the `Check`, `Note`
+   and `Pulse` record types in Development. All three must show under Record Types before
+   you deploy; a missing `Pulse` means the caretaker's weekly picture never arrives.
 2. Open https://icloud.developer.apple.com, pick the container, Schema, then
    **Deploy Schema Changes to Production**. Confirm.
 

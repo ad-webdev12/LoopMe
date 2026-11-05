@@ -58,8 +58,10 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
   const watchName = s.watching?.name?.split(' ')[0] || 'them';
   const today = new Date().toDateString();
   const flaggedToday = ctx.hist.filter(h => h.source === 'family' && h.level !== 'green' && new Date(h.at).toDateString() === today).length;
+  const p = ctx.pulse;
+  const seenLabel = p ? (new Date(p.at).toDateString() === today ? 'seen today' : 'last seen ' + new Date(p.at).toLocaleDateString(undefined, { weekday: 'long' })) : '';
   const careSub = !s.familyLinked ? 'Not linked yet. Tap to see how.'
-    : flaggedToday === 0 ? 'Nothing flagged on their phone today'
+    : flaggedToday === 0 ? (p && p.checked7 === 0 ? 'A quiet week so far' : 'Nothing flagged on their phone today') + (seenLabel ? ', ' + seenLabel : '')
     : flaggedToday === 1 ? '1 text flagged on their phone today'
     : flaggedToday + ' texts flagged on their phone today';
   const recent = ctx.hist.find(h => h.source !== 'family');

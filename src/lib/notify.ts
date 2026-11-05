@@ -62,3 +62,20 @@ export async function notifyNow(title: string, body: string, data?: Record<strin
     await Notifications.scheduleNotificationAsync({ content: { title, body, data, interruptionLevel: 'timeSensitive' }, trigger: null });
   } catch {}
 }
+
+/**
+ * The caretaker's Sunday evening summary. One scheduled notification, replaced
+ * each time the numbers change, so there is never more than one waiting.
+ */
+let weeklyId: string | null = null;
+export async function scheduleWeekly(title: string, body: string): Promise<void> {
+  try {
+    const { status } = await Notifications.getPermissionsAsync();
+    if (status !== 'granted') return;
+    if (weeklyId) { try { await Notifications.cancelScheduledNotificationAsync(weeklyId); } catch {} }
+    weeklyId = await Notifications.scheduleNotificationAsync({
+      content: { title, body, data: { kind: 'weekly' } },
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.WEEKLY, weekday: 1, hour: 18, minute: 0 },
+    });
+  } catch {}
+}

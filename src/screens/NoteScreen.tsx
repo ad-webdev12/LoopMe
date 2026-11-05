@@ -3,7 +3,7 @@
 // on its own when the push lands, and again when the notification is tapped.
 import React, { useEffect } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Phone, Check, X, MessageCircle } from 'lucide-react-native';
+import { Phone, Check, X, MessageCircle, Ban } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { T, F } from '../theme';
 import { KFFade, KFRise } from '../ui/kf';
@@ -21,11 +21,12 @@ export default function NoteScreen({ ctx }: { ctx: Ctx }) {
 
   const first = n.from.split(' ')[0] || 'Family';
   const rec = ctx.hist.find(h => h.id === n.checkId);
-  const Icon = n.verdict === 'scam' ? X : n.verdict === 'safe' ? Check : n.verdict === 'call' ? Phone : MessageCircle;
+  const Icon = n.verdict === 'scam' ? X : n.verdict === 'safe' ? Check : n.verdict === 'call' ? Phone : n.verdict === 'block' ? Ban : MessageCircle;
   const trusted = ctx.settings.trusted.find(t => t.name.split(' ')[0].toLowerCase() === first.toLowerCase()) || ctx.settings.trusted[0];
   const headline = n.verdict === 'scam' ? first + ' says: it is a scam.'
     : n.verdict === 'safe' ? first + ' says: that one is fine.'
     : n.verdict === 'call' ? first + ' is going to call you.'
+    : n.verdict === 'block' ? first + ' blocked that number for you.'
     : first + ' sent you a note.';
 
   return (

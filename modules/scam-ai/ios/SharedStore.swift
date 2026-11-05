@@ -53,6 +53,7 @@ enum SharedStore {
   /// the filter caught while the app was closed.
   static func bump(_ key: String) {
     defaults.set(defaults.integer(forKey: "tally." + key) + 1, forKey: "tally." + key)
+    defaults.set(Date().timeIntervalSince1970, forKey: "tally.last." + key)
   }
 
   /// Digits only, so "+1 (415) 555-0100" and "14155550100" compare equal.

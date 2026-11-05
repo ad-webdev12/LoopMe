@@ -24,6 +24,7 @@ let LM_CONTAINER = "iCloud.com.loopmescamsafety.app"
 let LM_ZONE = "LoopMeFamily"
 let LM_CHECK = "Check"
 let LM_NOTE = "Note"
+let LM_PULSE = "Pulse"   // one record per owner, overwritten: counts, last seen, what is switched on
 let LM_SUB_SHARED = "loopme-shared-db"
 let LM_SUB_PRIVATE = "loopme-private-db"
 
@@ -177,6 +178,33 @@ final class CloudLink: @unchecked Sendable {
     _ = try await container.privateCloudDatabase.modifyRecords(saving: [rec], deleting: [])
   }
 
+  /// Owner side: the weekly picture for the caretaker. One record, always
+  /// overwritten, so the caretaker's phone can say "quiet week" with numbers
+  /// and show what is switched on. No message content travels in it.
+  func publishPulse(_ p: [String: Any]) async throws {
+    guard await accountState() == "available" else { throw CloudLinkError.noAccount }
+    let rec = CKRecord(recordType: LM_PULSE, recordID: CKRecord.ID(recordName: "pulse", zoneID: ownZoneID))
+    for key in ["checked7", "stopped7", "flagged7", "checked30", "stopped30"] {
+      rec[key] = (p[key] as? Int ?? 0) as CKRecordValue
+    }
+    for key in ["filterOn", "callsOn", "notifOn"] {
+      rec[key] = ((p[key] as? Bool ?? false) ? 1 : 0) as CKRecordValue
+    }
+    rec["version"] = (p["version"] as? String ?? "") as CKRecordValue
+    rec["since"] = Date(timeIntervalSince1970: (p["since"] as? Double ?? 0) / 1000) as CKRecordValue
+    rec["lastFiltered"] = Date(timeIntervalSince1970: (p["lastFiltered"] as? Double ?? 0) / 1000) as CKRecordValue
+    rec["at"] = Date() as CKRecordValue
+    let op = CKModifyRecordsOperation(recordsToSave: [rec], recordIDsToDelete: [])
+    op.savePolicy = .allKeys
+    let db = try container.privateCloudDatabase
+    try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
+      op.modifyRecordsResultBlock = { r in
+        switch r { case .success: cont.resume(); case .failure(let e): cont.resume(throwing: e) }
+      }
+      db.add(op)
+    }
+  }
+
   /// Owner side: tear the share down. The caretaker's phone loses access at once.
   func revoke() async throws {
     let db = try container.privateCloudDatabase
@@ -280,6 +308,11 @@ final class CloudLink: @unchecked Sendable {
       for r in changed where r.recordType == LM_NOTE {
         _ = store.appendNote(CloudLink.noteDict(r))
       }
+      for r in changed where r.recordType == LM_PULSE {
+        let dict = CloudLink.pulseDict(r)
+        store.pulse = dict
+        CloudBus.shared.emit(["kind": "pulse", "pulse": dict])
+      }
     }
 
     // Owner: my own zone, for notes the caretaker wrote.
@@ -369,6 +402,23 @@ final class CloudLink: @unchecked Sendable {
       "sender": (r["sender"] as? String) ?? "",
       "asked": ((r["asked"] as? Int) ?? 0) == 1,
       "from": (r["from"] as? String) ?? "",
+      "at": ((r["at"] as? Date)?.timeIntervalSince1970 ?? Date().timeIntervalSince1970) * 1000,
+    ]
+  }
+
+  static func pulseDict(_ r: CKRecord) -> [String: Any] {
+    [
+      "checked7": (r["checked7"] as? Int) ?? 0,
+      "stopped7": (r["stopped7"] as? Int) ?? 0,
+      "flagged7": (r["flagged7"] as? Int) ?? 0,
+      "checked30": (r["checked30"] as? Int) ?? 0,
+      "stopped30": (r["stopped30"] as? Int) ?? 0,
+      "filterOn": ((r["filterOn"] as? Int) ?? 0) == 1,
+      "callsOn": ((r["callsOn"] as? Int) ?? 0) == 1,
+      "notifOn": ((r["notifOn"] as? Int) ?? 0) == 1,
+      "version": (r["version"] as? String) ?? "",
+      "since": ((r["since"] as? Date)?.timeIntervalSince1970 ?? 0) * 1000,
+      "lastFiltered": ((r["lastFiltered"] as? Date)?.timeIntervalSince1970 ?? 0) * 1000,
       "at": ((r["at"] as? Date)?.timeIntervalSince1970 ?? Date().timeIntervalSince1970) * 1000,
     ]
   }
@@ -464,9 +514,13 @@ final class FamilyStore: @unchecked Sendable {
   }
   func resetTokens() {
     setToken("shared", nil); setToken("private", nil)
-    d.removeObject(forKey: "family.checks"); d.removeObject(forKey: "family.notes")
+    d.removeObject(forKey: "family.checks"); d.removeObject(forKey: "family.notes"); d.removeObject(forKey: "family.pulse")
   }
 
+  var pulse: [String: Any]? {
+    get { d.dictionary(forKey: "family.pulse") }
+    set { d.set(newValue, forKey: "family.pulse") }
+  }
   var checks: [[String: Any]] { d.array(forKey: "family.checks") as? [[String: Any]] ?? [] }
   var notes: [[String: Any]] { d.array(forKey: "family.notes") as? [[String: Any]] ?? [] }
 
@@ -497,6 +551,7 @@ final class FamilyStore: @unchecked Sendable {
       "ownerName": ownerName ?? NSNull(),
       "caretakerName": caretakerName ?? NSNull(),
       "joinedOwnerName": joinedOwnerName ?? NSNull(),
+      "pulse": pulse ?? NSNull(),
     ]
   }
 }

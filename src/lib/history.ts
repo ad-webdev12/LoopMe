@@ -9,7 +9,7 @@ import type { Level } from '../engine/ScamDetector';
 
 export interface FamilyReply {
   by: string;                    // responder's name
-  verdict: 'scam' | 'safe' | 'call';
+  verdict: 'scam' | 'safe' | 'call' | 'block';
   note?: string;
   at: number;
 }
@@ -18,7 +18,7 @@ export interface Note {
   text: string;
   meta: string;
   from?: string;
-  verdict?: 'scam' | 'safe' | 'call' | '';
+  verdict?: 'scam' | 'safe' | 'call' | 'block' | '';
   mine?: boolean;                // written on this phone
   at?: number;
 }

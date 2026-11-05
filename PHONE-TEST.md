@@ -107,7 +107,17 @@ Apple ID on a spare phone).
    scam."
 8. Phone B: open Loop Me. The same check is waiting full screen with the
    reply buttons. Tap "Write your own note", send one. Phone A gets it.
-9. Either phone: Stop looking after / Stop ... hearing from this phone. The
+9. Phone B: the top card says "This week on ...'s phone" with real counts and
+   "Last seen on Loop Me". Under "Switched on over there", Text filter shows
+   amber until phone A's filter has checked a text; tap it and read the steps.
+10. Phone A: paste two more scam texts from the same number (any text, same
+    sender in the Check sheet is not possible, so use the share sheet from
+    Messages twice). Phone B: "Numbers that keep trying" lists it. Tap "Block
+    on ...'s phone". Phone A: a green full-screen note "... blocked that number
+    for you", and the number appears under Settings, Blocked numbers.
+11. Phone B: wait until Sunday 6pm, or change the phone's clock, for the
+    weekly summary notification "This week on ...'s phone".
+12. Either phone: Stop looking after / Stop ... hearing from this phone. The
    other phone's next check does not travel.
 
 **Text filter (2 minutes)**

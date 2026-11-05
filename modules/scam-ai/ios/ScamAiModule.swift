@@ -87,6 +87,11 @@ public class ScamAiModule: Module {
     }
 
     // Caretaker: write a note back under a check.
+    AsyncFunction("cloudPublishPulse") { (pulse: [String: Any]) -> Bool in
+      try await CloudLink.shared.publishPulse(pulse)
+      return true
+    }
+
     AsyncFunction("cloudSendNote") { (checkId: String, text: String, verdict: String, from: String) -> Bool in
       try await CloudLink.shared.sendNote(checkId: checkId, text: text, verdict: verdict, from: from)
       return true
@@ -128,9 +133,14 @@ public class ScamAiModule: Module {
       return SharedStore.drainLog()
     }
 
-    Function("sharedTallies") { () -> [String: Int] in
+    Function("sharedTallies") { () -> [String: Double] in
       let d = SharedStore.defaults
-      return ["filtered": d.integer(forKey: "tally.filtered"), "junk": d.integer(forKey: "tally.junk"), "shared": d.integer(forKey: "tally.shared")]
+      return [
+        "filtered": Double(d.integer(forKey: "tally.filtered")),
+        "junk": Double(d.integer(forKey: "tally.junk")),
+        "shared": Double(d.integer(forKey: "tally.shared")),
+        "lastFilteredAt": d.double(forKey: "tally.last.filtered") * 1000,
+      ]
     }
 
     AsyncFunction("callDirectoryReload") { () -> String in

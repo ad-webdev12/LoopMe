@@ -3,7 +3,8 @@
 // the other phone), call instead, and the thread of notes both ways.
 import React, { useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { ChevronLeft, ArrowRight, OctagonX, Info } from 'lucide-react-native';
+import { ChevronLeft, ArrowRight, OctagonX, Info, Volume2, Ban, Check } from 'lucide-react-native';
+import { readAloud, stopReading } from '../lib/speech';
 import { T, F } from '../theme';
 import { KFIn } from '../ui/kf';
 import { timeLabel } from '../lib/clock';
@@ -30,6 +31,8 @@ export default function WardItemScreen({ ctx }: { ctx: Ctx }) {
   const isToday = when.toDateString() === new Date().toDateString();
   const whenLabel = (isToday ? 'Today at ' : '') + timeLabel(when);
   const notes = (rec.notes || []).slice().reverse();
+  const blocked = (rec.notes || []).some(n => n.mine && n.verdict === 'block');
+  const hasNumber = !!rec.sender && /\d{7,}/.test(rec.sender);
 
   return (
     <KFIn duration={240} style={{ flex: 1 }} playKey={rec.id}>
@@ -56,6 +59,10 @@ export default function WardItemScreen({ ctx }: { ctx: Ctx }) {
           <View style={st.msgRule} />
           <Text style={st.msgText} allowFontScaling>{rec.excerpt}</Text>
         </View>
+        <Pressable style={st.readBtn} onPress={() => { stopReading(); readAloud('From ' + (rec.sender || 'an unknown number') + '. ' + rec.excerpt + '. ' + watchName + ' was told: ' + rec.reason); }} accessibilityRole="button">
+          <Volume2 size={16} color={T.green} strokeWidth={2.2} />
+          <Text style={st.readText} allowFontScaling>Read it aloud, for when you ring {watchName}</Text>
+        </Pressable>
       </View>
 
       <View style={st.section}>
@@ -85,6 +92,17 @@ export default function WardItemScreen({ ctx }: { ctx: Ctx }) {
         }} accessibilityRole="button">
           <Text style={st.callText} allowFontScaling>Call {watchName} instead</Text>
         </Pressable>
+        {hasNumber && (blocked ? (
+          <View style={st.blockedRow}>
+            <Check size={16} color={T.green} strokeWidth={2.6} />
+            <Text style={st.blockedText} allowFontScaling>This number is blocked on {watchName}’s phone</Text>
+          </View>
+        ) : (
+          <Pressable style={st.block} onPress={() => ctx.sendNoteTo(rec.id, QUICK_NOTES.block, 'block')} accessibilityRole="button">
+            <Ban size={16} color="#fff" strokeWidth={2.4} />
+            <Text style={st.blockText} allowFontScaling>Block this number on {watchName}’s phone</Text>
+          </Pressable>
+        ))}
       </View>
 
       {notes.length > 0 && (
@@ -136,6 +154,12 @@ const st = StyleSheet.create({
   sendText: { fontSize: 17, fontFamily: F.bold, color: '#fff' },
   call: { height: 52, borderRadius: 12, borderWidth: 1, borderColor: T.hairline, backgroundColor: T.surface, alignItems: 'center', justifyContent: 'center' },
   callText: { fontSize: 16, fontFamily: F.semibold, color: T.ink },
+  readBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12, alignSelf: 'flex-start' },
+  readText: { fontSize: 15, fontFamily: F.semibold, color: T.green },
+  block: { height: 52, borderRadius: 12, backgroundColor: T.ink, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  blockText: { fontSize: 16, fontFamily: F.bold, color: '#fff' },
+  blockedRow: { height: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  blockedText: { fontSize: 15, fontFamily: F.semibold, color: T.green },
   note: { backgroundColor: T.greenTint, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 7 },
   noteText: { fontSize: 16, fontFamily: F.body, color: T.greenInk2, lineHeight: 23 },
   noteMeta: { fontSize: 13, fontFamily: F.body, color: T.green, marginTop: 5 },
