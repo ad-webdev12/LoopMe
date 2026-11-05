@@ -123,8 +123,9 @@ or to any other company for analysis.
 ## Reporting a scam
 
 If you choose to report a message, Loop Me either hands a text to the Messages
-app addressed to your carrier's spam number (7726), or copies a short write-up
-to your clipboard and opens the FTC's reporting page in your browser. You decide
+app addressed to your carrier's spam number (7726) where your country has one, or
+copies a short write-up to your clipboard and opens your country's official
+fraud reporting page in your browser. You decide
 whether to send either one. Loop Me does not report anything on its own.
 
 ## Children

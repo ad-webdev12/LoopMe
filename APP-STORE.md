@@ -49,7 +49,7 @@ Turn on the text filter and texts from numbers you do not know are checked befor
 **Built for the moment it matters.**
 - A plain verdict with the one safe step to take
 - A full-screen warning the moment a text looks like a scam
-- Report it in one tap: forward to 7726, or to the FTC with the details already copied
+- Report it in one tap: forward to 7726 where your country has it, or to your country's fraud office with the details already copied
 - A family code word, the strongest defense against voice cloning
 - A practice scam call, so the real one sounds familiar
 - If the worst happens, a calm step-by-step recovery guide
@@ -74,7 +74,7 @@ The family link is new. Link one person you trust and a scam text on your phone 
 
 Loop Me now works while it is closed: a text filter for numbers you do not know (Settings › Messages › Unknown & Junk), a call directory that labels scam callers (Settings › Phone › Call Blocking), and a share sheet that checks anything from any app.
 
-Also: one-tap reporting to 7726 and the FTC, a real PDF export for your bank, larger type throughout, honest wording on a clear result, and a detector that catches more of the long-tail cons.
+Also: one-tap reporting to 7726 and your country's fraud office, a real PDF export for your bank, larger type throughout, honest wording on a clear result, and a detector that catches more of the long-tail cons.
 
 ---
 
