@@ -118,8 +118,8 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
           <View style={st.listCard}>
             {repeats.slice(0, 3).map((r, i) => (
               <View key={r.sender} style={[st.repeatRow, i === Math.min(repeats.length, 3) - 1 && { borderBottomWidth: 0 }]}>
-                <View style={{ flex: 1 }}>
-                  <Text style={st.repeatNum} allowFontScaling>{r.sender}</Text>
+                <View style={st.repeatTop}>
+                  <Text style={st.repeatNum} allowFontScaling numberOfLines={1}>{r.sender}</Text>
                   <Text style={st.repeatMeta} allowFontScaling>{r.count} flagged texts, last {ago(r.last).toLowerCase()}</Text>
                 </View>
                 {r.blocked ? (
@@ -255,12 +255,13 @@ const st = StyleSheet.create({
   needLinkText: { fontSize: 15, fontFamily: F.semibold, color: T.redInk },
 
   listCard: { ...card, overflow: 'hidden' },
-  repeatRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 15, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: T.divider },
+  repeatRow: { paddingHorizontal: 15, paddingVertical: 13, gap: 10, borderBottomWidth: 1, borderBottomColor: T.divider },
+  repeatTop: { },
   repeatNum: { fontSize: 16, fontFamily: F.semibold, color: T.ink },
   repeatMeta: { fontSize: 14, fontFamily: F.body, color: T.sub, marginTop: 2 },
-  blockBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: T.ink, borderRadius: 10, paddingHorizontal: 11, height: 38 },
-  blockBtnText: { fontSize: 13, fontFamily: F.bold, color: '#fff' },
-  blockedPill: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: T.greenTint, borderRadius: 10, paddingHorizontal: 10, height: 34 },
+  blockBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, backgroundColor: T.ink, borderRadius: 10, paddingHorizontal: 12, height: 44 },
+  blockBtnText: { fontSize: 15, fontFamily: F.bold, color: '#fff' },
+  blockedPill: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: T.greenTint, borderRadius: 10, paddingHorizontal: 10, height: 40 },
   blockedText: { fontSize: 13, fontFamily: F.semibold, color: T.green },
 
   stepWrap: { borderBottomWidth: 1, borderBottomColor: T.divider },
