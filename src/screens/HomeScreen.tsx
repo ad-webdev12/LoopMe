@@ -224,7 +224,9 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
 function when(at: number): string {
   const d = new Date(at), now = new Date();
   const hm = timeLabel(d);
-  return d.toDateString() === now.toDateString() ? 'today, ' + hm : hm;
+  if (d.toDateString() === now.toDateString()) return 'today, ' + hm;
+  if (now.getTime() - at < 6 * 86400000) return d.toLocaleDateString(undefined, { weekday: 'long' }) + ', ' + hm;
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
 const st = StyleSheet.create({
