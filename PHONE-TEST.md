@@ -162,6 +162,20 @@ With the family link on and the filter on, leave phone A untouched after a
 scam text arrives from an unknown number. Within a few hours (iOS decides
 when) phone B gets the alert without phone A opening Loop Me.
 
+**Was this right? (1 minute)**
+
+Paste "See you at 6, bring the photos" and tap Check (green). Tap "No, it is
+a scam". The verdict turns red. Paste the same text again: red at once, with
+"You told Loop Me this one is a scam." With Settings › Help improve Loop Me on,
+the CloudKit console shows a `Sample` record in the Public database.
+
+**Two switches (1 minute)**
+
+Home › Right now card › the walkthrough. Each switch shows the five-tap path
+and an Open Settings button. Scam callers turns green within a few seconds of
+flipping it in iOS Settings; Unknown texts turns green after the first text
+from a stranger is checked.
+
 **Share sheet (1 minute)**
 
 In Messages, long-press a text, More, Share (or select text in Safari or a
