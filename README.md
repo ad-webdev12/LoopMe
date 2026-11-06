@@ -1,6 +1,6 @@
 # Loop Me
 
-**Check any message before you trust it — and keep your family in the loop.**
+**Check any message before you trust it, and keep your family in the loop.**
 
 Loop Me is a scam-safety app for iPhone built for the people scammers actually target:
 older adults, and the family members who look out for them. Paste, share, or speak a
@@ -30,12 +30,12 @@ npm install
 Then start the bundler and build, in **two terminals**:
 
 ```bash
-# terminal 1 — leave this running
+# terminal 1, leave this running
 npx expo start
 ```
 
 ```bash
-# terminal 2 — builds the native app and launches it
+# terminal 2, builds the native app and launches it
 npx expo run:ios
 ```
 
@@ -44,14 +44,14 @@ and launches. It takes several minutes; later builds take seconds.
 
 > **Why two terminals?** `npx expo run:ios` finishes by trying to open the app
 > through the `expo-development-client` URL scheme, which this project does not
-> install. That last step fails and takes the bundler down with it — the app
+> install. That last step fails and takes the bundler down with it, the app
 > still builds and installs correctly, but nothing loads. Starting the bundler
 > separately avoids it entirely.
 
 ### Opening it in Xcode
 
 The Xcode project is committed, so it opens directly. Open the **workspace**,
-not the `.xcodeproj` — the project alone cannot see the CocoaPods dependencies.
+not the `.xcodeproj`, the project alone cannot see the CocoaPods dependencies.
 
 ```bash
 git clone https://github.com/ad-webdev12/LoopMe.git
@@ -81,7 +81,7 @@ export LANG=en_US.UTF-8
 ```
 
 If the build cannot find Node, create `ios/.xcode.env.local` pointing at your
-own install — it is git-ignored precisely because the path differs per machine:
+own install, it is git-ignored precisely because the path differs per machine:
 
 ```bash
 echo "export NODE_BINARY=$(which node)" > ios/.xcode.env.local
@@ -94,7 +94,7 @@ echo "export NODE_BINARY=$(which node)" > ios/.xcode.env.local
   `bash install-on-iphone.sh` (or `npx expo run:ios --device`). A full
   on-device walkthrough is in [PHONE-TEST.md](PHONE-TEST.md).
 - **Engine only, no Xcode needed:** `npm test` runs the full detection suite and
-  the fused-pipeline test in plain Node — no simulator, no build, a few seconds.
+  the fused-pipeline test in plain Node, no simulator, no build, a few seconds.
   `npm run bench` runs the six held-out benchmarks.
 
 ## Why it's different
@@ -103,10 +103,10 @@ echo "export NODE_BINARY=$(which node)" > ios/.xcode.env.local
   middle: the elder taps *"Ask Sarah to look"*, Sarah's phone opens on the evidence with
   three one-tap answers, and her answer lands back as a saved, notification-backed record.
 - **No server. Anywhere.** Family asks, replies, and pairing travel as deep links inside
-  the family's own text messages. Analysis is 100% on-device — it works in airplane mode.
+  the family's own text messages. Analysis is 100% on-device, it works in airplane mode.
   There is nothing in the middle to breach, sell, or subpoena.
 - **A caretaker playbook.** The family side explains *which* con it is, why it works
-  psychologically, and gives a shame-free script for the conversation — the hardest part
+  psychologically, and gives a shame-free script for the conversation, the hardest part
   of the entire scam lifecycle, unserved by every competitor.
 - **Detection that remembers.** The engine tracks conversation state (fake bank alert →
   "fraud department" call = the two-stage con), arms a 90-day recovery-scam guard after a
@@ -116,14 +116,14 @@ echo "export NODE_BINARY=$(which node)" > ios/.xcode.env.local
 
 Two layers, both on the phone, both offline.
 
-**Deterministic rules** — 40+ weighted intent rules across every major scam family,
+**Deterministic rules**, 40+ weighted intent rules across every major scam family,
 unicode de-obfuscation (homoglyphs, zero-width characters), full link forensics
 (look-alike domains by edit distance, brand-as-subdomain disguises, shorteners, raw IPs,
 throwaway TLDs, offline blocklist), precision guards that subtract score for known-good
 patterns, and the urgency × payment × secrecy triangle. English, Spanish, French and
 Portuguese. Typically well under a millisecond.
 
-**A learned second opinion** — a logistic-regression classifier over hashed character and
+**A learned second opinion**, a logistic-regression classifier over hashed character and
 word features (`src/engine/model.ts`, trained by `scripts/train-classifier.mjs`), shipped
 as a flat array of weights. It runs synchronously alongside the rules and is allowed to
 *raise* an alarm the rules missed, never to lower one. That asymmetry is deliberate: a
@@ -133,7 +133,7 @@ model-driven downgrade of a real scam could cost someone their savings.
 
 `npm test` runs a 163-case labeled suite (87 scam, 76 legit). It passes at 100% / 0%, but
 that suite was written alongside the rules, so treat it as a **regression guard, not a
-measure of generalisation** — it proves changes do not break known behaviour.
+measure of generalisation**, it proves changes do not break known behaviour.
 
 The honest evidence that the second layer earns its place is `npm run test:fusion`, whose
 32 cases appear nowhere in the training corpus:
@@ -150,14 +150,14 @@ accuracies are optimistic. The model's own held-out figures are recorded in the 
 
 ## Zero-friction entry
 
-- **The button inside Messages** — long-press a message → More → Share →
+- **The button inside Messages**, long-press a message → More → Share →
   *Check with Loop Me*. Signed Shortcuts in `shortcuts/`; setup in
   [MESSAGES-BUTTON.md](MESSAGES-BUTTON.md).
-- **Danger notifications** — keyword-triggered Message automations fire
+- **Danger notifications**, keyword-triggered Message automations fire
   *"Possible scam detected"* and open the full-screen alert automatically. Built from
   parts Apple ships in every iPhone; no App Store app is allowed to do this natively.
-- **Clipboard auto-offer** — copy a message anywhere, open the app, tap once.
-- **Siri / Action Button** — *"Hey Siri, Check with Loop Me."*
+- **Clipboard auto-offer**, copy a message anywhere, open the app, tap once.
+- **Siri / Action Button**, *"Hey Siri, Check with Loop Me."*
 
 ## Run it
 
@@ -168,11 +168,11 @@ npm test                  # engine test suite
 ```
 
 Roles: pick **"This phone is mine"** (elder side) or **"I'm a family member"** (caretaker
-side) on first launch — switchable in Settings.
+side) on first launch, switchable in Settings.
 
 ## What waits for the native Xcode build
 
-True Share Extension, SMS Filter, Live Activities ("Scam Risk: HIGH — waiting for
+True Share Extension, SMS Filter, Live Activities ("Scam Risk: HIGH, waiting for
 family…" on the Lock Screen), and first-class App Intents. Architecture and rationale in
 [SHORTCUTS.md](SHORTCUTS.md). The state machines already exist; the native tier is a
 rendering layer, not a redesign.

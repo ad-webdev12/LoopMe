@@ -91,10 +91,10 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
   const watchedBy = s.familyLinked && s.familyRole === 'owner' ? (s.watchedBy || '').split(' ')[0] : '';
   const flaggedForMeToday = ctx.hist.filter(h => h.source !== 'family' && h.level !== 'green' && new Date(h.at).toDateString() === today).length;
   const nowLine = !filterOn && !callsOn && !watchedBy
-    ? 'Nothing is running on its own yet. Two switches in iOS Settings change that.'
+    ? 'Nothing is running on its own yet. Tap to switch it on.'
     : flaggedForMeToday > 0
-      ? (flaggedForMeToday === 1 ? 'One text today needed a look. ' : flaggedForMeToday + ' texts today needed a look. ') + 'It is in your history.'
-      : filterOn ? 'Texts from numbers you do not know are being checked before they reach you.' : 'Nothing today needed a look.';
+      ? (flaggedForMeToday === 1 ? 'One text today needed a look. ' : flaggedForMeToday + ' texts today needed a look. ') + ''
+      : filterOn ? 'Unknown texts are checked before they reach you.' : 'Nothing today needed a look.';
   const pills: { label: string; on: boolean }[] = careMode ? [] : [
     { label: 'Unknown texts', on: filterOn },
     { label: 'Scam callers', on: callsOn },

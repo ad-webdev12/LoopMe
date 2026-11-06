@@ -47,26 +47,26 @@ export default function MoreScreen({ ctx }: { ctx: Ctx }) {
 
       <Text style={st.section} allowFontScaling>Running on its own</Text>
       <View style={st.card}>
-        <Row Icon={MessageSquareOff} color={T.green} title="Texts from numbers you do not know"
-          sub={ctx.tallies.junk > 0 ? ctx.tallies.junk + ' scam texts stopped before they reached you' : 'Checked before they reach you. Turn on under Messages › Unknown & Junk.'}
+        <Row Icon={MessageSquareOff} color={T.green} title="Unknown texts"
+          sub={ctx.tallies.junk > 0 ? ctx.tallies.junk + ' stopped before you saw them' : 'Off. Tap to switch on.'}
           state={ctx.tallies.filtered > 0 ? 'on' : 'off'}
           onPress={openMessagesSettings} />
         <Row Icon={PhoneOff} color={T.green} title="Scam callers"
-          sub={calls === 'enabled' ? 'Numbers that sent a scam show “Flagged by Loop Me” when they ring' : 'Turn on under Phone › Call Blocking & Identification.'}
+          sub={calls === 'enabled' ? 'On. Scam numbers are labeled when they ring.' : 'Off. Tap to switch on.'}
           state={calls === 'enabled' ? 'on' : 'off'}
           onPress={openPhoneSettings} />
         <Row Icon={Share2} color={T.green} title="Check from any app"
-          sub="Select a text or a screenshot, tap Share, then Loop Me. The answer appears right there."
+          sub="Copy a text, tap Loop Me in Messages. Or use Share."
           onPress={() => ctx.flash('In Messages, WhatsApp or Mail: select the text, tap Share, then Loop Me.')} />
         <Row Icon={HandHeart} color={T.green}
           title={careMode ? 'Looking after ' + watchName : 'Look after someone else'}
-          sub={careMode ? (s.familyLinked ? 'Their scam alerts appear here the moment they happen.' : 'Waiting for their invite link.') : 'Their scam alerts appear on your phone, full screen.'}
+          sub={careMode ? (s.familyLinked ? 'Linked.' : 'Waiting for their invite link.') : 'Their alerts, on your phone.'}
           last={careMode}
           onPress={() => careMode ? ctx.go(s.familyLinked ? 'ward' : 'watch') : ctx.go('watch')} />
         {!careMode && (
           <Row Icon={UserPlus} color={T.green}
             title={watchedBy ? 'Watched over by ' + watchedBy : s.familyInvited ? 'Invite sent, waiting for a tap' : 'Watched over by no one yet'}
-            sub={watchedBy ? 'They hear about anything flagged here, the moment it happens.' : 'Send one link to someone you trust. No texts after that.'}
+            sub={watchedBy ? 'Linked.' : 'One link to someone you trust.'}
             state={watchedBy ? 'on' : undefined}
             last
             onPress={() => ctx.go('watchedBy')} />
@@ -76,8 +76,8 @@ export default function MoreScreen({ ctx }: { ctx: Ctx }) {
       <Text style={st.section} allowFontScaling>Learn and set up</Text>
       <View style={st.card}>
         <Row Icon={BookOpen} color={T.amber} title="Learn the tricks" sub="Five worth knowing, in plain words." onPress={() => ctx.go('learn')} />
-        <Row Icon={Phone} color={T.amber} title="Practice a scam call" sub="A rehearsal of the call that catches the most people. Nobody really calls." onPress={() => ctx.go('call')} />
-        <Row Icon={HandHeart} color={T.amber} title="Set up for someone else" sub="Caregiver mode, four things to check." onPress={() => ctx.go('care')} />
+        <Row Icon={Phone} color={T.amber} title="Practice a scam call" sub="A rehearsal. Nobody really calls." onPress={() => ctx.go('call')} />
+        <Row Icon={HandHeart} color={T.amber} title="Set up for someone else" sub="Four things to check." onPress={() => ctx.go('care')} />
         <Row Icon={Cog} color={T.sub} title="Settings" sub="Alerts, read aloud, safe senders, blocked numbers." last onPress={() => ctx.go('settings')} />
       </View>
 

@@ -1,4 +1,4 @@
-# Loop Me — Help
+# Loop Me, Help
 
 **Loop Me for iPhone · version 1.0.0**
 
@@ -36,7 +36,7 @@ this kind.
 ### Does Loop Me listen to my phone calls?
 
 No. iPhone gives no app access to the audio of a live call, so no app can do
-this — including ours. The **practice call** in Loop Me is a rehearsal: a
+this, including ours. The **practice call** in Loop Me is a rehearsal: a
 scripted run-through of the commonest scam call, so the pattern is familiar
 before a real one arrives.
 
@@ -47,7 +47,7 @@ and asks for money or urgency, ask them for the word. Someone using a recording
 or an imitation of a familiar voice will not have it.
 
 Set it in **Settings → Your family code word**. It is stored only on your phone
-and is never sent anywhere — not even in a check you share with family.
+and is never sent anywhere, not even in a check you share with family.
 
 ### How does looping in a family member work?
 
@@ -65,7 +65,7 @@ sign up for.
 ### I think I have already been caught by a scam. What do I do?
 
 Open Loop Me and tap **I think I've been scammed**. It walks you through the
-five things to do, in order — starting with the reminder that this happens to
+five things to do, in order, starting with the reminder that this happens to
 millions of careful people every year, and that it is not your fault.
 
 You can also report it at [reportfraud.ftc.gov](https://reportfraud.ftc.gov).
@@ -75,7 +75,7 @@ You can also report it at [reportfraud.ftc.gov](https://reportfraud.ftc.gov).
 No checker is perfect. If a sender you trust is being flagged, add them under
 **Settings → Senders you trust** and Loop Me will stop warning about them.
 
-If you think we got something badly wrong, please tell us — describe the kind of
+If you think we got something badly wrong, please tell us, describe the kind of
 message, not its contents, and we will look at it.
 
 ### How do I delete everything?
@@ -92,4 +92,4 @@ Loop Me collects nothing at all. The full policy is in
 
 Loop Me follows your iPhone's text size, including the largest accessibility
 sizes, and every screen works with VoiceOver. If something is hard to read or
-hard to reach, please tell us — that is a bug worth fixing.
+hard to reach, please tell us, that is a bug worth fixing.

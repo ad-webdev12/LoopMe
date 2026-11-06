@@ -11,9 +11,9 @@ import FoundationModels
 #endif
 
 // On-device scam intelligence. Two real ML tiers, both fully offline:
-//   Tier 1 — Apple Foundation Models (iOS 26+, Apple Intelligence): an on-device
+//   Tier 1: Apple Foundation Models (iOS 26+, Apple Intelligence): an on-device
 //            LLM that reads the message and returns a structured judgement.
-//   Tier 2 — a bundled Core ML text classifier (NaturalLanguage NLModel), for
+//   Tier 2: a bundled Core ML text classifier (NaturalLanguage NLModel), for
 //            phones without Apple Intelligence.
 // The JS layer keeps a deterministic safety-net underneath both. Nothing is
 // sent off the device; there is no network path in this module at all.
@@ -220,7 +220,7 @@ final class SpeechListener: NSObject, @unchecked Sendable {
           let input = audioEngine.inputNode
           input.removeTap(onBus: 0)
           let format = input.outputFormat(forBus: 0)
-          // A dead input (0 Hz — common on simulators) makes installTap raise an
+          // A dead input (0 Hz: common on simulators) makes installTap raise an
           // uncatchable exception, so bail out gracefully instead.
           guard format.sampleRate > 0, format.channelCount > 0 else { end(); return }
           input.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in request.append(buffer) }
@@ -228,7 +228,7 @@ final class SpeechListener: NSObject, @unchecked Sendable {
           try audioEngine.start()
         } catch { end(); return }
 
-        // Hard stop at 20s — only for THIS listen, never a later one.
+        // Hard stop at 20s: only for THIS listen, never a later one.
         let gen = generation
         DispatchQueue.main.asyncAfter(deadline: .now() + 20) { [weak self] in
           guard let self = self, self.generation == gen else { return }

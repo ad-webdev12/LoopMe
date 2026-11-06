@@ -46,11 +46,11 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
   // What is switched on over there, and the words to say down the phone when it is not.
   const steps: { id: string; label: string; on: boolean | null; say: string }[] = [
     { id: 'filter', label: 'Text filter', on: p ? p.filterOn : null,
-      say: 'Open Settings, scroll to Apps, tap Messages, then Unknown & Junk. Under “SMS Filtering” tap Loop Me. That is it. It only sees texts from numbers not in your contacts.' },
+      say: 'Settings › Apps › Messages › Unknown & Junk › tap Loop Me.' },
     { id: 'calls', label: 'Call blocking', on: p ? p.callsOn : null,
-      say: 'Open Settings, scroll to Apps, tap Phone, then Call Blocking & Identification. Switch Loop Me on. Numbers that sent scams will show as “Flagged by Loop Me” when they ring.' },
+      say: 'Settings › Apps › Phone › Call Blocking › switch Loop Me on.' },
     { id: 'notif', label: 'Notifications', on: p ? p.notifOn : null,
-      say: 'Open Settings, tap Notifications, find Loop Me and switch Allow Notifications on. That is how my notes reach your screen.' },
+      say: 'Settings › Notifications › Loop Me › Allow.' },
   ];
 
   return (
@@ -206,7 +206,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
         </View>
       )}
 
-      <Text style={st.privacy} allowFontScaling>You see flagged texts, the notes between you, and weekly counts. Never {watchName}’s ordinary messages. It runs on {watchName}’s own iCloud, and either of you can end it.</Text>
+      <Text style={st.privacy} allowFontScaling>Only flagged texts and your notes. Never {watchName}’s ordinary messages.</Text>
       <Pressable style={{ paddingHorizontal: 20, paddingTop: 14 }} onPress={ctx.unlinkFamily} accessibilityRole="button">
         <Text style={st.stop} allowFontScaling>Stop looking after {watchName}</Text>
       </Pressable>

@@ -76,7 +76,7 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
             <Row yes text="Anything you choose to send with Loop in" />
             <Row yes={false} text="Never your ordinary messages, photos, calls or where you are" last />
           </View>
-          <Text style={sw.note} allowFontScaling>It runs on your own iCloud account. There is no company in the middle, and nothing is kept anywhere but your two phones.</Text>
+          <Text style={sw.note} allowFontScaling>Runs on your own iCloud. Nobody in the middle.</Text>
           <View style={{ paddingHorizontal: 20, paddingTop: 22, paddingBottom: 40, gap: 9 }}>
             <Pressable style={sw.ghostBtn} onPress={ctx.unlinkFamily} accessibilityRole="button">
               <Text style={[sw.ghostText, { color: T.red }]} allowFontScaling>Stop {name} hearing from this phone</Text>
@@ -88,7 +88,7 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
           <View style={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 16 }}>
             <Text style={sw.kicker} allowFontScaling>Family link</Text>
             <Text style={sw.title} allowFontScaling>Who should hear about it?</Text>
-            <Text style={sw.sub} allowFontScaling>Pick someone you trust. They get one text from you with a link. They tap it once, and from then on anything flagged here appears on their phone the moment it happens.</Text>
+            <Text style={sw.sub} allowFontScaling>One text, one tap on their side. Then they hear about any scam the moment it lands.</Text>
           </View>
 
           {s.familyInvited && (
@@ -111,13 +111,13 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
           {account === 'noAccount' || account === 'restricted' ? (
             <View style={sw.warnCard}>
               <Text style={sw.warnTitle} allowFontScaling>This phone is not signed in to iCloud</Text>
-              <Text style={sw.warnBody} allowFontScaling>The family link runs on your own iCloud account, so nothing passes through anyone else. Sign in under Settings › your name at the top, then come back here.</Text>
+              <Text style={sw.warnBody} allowFontScaling>Sign in to iCloud under Settings › your name, then come back.</Text>
               <Pressable onPress={() => Linking.openURL('App-prefs:').catch(() => Linking.openSettings())} accessibilityRole="button">
                 <Text style={sw.warnLink} allowFontScaling>Open iPhone Settings ›</Text>
               </Pressable>
             </View>
           ) : (
-            <Text style={sw.note} allowFontScaling>It runs on your own iCloud account. There is no company in the middle. You can stop it from this screen any time.</Text>
+            <Text style={sw.note} allowFontScaling>Runs on your own iCloud. Stop it here any time.</Text>
           )}
 
           <View style={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40 }}>
@@ -171,7 +171,7 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
           <View style={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 16 }}>
             <Text style={sw.kicker} allowFontScaling>Looking after someone</Text>
             <Text style={sw.title} allowFontScaling>They send you one link</Text>
-            <Text style={sw.sub} allowFontScaling>On their phone, open Loop Me, tap More, then Watched over by, and choose you. A text arrives here with a link. Tap it once and this phone is linked.</Text>
+            <Text style={sw.sub} allowFontScaling>On their phone: More › Watched over by › choose you. Tap the link that arrives here.</Text>
           </View>
           <View style={sw.stepsCard}>
             {[
@@ -205,7 +205,7 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
               <Check size={23} color="#fff" strokeWidth={2.6} />
             </KFPop>
             <Text style={[sw.title, { marginTop: 16 }]} allowFontScaling>You are looking after {watchName}</Text>
-            <Text style={sw.sub} allowFontScaling>The next time a text is flagged on their phone, it takes over this screen, and your reply lands on theirs. If this phone is in your pocket, it rings through like a message from family.</Text>
+            <Text style={sw.sub} allowFontScaling>A flagged text takes over this screen. Your reply lands on theirs.</Text>
           </View>
           {!hasPhone && (
             <Pressable style={sw.phoneCard} onPress={addPhone} accessibilityRole="button">

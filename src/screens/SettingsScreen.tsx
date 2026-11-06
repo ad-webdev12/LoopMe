@@ -80,7 +80,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
 
       <View style={st.autoCard}>
         <Text style={st.autoTitle} allowFontScaling>Two switches live in the iPhone Settings app</Text>
-        <Text style={st.autoBody} allowFontScaling>Texts from strangers: Settings › Apps › Messages › Unknown & Junk › Loop Me. Scam callers: Settings › Apps › Phone › Call Blocking & Identification › Loop Me. iMessage and WhatsApp are sealed off from every app, so use Share for those.</Text>
+        <Text style={st.autoBody} allowFontScaling>Two switches in iPhone Settings: Messages › Unknown & Junk, and Phone › Call Blocking. Both take a minute.</Text>
         <Pressable onPress={() => Linking.openSettings()} accessibilityRole="button">
           <Text style={st.autoLink} allowFontScaling>Open iPhone Settings ›</Text>
         </Pressable>

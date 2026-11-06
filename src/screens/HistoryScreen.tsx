@@ -110,7 +110,7 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
       <h1>Loop Me check history${who ? ' for ' + esc(who) : ''}</h1>
       <p class="sub">Reference ${ref} · made ${esc(new Date().toLocaleString())} · ${checked} checks, ${stopped} flagged as scams</p>
       <table><tr><th>When</th><th>From</th><th>Result</th><th>Message and why</th></tr>${rows || '<tr><td colspan="4">No checks yet.</td></tr>'}</table>
-      <p class="foot">Every check was made on the phone itself. Phone numbers, emails and long account-style numbers inside messages are blanked before anything is stored. Loop Me keeps no copy of this page.</p>
+      <p class="foot">Checked on this phone. Numbers and emails are blanked before saving.</p>
       </body></html>`;
     try {
       const { uri } = await Print.printToFileAsync({ html });

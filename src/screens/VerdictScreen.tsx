@@ -14,13 +14,13 @@ import { T, F } from '../theme';
 import { KFIn, KFFade, KFSlide } from '../ui/kf';
 import { timeLabel } from '../lib/clock';
 import { reportScam } from '../lib/report';
-import { Flag, Ban } from 'lucide-react-native';
+import { Flag, Ban, Volume2 } from 'lucide-react-native';
 import type { Ctx } from '../App';
 
 const META = {
   red:   { word: 'Stop', line: 'This looks like a scam.', bg: T.red, tint: T.redTint, ink: T.redInk, Icon: OctagonX },
   amber: { word: 'Be careful', line: 'Something about this is not right.', bg: T.amber, tint: T.amberTint, ink: T.amberInk, Icon: Info },
-  green: { word: 'Looks okay', line: 'Nothing here matches a scam we know. That is not a promise.', bg: T.green, tint: T.greenTint, ink: T.greenInk, Icon: Check },
+  green: { word: 'Looks okay', line: 'No scam we know of. Not a promise.', bg: T.green, tint: T.greenTint, ink: T.greenInk, Icon: Check },
 } as const;
 
 const FLAGS: RegExp[] = [
@@ -115,12 +115,9 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
 
       <View style={[st.banner, { backgroundColor: meta.tint }]}>
         <View style={st.bannerTop}>
-          <View style={[st.chip, { backgroundColor: meta.bg }]}>
-            <meta.Icon size={15} color="#fff" strokeWidth={2.6} />
-          </View>
-          <Text style={[st.kicker, { color: meta.ink }]} allowFontScaling>Our answer</Text>
+          <meta.Icon size={26} color={meta.bg} strokeWidth={2.4} />
+          <Text style={[st.word, { color: meta.ink }]} allowFontScaling>{meta.word}</Text>
         </View>
-        <Text style={[st.word, { color: meta.ink }]} allowFontScaling>{meta.word}</Text>
         <Text style={[st.line, { color: meta.ink }]} allowFontScaling>{meta.line}</Text>
       </View>
 
@@ -196,48 +193,43 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
         <View style={st.msgRow}>
           <View style={st.msgRule} />
           {/* Long messages fold, so the answer and the buttons stay in reach. */}
-          <Text style={st.msgText} allowFontScaling numberOfLines={showAll || ctx.msg.length <= 420 ? undefined : 8}>{ctx.msg}</Text>
+          <Text style={st.msgText} allowFontScaling numberOfLines={showAll || ctx.msg.length <= 160 ? undefined : 3}>{ctx.msg}</Text>
         </View>
-        {ctx.msg.length > 420 && (
+        {ctx.msg.length > 160 && (
           <Pressable onPress={() => setShowAll(v => !v)} accessibilityRole="button">
-            <Text style={st.showAll} allowFontScaling>{showAll ? 'Show less' : 'Show the whole message'}</Text>
+            <Text style={st.showAll} allowFontScaling>{showAll ? 'Less' : 'Show all of it'}</Text>
           </Pressable>
         )}
       </View>
 
       <View style={st.actions}>
         <Pressable style={st.loopBtn} onPress={loopIn} accessibilityRole="button">
-          <View style={{ flex: 1 }}>
-            <Text style={st.loopTitle} allowFontScaling>
-              {careMode ? 'Warn ' + who + ' about this' : linked ? 'Ask ' + who + ' about it' : 'Loop in ' + who}
-            </Text>
-            <Text style={st.loopSub} allowFontScaling>
-              {careMode ? 'It appears on their screen, so they know to expect it'
-                : linked ? 'It appears on their phone now, with what we found'
-                : 'One plain text with the message and what we found'}
-            </Text>
-          </View>
+          <Text style={st.loopTitle} allowFontScaling>
+            {careMode ? 'Warn ' + who : linked ? 'Ask ' + who : 'Loop in ' + who}
+          </Text>
           <UserCheck size={20} color="#fff" strokeWidth={1.9} />
         </Pressable>
 
-        {v.level !== 'green' && !careMode && !!rec?.sender && rec.sender.replace(/\D/g, '').length >= 7 && !ctx.settings.blocked.includes(rec.sender.replace(/\D/g, '')) && (
-          <Pressable style={st.readBtn} onPress={() => ctx.blockNumber(rec.sender!)} accessibilityRole="button">
-            <Text style={st.readLabel} allowFontScaling>Block {rec.sender}. Calls stop, texts go to Junk.</Text>
-            <Ban size={16} color={T.red} strokeWidth={2.2} />
-          </Pressable>
-        )}
-        {v.level !== 'green' && (
-          <Pressable style={st.readBtn} onPress={() => reportScam(ctx, ctx.recordId)} accessibilityRole="button">
-            <Text style={st.readLabel} allowFontScaling>Report it, so it is stopped for others</Text>
-            <Flag size={16} color={T.red} strokeWidth={2.2} />
-          </Pressable>
-        )}
-        {!careMode && !reading && (
-          <Pressable style={st.readBtn} onPress={startRead} accessibilityRole="button">
-            <Text style={st.readLabel} allowFontScaling>Read this to me, slowly</Text>
-            <ChevronRight size={16} color={T.muted} strokeWidth={2.2} />
-          </Pressable>
-        )}
+        <View style={st.smallRow}>
+          {v.level !== 'green' && !careMode && !!rec?.sender && rec.sender.replace(/\D/g, '').length >= 7 && !ctx.settings.blocked.includes(rec.sender.replace(/\D/g, '')) && (
+            <Pressable style={st.small} onPress={() => ctx.blockNumber(rec.sender!)} accessibilityRole="button" accessibilityLabel="Block this number">
+              <Ban size={18} color={T.red} strokeWidth={2.2} />
+              <Text style={st.smallText} allowFontScaling>Block</Text>
+            </Pressable>
+          )}
+          {v.level !== 'green' && (
+            <Pressable style={st.small} onPress={() => reportScam(ctx, ctx.recordId)} accessibilityRole="button" accessibilityLabel="Report this scam">
+              <Flag size={18} color={T.ink} strokeWidth={2.2} />
+              <Text style={st.smallText} allowFontScaling>Report</Text>
+            </Pressable>
+          )}
+          {!careMode && !reading && (
+            <Pressable style={st.small} onPress={startRead} accessibilityRole="button" accessibilityLabel="Read this to me">
+              <Volume2 size={18} color={T.ink} strokeWidth={2.2} />
+              <Text style={st.smallText} allowFontScaling>Read it</Text>
+            </Pressable>
+          )}
+        </View>
         {reading && (
           <View style={st.readPanel}>
             <View style={st.readHead}>
@@ -294,10 +286,10 @@ const st = StyleSheet.create({
   time: { fontSize: 14.5, fontFamily: F.body, color: T.sub, paddingRight: 4 },
 
   banner: { marginHorizontal: 20, borderRadius: 14, paddingHorizontal: 18, paddingTop: 16, paddingBottom: 18 },
-  bannerTop: { flexDirection: 'row', alignItems: 'center', gap: 9 },
+  bannerTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   chip: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   kicker: { fontSize: 14.5, fontFamily: F.semibold },
-  word: { fontSize: 32, fontFamily: F.display, letterSpacing: -0.83, marginTop: 12, lineHeight: 33 },
+  word: { fontSize: 34, fontFamily: F.display, letterSpacing: -0.9, lineHeight: 36 },
   line: { fontSize: 17, fontFamily: F.medium, marginTop: 6, lineHeight: 23.4 },
 
   section: { paddingHorizontal: 20, paddingTop: 22 },
@@ -330,9 +322,12 @@ const st = StyleSheet.create({
   msgText: { flex: 1, fontSize: 17, fontFamily: F.body, color: T.ink2, lineHeight: 26.4 },
   showAll: { fontSize: 16, fontFamily: F.semibold, color: T.green, paddingTop: 8, paddingLeft: 15 },
 
-  actions: { paddingHorizontal: 20, paddingTop: 24, gap: 9 },
-  loopBtn: { height: 62, borderRadius: 12, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 17, gap: 10 },
-  loopTitle: { fontSize: 17, fontFamily: F.bold, color: '#fff' },
+  actions: { paddingHorizontal: 20, paddingTop: 24, gap: 10 },
+  smallRow: { flexDirection: 'row', gap: 8 },
+  small: { flex: 1, height: 56, borderRadius: 12, borderWidth: 1, borderColor: T.hairline, backgroundColor: T.surface, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
+  smallText: { fontSize: 15.5, fontFamily: F.semibold, color: T.ink },
+  loopBtn: { height: 62, borderRadius: 12, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18 },
+  loopTitle: { fontSize: 18, fontFamily: F.bold, color: '#fff' },
   loopSub: { fontSize: 14.5, fontFamily: F.body, color: 'rgba(255,255,255,.78)', marginTop: 2 },
   readBtn: {
     height: 52, borderRadius: 12, borderWidth: 1, borderColor: T.hairline, backgroundColor: T.surface,
