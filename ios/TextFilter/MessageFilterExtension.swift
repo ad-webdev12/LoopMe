@@ -14,7 +14,7 @@ final class MessageFilterExtension: ILMessageFilterExtension {
   // The small learned model, loaded once per extension process. The filter
   // runs under a tight memory cap, so this is the bag-of-words classifier,
   // not the BERT one the app uses. See ios/Shared/Engine/CoreModel.swift.
-  static let model = CoreModel.named("ScamFilter", threshold: 0.6)
+  static let model = CoreModel.named("ScamFilter", threshold: 0.7)
 }
 
 extension MessageFilterExtension: ILMessageFilterQueryHandling {

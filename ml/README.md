@@ -6,7 +6,7 @@ from the same data, and both run fully on the phone.
 | model | where it runs | algorithm | size | cost per message | threshold |
 |---|---|---|---|---|---|
 | `ScamText` | the app, the share sheet | BERT transfer learning | 1.4 MB, about 70 MB RAM at inference | 15 to 30 ms | 0.8 |
-| `ScamFilter` | the text filter extension | maximum entropy bag of words | 0.1 MB | under 1 ms | 0.6 |
+| `ScamFilter` | the text filter extension | maximum entropy bag of words | 0.1 MB | under 1 ms | 0.7 |
 
 The filter gets the small one because iOS runs message filter extensions
 under a tight memory cap.
@@ -27,6 +27,14 @@ it is above 0.9. Neither can lower a rule hit. That policy is in
 - `extra/scam-hard.csv`, `extra/round2.csv`, `extra/round3.csv`: long-tail
   cons and their benign cousins, written in later rounds.
 
+- `extra/noisy.csv`: every row above, rewritten the way phones deliver texts
+  (caps, no punctuation, emoji, dropped letters, digits for letters). Built by
+  `node scripts/augment.mjs`, one variant per row, both classes alike.
+
+Before the model sees any text, the app folds digit-for-letter spelling
+(`fr4ud` to `fraud`) and strips emoji (`src/engine/normalize.ts`, mirrored in
+`ios/Shared/Engine/Normalize.swift`). The evaluators do the same.
+
 Any training row whose text also appears in `bench.csv` is dropped before
 training, so the scores below are not memorisation.
 
@@ -37,7 +45,12 @@ from every set in `scripts/bench/` plus the unit suite, with the rule engine's
 own verdict in a fourth column. Nothing in it is trained on.
 
 `blind.mjs` and `blind2.mjs` were written after the model was trained and were
-not looked at while tuning. `blind2` was never touched at all. Quote those.
+not looked at while tuning. `noisy.mjs` is `blind2` with phone noise applied;
+`lang.mjs` covers German, Italian, Dutch, Hindi, Indonesian and Tagalog.
+
+Latest (6 Nov 2026), fused as shipped, all 429 bench messages: 97.9% caught,
+1.5% false alarms. blind2 30/30 with 0 false alarms, noisy 30/30 with 1,
+lang 12/12 with 0. Two of the five remaining false alarms are rule hits.
 
 ## Commands
 

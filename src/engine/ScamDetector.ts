@@ -280,6 +280,8 @@ const KNOWN_GOOD: Rule[] = [
   { re: /(?:no|zero) fee for this|at no (?:cost|charge) to you|we (?:will|'?ll) not charge/i, w: -22, tag: 'good-nofee', plain: '' },
   // No pressure at all. A scam cannot afford to say "whenever suits you".
   { re: /did(?: not|n[’']t) win|no (?:win|prize) this (?:time|week)|better luck next time|not a winner|unsuccessful this time/i, w: -40, tag: 'good-nowin', plain: '' },
+  { re: /pay (?:me |us )?when (?:you(?:'re| are)? )?(?:passing|collect|next|see me|you can|convenient)|as (?:quoted|agreed)[\s\S]{0,30}pay|pay (?:at|on) (?:the )?(?:desk|counter|door|collection)/i, w: -30, tag: 'good-inperson', plain: '' },
+  { re: /(?:syndicate|between us|split it|our share)[\s\S]{0,60}(?:won|winnings)|(?:won|winnings)[\s\S]{0,60}(?:syndicate|between us|split it)/i, w: -40, tag: 'good-share', plain: '' },
   { re: /shop around|if you like|at your leisure|whenever (?:suits|is convenient|you (?:can|like|get a chance))|no rush|not urgent|no hurry|take your time|no need to (?:reply|respond|do anything)|renews automatically|at the same (?:price|premium|rate)|nothing (?:you need|for you) to do/i, w: -24, tag: 'good-norush', plain: '' },
 ];
 

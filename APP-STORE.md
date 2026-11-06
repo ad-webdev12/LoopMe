@@ -74,7 +74,9 @@ The family link is new. Link one person you trust and a scam text on your phone 
 
 Loop Me now works while it is closed: a text filter for numbers you do not know (Settings › Messages › Unknown & Junk), a call directory that labels scam callers (Settings › Phone › Call Blocking), and a share sheet that checks anything from any app.
 
-A new on-device model reads the message the way a person would, so cons that avoid the usual words still get caught. In our tests it catches 97 in 100 scam texts with fewer than 3 in 100 false alarms, entirely on the phone.
+A new on-device model reads the message the way a person would, so cons that avoid the usual words still get caught. In our tests it catches 98 in 100 scam texts with fewer than 2 in 100 false alarms, entirely on the phone, in English plus the common cons in Spanish, French, Portuguese, German, Italian, Dutch, Hindi, Indonesian and Tagalog.
+
+Tell it when it is wrong and it remembers. Switch on Help improve Loop Me and your correction, with numbers blanked, trains the next version.
 
 If you look after someone: a weekly picture of their phone (what was checked, what was stopped, what is switched on), a Sunday evening summary, and one tap to block a number on their phone from yours.
 
