@@ -67,6 +67,25 @@ if write {
   print("wrote \(modelURL.path)")
 }
 
+
+// Same fold the app applies before the model (ios/Shared/Engine/Normalize.swift).
+let leetTokenRe = try! NSRegularExpression(pattern: "\\b(?=[A-Za-z0-9]*[A-Za-z])(?=[A-Za-z0-9]*[013457])[A-Za-z0-9]{3,}\\b")
+let leetMap: [Character: Character] = ["0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t"]
+func deleetEval(_ t: String) -> String {
+  let ns = t as NSString; var out = ""; var last = 0
+  for m in leetTokenRe.matches(in: t, options: [], range: NSRange(location: 0, length: ns.length)) {
+    let w = ns.substring(with: m.range)
+    out += ns.substring(with: NSRange(location: last, length: m.range.location - last))
+    let letters = w.filter { $0.isLetter }.count, digits = w.filter { $0.isNumber }.count
+    if letters < 2 || digits == 0 || digits > letters || w.contains(where: { "2689".contains($0) }) || (w.first?.isNumber ?? false) { out += w }
+    else { out += String(w.map { leetMap[$0] ?? $0 }) }
+    last = m.range.location + m.range.length
+  }
+  let joined = out + ns.substring(from: last)
+  let noEmoji = String(joined.unicodeScalars.filter { !$0.properties.isEmojiPresentation && !($0.properties.isEmoji && $0.value > 0x2000) && $0.value != 0xFE0F && $0.value != 0x200D })
+  return noEmoji.replacingOccurrences(of: "  ", with: " ").trimmingCharacters(in: .whitespaces)
+}
+
 // ---- shared evaluator (kept identical in ml/eval.swift) ----------------
 func evaluate(modelURL: URL, benchURL: URL, verbose: Bool) throws {
   var o = CSVReadingOptions(); o.hasHeaderRow = true
@@ -80,7 +99,7 @@ func evaluate(modelURL: URL, benchURL: URL, verbose: Bool) throws {
   for r in bench.rows {
     guard let set = r["set"] as? String, let text = r["text"] as? String, let label = r["label"] as? String, let rule = r["rule"] as? String else { continue }
     let pure = (r["pure"] as? String) ?? rule
-    let p = nl.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0
+    let p = nl.predictedLabelHypotheses(for: deleetEval(text), maximumCount: 2)["scam"] ?? 0
     rows.append(Row(set: set, text: text, scam: label == "scam", ruleFlag: rule != "green", pureFlag: pure != "green", p: p))
   }
   let perMsg = Date().timeIntervalSince(t1) / Double(rows.count) * 1000

@@ -32,7 +32,7 @@ const ops = [
 const q = s => '"' + s.replace(/"/g, '""') + '"';
 const out = [];
 for (const r of rows) {
-  const n = r.label === 'scam' ? 2 : 1;
+  const n = 1;
   for (let k = 0; k < n; k++) {
     let t = r.text;
     const count = 1 + Math.floor(rnd() * 2);

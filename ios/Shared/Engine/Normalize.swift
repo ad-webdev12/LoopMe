@@ -44,6 +44,32 @@ enum Normalize {
     folded.reserveCapacity(t.count)
     for ch in t { if let p = tables.punct[ch] { folded += p } else { folded.append(ch) } }
     t = innerSpace.stringByReplacingMatches(in: folded, options: [], range: NSRange(folded.startIndex..., in: folded), withTemplate: " ")
+    t = deleet(t)
+    t = String(t.unicodeScalars.filter { !$0.properties.isEmojiPresentation && !($0.properties.isEmoji && $0.value > 0x2000) && $0.value != 0xFE0F && $0.value != 0x200D })
+    t = innerSpace.stringByReplacingMatches(in: t, options: [], range: NSRange(t.startIndex..., in: t), withTemplate: " ").trimmingCharacters(in: .whitespaces)
     return Normalized(text: t, disguised: disguised)
+  }
+
+  // Mirrors deleet() in src/engine/normalize.ts.
+  static let leetToken = try! NSRegularExpression(pattern: "\\b(?=[A-Za-z0-9]*[A-Za-z])(?=[A-Za-z0-9]*[013457])[A-Za-z0-9]{3,}\\b")
+  static let leet: [Character: Character] = ["0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t"]
+  static func deleet(_ t: String) -> String {
+    let ns = t as NSString
+    var out = ""
+    var last = 0
+    for m in leetToken.matches(in: t, options: [], range: NSRange(location: 0, length: ns.length)) {
+      let w = ns.substring(with: m.range)
+      out += ns.substring(with: NSRange(location: last, length: m.range.location - last))
+      let letters = w.filter { $0.isLetter }.count
+      let digits = w.filter { $0.isNumber }.count
+      if letters < 2 || digits == 0 || digits > letters || w.contains(where: { "2689".contains($0) }) || (w.first?.isNumber ?? false) {
+        out += w
+      } else {
+        out += String(w.map { leet[$0] ?? $0 })
+      }
+      last = m.range.location + m.range.length
+    }
+    out += ns.substring(from: last)
+    return out
   }
 }

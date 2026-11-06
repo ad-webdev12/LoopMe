@@ -41,7 +41,7 @@ export default function SwitchesScreen({ ctx }: { ctx: Ctx }) {
       </View>
       <View style={{ paddingHorizontal: 22, paddingBottom: 6 }}>
         <Text style={st.title} allowFontScaling>Two switches</Text>
-        <Text style={st.sub} allowFontScaling>Both live in the iPhone Settings app. One minute, once. The button opens Settings; tap Back once to reach Apps.</Text>
+        <Text style={st.sub} allowFontScaling>Both live in the iPhone Settings app. One minute, once. The button opens Settings. Tap Back once to reach Apps.</Text>
       </View>
 
       <View style={st.block}>

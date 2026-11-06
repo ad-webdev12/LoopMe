@@ -74,5 +74,22 @@ export function normalizeText(input: string): Normalized {
   t = t.replace(CONFUSABLE_RE, (ch) => CONFUSABLES[ch] || ch);
   t = t.replace(PUNCT_RE, (ch) => PUNCT[ch] || ch);
   t = t.replace(/[^\S\n]+/g, ' ');
+  t = deleet(t);
+  // Emoji carry no meaning the detector should learn from, in either direction.
+  t = t.replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, '').replace(/[^\S\n]+/g, ' ').trim();
   return { text: t, disguised };
+}
+
+// "fr4ud te4m", "pam3nt": digits standing in for letters inside a word, the
+// way texts arrive after a filter-dodging rewrite. Only a token with more
+// letters than digits, where every digit is one that stands for a letter,
+// is folded; "x8s2", "Rs5000" and "17" are left alone.
+const LEET: Record<string, string> = { '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', '7': 't' };
+export function deleet(t: string): string {
+  return t.replace(/\b(?=[A-Za-z0-9]*[A-Za-z])(?=[A-Za-z0-9]*[013457])[A-Za-z0-9]{3,}\b/g, (w) => {
+    const letters = (w.match(/[A-Za-z]/g) || []).length;
+    const digits = (w.match(/[0-9]/g) || []).length;
+    if (letters < 2 || digits === 0 || digits > letters || /[2689]/.test(w) || /^[0-9]/.test(w)) return w;
+    return w.replace(/[013457]/g, (d) => LEET[d]);
+  });
 }
