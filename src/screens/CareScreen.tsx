@@ -12,8 +12,8 @@ export default function CareScreen({ ctx }: { ctx: Ctx }) {
   const name = s.careName || s.myName || 'them';
   const steps = [
     { title: 'Add a trusted person', body: 'The person one tap reaches when something looks wrong.', done: s.trusted.length > 0, go: 'people' as const },
-    { title: 'Link your own phone', body: 'Send yourself the invite, so flagged texts appear on your phone the moment they happen.', done: s.familyLinked && s.familyRole === 'owner', go: 'watchedBy' as const },
-    { title: 'Turn on checking for unknown texts', body: 'Settings › Apps › Messages › Unknown & Junk › Loop Me. Scam texts then go straight to Junk.', done: s.autoCheck && ctx.tallies.filtered > 0, go: 'settings' as const },
+    { title: 'Link your own phone', body: 'Send yourself the invite. Flagged texts then appear on your phone.', done: s.familyLinked && s.familyRole === 'owner', go: 'watchedBy' as const },
+    { title: 'Turn on checking for unknown texts', body: 'Settings › Messages › Unknown & Junk › Loop Me.', done: s.autoCheck && ctx.tallies.filtered > 0, go: 'settings' as const },
     { title: 'Set the family code word', body: 'One word only your family knows. The surest answer to a cloned voice.', done: s.codeWordSet, go: 'settings' as const },
   ];
   const count = steps.filter(x => x.done).length;
@@ -45,7 +45,7 @@ export default function CareScreen({ ctx }: { ctx: Ctx }) {
           <Text style={st.badgeText} allowFontScaling>CAREGIVER MODE</Text>
         </View>
         <Text style={st.title} allowFontScaling>Set up for {name}</Text>
-        <Text style={st.sub} allowFontScaling>Four things to check, then hand the phone back. Each one opens the screen where it is done. Nothing here is hidden from them.</Text>
+        <Text style={st.sub} allowFontScaling>Four things, then hand the phone back.</Text>
       </View>
       <View style={st.card}>
         {steps.map((c, i) => (

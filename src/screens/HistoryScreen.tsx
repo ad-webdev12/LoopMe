@@ -132,7 +132,7 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
       </View>
       <View style={{ paddingHorizontal: 22, paddingBottom: 14 }}>
         <Text style={st.title} allowFontScaling>History</Text>
-        <Text style={st.sub} allowFontScaling>Kept on this phone only. Export makes a dated PDF you can hand to your bank or the police.</Text>
+        <Text style={st.sub} allowFontScaling>Kept on this phone. Export makes a PDF for your bank.</Text>
       </View>
 
       <View style={st.statsCard}>
@@ -170,7 +170,7 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
       {days.length === 0 && (
         <View style={st.empty}>
           <Text style={st.emptyTitle} allowFontScaling>Nothing checked yet</Text>
-          <Text style={st.emptyBody} allowFontScaling>Every message you check lands here, kept on this phone only.</Text>
+          <Text style={st.emptyBody} allowFontScaling>Every check lands here.</Text>
         </View>
       )}
 

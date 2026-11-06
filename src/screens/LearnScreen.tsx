@@ -28,13 +28,13 @@ export default function LearnScreen({ ctx }: { ctx: Ctx }) {
       </View>
       <View style={{ paddingHorizontal: 22, paddingBottom: 14 }}>
         <Text style={st.title} allowFontScaling>Five tricks worth knowing</Text>
-        <Text style={st.sub} allowFontScaling>Once you have seen them, they are much easier to spot. Tap one to hear it read out.</Text>
+        <Text style={st.sub} allowFontScaling>Tap one to hear it read out.</Text>
       </View>
       <Pressable style={st.practice} onPress={() => ctx.go('call')} accessibilityRole="button">
         <View style={st.practiceIcon}><Phone size={18} color={T.green} strokeWidth={2.2} /></View>
         <View style={{ flex: 1 }}>
           <Text style={st.practiceTitle} allowFontScaling>Practice a scam call</Text>
-          <Text style={st.practiceBody} allowFontScaling>A rehearsal of the call that catches the most people. Nobody really calls.</Text>
+          <Text style={st.practiceBody} allowFontScaling>A rehearsal. Nobody really calls.</Text>
         </View>
         <ChevronRight size={17} color={T.green} strokeWidth={2.2} />
       </Pressable>

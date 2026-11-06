@@ -75,7 +75,7 @@ export function Ob1({ ctx }: { ctx: Ctx }) {
       </View>
       <View style={s1.reassure}>
         <Shield size={18} color={T.green} strokeWidth={1.9} style={{ marginTop: 1 }} />
-        <Text style={s1.reassureText} allowFontScaling>No account, no password. Nothing you enter leaves this phone.</Text>
+        <Text style={s1.reassureText} allowFontScaling>No account. Nothing leaves this phone.</Text>
       </View>
     </View>
     </KFIn>
@@ -121,7 +121,7 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
           </View>
         </View>
       </View>
-      <Text style={s2.note} allowFontScaling>Nothing here is hidden from them. They see every setting you choose and can switch anything off.</Text>
+      <Text style={s2.note} allowFontScaling>They see every setting and can change any of it.</Text>
       <View style={{ marginTop: 'auto', paddingHorizontal: 22, paddingBottom: 30 }}>
         <CTA label="Continue" onPress={() => {
           if (!name.trim()) { ctx.flash('Add their first name so alerts and notes can use it.'); return; }
@@ -151,7 +151,7 @@ export function Ob3({ ctx }: { ctx: Ctx }) {
   const care = !!ctx.settings.careName;
   const rows = [
     'Messages are checked right here, with no internet needed.',
-    'No account, no password. Your history stays on this phone, nowhere else.',
+    'No account. Your history stays on this phone.',
     'A message is shared only if you choose to loop someone in.',
   ];
   return (
@@ -224,7 +224,7 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
       <View style={{ paddingHorizontal: 22, paddingTop: 24, paddingBottom: 18 }}>
         <Kicker text="Last step" step={care ? 4 : 3} of={care ? 4 : 3} />
         <Title text="Who should we loop in?" />
-        <Text style={s4.sub} allowFontScaling>One person is plenty. Send them one link and they hear about any scam that reaches this phone, the moment it happens.</Text>
+        <Text style={s4.sub} allowFontScaling>One person. One link. They hear the moment a scam lands.</Text>
       </View>
       <Pressable style={s4.addRow} onPress={addFromContacts} accessibilityRole="button">
         <View style={s4.addIcon}><Plus size={18} color={T.green} strokeWidth={2} /></View>

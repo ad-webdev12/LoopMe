@@ -38,7 +38,7 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
     setBusy(true);
     try {
       const url = await Family.invite(s.myName || s.careName);
-      if (!url) { ctx.flash('iCloud is not available on this phone right now. Sign in under Settings › your name.'); return; }
+      if (!url) { ctx.flash('Sign in to iCloud first: Settings › your name.'); return; }
       await ensureNotificationPermission();
       const res = await pickTrustedPerson();
       const to = res.ok ? res.person : null;
@@ -88,7 +88,7 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
           <View style={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 16 }}>
             <Text style={sw.kicker} allowFontScaling>Family link</Text>
             <Text style={sw.title} allowFontScaling>Who should hear about it?</Text>
-            <Text style={sw.sub} allowFontScaling>One text, one tap on their side. Then they hear about any scam the moment it lands.</Text>
+            <Text style={sw.sub} allowFontScaling>One text. One tap on their side.</Text>
           </View>
 
           {s.familyInvited && (
@@ -96,7 +96,7 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
               <ActivityIndicator color={T.green} />
               <View style={{ flex: 1 }}>
                 <Text style={sw.waitTitle} allowFontScaling>Waiting for them to tap the link</Text>
-                <Text style={sw.waitBody} allowFontScaling>This fills in on its own the moment they do. If the text did not go, send it again below.</Text>
+                <Text style={sw.waitBody} allowFontScaling>This fills in on its own when they do.</Text>
               </View>
             </View>
           )}
@@ -191,7 +191,7 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
             <Row yes text="Three one-tap replies that appear on their screen" />
             <Row yes={false} text="Never their ordinary messages, photos or location" last />
           </View>
-          <Text style={sw.note} allowFontScaling>Setting up their phone yourself? Do it from their phone: the invite can be sent to your own number.</Text>
+          <Text style={sw.note} allowFontScaling>Setting it up for them? Send the invite from their phone to your number.</Text>
           <View style={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40 }}>
             <Pressable style={sw.ghostBtn} onPress={() => ctx.go('home')} accessibilityRole="button">
               <Text style={sw.ghostText} allowFontScaling>I will tap the link when it arrives</Text>
@@ -212,7 +212,7 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
               <View style={sw.phoneIcon}><UserPlus size={18} color={T.green} strokeWidth={2.2} /></View>
               <View style={{ flex: 1 }}>
                 <Text style={sw.phoneTitle} allowFontScaling>Add {watchName}’s number</Text>
-                <Text style={sw.phoneBody} allowFontScaling>So the call button on an alert dials them in one tap.</Text>
+                <Text style={sw.phoneBody} allowFontScaling>So the call button dials them.</Text>
               </View>
               <ArrowRight size={17} color={T.green} strokeWidth={2.2} />
             </Pressable>
@@ -253,7 +253,7 @@ export function WatchWait({ ctx }: { ctx: Ctx }) {
           <Text style={sw.waitKicker} allowFontScaling>LINKING</Text>
         </View>
         <Text style={[sw.title, { marginTop: 16 }]} allowFontScaling>Joining their phone</Text>
-        <Text style={sw.sub} allowFontScaling>iCloud is confirming the link. This takes a few seconds.</Text>
+        <Text style={sw.sub} allowFontScaling>Confirming the link.</Text>
       </View>
       <View style={{ marginTop: 'auto', paddingHorizontal: 20, paddingBottom: 34 }}>
         <Pressable style={sw.ghostBtn} onPress={() => ctx.go('home')} accessibilityRole="button">

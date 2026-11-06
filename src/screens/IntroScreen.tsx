@@ -112,7 +112,7 @@ export default function IntroScreen({ ctx }: { ctx: Ctx }) {
               <Text style={st.wipeHeadline} allowFontScaling>One plain answer.{'\n'}One thing to do.</Text>
             </KFRise></View>
             <KFRise duration={650} delay={720} playKey={beat}>
-              <Text style={st.wipeSub} allowFontScaling>We tell you what it is, and the one thing to do next.</Text>
+              <Text style={st.wipeSub} allowFontScaling>What it is, and what to do.</Text>
             </KFRise>
           </View>
         </View>
@@ -172,7 +172,7 @@ export default function IntroScreen({ ctx }: { ctx: Ctx }) {
               <Text style={st.wipeHeadline} allowFontScaling>One tap and{'\n'}someone knows.</Text>
             </KFRise></View>
             <KFRise duration={650} delay={1350} playKey={beat}>
-              <Text style={st.wipeSub} allowFontScaling>It lands on their phone the moment it happens, with nothing to forward.</Text>
+              <Text style={st.wipeSub} allowFontScaling>On their phone the moment it happens.</Text>
             </KFRise>
           </View>
         </View>

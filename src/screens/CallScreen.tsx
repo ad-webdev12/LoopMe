@@ -54,7 +54,7 @@ export default function CallScreen({ ctx }: { ctx: Ctx }) {
           </View>
           <View style={st.listenCard}>
             <Text style={st.listenTitle} allowFontScaling>A practice run, so it is familiar</Text>
-            <Text style={st.listenBody} allowFontScaling>This is a rehearsal of the call that catches the most people. iPhone does not let any app hear a real call, so Loop Me cannot listen in. What it can do is show you the pattern now, while it is safe.</Text>
+            <Text style={st.listenBody} allowFontScaling>A rehearsal of the commonest scam call. No app can hear a real call, so learn the pattern now, while it is safe.</Text>
           </View>
           <View style={{ marginTop: 'auto', gap: 11 }}>
             <Pressable style={st.answerBtn} onPress={answer} accessibilityRole="button">
@@ -119,7 +119,7 @@ export default function CallScreen({ ctx }: { ctx: Ctx }) {
       </View>
       <View style={st.savedCard}>
         <Text style={st.savedLabel} allowFontScaling>The two signs to remember</Text>
-        <Text style={st.savedText} allowFontScaling>The caller asked you to read out a code, and told you to keep it from your family. No real bank or police officer does either. One is enough to hang up.</Text>
+        <Text style={st.savedText} allowFontScaling>They asked for a code and told you to keep it from your family. No real bank does either.</Text>
       </View>
       <View style={{ marginTop: 'auto', paddingHorizontal: 22, paddingBottom: 30, gap: 9 }}>
         <Pressable style={st.blockBtn} onPress={() => { setLines([]); setSecs(4); setStage('ringing'); }} accessibilityRole="button">

@@ -57,7 +57,7 @@ export default function MoreScreen({ ctx }: { ctx: Ctx }) {
           onPress={openPhoneSettings} />
         <Row Icon={Share2} color={T.green} title="Check from any app"
           sub="Copy a text, tap Loop Me in Messages. Or use Share."
-          onPress={() => ctx.flash('In Messages, WhatsApp or Mail: select the text, tap Share, then Loop Me.')} />
+          onPress={() => ctx.flash('Select the text, tap Share, then Loop Me.')} />
         <Row Icon={HandHeart} color={T.green}
           title={careMode ? 'Looking after ' + watchName : 'Look after someone else'}
           sub={careMode ? (s.familyLinked ? 'Linked.' : 'Waiting for their invite link.') : 'Their alerts, on your phone.'}
@@ -78,7 +78,7 @@ export default function MoreScreen({ ctx }: { ctx: Ctx }) {
         <Row Icon={BookOpen} color={T.amber} title="Learn the tricks" sub="Five worth knowing, in plain words." onPress={() => ctx.go('learn')} />
         <Row Icon={Phone} color={T.amber} title="Practice a scam call" sub="A rehearsal. Nobody really calls." onPress={() => ctx.go('call')} />
         <Row Icon={HandHeart} color={T.amber} title="Set up for someone else" sub="Four things to check." onPress={() => ctx.go('care')} />
-        <Row Icon={Cog} color={T.sub} title="Settings" sub="Alerts, read aloud, safe senders, blocked numbers." last onPress={() => ctx.go('settings')} />
+        <Row Icon={Cog} color={T.sub} title="Settings" sub="Alerts, safe senders, blocked numbers." last onPress={() => ctx.go('settings')} />
       </View>
 
       <Text style={[st.section, { paddingTop: 16 }]} allowFontScaling>
@@ -88,12 +88,12 @@ export default function MoreScreen({ ctx }: { ctx: Ctx }) {
         <LifeBuoy size={18} color={T.red} strokeWidth={2} />
         <View style={{ flex: 1 }}>
           <Text style={st.panicTitle} allowFontScaling>{careMode ? 'Help ' + watchName + ' report fraud' : 'I think I’ve been scammed'}</Text>
-          <Text style={st.rowSub} allowFontScaling>{careMode ? 'Five steps to work through together, bank first.' : 'Five calm steps, starting with your bank.'}</Text>
+          <Text style={st.rowSub} allowFontScaling>{careMode ? 'Five steps to work through together, bank first.' : 'Five steps, starting with your bank.'}</Text>
         </View>
         <ChevronRight size={17} color={T.red} strokeWidth={2.2} />
       </Pressable>
 
-      <Text style={st.version} allowFontScaling>Loop Me {version} · checks happen on this phone · no account · the family link runs on your own iCloud</Text>
+      <Text style={st.version} allowFontScaling>Loop Me {version}</Text>
       <View style={{ height: 104 }} />
     </ScrollView>
     </KFIn>

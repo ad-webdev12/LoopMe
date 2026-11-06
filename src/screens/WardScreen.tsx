@@ -127,7 +127,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
                 ) : (
                   <Pressable style={st.blockBtn} accessibilityRole="button" onPress={() => {
                     const rec = ctx.hist.find(h => h.source === 'family' && h.sender === r.sender);
-                    if (rec) void ctx.sendNoteTo(rec.id, 'I have blocked that number for you. It cannot ring or text you any more.', 'block');
+                    if (rec) void ctx.sendNoteTo(rec.id, 'I blocked that number for you.', 'block');
                   }}>
                     <Ban size={14} color="#fff" strokeWidth={2.4} />
                     <Text style={st.blockBtnText} allowFontScaling>Block on {watchName}’s phone</Text>

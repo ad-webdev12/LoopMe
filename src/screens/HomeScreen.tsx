@@ -37,7 +37,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
       if (found) { setText(found); ctx.check(found); }
       else ctx.flash('We could not find any words in that picture. Try a clearer one.');
     } catch {
-      ctx.flash('That picture could not be read. You can paste or type the message instead.');
+      ctx.flash('Could not read that picture. Paste the text instead.');
     }
   };
 

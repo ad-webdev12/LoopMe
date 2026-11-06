@@ -17,10 +17,10 @@ import type { Settings } from './storage';
 export type { FamilyNote, FamilyPulse, LinkStatus, SharedCheck, CloudEvent };
 
 const QUICK: Record<'scam' | 'safe' | 'call' | 'block', string> = {
-  scam: 'It is fake. Please delete it and do not reply.',
-  safe: 'That one is genuine, you are fine to open it.',
+  scam: 'It is fake. Delete it and do not reply.',
+  safe: 'That one is genuine. You are fine.',
   call: 'Do not tap anything, I will call you now.',
-  block: 'I have blocked that number for you. It cannot ring or text you any more.',
+  block: 'I blocked that number for you.',
 };
 export const QUICK_NOTES = QUICK;
 

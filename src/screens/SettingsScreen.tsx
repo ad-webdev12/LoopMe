@@ -43,9 +43,9 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
     ctx.flash('Unblocked.');
   };
   const rows = [
-    { key: 'alerts' as const, title: 'Warn me straight away', why: 'A full-screen warning the moment a text looks like a scam.' },
-    { key: 'auto' as const, title: 'Check texts from numbers I do not know', why: 'Every text from a stranger is checked before it reaches Messages. Scams go to Junk.' },
-    { key: 'aloud' as const, title: 'Read answers out loud', why: 'Speak every answer so you do not have to read small print.' },
+    { key: 'alerts' as const, title: 'Warn me straight away', why: 'A full red screen when a text is a scam.' },
+    { key: 'auto' as const, title: 'Check unknown texts', why: 'Scams go to Junk before you see them.' },
+    { key: 'aloud' as const, title: 'Read answers out loud', why: 'Every answer, spoken.' },
   ];
 
   return (
@@ -79,8 +79,8 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
       </View>
 
       <View style={st.autoCard}>
-        <Text style={st.autoTitle} allowFontScaling>Two switches live in the iPhone Settings app</Text>
-        <Text style={st.autoBody} allowFontScaling>Two switches in iPhone Settings: Messages › Unknown & Junk, and Phone › Call Blocking. Both take a minute.</Text>
+        <Text style={st.autoTitle} allowFontScaling>Two switches in iPhone Settings</Text>
+        <Text style={st.autoBody} allowFontScaling>Unknown texts, and scam callers. One minute.</Text>
         <Pressable onPress={() => Linking.openSettings()} accessibilityRole="button">
           <Text style={st.autoLink} allowFontScaling>Open iPhone Settings ›</Text>
         </Pressable>
@@ -93,8 +93,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
           <Text style={st.cwTitle} allowFontScaling>A word only your family knows</Text>
         </View>
         <Text style={st.cwBody} allowFontScaling>
-          If someone calls sounding like family and asks for money, ask them for this word. A
-          stranger cannot know it. Not even one using a recording of a voice you love.
+          If a caller sounds like family and wants money, ask for this word.
         </Text>
         <TextInput
           style={st.cwInput}
@@ -119,7 +118,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
             </Pressable>
           )}
         </View>
-        <Text style={st.cwNote} allowFontScaling>Kept on this phone only. It is never sent anywhere, and never shown in a shared check.</Text>
+        <Text style={st.cwNote} allowFontScaling>Kept on this phone. Never sent anywhere.</Text>
       </View>
 
       <Text style={st.section} allowFontScaling>SENDERS YOU TRUST</Text>
@@ -153,7 +152,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
       </View>
 
       <Text style={[st.section, { paddingTop: 14 }]} allowFontScaling>NUMBERS YOU BLOCKED</Text>
-      <Text style={st.blockHint} allowFontScaling>A blocked number cannot ring you, and its texts go straight to Junk. Had a scam call? Add the number here.</Text>
+      <Text style={st.blockHint} allowFontScaling>Blocked numbers cannot ring you. Their texts go to Junk.</Text>
       <View style={st.card}>
         {st_.blocked.map((n) => (
           <View key={n} style={st.allowRow}>

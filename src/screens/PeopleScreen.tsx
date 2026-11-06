@@ -35,10 +35,10 @@ export default function PeopleScreen({ ctx }: { ctx: Ctx }) {
   const me = (ctx.settings.myName || '').split(' ')[0];
   const linked = ctx.settings.familyLinked && ctx.settings.familyRole === 'owner';
   const quote = careMode
-    ? 'Your replies do not travel as texts at all. They appear full screen on ' + watchName + '’s phone, under the exact message that was flagged.'
+    ? 'Your replies appear full screen on ' + watchName + '’s phone.'
     : linked
-    ? 'With the family link on, a flagged text appears on ' + (ctx.settings.watchedBy?.split(' ')[0] || 'their') + '’s phone by itself. The people here are who one tap calls.'
-    : '“' + (me ? me + ' just' : 'I just') + ' checked a message with Loop Me and it came back as a scam.” The message and the reason follow, then: “Could you give me a ring when you have a minute?”';
+    ? 'Flagged texts reach ' + (ctx.settings.watchedBy?.split(' ')[0] || 'them') + ' on their own. One tap calls the people here.'
+    : '“Loop Me says this text is a scam: … Can you ring ' + (me || 'me') + '?”';
 
   return (
     <KFIn duration={260} style={{ flex: 1 }} playKey="people">
@@ -46,7 +46,7 @@ export default function PeopleScreen({ ctx }: { ctx: Ctx }) {
       <View style={{ height: 14 }} />
       <View style={{ paddingHorizontal: 22, paddingBottom: 14 }}>
         <Text style={st.title} allowFontScaling>People you trust</Text>
-        <Text style={st.sub} allowFontScaling>Up to three. One tap calls them, and one tap tells them what arrived.</Text>
+        <Text style={st.sub} allowFontScaling>Up to three. One tap calls them.</Text>
       </View>
       <View style={st.card}>
         {people.map((p, i) => (
@@ -72,7 +72,7 @@ export default function PeopleScreen({ ctx }: { ctx: Ctx }) {
           <Text style={st.addText} allowFontScaling>Add someone from contacts</Text>
         </Pressable>
       </View>
-      <Text style={st.explain} allowFontScaling>{linked || careMode ? 'How it reaches them:' : 'They get a plain text message. No app to install, no sign-up. This is exactly what it says:'}</Text>
+      <Text style={st.explain} allowFontScaling>{linked || careMode ? '' : 'Without the family link, they get one short text:'}</Text>
       <View style={st.quote}><Text style={st.quoteText} allowFontScaling>{quote}</Text></View>
       <View style={{ height: 104 }} />
     </ScrollView>
