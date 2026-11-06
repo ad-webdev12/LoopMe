@@ -56,7 +56,6 @@ export default function WardItemScreen({ ctx }: { ctx: Ctx }) {
       <View style={st.section}>
         <Text style={st.sectionLabel} allowFontScaling>What arrived</Text>
         <View style={st.msgRow}>
-          <View style={st.msgRule} />
           <Text style={st.msgText} allowFontScaling>{rec.excerpt}</Text>
         </View>
         <Pressable style={st.readBtn} onPress={() => { stopReading(); readAloud('From ' + (rec.sender || 'an unknown number') + '. ' + rec.excerpt + '. ' + watchName + ' was told: ' + rec.reason); }} accessibilityRole="button">
@@ -137,8 +136,7 @@ const st = StyleSheet.create({
   from: { fontSize: 16, fontFamily: F.medium, marginTop: 8, lineHeight: 22 },
   section: { paddingHorizontal: 20, paddingTop: 20 },
   sectionLabel: { fontSize: 14, fontFamily: F.semibold, color: T.sub },
-  msgRow: { flexDirection: 'row', gap: 12, marginTop: 8 },
-  msgRule: { width: 3, borderRadius: 2, backgroundColor: T.fieldBorder },
+  msgRow: { marginTop: 8, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 14 },
   msgText: { flex: 1, fontSize: 17, fontFamily: F.body, color: T.ink2, lineHeight: 25 },
   told: { fontSize: 17, fontFamily: F.semibold, color: T.ink, marginTop: 7, lineHeight: 24 },
   quick: {

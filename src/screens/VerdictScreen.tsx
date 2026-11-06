@@ -191,7 +191,6 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
       <View style={st.section}>
         <Text style={st.sectionLabel} allowFontScaling>Message checked</Text>
         <View style={st.msgRow}>
-          <View style={st.msgRule} />
           {/* Long messages fold, so the answer and the buttons stay in reach. */}
           <Text style={st.msgText} allowFontScaling numberOfLines={showAll || ctx.msg.length <= 160 ? undefined : 3}>{ctx.msg}</Text>
         </View>
@@ -317,8 +316,7 @@ const st = StyleSheet.create({
   noteCard: { marginTop: 8, backgroundColor: T.greenTint, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 13 },
   noteText: { fontSize: 17, fontFamily: F.body, color: T.greenInk2, lineHeight: 25.5 },
 
-  msgRow: { flexDirection: 'row', gap: 12, marginTop: 8 },
-  msgRule: { width: 3, borderRadius: 2, backgroundColor: T.fieldBorder },
+  msgRow: { marginTop: 8, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 14 },
   msgText: { flex: 1, fontSize: 17, fontFamily: F.body, color: T.ink2, lineHeight: 26.4 },
   showAll: { fontSize: 16, fontFamily: F.semibold, color: T.green, paddingTop: 8, paddingLeft: 15 },
 

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as Contacts from 'expo-contacts';
-import { ChevronRight, ArrowRight, Shield, Check, Plus, Send } from 'lucide-react-native';
+import { ChevronRight, ArrowRight, Check, Plus, Send } from 'lucide-react-native';
 import * as Family from '../lib/family';
 import { sendSms, inviteText } from '../lib/familyLink';
 import { ensureNotificationPermission } from '../lib/notify';
@@ -73,10 +73,7 @@ export function Ob1({ ctx }: { ctx: Ctx }) {
         <Choice title="I look after someone" body="They keep their own phone. I get told when something looks wrong."
           onPress={() => ctx.go('watch')} />
       </View>
-      <View style={s1.reassure}>
-        <Shield size={18} color={T.green} strokeWidth={1.9} style={{ marginTop: 1 }} />
-        <Text style={s1.reassureText} allowFontScaling>No account. Nothing leaves this phone.</Text>
-      </View>
+      <Text style={s1.reassureText} allowFontScaling>No account. Nothing leaves this phone.</Text>
     </View>
     </KFIn>
   );
@@ -90,8 +87,7 @@ const s1 = StyleSheet.create({
   },
   choiceTitle: { fontSize: 17, fontFamily: F.display, color: T.ink },
   choiceBody: { fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 22.5, marginTop: 3 },
-  reassure: { marginHorizontal: 22, marginTop: 22, backgroundColor: T.greenTint, paddingHorizontal: 16, paddingVertical: 14, flexDirection: 'row', gap: 11 },
-  reassureText: { flex: 1, fontSize: 15, fontFamily: F.body, color: T.green, lineHeight: 22.5 },
+  reassureText: { marginHorizontal: 22, marginTop: 22, fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 23 },
 });
 
 // ---------------- Ob2: who is this phone for? (caregiver) ----------------

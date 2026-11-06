@@ -1,5 +1,5 @@
 // People you trust. Source lines 303-310. Up to three; call + remove per row;
-// add from contacts (real picker); the quoted sample text at the bottom.
+// add from contacts (real picker).
 import React from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Contacts from 'expo-contacts';
@@ -31,16 +31,7 @@ export default function PeopleScreen({ ctx }: { ctx: Ctx }) {
     ctx.flash(res.person.name.split(' ')[0] + ' is saved. One tap now tells them.');
   };
 
-  // The exact opening line of the real text this app sends, with the real names.
-  const me = (ctx.settings.myName || '').split(' ')[0];
-  const linked = ctx.settings.familyLinked && ctx.settings.familyRole === 'owner';
-  const quote = careMode
-    ? 'Your replies appear full screen on ' + watchName + '’s phone.'
-    : linked
-    ? 'Flagged texts reach ' + (ctx.settings.watchedBy?.split(' ')[0] || 'them') + ' on their own. One tap calls the people here.'
-    : '“Loop Me says this text is a scam: … Can you ring ' + (me || 'me') + '?”';
-
-  return (
+    return (
     <KFIn duration={260} style={{ flex: 1 }} playKey="people">
     <ScrollView style={st.root} showsVerticalScrollIndicator={false}>
       <View style={{ height: 14 }} />
@@ -72,8 +63,6 @@ export default function PeopleScreen({ ctx }: { ctx: Ctx }) {
           <Text style={st.addText} allowFontScaling>Add someone from contacts</Text>
         </Pressable>
       </View>
-      <Text style={st.explain} allowFontScaling>{linked || careMode ? '' : 'Without the family link, they get one short text:'}</Text>
-      <View style={st.quote}><Text style={st.quoteText} allowFontScaling>{quote}</Text></View>
       <View style={{ height: 104 }} />
     </ScrollView>
     </KFIn>
@@ -98,7 +87,4 @@ const st = StyleSheet.create({
   addRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15 },
   addIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: T.greenTint, alignItems: 'center', justifyContent: 'center' },
   addText: { fontSize: 16.5, fontFamily: F.bold, color: T.ink },
-  explain: { paddingHorizontal: 22, paddingTop: 16, paddingBottom: 8, fontSize: 15, fontFamily: F.body, color: T.sub, lineHeight: 22 },
-  quote: { marginHorizontal: 22, backgroundColor: T.greenTint, borderLeftWidth: 3, borderLeftColor: T.green, paddingHorizontal: 15, paddingVertical: 14 },
-  quoteText: { fontSize: 15, fontFamily: F.body, color: T.green, lineHeight: 22 },
 });

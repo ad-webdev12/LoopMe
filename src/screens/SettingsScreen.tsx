@@ -78,11 +78,13 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
         ))}
       </View>
 
-      <View style={st.autoCard}>
-        <Text style={st.autoTitle} allowFontScaling>Two switches in iPhone Settings</Text>
-        <Text style={st.autoBody} allowFontScaling>Unknown texts, and scam callers. One minute.</Text>
-        <Pressable onPress={() => Linking.openSettings()} accessibilityRole="button">
-          <Text style={st.autoLink} allowFontScaling>Open iPhone Settings ›</Text>
+      <View style={[st.card, { marginTop: 14 }]}>
+        <Pressable style={[st.setupRow, { borderBottomWidth: 0 }]} onPress={() => Linking.openSettings()} accessibilityRole="button">
+          <View style={{ flex: 1 }}>
+            <Text style={st.setupText} allowFontScaling>Two switches in iPhone Settings</Text>
+            <Text style={st.setupSub} allowFontScaling>Unknown texts, and scam callers. One minute.</Text>
+          </View>
+          <ChevronRight size={17} color={T.green} strokeWidth={2.2} />
         </Pressable>
       </View>
 
@@ -227,10 +229,7 @@ const st = StyleSheet.create({
   cwSaveText: { fontSize: 15.5, fontFamily: F.semibold, color: '#fff' },
   cwRemove: { fontSize: 15.5, fontFamily: F.semibold, color: T.sub },
   cwNote: { fontSize: 13.5, fontFamily: F.body, color: T.sub, lineHeight: 19, paddingHorizontal: 15, paddingTop: 11, paddingBottom: 14 },
-  autoCard: { marginHorizontal: 22, marginVertical: 14, backgroundColor: T.greenTint, paddingHorizontal: 16, paddingVertical: 14, borderRadius: 12 },
-  autoTitle: { fontSize: 15, fontFamily: F.bold, color: T.green, marginBottom: 5 },
-  autoBody: { fontSize: 14.5, fontFamily: F.body, color: T.greenInk2, lineHeight: 21 },
-  autoLink: { fontSize: 15, fontFamily: F.bold, color: T.green, marginTop: 9 },
+  setupSub: { fontSize: 14.5, fontFamily: F.body, color: T.sub, marginTop: 2 },
   allowRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 15, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: T.divider },
   allowLabel: { fontSize: 16, fontFamily: F.semibold, color: T.ink },
   allowRemove: { fontSize: 14, fontFamily: F.semibold, color: T.sub },
