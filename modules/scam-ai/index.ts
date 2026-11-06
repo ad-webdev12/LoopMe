@@ -115,6 +115,7 @@ const native = requireOptionalNativeModule<{
   cloudPublishCheck(check: Record<string, unknown>): Promise<boolean>;
   cloudPublishPulse(pulse: Omit<FamilyPulse, 'at'>): Promise<boolean>;
   cloudSendNote(checkId: string, text: string, verdict: string, from: string): Promise<boolean>;
+  cloudSubmitSample(text: string, label: string, country: string): Promise<boolean>;
   cloudSync(): Promise<number>;
   cloudSnapshot(): FamilySnapshot;
   cloudSubscribe(): Promise<boolean>;
@@ -201,6 +202,12 @@ export async function cloudPublishCheck(c: Omit<SharedCheck, 'at'> & { at?: numb
 export async function cloudPublishPulse(p: Omit<FamilyPulse, 'at'>): Promise<boolean> {
   if (!native) return false;
   try { return await native.cloudPublishPulse(p); } catch { return false; }
+}
+
+/** Opt-in: a corrected, redacted text into the public database for retraining. */
+export async function cloudSubmitSample(text: string, label: 'scam' | 'safe', country: string): Promise<boolean> {
+  if (!native) return false;
+  try { return await native.cloudSubmitSample(text, label, country); } catch { return false; }
 }
 
 /** Caretaker: a note back under one check. */

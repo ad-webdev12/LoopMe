@@ -66,11 +66,11 @@ export function Ob1({ ctx }: { ctx: Ctx }) {
         <Title text="Whose phone is this?" />
       </View>
       <View style={{ paddingHorizontal: 22, gap: 10 }}>
-        <Choice title="It’s mine" bold body="Set it up the way I want it."
-          onPress={() => { ctx.update({ ...ctx.settings, role: 'elder', careName: '' }); ctx.go('ob3'); }} />
-        <Choice title="I’m setting it up for someone" bold amber body="A parent or grandparent. Two minutes."
+        <Choice title="My parent’s, or someone I look after" bold body="I am setting it up for them. Two minutes."
           onPress={() => { ctx.update({ ...ctx.settings, role: 'elder' }); ctx.go('ob2'); }} />
-        <Choice title="I look after someone" body="They keep their own phone. I get told when something looks wrong."
+        <Choice title="Mine" bold body="Set it up for me."
+          onPress={() => { ctx.update({ ...ctx.settings, role: 'elder', careName: '' }); ctx.go('ob3'); }} />
+        <Choice title="Mine, and I look after someone else" body="Their phone stays theirs. I hear when something looks wrong."
           onPress={() => ctx.go('watch')} />
       </View>
       <Text style={s1.reassureText} allowFontScaling>No account. Nothing leaves this phone.</Text>
@@ -98,7 +98,7 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
     <KFIn duration={300} style={{ flex: 1 }} playKey="ob2">
     <View style={s1.root}>
       <View style={{ paddingHorizontal: 22, paddingTop: 24, paddingBottom: 18 }}>
-        <Kicker text="For someone else" amber step={2} />
+        <Kicker text="Setting up" step={2} of={4} />
         <Title text="Who is this phone for?" />
       </View>
       <View style={s2.card}>

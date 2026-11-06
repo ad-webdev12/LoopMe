@@ -112,7 +112,7 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
             <View style={sw.warnCard}>
               <Text style={sw.warnTitle} allowFontScaling>This phone is not signed in to iCloud</Text>
               <Text style={sw.warnBody} allowFontScaling>Sign in to iCloud under Settings › your name, then come back.</Text>
-              <Pressable onPress={() => Linking.openURL('App-prefs:').catch(() => Linking.openSettings())} accessibilityRole="button">
+              <Pressable onPress={() => Linking.openSettings()} accessibilityRole="button">
                 <Text style={sw.warnLink} allowFontScaling>Open iPhone Settings ›</Text>
               </Pressable>
             </View>

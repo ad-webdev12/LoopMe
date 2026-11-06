@@ -50,6 +50,11 @@ extension Engine {
     let text = Normalize.run(message.trimmingCharacters(in: .whitespacesAndNewlines)).text
     if text.isEmpty { return v }
     let p = model.probability(text)
+    // The portable model raised it and the strong model disagrees: rules only.
+    if v.fused && p < 0.3 {
+      let pure = detect(message, opts)
+      if pure.level == .green { return pure }
+    }
     return fuse(v, p: p, threshold: model.threshold)
   }
 

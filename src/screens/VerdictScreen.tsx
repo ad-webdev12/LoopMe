@@ -64,8 +64,6 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
   const first = ctx.settings.trusted[0];
   const signals = v.signals.length ? v.signals : ['Nothing in this message matches a known scam trick.'];
   const toks = ctx.msg.split(/\s+/).filter(Boolean).map(w => ({ w, flag: FLAGS.some(re => re.test(w)) }));
-  const checkedAt = new Date();
-  const vTime = 'Checked at ' + timeLabel(checkedAt);
 
   const stopRead = () => {
     clearTimeout(timer.current); Speech.stop();
@@ -110,7 +108,6 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
           <ChevronLeft size={17} color={T.ink} strokeWidth={2} />
           <Text style={st.backText} allowFontScaling>Back</Text>
         </Pressable>
-        <Text style={st.time} allowFontScaling>{vTime}</Text>
       </View>
 
       <View style={[st.banner, { backgroundColor: meta.tint }]}>
@@ -161,7 +158,7 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
       )}
 
       <Pressable style={st.whyRow} onPress={() => setWhy(!why)} accessibilityRole="button">
-        <Text style={st.whyLabel} allowFontScaling>{why ? 'Hide the reasons' : 'Why we say that'}</Text>
+        <Text style={st.whyLabel} allowFontScaling>{why ? 'Hide' : 'Why'}</Text>
         <View style={st.whyRight}>
           <Text style={st.whyCount} allowFontScaling>{signals.length}{signals.length === 1 ? ' reason' : ' reasons'}</Text>
           {why ? <ChevronUp size={16} color={T.green} strokeWidth={2.2} /> : <ChevronDown size={16} color={T.green} strokeWidth={2.2} />}
@@ -209,6 +206,14 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
           <UserCheck size={20} color="#fff" strokeWidth={1.9} />
         </Pressable>
 
+        {!careMode && !rec?.userLabel && (
+          <View style={st.rightRow}>
+            <Text style={st.rightLabel} allowFontScaling>Was this right?</Text>
+            <Pressable style={st.rightBtn} onPress={() => ctx.correct(ctx.recordId, v.level === 'green' ? 'scam' : 'fine')} accessibilityRole="button">
+              <Text style={st.rightBtnText} allowFontScaling>{v.level === 'green' ? 'No, it is a scam' : 'No, it is fine'}</Text>
+            </Pressable>
+          </View>
+        )}
         <View style={st.smallRow}>
           {v.level !== 'green' && !careMode && !!rec?.sender && rec.sender.replace(/\D/g, '').length >= 7 && !ctx.settings.blocked.includes(rec.sender.replace(/\D/g, '')) && (
             <Pressable style={st.small} onPress={() => ctx.blockNumber(rec.sender!)} accessibilityRole="button" accessibilityLabel="Block this number">
@@ -322,6 +327,10 @@ const st = StyleSheet.create({
 
   actions: { paddingHorizontal: 20, paddingTop: 24, gap: 10 },
   smallRow: { flexDirection: 'row', gap: 8 },
+  rightRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 2 },
+  rightLabel: { fontSize: 15, fontFamily: F.body, color: T.sub },
+  rightBtn: { paddingHorizontal: 12, height: 36, borderRadius: 10, borderWidth: 1, borderColor: T.hairline, backgroundColor: T.surface, justifyContent: 'center' },
+  rightBtnText: { fontSize: 14.5, fontFamily: F.semibold, color: T.ink },
   small: { flex: 1, height: 56, borderRadius: 12, borderWidth: 1, borderColor: T.hairline, backgroundColor: T.surface, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
   smallText: { fontSize: 15.5, fontFamily: F.semibold, color: T.ink },
   loopBtn: { height: 62, borderRadius: 12, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18 },

@@ -132,7 +132,7 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
       </View>
       <View style={{ paddingHorizontal: 22, paddingBottom: 14 }}>
         <Text style={st.title} allowFontScaling>History</Text>
-        <Text style={st.sub} allowFontScaling>Kept on this phone. Export makes a PDF for your bank.</Text>
+        <Text style={st.sub} allowFontScaling>Export makes a PDF for your bank.</Text>
       </View>
 
       <View style={st.statsCard}>

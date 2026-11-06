@@ -14,17 +14,18 @@ try evaluate(modelURL: URL(fileURLWithPath: modelPath, relativeTo: cwd), benchUR
 // ---- shared evaluator (kept identical in ml/eval.swift) ----------------
 func evaluate(modelURL: URL, benchURL: URL, verbose: Bool) throws {
   var o = CSVReadingOptions(); o.hasHeaderRow = true
-  let bench = try DataFrame(contentsOfCSVFile: benchURL, columns: ["set", "text", "label", "rule"], types: ["set": .string, "text": .string, "label": .string, "rule": .string], options: o)
+  let bench = try DataFrame(contentsOfCSVFile: benchURL, columns: ["set", "text", "label", "rule", "pure"], types: ["set": .string, "text": .string, "label": .string, "rule": .string, "pure": .string], options: o)
   let compiled = try MLModel.compileModel(at: modelURL)
   let nl = try NLModel(contentsOf: compiled)
   let size = (try? FileManager.default.allocatedSizeOfDirectory(at: compiled)) ?? 0
-  struct Row { let set: String; let text: String; let scam: Bool; let ruleFlag: Bool; let p: Double }
+  struct Row { let set: String; let text: String; let scam: Bool; let ruleFlag: Bool; let pureFlag: Bool; let p: Double }
   var rows: [Row] = []
   let t1 = Date()
   for r in bench.rows {
     guard let set = r["set"] as? String, let text = r["text"] as? String, let label = r["label"] as? String, let rule = r["rule"] as? String else { continue }
+    let pure = (r["pure"] as? String) ?? rule
     let p = nl.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0
-    rows.append(Row(set: set, text: text, scam: label == "scam", ruleFlag: rule != "green", p: p))
+    rows.append(Row(set: set, text: text, scam: label == "scam", ruleFlag: rule != "green", pureFlag: pure != "green", p: p))
   }
   let perMsg = Date().timeIntervalSince(t1) / Double(rows.count) * 1000
   print(String(format: "model %.1f MB compiled, %.2f ms per message, %d bench rows", Double(size) / 1e6, perMsg, rows.count))
@@ -44,7 +45,8 @@ func evaluate(modelURL: URL, benchURL: URL, verbose: Bool) throws {
   report("rules only") { $0.ruleFlag }
   for t in [0.5, 0.6, 0.7, 0.8, 0.9] {
     report(String(format: "model >= %.1f", t)) { $0.p >= t }
-    report(String(format: "fused  >= %.1f", t)) { $0.ruleFlag || $0.p >= t }
+    // Fused as shipped: a portable-model-only raise is dropped when the strong model is under 0.3.
+    report(String(format: "fused  >= %.1f", t)) { $0.pureFlag || ($0.ruleFlag && $0.p >= 0.3) || $0.p >= t }
   }
   if verbose {
     for r in rows where r.scam && !r.ruleFlag && r.p < 0.7 { print(String(format: "MISS-BOTH [%@] %.2f %@", r.set as NSString, r.p, r.text as NSString)) }

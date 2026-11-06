@@ -176,7 +176,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
       {ward.length === 0 ? (
         <View style={st.quietCard}>
           <Text style={st.quietTitle} allowFontScaling>Nothing flagged yet</Text>
-          <Text style={st.quietBody} allowFontScaling>You only hear from this phone when something on {watchName}’s looks wrong. When it does, it takes over this screen. The weekly picture above updates on its own.</Text>
+          <Text style={st.quietBody} allowFontScaling>You hear from this phone when something on {watchName}’s looks wrong. If their app is closed, it can take up to a day.</Text>
         </View>
       ) : (
         <View style={st.listCard}>
@@ -206,7 +206,6 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
         </View>
       )}
 
-      <Text style={st.privacy} allowFontScaling>Only flagged texts and your notes. Never {watchName}’s ordinary messages.</Text>
       <Pressable style={{ paddingHorizontal: 20, paddingTop: 14 }} onPress={ctx.unlinkFamily} accessibilityRole="button">
         <Text style={st.stop} allowFontScaling>Stop looking after {watchName}</Text>
       </Pressable>

@@ -12,7 +12,7 @@ import type { Ctx } from '../App';
 
 export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
   const st_ = ctx.settings;
-  const [toggles, setToggles] = useState({ alerts: st_.alerts, auto: st_.autoCheck, aloud: st_.readAloud });
+  const [toggles, setToggles] = useState({ alerts: st_.alerts, auto: st_.autoCheck, aloud: st_.readAloud, improve: st_.improve });
   const [word, setWord] = useState(st_.codeWord);
   const [blocking, setBlocking] = useState(false);
   const [blockNum, setBlockNum] = useState('');
@@ -24,10 +24,10 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
     ctx.update({ ...st_, codeWord: w, codeWordSet: !!w });
     ctx.flash(w ? 'Code word saved. It stays on this phone.' : 'Code word removed.');
   };
-  const flip = (key: 'alerts' | 'auto' | 'aloud') => {
+  const flip = (key: 'alerts' | 'auto' | 'aloud' | 'improve') => {
     const next = { ...toggles, [key]: !toggles[key] };
     setToggles(next);
-    ctx.update({ ...st_, alerts: next.alerts, autoCheck: next.auto, readAloud: next.aloud });
+    ctx.update({ ...st_, alerts: next.alerts, autoCheck: next.auto, readAloud: next.aloud, improve: next.improve });
   };
   const addSender = () => {
     const v = sender.trim();
@@ -46,6 +46,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
     { key: 'alerts' as const, title: 'Warn me straight away', why: 'A full red screen when a text is a scam.' },
     { key: 'auto' as const, title: 'Check unknown texts', why: 'Scams go to Junk before you see them.' },
     { key: 'aloud' as const, title: 'Read answers out loud', why: 'Every answer, spoken.' },
+    { key: 'improve' as const, title: 'Help improve Loop Me', why: 'When you correct an answer, the text is sent, with numbers and names blanked, so the next version catches it. Nothing else is ever sent.' },
   ];
 
   return (
@@ -79,7 +80,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
       </View>
 
       <View style={[st.card, { marginTop: 14 }]}>
-        <Pressable style={[st.setupRow, { borderBottomWidth: 0 }]} onPress={() => Linking.openSettings()} accessibilityRole="button">
+        <Pressable style={[st.setupRow, { borderBottomWidth: 0 }]} onPress={() => ctx.go('switches')} accessibilityRole="button">
           <View style={{ flex: 1 }}>
             <Text style={st.setupText} allowFontScaling>Two switches in iPhone Settings</Text>
             <Text style={st.setupSub} allowFontScaling>Unknown texts, and scam callers. One minute.</Text>
@@ -120,7 +121,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
             </Pressable>
           )}
         </View>
-        <Text style={st.cwNote} allowFontScaling>Kept on this phone. Never sent anywhere.</Text>
+        <Text style={st.cwNote} allowFontScaling>Only your family knows it.</Text>
       </View>
 
       <Text style={st.section} allowFontScaling>SENDERS YOU TRUST</Text>

@@ -18,6 +18,7 @@ export interface Settings {
   careName: string;              // caregiver setup: who the phone is for
   careRel: string;               // Mother / Father / Other
   autoCheck: boolean;            // "Check unknown texts for me"
+  improve: boolean;              // send corrected texts (redacted) to help the detector; off by default
   introSeen: boolean;
   // The family link over iCloud. Mirrored from the native side at launch so
   // screens can read it synchronously.
@@ -35,7 +36,7 @@ const DEFAULTS: Settings = {
   alerts: true, readAloud: false,
   allowlist: [], trusted: [], watching: null,
   codeWordSet: false, codeWord: '', panicCompletedAt: null,
-  pairCode: '', watchedBy: null, careName: '', careRel: 'Mother', autoCheck: true, introSeen: false,
+  pairCode: '', watchedBy: null, careName: '', careRel: 'Mother', autoCheck: true, improve: false, introSeen: false,
   familyLinked: false, familyRole: null, familyInvited: false, blocked: [], installedAt: 0,
 };
 

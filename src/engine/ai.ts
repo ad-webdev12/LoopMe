@@ -113,6 +113,14 @@ export async function upgrade(message: string, rule: Verdict, opts?: DetectorOpt
   const ai = await classify(message);
   if (!ai) return { ...rule, aiTier: tier, fused: false };
 
+  // The portable model is the weak one. When the strong on-device model is
+  // confident the text is fine and the only thing that raised it was the
+  // portable model (no rule fired), the rules' own verdict stands instead.
+  if ((rule as FusedVerdict).fused && tier === 'coreml' && ai.probability < 0.3) {
+    const pure = detect(message, opts);
+    if (pure.level === 'green') return { ...pure, ai, aiTier: tier, fused: false };
+  }
+
   // Apple Intelligence returns a label with a looser probability; the Core ML
   // classifier returns a calibrated probability. Normalize to one number.
   const p = tier === 'foundation'

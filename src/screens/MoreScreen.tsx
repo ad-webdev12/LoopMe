@@ -35,8 +35,6 @@ export default function MoreScreen({ ctx }: { ctx: Ctx }) {
     </Pressable>
   );
 
-  const openMessagesSettings = () => Linking.openURL('App-prefs:MESSAGES').catch(() => Linking.openSettings());
-  const openPhoneSettings = () => Linking.openURL('App-prefs:Phone').catch(() => Linking.openSettings());
 
   return (
     <KFIn duration={260} style={{ flex: 1 }} playKey="more">
@@ -50,11 +48,11 @@ export default function MoreScreen({ ctx }: { ctx: Ctx }) {
         <Row Icon={MessageSquareOff} color={T.green} title="Unknown texts"
           sub={ctx.tallies.junk > 0 ? ctx.tallies.junk + ' stopped before you saw them' : 'Off. Tap to switch on.'}
           state={ctx.tallies.filtered > 0 ? 'on' : 'off'}
-          onPress={openMessagesSettings} />
+          onPress={() => ctx.go('switches')} />
         <Row Icon={PhoneOff} color={T.green} title="Scam callers"
           sub={calls === 'enabled' ? 'On. Scam numbers are labeled when they ring.' : 'Off. Tap to switch on.'}
           state={calls === 'enabled' ? 'on' : 'off'}
-          onPress={openPhoneSettings} />
+          onPress={() => ctx.go('switches')} />
         <Row Icon={Share2} color={T.green} title="Check from any app"
           sub="Copy a text, tap Loop Me in Messages. Or use Share."
           onPress={() => ctx.flash('Select the text, tap Share, then Loop Me.')} />
@@ -76,7 +74,6 @@ export default function MoreScreen({ ctx }: { ctx: Ctx }) {
       <Text style={st.section} allowFontScaling>Learn and set up</Text>
       <View style={st.card}>
         <Row Icon={BookOpen} color={T.amber} title="Learn the tricks" sub="Five worth knowing, in plain words." onPress={() => ctx.go('learn')} />
-        <Row Icon={Phone} color={T.amber} title="Practice a scam call" sub="A rehearsal. Nobody really calls." onPress={() => ctx.go('call')} />
         <Row Icon={HandHeart} color={T.amber} title="Set up for someone else" sub="Four things to check." onPress={() => ctx.go('care')} />
         <Row Icon={Cog} color={T.sub} title="Settings" sub="Alerts, safe senders, blocked numbers." last onPress={() => ctx.go('settings')} />
       </View>

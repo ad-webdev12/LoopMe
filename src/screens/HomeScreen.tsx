@@ -8,7 +8,7 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
 import {
-  Shield, Settings as Cog, ChevronRight, ArrowRight, Image as Img, Camera, Mic, OctagonX, TriangleAlert, CircleCheck,
+  Shield, Settings as Cog, ChevronRight, ArrowRight, Image as Img, Mic, OctagonX, TriangleAlert, CircleCheck,
 } from 'lucide-react-native';
 import { T, F } from '../theme';
 import { KFIn } from '../ui/kf';
@@ -158,22 +158,19 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
         </Pressable>
       </View>
 
-      <Text style={st.orLabel} allowFontScaling>or add it another way</Text>
       <View style={st.addRow}>
-        {[
-          { Icon: Img, label: 'Screenshot', act: () => fromImage(false) },
-          { Icon: Camera, label: 'Photo', act: () => fromImage(true) },
-          { Icon: Mic, label: listening ? 'Listening…' : 'Speak it', act: speakIt },
-        ].map((a) => (
-          <Pressable key={a.label} style={st.addBtn} onPress={a.act} accessibilityRole="button" accessibilityLabel={a.label}>
-            <a.Icon size={22} color={a.label === 'Listening…' ? T.red : T.green} strokeWidth={1.9} />
-            <Text style={[st.addLabel, a.label === 'Listening…' && { color: T.red }]} allowFontScaling>{a.label}</Text>
-          </Pressable>
-        ))}
+        <Pressable style={st.addBtn} onPress={speakIt} accessibilityRole="button" accessibilityLabel="Speak it">
+          <Mic size={22} color={listening ? T.red : T.green} strokeWidth={1.9} />
+          <Text style={[st.addLabel, listening && { color: T.red }]} allowFontScaling>{listening ? 'Listening' : 'Say it instead'}</Text>
+        </Pressable>
+        <Pressable style={st.addBtn} onPress={() => fromImage(false)} accessibilityRole="button" accessibilityLabel="Screenshot">
+          <Img size={22} color={T.green} strokeWidth={1.9} />
+          <Text style={st.addLabel} allowFontScaling>From a screenshot</Text>
+        </Pressable>
       </View>
 
       {!careMode && (
-        <Pressable style={st.now} onPress={() => ctx.go('more')} accessibilityRole="button" accessibilityLabel="What is running right now">
+        <Pressable style={st.now} onPress={() => ctx.go('switches')} accessibilityRole="button" accessibilityLabel="What is running right now">
           <View style={st.nowTop}>
             <View style={[st.nowDot, { backgroundColor: filterOn || callsOn || watchedBy ? T.green : T.amber }]} />
             <Text style={st.nowLabel} allowFontScaling>Right now</Text>
@@ -186,6 +183,13 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
               </View>
             ))}
           </View>
+        </Pressable>
+      )}
+
+      {!careMode && ctx.hist.length === 0 && (
+        <Pressable style={st.tryCard} onPress={() => ctx.check('Your parcel is held at the depot. A redelivery fee of 1.99 is due. Pay within 24 hours at bit.ly/x8s2 or it will be returned.')} accessibilityRole="button">
+          <Text style={st.tryTitle} allowFontScaling>See what happens with a scam text</Text>
+          <Text style={st.trySub} allowFontScaling>We wrote one. Tap to check it.</Text>
         </Pressable>
       )}
 
@@ -231,6 +235,9 @@ function when(at: number): string {
 
 const st = StyleSheet.create({
   root: { flex: 1, backgroundColor: T.ground },
+  tryCard: { marginHorizontal: 20, marginTop: 22, backgroundColor: T.ink, borderRadius: 14, paddingHorizontal: 18, paddingVertical: 18 },
+  tryTitle: { fontSize: 18, fontFamily: F.bold, color: '#fff' },
+  trySub: { fontSize: 15, fontFamily: F.body, color: 'rgba(255,255,255,.75)', marginTop: 4 },
   now: { marginHorizontal: 20, marginTop: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, paddingHorizontal: 16, paddingTop: 13, paddingBottom: 14, shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 } },
   nowTop: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   nowDot: { width: 8, height: 8, borderRadius: 4 },

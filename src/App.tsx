@@ -21,6 +21,7 @@ import { loadSettings, saveSettings, isPostPanic, Settings } from './lib/storage
 import { addCheck, listChecks, newRecord, updateCheck, CheckRecord } from './lib/history';
 import { sendSms, loopInText } from './lib/familyLink';
 import * as Family from './lib/family';
+import * as Feedback from './lib/feedback';
 import { registerFamilyCategories, ensureNotificationPermission, cancelReminders, scheduleWeekly } from './lib/notify';
 import { callDirectoryReload, sharedTallies } from '../modules/scam-ai';
 import TabBar, { TabId } from './ui/TabBar';
@@ -43,13 +44,14 @@ import WardItemScreen from './screens/WardItemScreen';
 import MoreScreen from './screens/MoreScreen';
 import FamilyAlertScreen from './screens/FamilyAlertScreen';
 import NoteScreen from './screens/NoteScreen';
+import SwitchesScreen from './screens/SwitchesScreen';
 
 export type ScreenId =
   | 'intro' | 'ob1' | 'ob2' | 'ob3' | 'ob4'
   | 'watch' | 'watchWait' | 'watchedBy'
   | 'home' | 'verdict' | 'alert'
   | 'history' | 'people' | 'panic' | 'settings' | 'learn' | 'care' | 'more'
-  | 'call' | 'ward' | 'wardItem' | 'familyAlert' | 'note';
+  | 'call' | 'ward' | 'wardItem' | 'familyAlert' | 'note' | 'switches';
 
 export interface Ctx {
   settings: Settings;
@@ -82,6 +84,8 @@ export interface Ctx {
   refreshFamily: () => Promise<void>;
   unlinkFamily: () => void;
   blockNumber: (phone: string) => Promise<void>;
+  /** "Was this right?" The person's answer is remembered on this phone. */
+  correct: (recId: string, label: 'scam' | 'fine') => Promise<void>;
   tallies: { filtered: number; junk: number; shared: number; lastFilteredAt: number };
 }
 
@@ -235,7 +239,7 @@ export default function App() {
       settingsRef.current = s;
       setSettings(s);
       saveSettings(s);
-      setScreen(s.introSeen && s.role ? 'home' : 'intro');
+      setScreen(s.introSeen && s.role ? (s.role === 'caretaker' ? 'ward' : 'home') : 'intro');
       await registerFamilyCategories();
       refreshHist();
       void refreshFamily();
@@ -345,6 +349,15 @@ export default function App() {
     };
     const v = instant(raw, detOpts);
     recentTags.current = v.tags;
+    // A text the person already corrected is never misjudged twice.
+    Feedback.remembered(raw).then((label) => {
+      if (!label || activeCheck.current !== rec.id) return;
+      const fixed: FusedVerdict = label === 'scam'
+        ? { ...v, level: 'red', reason: 'You told Loop Me this one is a scam.', safeStep: 'Do not reply. Delete the message.', confidence: 'very', aiTier: v.aiTier, fused: true }
+        : { ...v, level: 'green', reason: 'You told Loop Me this one is fine.', safeStep: 'Nothing to do.', confidence: 'very', aiTier: v.aiTier, fused: true };
+      setVerdict(fixed);
+      updateCheck(rec.id, { level: fixed.level, reason: fixed.reason }).then(refreshHist);
+    }).catch(() => {});
     const rec = newRecord({ message: raw, level: v.level, score: v.score, tags: v.tags, reason: v.reason, source: sender ? 'link' : 'typed' });
     if (sender) rec.sender = sender;
     addCheck(rec).then(() => { refreshHist(); if (s) listChecks().then(h => Family.sendPulse(s, h)); });
@@ -427,6 +440,16 @@ export default function App() {
     );
   }, [update, go, flash]);
 
+  const correct = useCallback(async (recId: string, label: 'scam' | 'fine') => {
+    const s = settingsRef.current;
+    if (!s) return;
+    await Feedback.correct(recId, label, s, activeCheck.current === recId ? msg : undefined);
+    refreshHist();
+    const rec = histRef.current.find(r => r.id === recId);
+    if (label === 'scam' && rec?.sender) Family.pushConfig(s, await listChecks());
+    flash(label === 'scam' ? 'Noted. It will be treated as a scam from now on.' : 'Noted. It will not be flagged again.');
+  }, [flash, refreshHist, msg]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const blockNumber = useCallback(async (phone: string) => {
     const s = settingsRef.current;
     if (!s) return;
@@ -483,7 +506,7 @@ export default function App() {
     closeFamilyAlert: () => { if (alertId) updateCheck(alertId, { seen: true }).then(refreshHist); setAlertId(null); setScreen('ward'); },
     noteOpen,
     closeNote: () => { setNoteOpen(null); setScreen(verdict ? 'verdict' : 'home'); },
-    loopIn, sendNoteTo, refreshFamily, unlinkFamily, blockNumber, tallies, pulse,
+    loopIn, sendNoteTo, refreshFamily, unlinkFamily, blockNumber, correct, tallies, pulse,
   };
 
   const goTab = (t: TabId) => go(t as ScreenId);
@@ -518,6 +541,7 @@ export default function App() {
         {screen === 'wardItem' && <WardItemScreen ctx={ctx} />}
         {screen === 'familyAlert' && <FamilyAlertScreen ctx={ctx} />}
         {screen === 'note' && <NoteScreen ctx={ctx} />}
+        {screen === 'switches' && <SwitchesScreen ctx={ctx} />}
         {TAB_SCREENS.includes(screen) && (
           <TabBar careMode={careMode} watchName={watchName} screen={screen} go={goTab} />
         )}

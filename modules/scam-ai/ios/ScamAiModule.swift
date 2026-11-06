@@ -92,6 +92,11 @@ public class ScamAiModule: Module {
       return true
     }
 
+    AsyncFunction("cloudSubmitSample") { (text: String, label: String, country: String) -> Bool in
+      try await CloudLink.shared.submitSample(text: text, label: label, country: country)
+      return true
+    }
+
     AsyncFunction("cloudSendNote") { (checkId: String, text: String, verdict: String, from: String) -> Bool in
       try await CloudLink.shared.sendNote(checkId: checkId, text: text, verdict: verdict, from: from)
       return true

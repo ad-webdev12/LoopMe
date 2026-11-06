@@ -49,6 +49,7 @@ export interface CheckRecord {
   safeStep?: string;             // kept for entries that arrived from the filter
   signals?: string[];
   reported?: boolean;            // the person forwarded it to 7726 or the FTC
+  userLabel?: 'scam' | 'fine';   // the person said the verdict was wrong, and what it should have been
   seen?: boolean;                // caretaker side: the full-screen alert was shown
 }
 
@@ -56,8 +57,17 @@ const KEY = 'loopmein.history.v1';
 const CAP = 300;
 
 async function readAll(): Promise<CheckRecord[]> {
-  try { const raw = await AsyncStorage.getItem(KEY); return raw ? JSON.parse(raw) : []; }
-  catch { return []; }
+  let raw: string | null = null;
+  try { raw = await AsyncStorage.getItem(KEY); } catch { return []; }
+  if (!raw) return [];
+  try {
+    const list = JSON.parse(raw);
+    return Array.isArray(list) ? list.filter(r => r && typeof r.id === 'string' && typeof r.at === 'number') : [];
+  } catch {
+    // Keep the bytes rather than silently starting over.
+    try { await AsyncStorage.setItem(KEY + '.unreadable.' + Date.now(), raw); } catch {}
+    return [];
+  }
 }
 
 async function writeAll(list: CheckRecord[]) {

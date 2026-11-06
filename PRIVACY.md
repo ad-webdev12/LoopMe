@@ -66,6 +66,12 @@ phone's access at once.
 The family member receives the invitation as an ordinary text message that you
 send yourself from the Messages app, exactly as if you had typed it.
 
+If you switch on "Help improve Loop Me" in Settings (it is off until you do), then
+when you tell the app an answer was wrong, that one text is sent to Loop Me's public
+iCloud database with phone numbers, emails and long numbers blanked out, so the
+next version can be trained on real scams. Nothing identifies you in it. Nothing
+else is ever sent, and you can switch it off at any time.
+
 The Loop Me icon in the Messages app drawer checks only what you copied. It
 cannot read your conversation; no app can. The result is shown to you and
 nothing is sent into the chat.

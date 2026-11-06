@@ -228,6 +228,20 @@ final class CloudLink: @unchecked Sendable {
     return done.count == pending.count
   }
 
+  /// Opt-in only. A text the person corrected, already redacted, into the
+  /// container's public database so the detector can be retrained on real
+  /// scams. No user identity travels with it; CloudKit's public database
+  /// does not expose who wrote a record to other users or to us.
+  func submitSample(text: String, label: String, country: String) async throws {
+    guard await accountState() == "available" else { throw CloudLinkError.noAccount }
+    let rec = CKRecord(recordType: "Sample")
+    rec["text"] = String(text.prefix(600)) as CKRecordValue
+    rec["label"] = label as CKRecordValue
+    rec["country"] = country as CKRecordValue
+    rec["at"] = Date() as CKRecordValue
+    _ = try await container.publicCloudDatabase.save(rec)
+  }
+
   /// Owner side: tear the share down. The caretaker's phone loses access at once.
   func revoke() async throws {
     let db = try container.privateCloudDatabase

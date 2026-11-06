@@ -25,9 +25,10 @@ export interface AiJudgement{tier:AiTier;label:'scam'|'suspicious'|'safe';probab
 export async function availableTier():Promise<AiTier>{return 'none';}
 export async function classify(_t:string):Promise<AiJudgement|null>{return null;}`);
 const { instant } = await import('file://' + join(w, 'ai.ts'));
+const { detect } = await import('file://' + join(w, 'ScamDetector.ts'));
 const q = s => '"' + String(s).replace(/"/g, '""').replace(/\r?\n/g, ' ') + '"';
 const rows = [];
-for (const b of ['dev','holdout','final','fresh4','fresh5','fresh6','wild','blind','blind2']) {
+for (const b of ['dev','holdout','final','fresh4','fresh5','fresh6','wild','blind','blind2','noisy','lang']) {
   const m = await import('./bench/' + b + '.mjs');
   for (const t of m.SCAM) rows.push([b, t, 'scam']);
   for (const t of m.LEGIT) rows.push([b, t, 'safe']);
@@ -41,6 +42,6 @@ const grab = (name) => {
 };
 for (const t of grab('SCAMS')) rows.push(['suite', t, 'scam']);
 for (const t of grab('LEGIT')) rows.push(['suite', t, 'safe']);
-writeFileSync(join(root, 'ml/bench.csv'), 'set,text,label,rule\n' + rows.map(r => [...r, instant(r[1]).level].map(q).join(',')).join('\n') + '\n');
+writeFileSync(join(root, 'ml/bench.csv'), 'set,text,label,rule,pure\n' + rows.map(r => [...r, instant(r[1]).level, detect(r[1]).level].map(q).join(',')).join('\n') + '\n');
 const by = {}; for (const r of rows) { by[r[0]] ??= { scam: 0, safe: 0 }; by[r[0]][r[2]]++; }
 console.log(by, 'total', rows.length);
