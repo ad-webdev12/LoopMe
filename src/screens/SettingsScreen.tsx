@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Constants from 'expo-constants';
-import { ChevronLeft, ChevronRight, Plus, KeyRound } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Plus, KeyRound, Ban } from 'lucide-react-native';
 import { T, F } from '../theme';
 import { KFIn } from '../ui/kf';
 import { callDirectoryReload } from '../../modules/scam-ai';
@@ -14,6 +14,8 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
   const st_ = ctx.settings;
   const [toggles, setToggles] = useState({ alerts: st_.alerts, auto: st_.autoCheck, aloud: st_.readAloud });
   const [word, setWord] = useState(st_.codeWord);
+  const [blocking, setBlocking] = useState(false);
+  const [blockNum, setBlockNum] = useState('');
   const [sender, setSender] = useState('');
   const [adding, setAdding] = useState(false);
   const version = Constants.expoConfig?.version || '1.0';
@@ -150,21 +152,32 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
         )}
       </View>
 
-      {st_.blocked.length > 0 && (
-        <View>
-          <Text style={[st.section, { paddingTop: 14 }]} allowFontScaling>NUMBERS YOU BLOCKED</Text>
-          <View style={st.card}>
-            {st_.blocked.map((n, i) => (
-              <View key={n} style={[st.allowRow, i === st_.blocked.length - 1 && { borderBottomWidth: 0 }]}>
-                <Text style={st.allowLabel} allowFontScaling>{n}</Text>
-                <Pressable onPress={() => unblock(n)} accessibilityRole="button">
-                  <Text style={st.allowRemove} allowFontScaling>Unblock</Text>
-                </Pressable>
-              </View>
-            ))}
+      <Text style={[st.section, { paddingTop: 14 }]} allowFontScaling>NUMBERS YOU BLOCKED</Text>
+      <Text style={st.blockHint} allowFontScaling>A blocked number cannot ring you, and its texts go straight to Junk. Had a scam call? Add the number here.</Text>
+      <View style={st.card}>
+        {st_.blocked.map((n) => (
+          <View key={n} style={st.allowRow}>
+            <Text style={st.allowLabel} allowFontScaling>{n}</Text>
+            <Pressable onPress={() => unblock(n)} accessibilityRole="button">
+              <Text style={st.allowRemove} allowFontScaling>Unblock</Text>
+            </Pressable>
           </View>
-        </View>
-      )}
+        ))}
+        {blocking ? (
+          <View style={st.addForm}>
+            <TextInput style={st.addInput} value={blockNum} onChangeText={setBlockNum} placeholder="The number that called or texted" placeholderTextColor={T.muted} keyboardType="phone-pad" autoFocus accessibilityLabel="Number to block" />
+            <View style={st.cwActions}>
+              <Pressable style={st.cwSave} onPress={async () => { const n = blockNum; setBlocking(false); setBlockNum(''); await ctx.blockNumber(n); }} accessibilityRole="button"><Text style={st.cwSaveText} allowFontScaling>Block it</Text></Pressable>
+              <Pressable onPress={() => { setBlocking(false); setBlockNum(''); }} accessibilityRole="button"><Text style={st.cwRemove} allowFontScaling>Cancel</Text></Pressable>
+            </View>
+          </View>
+        ) : (
+          <Pressable style={st.addRow} onPress={() => setBlocking(true)} accessibilityRole="button">
+            <Ban size={17} color={T.red} strokeWidth={2.2} />
+            <Text style={st.addText} allowFontScaling>Block a number</Text>
+          </Pressable>
+        )}
+      </View>
 
       <Text style={[st.section, { paddingTop: 14 }]} allowFontScaling>SETUP</Text>
       <View style={st.card}>
@@ -186,6 +199,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
 }
 
 const st = StyleSheet.create({
+  blockHint: { paddingHorizontal: 20, paddingBottom: 8, fontSize: 15, fontFamily: F.body, color: T.sub, lineHeight: 22 },
   root: { flex: 1, backgroundColor: T.ground },
   topRow: { paddingHorizontal: 18, paddingTop: 8, paddingBottom: 10 },
   back: { height: 44, flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start' },

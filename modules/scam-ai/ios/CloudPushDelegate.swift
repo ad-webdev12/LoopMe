@@ -1,6 +1,7 @@
 import ExpoModulesCore
 import UIKit
 import CloudKit
+import BackgroundTasks
 
 // Registered through expo-module.config.json. Expo forwards the app delegate
 // calls here alongside every other module's subscriber.
@@ -15,12 +16,34 @@ public class CloudPushDelegate: ExpoAppDelegateSubscriber {
 
   public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
     application.registerForRemoteNotifications()
+    // Background refresh: iOS wakes us now and then. We use it for one thing:
+    // anything the text filter caught while the app was closed goes to the
+    // caretaker, so they hear about it without the elder opening Loop Me.
+    BGTaskScheduler.shared.register(forTaskWithIdentifier: LM_REFRESH_TASK, using: nil) { task in
+      CloudPushDelegate.scheduleRefresh()
+      let work = Task {
+        let ok = await CloudLink.shared.publishPendingFromFilter()
+        task.setTaskCompleted(success: ok)
+      }
+      task.expirationHandler = { work.cancel() }
+    }
+    CloudPushDelegate.scheduleRefresh()
     // The AppDelegate posts the accepted share here (see AppDelegate.swift),
     // so the app target never has to import this pod.
     shareObserver = NotificationCenter.default.addObserver(forName: Notification.Name("LoopMeShareAccepted"), object: nil, queue: .main) { note in
       if let metadata = note.object as? CKShare.Metadata { CloudLink.shared.accept(metadata) }
     }
     return true
+  }
+
+  public func applicationDidEnterBackground(_ application: UIApplication) {
+    CloudPushDelegate.scheduleRefresh()
+  }
+
+  static func scheduleRefresh() {
+    let req = BGAppRefreshTaskRequest(identifier: LM_REFRESH_TASK)
+    req.earliestBeginDate = Date(timeIntervalSinceNow: 30 * 60)
+    try? BGTaskScheduler.shared.submit(req)
   }
 
   public func application(

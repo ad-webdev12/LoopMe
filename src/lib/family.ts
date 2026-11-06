@@ -63,7 +63,7 @@ function noteOf(n: FamilyNote): Note {
  * the notes attach to the checks they answer. Returns ids of checks that are
  * new on this phone (for the full-screen alert).
  */
-export async function fold(): Promise<{ newChecks: CheckRecord[]; newNotes: FamilyNote[]; newBlocks: string[] }> {
+export async function fold(): Promise<{ newChecks: CheckRecord[]; newNotes: FamilyNote[]; newBlocks: string[]; newSafes: string[] }> {
   const snap = cloudSnapshot();
   const existing = await listChecks();
   const known = new Set(existing.map(r => r.id));
@@ -86,6 +86,7 @@ export async function fold(): Promise<{ newChecks: CheckRecord[]; newNotes: Fami
   // also names the sender to block; the app does that and tells the person.
   const newNotes: FamilyNote[] = [];
   const newBlocks: string[] = [];
+  const newSafes: string[] = [];
   for (const r of existing) {
     const theirs = (notesByCheck.get(r.id) || []).filter(n => !n.mine);
     if (!theirs.length) continue;
@@ -94,6 +95,7 @@ export async function fold(): Promise<{ newChecks: CheckRecord[]; newNotes: Fami
     if (!fresh.length) continue;
     newNotes.push(...fresh);
     if (r.sender && fresh.some(n => n.verdict === 'block')) newBlocks.push(r.sender);
+    if (r.sender && fresh.some(n => n.verdict === 'safe')) newSafes.push(r.sender);
     const merged = [...(r.notes || []), ...fresh.map(noteOf)].sort((a, b) => (a.at || 0) - (b.at || 0));
     const last = fresh[fresh.length - 1];
     await updateCheck(r.id, {
@@ -101,11 +103,11 @@ export async function fold(): Promise<{ newChecks: CheckRecord[]; newNotes: Fami
       reply: last.verdict ? { by: last.from, verdict: last.verdict, note: last.text, at: last.at } : r.reply,
     });
   }
-  return { newChecks, newNotes, newBlocks };
+  return { newChecks, newNotes, newBlocks, newSafes };
 }
 
 /** Pull, then fold. */
-export async function sync(): Promise<{ newChecks: CheckRecord[]; newNotes: FamilyNote[]; newBlocks: string[] }> {
+export async function sync(): Promise<{ newChecks: CheckRecord[]; newNotes: FamilyNote[]; newBlocks: string[]; newSafes: string[] }> {
   await cloudSync();
   return fold();
 }
@@ -123,7 +125,8 @@ export async function drainExtensions(s: Settings): Promise<CheckRecord[]> {
     source: e.source, askedFamily: false, sender: e.sender || undefined, safeStep: e.safeStep, signals: e.signals,
   }));
   await upsertMany(recs);
-  for (const r of recs) if (r.level !== 'green') void publish(r, s, false);
+  const already = new Set(entries.filter(e => e.published).map(e => e.id));
+  for (const r of recs) if (r.level !== 'green' && !already.has(r.id)) void publish(r, s, false);
   return recs;
 }
 

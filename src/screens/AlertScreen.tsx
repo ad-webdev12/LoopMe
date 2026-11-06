@@ -1,9 +1,9 @@
 // Full-screen alert. Red field with the eyebrow, the display line, a hairline,
 // one sentence about the actual message; the bottom half is ground-colored
 // with the three actions and the offline note.
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { AlertTriangle, ArrowRight, User, Shield } from 'lucide-react-native';
+import { AlertTriangle, ArrowRight, User, Shield, Ban } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { T, F } from '../theme';
 import { KFFade, KFRise } from '../ui/kf';
@@ -11,11 +11,24 @@ import type { Ctx } from '../App';
 
 export default function AlertScreen({ ctx }: { ctx: Ctx }) {
   const v = ctx.verdict;
-  useEffect(() => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }, []);
+  // The hold: two seconds of red with nothing to tap. Three hard pulses, then
+  // the buttons appear. Long enough to stop a hand that was about to reply,
+  // short enough that nobody feels trapped.
+  const [held, setHeld] = useState(true);
+  useEffect(() => {
+    setHeld(true);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
+    const t1 = setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {}), 450);
+    const t2 = setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {}), 900);
+    const t3 = setTimeout(() => setHeld(false), 2000);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [ctx.recordId]);
+  const s = ctx.settings;
   const rec = ctx.hist.find(r => r.id === ctx.recordId);
   const sender = rec?.sender || 'an unknown number';
+  const digits = (rec?.sender || '').replace(/\D/g, '');
+  const canBlock = digits.length >= 7 && !s.blocked.includes(digits);
   const firstSignal = v?.signals?.[0] || 'It matches a known scam.';
-  const s = ctx.settings;
   const linked = s.familyLinked && s.familyRole === 'owner';
   const who = linked ? (s.watchedBy?.split(' ')[0] || 'family') : (s.trusted[0]?.name.split(' ')[0] || 'someone');
   // Measured, not asserted: the time this very check actually took.
@@ -35,7 +48,7 @@ export default function AlertScreen({ ctx }: { ctx: Ctx }) {
           <Text style={st.eyebrow} allowFontScaling>Stop: likely scam</Text>
         </KFFade>
         <KFRise duration={550} delay={100} playKey={ctx.recordId}>
-          <Text style={st.display} allowFontScaling>Please don’t{'\n'}tap anything.</Text>
+          <Text style={st.display} allowFontScaling>{held ? 'Stop.\nDo not reply.' : 'Please don’t\ntap anything.'}</Text>
         </KFRise>
         <View style={st.rule} />
         <KFRise duration={550} delay={200} playKey={ctx.recordId}>
@@ -47,6 +60,18 @@ export default function AlertScreen({ ctx }: { ctx: Ctx }) {
       </View>
 
       <View style={st.bottom}>
+        {held ? (
+          <View style={st.holdWrap}>
+            <View style={st.holdBar}><View style={st.holdFill} /></View>
+            <Text style={st.holdText} allowFontScaling>Take a breath. This is a scam. Nothing bad happens if you do nothing.</Text>
+          </View>
+        ) : (<>
+        {canBlock && (
+          <Pressable style={st.blockBtn} onPress={() => ctx.blockNumber(rec!.sender!)} accessibilityRole="button">
+            <Text style={st.blockText} allowFontScaling>Block {sender}</Text>
+            <Ban size={19} color="#fff" strokeWidth={2.2} />
+          </Pressable>
+        )}
         <Pressable style={st.darkBtn} onPress={() => ctx.go('verdict')} accessibilityRole="button">
           <Text style={st.darkBtnText} allowFontScaling>Show me why</Text>
           <ArrowRight size={19} color="#fff" strokeWidth={2.2} />
@@ -58,6 +83,7 @@ export default function AlertScreen({ ctx }: { ctx: Ctx }) {
         <Pressable style={st.quiet} onPress={() => ctx.go('home')} accessibilityRole="button">
           <Text style={st.quietText} allowFontScaling>I’m okay, close this</Text>
         </Pressable>
+        </>)}
         <View style={st.offline}>
           <Shield size={15} color={T.green} strokeWidth={2} />
           <Text style={st.offlineText} allowFontScaling>Checked on this phone, offline, {ms}.</Text>
@@ -80,6 +106,12 @@ const st = StyleSheet.create({
   sub: { fontSize: 16, fontFamily: F.body, color: 'rgba(255,255,255,.85)', lineHeight: 23, marginTop: 12 },
 
   bottom: { flexGrow: 1, minHeight: 330, backgroundColor: T.ground, paddingHorizontal: 22, paddingTop: 18, paddingBottom: 30, gap: 9 },
+  holdWrap: { paddingTop: 10, gap: 14 },
+  holdBar: { height: 6, borderRadius: 3, backgroundColor: T.redTint, overflow: 'hidden' },
+  holdFill: { width: '100%', height: 6, backgroundColor: T.red },
+  holdText: { fontSize: 18, fontFamily: F.semibold, color: T.ink, lineHeight: 26 },
+  blockBtn: { height: 58, borderRadius: 12, backgroundColor: T.red, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 17 },
+  blockText: { fontSize: 17, fontFamily: F.bold, color: '#fff' },
   darkBtn: { height: 58, borderRadius: 12, backgroundColor: '#171717', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 17 },
   darkBtnText: { fontSize: 17, fontFamily: F.bold, color: '#fff' },
   greenBtn: { height: 58, borderRadius: 12, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 17 },

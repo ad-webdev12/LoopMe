@@ -38,6 +38,7 @@ EXTENSIONS = [
   { name: 'TextFilter',    dir: 'TextFilter',    bundle: 'com.loopmescamsafety.app.textfilter', frameworks: ['IdentityLookup'] },
   { name: 'CallDirectory', dir: 'CallDirectory', bundle: 'com.loopmescamsafety.app.calls',      frameworks: ['CallKit'] },
   { name: 'ShareCheck',    dir: 'ShareCheck',    bundle: 'com.loopmescamsafety.app.share',      frameworks: ['Vision', 'UniformTypeIdentifiers'] },
+  { name: 'MessagesCheck', dir: 'MessagesCheck', bundle: 'com.loopmescamsafety.app.messages',   frameworks: ['Messages'], type: :messages_extension, assets: true },
 ]
 
 embed = app.copy_files_build_phases.find { |p| p.name == 'Embed Foundation Extensions' }
@@ -51,11 +52,16 @@ EXTENSIONS.each do |ext|
     puts "#{ext[:name]}: already present"
     next
   end
-  target = project.new_target(:app_extension, ext[:name], :ios, '15.1')
+  target = project.new_target(ext[:type] || :app_extension, ext[:name], :ios, '15.1')
   group = group_for(project, ext[:name], ext[:dir])
   own_sources = Dir[File.join(ROOT, 'ios', ext[:dir], '*.swift')].map { |f| group.new_file(f) }
   target.add_file_references(own_sources + engine_refs + [store_ref])
   target.add_resources([engine_json_ref])
+  if ext[:assets]
+    assets = group.new_file(File.join(ROOT, 'ios', ext[:dir], 'Assets.xcassets'))
+    target.add_resources([assets])
+    target.build_configurations.each { |cfg| cfg.build_settings['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'iMessage App Icon' }
+  end
   ext[:frameworks].each { |fw| target.add_system_framework(fw) }
 
   target.build_configurations.each do |cfg|
@@ -83,6 +89,19 @@ EXTENSIONS.each do |ext|
   file = embed.add_file_reference(target.product_reference, true)
   file.settings = { 'ATTRIBUTES' => ['RemoveHeadersOnCopy'] }
   puts "#{ext[:name]}: added"
+end
+
+# The Siri intent lives in the app target. AppIntents is iOS 16+, so it is
+# weak-linked and the code is @available-guarded.
+intent_path = File.join(ROOT, 'ios', 'LoopMe', 'CheckIntent.swift')
+app_group = project.main_group['LoopMe']
+if app_group && File.exist?(intent_path) && !app.source_build_phase.files_references.any? { |r| r.path && r.path.end_with?('CheckIntent.swift') }
+  ref = app_group.new_file(intent_path)
+  app.source_build_phase.add_file_reference(ref, true)
+  fw_ref = app.add_system_framework('AppIntents').first
+  bf = app.frameworks_build_phase.files.find { |f| f.file_ref == fw_ref }
+  bf.settings = { 'ATTRIBUTES' => ['Weak'] } if bf
+  puts 'LoopMe: + CheckIntent.swift (AppIntents, weak)'
 end
 
 project.save

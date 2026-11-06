@@ -43,6 +43,17 @@ enum SharedStore {
     if list.count > 100 { list = Array(list.prefix(100)) }
     defaults.set(list, forKey: "filter.log")
   }
+  /// Flagged entries background refresh has not sent to the caretaker yet.
+  static func unpublishedFlagged() -> [[String: Any]] {
+    let list = defaults.array(forKey: "filter.log") as? [[String: Any]] ?? []
+    return list.filter { ($0["level"] as? String) != "green" && ($0["published"] as? Bool) != true }
+  }
+  static func markPublished(_ ids: [String]) {
+    guard !ids.isEmpty else { return }
+    var list = defaults.array(forKey: "filter.log") as? [[String: Any]] ?? []
+    for i in list.indices where ids.contains((list[i]["id"] as? String) ?? "") { list[i]["published"] = true }
+    defaults.set(list, forKey: "filter.log")
+  }
   static func drainLog() -> [[String: Any]] {
     let list = defaults.array(forKey: "filter.log") as? [[String: Any]] ?? []
     defaults.removeObject(forKey: "filter.log")

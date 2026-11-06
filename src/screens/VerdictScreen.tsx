@@ -14,7 +14,7 @@ import { T, F } from '../theme';
 import { KFIn, KFFade, KFSlide } from '../ui/kf';
 import { timeLabel } from '../lib/clock';
 import { reportScam } from '../lib/report';
-import { Flag } from 'lucide-react-native';
+import { Flag, Ban } from 'lucide-react-native';
 import type { Ctx } from '../App';
 
 const META = {
@@ -60,6 +60,7 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
 
   const meta = META[v.level];
   const careMode = ctx.settings.role === 'caretaker';
+  const rec = ctx.hist.find(h => h.id === ctx.recordId);
   const first = ctx.settings.trusted[0];
   const signals = v.signals.length ? v.signals : ['Nothing in this message matches a known scam trick.'];
   const toks = ctx.msg.split(/\s+/).filter(Boolean).map(w => ({ w, flag: FLAGS.some(re => re.test(w)) }));
@@ -219,6 +220,12 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
           <UserCheck size={20} color="#fff" strokeWidth={1.9} />
         </Pressable>
 
+        {v.level !== 'green' && !careMode && !!rec?.sender && rec.sender.replace(/\D/g, '').length >= 7 && !ctx.settings.blocked.includes(rec.sender.replace(/\D/g, '')) && (
+          <Pressable style={st.readBtn} onPress={() => ctx.blockNumber(rec.sender!)} accessibilityRole="button">
+            <Text style={st.readLabel} allowFontScaling>Block {rec.sender}. Calls stop, texts go to Junk.</Text>
+            <Ban size={16} color={T.red} strokeWidth={2.2} />
+          </Pressable>
+        )}
         {v.level !== 'green' && (
           <Pressable style={st.readBtn} onPress={() => reportScam(ctx, ctx.recordId)} accessibilityRole="button">
             <Text style={st.readLabel} allowFontScaling>Report it, so it is stopped for others</Text>

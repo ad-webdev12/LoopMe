@@ -138,6 +138,30 @@ Apple ID on a spare phone).
 3. A number that sent one flagged text shows "Flagged by Loop Me" when it
    calls.
 
+**Loop Me inside Messages (1 minute)**
+
+In Messages, hold a scam text, tap Copy. Tap the + or the app drawer under
+the keyboard, tap Loop Me. The card reads the copied text at once (iOS shows
+its "pasted from Messages" line) and shows Stop / Be careful / Looks okay.
+"Open in Loop Me" lands on the full verdict. Nothing is sent to the chat.
+
+**Siri (30 seconds)**
+
+Copy a text, then say "Hey Siri, check this with Loop Me". The app opens on
+the answer. No Shortcuts setup is needed.
+
+**Red hold (30 seconds)**
+
+Paste any scam text and tap Check. The red screen holds for two seconds
+with "Stop. Do not reply." and no buttons, then the buttons appear, with
+"Block <number>" first when the sender is known.
+
+**Background refresh (needs patience)**
+
+With the family link on and the filter on, leave phone A untouched after a
+scam text arrives from an unknown number. Within a few hours (iOS decides
+when) phone B gets the alert without phone A opening Loop Me.
+
 **Share sheet (1 minute)**
 
 In Messages, long-press a text, More, Share (or select text in Safari or a

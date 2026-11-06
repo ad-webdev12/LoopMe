@@ -30,12 +30,12 @@ filter_model = ref_for(engine_group, File.join(engine_dir, 'ScamFilter.mlmodel')
 text_model = ref_for(project.main_group['scam-ai'] || project.main_group.new_group('scam-ai', File.join(ROOT, 'modules', 'scam-ai', 'ios', 'Resources')),
                      File.join(ROOT, 'modules', 'scam-ai', 'ios', 'Resources', 'ScamText.mlmodel'), ROOT)
 
-%w[TextFilter CallDirectory ShareCheck].each do |name|
+%w[TextFilter CallDirectory ShareCheck MessagesCheck].each do |name|
   target = project.targets.find { |t| t.name == name }
   next puts("#{name}: missing, run add-extensions.rb first") unless target
   engine_refs.each { |r| ensure_source(target, r) }
   ensure_source(target, filter_model) if name == 'TextFilter'
-  ensure_source(target, text_model) if name == 'ShareCheck'
+  ensure_source(target, text_model) if name == 'ShareCheck' || name == 'MessagesCheck'
 end
 project.save
 puts 'saved'

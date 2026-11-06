@@ -165,6 +165,16 @@ export default function App() {
     await callDirectoryReload();
   }, [update]);
 
+  // Owner side, on the caretaker's "that one is fine": the sender becomes a
+  // safe sender, so the next text from them is not flagged again.
+  const allowQuietly = useCallback((sender: string) => {
+    const s = settingsRef.current;
+    if (!s) return;
+    const key = sender.trim();
+    if (!key || s.allowlist.some(a => a.toLowerCase() === key.toLowerCase())) return;
+    update({ ...s, allowlist: [...s.allowlist, key] });
+  }, [update]);
+
   // Caretaker side: one Sunday-evening line, built from real counts.
   const scheduleWeeklySummary = useCallback(async (s: Settings) => {
     const p = Family.pulse();
@@ -199,7 +209,7 @@ export default function App() {
     };
     if (JSON.stringify(next) !== JSON.stringify(s)) update(next);
     const drained = await Family.drainExtensions(next);
-    const { newChecks, newNotes, newBlocks } = await Family.sync();
+    const { newChecks, newNotes, newBlocks, newSafes } = await Family.sync();
     if (drained.length || newChecks.length || newNotes.length) refreshHist();
     if (next.role === 'caretaker') setPulse(Family.pulse());
     if (next.familyRole === 'caretaker') {
@@ -210,13 +220,14 @@ export default function App() {
     }
     // Owner: the caretaker may have blocked a sender from their phone.
     for (const sender of newBlocks) await blockQuietly(sender);
+    for (const sender of newSafes) allowQuietly(sender);
     void Family.sendPulse(next, await listChecks());
     if (newNotes.length) {
       const n = newNotes[newNotes.length - 1];
       setNoteOpen({ from: n.from, text: n.text, checkId: n.checkId, verdict: n.verdict });
       setScreen('note');
     }
-  }, [update, refreshHist, blockQuietly, scheduleWeeklySummary]);
+  }, [update, refreshHist, blockQuietly, allowQuietly, scheduleWeeklySummary]);
 
   useEffect(() => {
     loadSettings().then(async (s) => {
@@ -257,8 +268,9 @@ export default function App() {
           setScreen('familyAlert');
         });
       } else if (e.kind === 'note') {
-        Family.fold().then(({ newBlocks }) => {
+        Family.fold().then(({ newBlocks, newSafes }) => {
           for (const b of newBlocks) void blockQuietly(b);
+          for (const a of newSafes) allowQuietly(a);
           refreshHist();
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
           setNoteOpen({ from: e.note.from, text: e.note.text, checkId: e.note.checkId, verdict: e.note.verdict });
@@ -272,7 +284,7 @@ export default function App() {
       }
     });
     return off;
-  }, [settings != null, update, flash, refreshHist, blockQuietly]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [settings != null, update, flash, refreshHist, blockQuietly, allowQuietly]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Coming back to the foreground: pull what arrived while we were away.
   useEffect(() => {
@@ -341,7 +353,7 @@ export default function App() {
     // 'Warn me straight away' (Settings) chooses the full-screen red alert;
     // with it off, a red verdict still lands, just on the calmer screen.
     const wantsAlert = s?.alerts !== false;
-    setScreen(v.level === 'red' && sender && wantsAlert ? 'alert' : 'verdict');
+    setScreen(v.level === 'red' && wantsAlert ? 'alert' : 'verdict');
     // A flagged check goes to the caretaker on its own, over the family link.
     if (v.level !== 'green' && s) void Family.publish(rec, s, false);
     // Real on-device AI second opinion fuses in when it resolves. The guard

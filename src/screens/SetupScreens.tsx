@@ -3,14 +3,28 @@
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as Contacts from 'expo-contacts';
-import { ChevronRight, ArrowRight, Shield, Check, Plus } from 'lucide-react-native';
+import { ChevronRight, ArrowRight, Shield, Check, Plus, Send } from 'lucide-react-native';
+import * as Family from '../lib/family';
+import { sendSms, inviteText } from '../lib/familyLink';
+import { ensureNotificationPermission } from '../lib/notify';
 import { T, F } from '../theme';
 import { KFIn } from '../ui/kf';
 import { pickTrustedPerson, samePhone } from '../lib/contacts';
 import type { Ctx } from '../App';
 
-function Kicker({ text, amber }: { text: string; amber?: boolean }) {
-  return <Text style={[k.kicker, amber && { color: T.amber }]} allowFontScaling>{text}</Text>;
+function Kicker({ text, amber, step, of = 3 }: { text: string; amber?: boolean; step?: number; of?: number }) {
+  return (
+    <View style={k.kickerRow}>
+      {step != null && (
+        <View style={k.dots}>
+          {Array.from({ length: of }).map((_, i) => (
+            <View key={i} style={[k.dot, i < step && { backgroundColor: amber ? T.amber : T.green, width: i === step - 1 ? 22 : 8 }]} />
+          ))}
+        </View>
+      )}
+      <Text style={[k.kicker, amber && { color: T.amber }]} allowFontScaling>{text}</Text>
+    </View>
+  );
 }
 function Title({ text }: { text: string }) {
   return <Text style={k.title} allowFontScaling>{text}</Text>;
@@ -24,9 +38,12 @@ function CTA({ label, onPress }: { label: string; onPress: () => void }) {
   );
 }
 const k = StyleSheet.create({
-  kicker: { fontSize: 12, fontFamily: F.semibold, letterSpacing: 1.8, textTransform: 'uppercase', color: T.green, marginBottom: 12, lineHeight: 12 },
-  title: { fontSize: 27, fontFamily: F.display, letterSpacing: -0.54, color: T.ink, lineHeight: 29.16 },
-  cta: { height: 56, borderRadius: 12, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18 },
+  kickerRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 },
+  dots: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: T.hairline },
+  kicker: { fontSize: 12, fontFamily: F.semibold, letterSpacing: 1.8, textTransform: 'uppercase', color: T.green, lineHeight: 14 },
+  title: { fontSize: 31, fontFamily: F.display, letterSpacing: -0.7, color: T.ink, lineHeight: 34 },
+  cta: { height: 60, borderRadius: 12, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18 },
   ctaText: { fontSize: 17.5, fontFamily: F.bold, color: '#fff' },
 });
 
@@ -45,7 +62,7 @@ export function Ob1({ ctx }: { ctx: Ctx }) {
     <KFIn duration={300} style={{ flex: 1 }} playKey="ob1">
     <View style={s1.root}>
       <View style={{ paddingHorizontal: 22, paddingTop: 24, paddingBottom: 18 }}>
-        <Kicker text="Setting up · 1 of 3" />
+        <Kicker text="Setting up" step={1} />
         <Title text="Whose phone is this?" />
       </View>
       <View style={{ paddingHorizontal: 22, gap: 10 }}>
@@ -85,7 +102,7 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
     <KFIn duration={300} style={{ flex: 1 }} playKey="ob2">
     <View style={s1.root}>
       <View style={{ paddingHorizontal: 22, paddingTop: 24, paddingBottom: 18 }}>
-        <Kicker text="Setting up for someone · 2 of 3" amber />
+        <Kicker text="For someone else" amber step={2} />
         <Title text="Who is this phone for?" />
       </View>
       <View style={s2.card}>
@@ -141,7 +158,7 @@ export function Ob3({ ctx }: { ctx: Ctx }) {
     <KFIn duration={300} style={{ flex: 1 }} playKey="ob3">
     <View style={s1.root}>
       <View style={{ paddingHorizontal: 22, paddingTop: 24, paddingBottom: 18 }}>
-        <Kicker text={care ? 'Setting up · 3 of 3' : 'Setting up · 2 of 3'} />
+        <Kicker text="Setting up" step={care ? 3 : 2} of={care ? 4 : 3} />
         <Title text="Nothing leaves this phone." />
       </View>
       <View style={s3.card}>
@@ -173,6 +190,23 @@ const s3 = StyleSheet.create({
 export function Ob4({ ctx }: { ctx: Ctx }) {
   const care = !!ctx.settings.careName;
   const first = ctx.settings.trusted[0];
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(ctx.settings.familyInvited);
+  // The link, sent from the last step of setup: the one thing that makes the
+  // app worth keeping. Quiet failure when iCloud is off; the person can do it
+  // later from More.
+  const sendLink = async () => {
+    if (!first) return;
+    setSending(true);
+    try {
+      const url = await Family.invite(ctx.settings.myName || ctx.settings.careName);
+      if (!url) { ctx.flash('iCloud is not signed in on this phone. You can send the link later from More.'); return; }
+      await ensureNotificationPermission();
+      ctx.update({ ...ctx.settings, familyInvited: true });
+      setSent(true);
+      await sendSms(first.phone, inviteText(ctx.settings.myName || ctx.settings.careName, url));
+    } finally { setSending(false); }
+  };
   const addFromContacts = async () => {
     try {
       const { granted } = await Contacts.requestPermissionsAsync();
@@ -188,9 +222,9 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
     <KFIn duration={300} style={{ flex: 1 }} playKey="ob4">
     <View style={s1.root}>
       <View style={{ paddingHorizontal: 22, paddingTop: 24, paddingBottom: 18 }}>
-        <Kicker text={care ? 'Last step' : 'Setting up · 3 of 3'} />
+        <Kicker text="Last step" step={care ? 4 : 3} of={care ? 4 : 3} />
         <Title text="Who should we loop in?" />
-        <Text style={s4.sub} allowFontScaling>One person is plenty. When something worries you, one tap tells them.</Text>
+        <Text style={s4.sub} allowFontScaling>One person is plenty. Send them one link and they hear about any scam that reaches this phone, the moment it happens.</Text>
       </View>
       <Pressable style={s4.addRow} onPress={addFromContacts} accessibilityRole="button">
         <View style={s4.addIcon}><Plus size={18} color={T.green} strokeWidth={2} /></View>
@@ -205,6 +239,15 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
           </View>
           <Check size={19} color={T.green} strokeWidth={2.4} />
         </View>
+      )}
+      {first && (
+        <Pressable style={[s4.linkBtn, (sending || sent) && { opacity: sent ? 0.7 : 0.6 }]} onPress={sendLink} disabled={sending} accessibilityRole="button">
+          <View style={{ flex: 1 }}>
+            <Text style={s4.linkTitle} allowFontScaling>{sent ? 'Link sent to ' + first.name.split(' ')[0] : 'Send ' + first.name.split(' ')[0] + ' the link'}</Text>
+            <Text style={s4.linkSub} allowFontScaling>{sent ? 'It joins the moment they tap it. Nothing else to do.' : 'One text, one tap on their side. No app to set up for them.'}</Text>
+          </View>
+          {sent ? <Check size={20} color="#fff" strokeWidth={2.4} /> : <Send size={20} color="#fff" strokeWidth={2.2} />}
+        </Pressable>
       )}
       <View style={{ marginTop: 'auto', paddingHorizontal: 22, paddingBottom: 30 }}>
         <CTA label="Done, start checking" onPress={() => { ctx.update({ ...ctx.settings, introSeen: true, role: 'elder' }); ctx.go('home'); }} />
@@ -226,5 +269,8 @@ const s4 = StyleSheet.create({
   pickedAvatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center' },
   pickedInitials: { color: '#fff', fontSize: 15, fontFamily: F.bold },
   pickedName: { fontSize: 17, fontFamily: F.bold, color: T.ink },
+  linkBtn: { marginHorizontal: 22, marginTop: 10, backgroundColor: T.green, borderRadius: 14, paddingHorizontal: 17, paddingVertical: 15, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  linkTitle: { fontSize: 17, fontFamily: F.bold, color: '#fff' },
+  linkSub: { fontSize: 14.5, fontFamily: F.body, color: 'rgba(255,255,255,.85)', lineHeight: 20, marginTop: 2 },
   pickedMeta: { fontSize: 15, fontFamily: F.body, color: T.sub },
 });

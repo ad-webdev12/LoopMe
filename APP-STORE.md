@@ -143,7 +143,9 @@ signing adds them when you archive, but check the developer portal if signing co
 
 - iCloud, CloudKit, container `iCloud.com.loopmescamsafety.app`
 - Push Notifications (silent pushes carry the CloudKit changes)
-- Background Modes: Remote notifications
+- Background Modes: Remote notifications, Background fetch (`BGTaskSchedulerPermittedIdentifiers` = `com.loopmescamsafety.app.refresh`)
+- iMessage app (MessagesCheck, bundle `.messages`): reads only what the person copied, shows the verdict in the Messages drawer
+- Siri / Shortcuts App Intent "Check what I copied" (iOS 16+, registers on its own)
 - App Groups: `group.com.loopmescamsafety.app` (shared by the app and the three extensions)
 - Time Sensitive Notifications
 
@@ -191,7 +193,7 @@ caretaker's side. Everything else works on a single device.
 
 1. **App Store Connect** → **Apps** → **+** → **New App**. Platform iOS, name "Loop Me", primary language English (U.S.), bundle ID `com.loopmescamsafety.app`, SKU `loopme-1`.
 2. Fill the fields above (description, keywords, subtitle, promo text, category, URLs, App Privacy = No data collected).
-3. In **Xcode**: open `ios/LoopMe.xcworkspace`, select **Any iOS Device (arm64)**, set the **Signing Team** on the LoopMe target **and on the three extension targets** (TextFilter, CallDirectory, ShareCheck) to your account, Automatically manage signing. The version is already 1.0.1, build 7.
+3. In **Xcode**: open `ios/LoopMe.xcworkspace`, select **Any iOS Device (arm64)**, set the **Signing Team** on the LoopMe target **and on the four extension targets** (TextFilter, CallDirectory, ShareCheck, MessagesCheck) to your account, Automatically manage signing. The version is already 1.0.1, build 7.
 4. **Product → Archive** → when it finishes, **Distribute App → App Store Connect → Upload**.
 5. Back in App Store Connect, the build appears under the version in ~15 min. Attach it, add screenshots, then **Add for Review → Submit**.
 6. Review is typically 24–48h. You'll get email at each step.

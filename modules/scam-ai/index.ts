@@ -89,6 +89,7 @@ export interface FilterLogEntry {
   reason: string;
   safeStep: string;
   signals: string[];
+  published?: boolean;  // background refresh already sent it to the caretaker
 }
 
 export interface AiJudgement {

@@ -20,22 +20,16 @@ export async function sendSms(phone: string | null, body: string) {
 
 /** The invite. One tap on the link joins the caretaker's phone to this one's iCloud share. */
 export function inviteText(myName: string, url: string): string {
-  const me = myName ? myName.split(' ')[0] : 'I';
-  return (
-    `${me === 'I' ? 'I have' : me + ' has'} set up Loop Me, which checks texts and calls for scams.\n\n` +
-    `Tap this link once and you will hear from it straight away if a scam reaches ${me === 'I' ? 'my' : me + '’s'} phone:\n${url}`
-  );
+  const me = myName ? myName.split(' ')[0] : 'me';
+  return `Tap this once and Loop Me will tell you if a scam text reaches ${me === 'me' ? 'my' : me + '’s'} phone: ${url}`;
 }
 
 /** A heads-up to a trusted contact, when there is no family link to use. */
 export function loopInText(myName: string, rec: CheckRecord): string {
-  const me = myName ? myName.split(' ')[0] : 'I';
-  const word = rec.level === 'red' ? 'a scam' : rec.level === 'amber' ? 'worth a second look' : 'probably fine';
-  return (
-    `${me === 'I' ? 'I just' : me + ' just'} checked a message with Loop Me and it came back as ${word}.\n\n` +
-    `“${rec.excerpt}”\n\n` +
-    `${rec.reason}\n\nCould you give ${me === 'I' ? 'me' : me} a ring when you have a minute?`
-  );
+  const me = myName ? myName.split(' ')[0] : 'me';
+  const word = rec.level === 'red' ? 'a scam' : rec.level === 'amber' ? 'worth a look' : 'probably fine';
+  const quote = rec.excerpt.length > 110 ? rec.excerpt.slice(0, 107).trimEnd() + '…' : rec.excerpt;
+  return `Loop Me says this text is ${word}: “${quote}” Can you ring ${me}?`;
 }
 
 export function panicText(myName: string): string {

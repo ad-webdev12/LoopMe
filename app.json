@@ -38,7 +38,11 @@
         "NSSpeechRecognitionUsageDescription": "Loop Me turns your speech into text on this phone when you tap \u2018Speak it\u2019, so the message can be checked. Nothing is uploaded.",
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": [
+          "fetch",
           "remote-notification"
+        ],
+        "BGTaskSchedulerPermittedIdentifiers": [
+          "com.loopmescamsafety.app.refresh"
         ]
       },
       "entitlements": {

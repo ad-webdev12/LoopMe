@@ -24,7 +24,8 @@ let LM_CONTAINER = "iCloud.com.loopmescamsafety.app"
 let LM_ZONE = "LoopMeFamily"
 let LM_CHECK = "Check"
 let LM_NOTE = "Note"
-let LM_PULSE = "Pulse"   // one record per owner, overwritten: counts, last seen, what is switched on
+let LM_PULSE = "Pulse"
+let LM_REFRESH_TASK = "com.loopmescamsafety.app.refresh"   // one record per owner, overwritten: counts, last seen, what is switched on
 let LM_SUB_SHARED = "loopme-shared-db"
 let LM_SUB_PRIVATE = "loopme-private-db"
 
@@ -203,6 +204,28 @@ final class CloudLink: @unchecked Sendable {
       }
       db.add(op)
     }
+  }
+
+  /// Owner side, from background refresh: every flagged entry the text filter
+  /// or share sheet logged and nobody has published yet goes to the caretaker.
+  /// The entries stay in the log for the app to fold into history later; they
+  /// are only marked so the app does not publish them twice.
+  func publishPendingFromFilter() async -> Bool {
+    guard store.joinedZone == nil, store.caretakerName != nil || store.ownerName != nil else { return true }
+    guard await accountState() == "available" else { return false }
+    let pending = SharedStore.unpublishedFlagged()
+    if pending.isEmpty { return true }
+    var done: [String] = []
+    for e in pending {
+      let c: [String: Any] = [
+        "id": e["id"] ?? UUID().uuidString, "level": e["level"] ?? "red", "excerpt": e["excerpt"] ?? "",
+        "reason": e["reason"] ?? "", "sender": e["sender"] ?? "", "asked": false,
+        "from": store.ownerName ?? "", "at": e["at"] ?? Date().timeIntervalSince1970 * 1000,
+      ]
+      if (try? await publish(c)) != nil, let id = e["id"] as? String { done.append(id) }
+    }
+    SharedStore.markPublished(done)
+    return done.count == pending.count
   }
 
   /// Owner side: tear the share down. The caretaker's phone loses access at once.
