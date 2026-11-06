@@ -191,7 +191,7 @@ const RULES: Rule[] = [
   // was taken" and "your statement is ready" must stay green, which is why
   // settled/taken/authorised wording is excluded below.
   { re: /\b(?:fee|levy|charge|charges|arrears|balance|deposit|surcharge|installment|installment|contribution|shortfall|excess|top-?up|dues|premium|payment|amount|cost|sum)\b[\s\S]{0,80}?\b(?:due|owed|owing|outstanding|unpaid|overdue|payable|must be (?:paid|settled|received|cleared)|(?:is|are|be) (?:paid|settled|cleared|received)|applies|accrued|required|remit|settle|stands|needed|taken)\b|\b(?:pay|settle|remit|clear|reinstate|renew|wire|transfer|cover|top up)\b[\s\S]{0,60}?\b(?:fee|levy|charge|arrears|balance|deposit|surcharge|installment|installment|shortfall|excess|dues|premium|subscription|bond|contribution|adjustment|difference|replacement|top-?up)\b/i,
-    w: 22, tag: 'payment-demand', plain: 'Someone who contacted you first is asking for money. Whether or not it is genuine, pay nobody who approaches you \u2014 ring the organization on a number you already have.' },
+    w: 22, tag: 'payment-demand', plain: 'Someone who contacted you first is asking for money. Whether or not it is genuine, pay nobody who approaches you. Ring the organization on a number you already have.' },
   // Pay-to-be-paid. The oldest structure in fraud: money is waiting for you,
   // but a fee must clear first. A real payer never needs money from you to
   // give you money.
@@ -224,17 +224,17 @@ const RULES: Rule[] = [
     w: 16, tag: 'pay-or-lose', plain: 'It threatens to take something away if you do not pay. Real organizations put that in writing and never need it settled the same day.' },
   { re: /(?:act now|urgent|immediately|right away|within (?:24|48) hours|expires? (?:today|soon|tonight)|final notice|last (?:chance|warning)|asap|don'?t delay)/i, w: 15, tag: 'urgency', plain: 'It uses pressure words to rush you. Rushing is a scammer\u2019s favorite tool.' },
 
-  // \u2014 The same cons in Spanish, French, and Portuguese. Scammers pick the
+  // The same cons in Spanish, French, and Portuguese. Scammers pick the
   //   victim's language; the detector must not be English-only.
-  { re: /(?:su )?cuenta (?:ser[a\u00e1]|est[a\u00e1]|fue) (?:suspendida?|bloqueada?|cerrada?|limitada?)|verifi(?:que|car) (?:su )?(?:cuenta|informaci[o\u00f3]n|identidad)/i, w: 40, tag: 'bank-alert', plain: 'It claims an account will be suspended unless you act \u2014 the classic pressure move, written in Spanish.' },
+  { re: /(?:su )?cuenta (?:ser[a\u00e1]|est[a\u00e1]|fue) (?:suspendida?|bloqueada?|cerrada?|limitada?)|verifi(?:que|car) (?:su )?(?:cuenta|informaci[o\u00f3]n|identidad)/i, w: 40, tag: 'bank-alert', plain: 'It claims an account will be suspended unless you act, the classic pressure move, written in Spanish.' },
   { re: /(?:haga clic|pulse|presione) aqu[i\u00ed]|ingrese (?:sus? )?(?:datos|clave|contrase[n\u00f1]a)/i, w: 30, tag: 'urgency', plain: 'It pushes you to tap a link or enter private details (written in Spanish).' },
   { re: /(?:inmediatamente|urgente|hoy mismo|[u\u00fa]ltimo aviso|aviso final)[\s\S]{0,60}(?:cuenta|pago|multa|paquete)|(?:cuenta|pago|multa|paquete)[\s\S]{0,60}(?:inmediatamente|urgente|hoy mismo|[u\u00fa]ltimo aviso|aviso final)/i, w: 30, tag: 'urgency', plain: 'It pairs pressure words with money or an account (written in Spanish). Rushing is a scammer\u2019s favorite tool.' },
   { re: /(?:ha )?ganado (?:un |el )?(?:premio|loter[i\u00ed]a|sorteo)|reclam(?:e|ar) su premio/i, w: 42, tag: 'prize', plain: 'It says you won a prize you never entered for (written in Spanish).' },
   { re: /(?:comparta|env[i\u00ed]e|d[i\u00ed]game)[\s\S]{0,40}c[o\u00f3]digo (?:de )?(?:verificaci[o\u00f3]n|seguridad)|c[o\u00f3]digo (?:de )?(?:verificaci[o\u00f3]n|seguridad)[\s\S]{0,40}(?:comparta|env[i\u00ed]e|responda)/i, w: 55, tag: 'otp-request', plain: 'It asks you to hand over a security code (written in Spanish). No real company ever asks for the code.' },
-  { re: /paquete (?:retenido|detenido|en espera)[\s\S]{0,80}(?:tarifa|pago|arancel|impuesto)|aduana[\s\S]{0,60}(?:tarifa|pago)/i, w: 40, tag: 'delivery-fee', plain: 'A held package with a small fee to release it (written in Spanish) \u2014 a card-harvesting trick.' },
-  { re: /(?:votre )?compte (?:sera|est|a [e\u00e9]t[e\u00e9]) (?:suspendu|bloqu[e\u00e9]|ferm[e\u00e9]|limit[e\u00e9])|v[e\u00e9]rifiez votre (?:compte|identit[e\u00e9])|cliquez ici/i, w: 40, tag: 'bank-alert', plain: 'It claims an account will be suspended unless you act \u2014 the classic pressure move, written in French.' },
+  { re: /paquete (?:retenido|detenido|en espera)[\s\S]{0,80}(?:tarifa|pago|arancel|impuesto)|aduana[\s\S]{0,60}(?:tarifa|pago)/i, w: 40, tag: 'delivery-fee', plain: 'A held package with a small fee to release it (written in Spanish), a card-harvesting trick.' },
+  { re: /(?:votre )?compte (?:sera|est|a [e\u00e9]t[e\u00e9]) (?:suspendu|bloqu[e\u00e9]|ferm[e\u00e9]|limit[e\u00e9])|v[e\u00e9]rifiez votre (?:compte|identit[e\u00e9])|cliquez ici/i, w: 40, tag: 'bank-alert', plain: 'It claims an account will be suspended unless you act, the classic pressure move, written in French.' },
   { re: /colis (?:retenu|en attente|bloqu[e\u00e9])[\s\S]{0,70}(?:frais|paiement|douane)|code de v[e\u00e9]rification[\s\S]{0,50}(?:partagez|envoyez|donnez)/i, w: 42, tag: 'delivery-fee', plain: 'A held package with a fee, or a request for a security code (written in French).' },
-  { re: /(?:sua )?conta (?:ser[a\u00e1]|est[a\u00e1]|foi) (?:suspensa|bloqueada|encerrada|limitada)|verifique sua (?:conta|identidade)|clique aqui/i, w: 40, tag: 'bank-alert', plain: 'It claims an account will be suspended unless you act \u2014 the classic pressure move, written in Portuguese.' },
+  { re: /(?:sua )?conta (?:ser[a\u00e1]|est[a\u00e1]|foi) (?:suspensa|bloqueada|encerrada|limitada)|verifique sua (?:conta|identidade)|clique aqui/i, w: 40, tag: 'bank-alert', plain: 'It claims an account will be suspended unless you act, the classic pressure move, written in Portuguese.' },
 ];
 
 // PRECISION GUARD: the false-positive killer. Trend Micro flagged a real Amazon receipt; we will not.
