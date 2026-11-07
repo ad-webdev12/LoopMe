@@ -39,7 +39,7 @@ export default function SwitchesScreen({ ctx }: { ctx: Ctx }) {
           <Text style={st.backText} allowFontScaling>Back</Text>
         </Pressable>
       </View>
-      <View style={{ paddingHorizontal: 22, paddingBottom: 6 }}>
+      <View style={{ paddingHorizontal: 24, paddingBottom: 6 }}>
         <Text style={st.title} allowFontScaling>Two switches</Text>
         <Text style={st.sub} allowFontScaling>Both live in the iPhone Settings app. One minute, once. The button opens Settings. Tap Back once to reach Apps.</Text>
       </View>
@@ -87,13 +87,13 @@ const st = StyleSheet.create({
   backText: { fontSize: 17, fontFamily: F.medium, color: T.ink },
   title: { fontSize: 31, fontFamily: F.display, letterSpacing: -0.7, color: T.ink, lineHeight: 34 },
   sub: { fontSize: 16, fontFamily: F.body, color: T.sub, lineHeight: 23, marginTop: 8 },
-  block: { marginHorizontal: 20, marginTop: 18, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, padding: 16 },
+  block: { marginHorizontal: 24, marginTop: 18, borderTopWidth: 1, borderTopColor: T.hairline, padding: 16 },
   head: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
   icon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   headTitle: { fontSize: 19, fontFamily: F.bold, color: T.ink },
   headState: { fontSize: 14.5, fontFamily: F.body, color: T.sub, marginTop: 2 },
   path: { borderWidth: 1, borderColor: T.hairline, borderRadius: 12, overflow: 'hidden' },
-  pathRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: T.divider },
+  pathRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: T.hairline },
   pathNum: { width: 24, height: 24, borderRadius: 12, backgroundColor: T.ground, alignItems: 'center', justifyContent: 'center' },
   pathNumText: { fontSize: 13, fontFamily: F.bold, color: T.ink },
   pathText: { flex: 1, fontSize: 17, fontFamily: F.medium, color: T.ink },

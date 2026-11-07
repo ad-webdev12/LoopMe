@@ -44,7 +44,7 @@ export default function WardItemScreen({ ctx }: { ctx: Ctx }) {
         </Pressable>
       </View>
 
-      <View style={[st.banner, { backgroundColor: tint }]}>
+      <View style={st.banner}>
         <View style={st.bannerTop}>
           <View style={[st.chip, { backgroundColor: color }]}><Icon size={15} color="#fff" strokeWidth={2.6} /></View>
           <Text style={[st.when, { color: ink }]} allowFontScaling>{whenLabel}</Text>
@@ -69,7 +69,7 @@ export default function WardItemScreen({ ctx }: { ctx: Ctx }) {
         <Text style={st.told} allowFontScaling>{rec.reason}</Text>
       </View>
 
-      <Text style={[st.sectionLabel, { paddingHorizontal: 20, paddingTop: 22, paddingBottom: 8 }]} allowFontScaling>Lands on {watchName}’s screen in one tap</Text>
+      <Text style={[st.sectionLabel, { paddingHorizontal: 24, paddingTop: 22, paddingBottom: 8 }]} allowFontScaling>Lands on {watchName}’s screen in one tap</Text>
       <View style={{ paddingHorizontal: 20, gap: 7 }}>
         {QUICK.map((q) => (
           <Pressable key={q.v} style={st.quick} onPress={() => ctx.sendNoteTo(rec.id, q.text, q.v)} accessibilityRole="button">
@@ -106,7 +106,7 @@ export default function WardItemScreen({ ctx }: { ctx: Ctx }) {
 
       {notes.length > 0 && (
         <View>
-          <Text style={[st.sectionLabel, { paddingHorizontal: 20, paddingTop: 22, paddingBottom: 8 }]} allowFontScaling>Notes</Text>
+          <Text style={[st.sectionLabel, { paddingHorizontal: 24, paddingTop: 22, paddingBottom: 8 }]} allowFontScaling>Notes</Text>
           <View style={{ paddingHorizontal: 20 }}>
             {notes.map((n, i) => (
               <View key={i} style={[st.note, !n.mine && { backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline }]}>
@@ -128,21 +128,18 @@ const st = StyleSheet.create({
   topRow: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 10 },
   back: { height: 44, flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start' },
   backText: { fontSize: 17, fontFamily: F.medium, color: T.ink },
-  banner: { marginHorizontal: 20, borderRadius: 14, paddingHorizontal: 18, paddingTop: 16, paddingBottom: 18 },
+  banner: { marginHorizontal: 24, paddingTop: 8, paddingBottom: 6 },
   bannerTop: { flexDirection: 'row', alignItems: 'center', gap: 9 },
   chip: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   when: { fontSize: 14, fontFamily: F.semibold },
-  title: { fontSize: 26, fontFamily: F.display, letterSpacing: -0.57, marginTop: 12, lineHeight: 28 },
+  title: { fontSize: 30, fontFamily: F.display, letterSpacing: -0.7, marginTop: 12, lineHeight: 28 },
   from: { fontSize: 16, fontFamily: F.medium, marginTop: 8, lineHeight: 22 },
-  section: { paddingHorizontal: 20, paddingTop: 20 },
+  section: { paddingHorizontal: 24, paddingTop: 26, paddingBottom: 8, fontSize: 13, fontFamily: F.semibold, color: T.sub, letterSpacing: 0.4, textTransform: 'uppercase' },
   sectionLabel: { fontSize: 14, fontFamily: F.semibold, color: T.sub },
-  msgRow: { marginTop: 8, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 14 },
+  msgRow: { marginTop: 8, borderTopWidth: 1, borderTopColor: T.hairline, paddingHorizontal: 16, paddingVertical: 14 },
   msgText: { flex: 1, fontSize: 17, fontFamily: F.body, color: T.ink2, lineHeight: 25 },
   told: { fontSize: 17, fontFamily: F.semibold, color: T.ink, marginTop: 7, lineHeight: 24 },
-  quick: {
-    backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 12,
-    paddingHorizontal: 14, paddingVertical: 13, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10,
-  },
+  quick: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: T.hairline },
   quickText: { flex: 1, fontSize: 16, fontFamily: F.medium, color: T.ink, lineHeight: 22 },
   draft: {
     minHeight: 76, borderWidth: 1, borderColor: T.hairline, borderRadius: 12, backgroundColor: T.surface,
@@ -158,7 +155,7 @@ const st = StyleSheet.create({
   blockText: { fontSize: 16, fontFamily: F.bold, color: '#fff' },
   blockedRow: { height: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   blockedText: { fontSize: 15, fontFamily: F.semibold, color: T.green },
-  note: { backgroundColor: T.greenTint, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 7 },
+  note: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: T.hairline },
   noteText: { fontSize: 16, fontFamily: F.body, color: T.greenInk2, lineHeight: 23 },
   noteMeta: { fontSize: 13, fontFamily: F.body, color: T.green, marginTop: 5 },
 });

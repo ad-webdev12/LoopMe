@@ -75,7 +75,7 @@ export default function PanicScreen({ ctx }: { ctx: Ctx }) {
         <Text style={st.body} allowFontScaling>{step.b}</Text>
       </View>
       {step.a && (
-        <View style={{ paddingHorizontal: 22, paddingTop: 14 }}>
+        <View style={{ paddingHorizontal: 24, paddingTop: 14 }}>
           <Pressable style={st.amberBtn} onPress={doAction} accessibilityRole="button">
             <Text style={st.amberText} allowFontScaling>{step.a}</Text>
             <ArrowRight size={19} color="#8a5a11" strokeWidth={2.1} />
@@ -107,12 +107,11 @@ const st = StyleSheet.create({
   back: { height: 44, flexDirection: 'row', alignItems: 'center', gap: 5 },
   backText: { fontSize: 16, fontFamily: F.semibold, color: T.ink },
   stepLabel: { fontSize: 12.5, fontFamily: F.semibold, letterSpacing: 1.1, color: T.sub },
-  bars: { flexDirection: 'row', gap: 5, paddingHorizontal: 22, paddingBottom: 18 },
+  bars: { flexDirection: 'row', gap: 5, paddingHorizontal: 24, paddingBottom: 18 },
   bar: { flex: 1, height: 5 },
   card: {
-    marginHorizontal: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14,
+    marginHorizontal: 24, borderTopWidth: 1, borderTopColor: T.hairline,
     paddingHorizontal: 18, paddingVertical: 22,
-    shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
   },
   title: { fontSize: 27, fontFamily: F.display, letterSpacing: -0.59, color: T.ink, lineHeight: 30 },
   body: { fontSize: 17.5, fontFamily: F.body, color: T.ink2, lineHeight: 26.5, marginTop: 12 },
@@ -121,7 +120,7 @@ const st = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16,
   },
   amberText: { fontSize: 16.5, fontFamily: F.bold, color: '#8a5a11' },
-  actions: { paddingHorizontal: 22, paddingTop: 14, paddingBottom: 104, gap: 8 },
+  actions: { paddingHorizontal: 24, paddingTop: 14, paddingBottom: 104, gap: 8 },
   cta: { height: 56, borderRadius: 12, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 17 },
   ctaText: { fontSize: 17, fontFamily: F.bold, color: '#fff' },
   readBtn: { height: 48, borderWidth: 1, borderColor: T.fieldBorder, backgroundColor: T.surface, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 },

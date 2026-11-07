@@ -130,27 +130,22 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
           <Text style={st.exportText} allowFontScaling>Export PDF</Text>
         </Pressable>
       </View>
-      <View style={{ paddingHorizontal: 22, paddingBottom: 14 }}>
+      <View style={{ paddingHorizontal: 24, paddingBottom: 14 }}>
         <Text style={st.title} allowFontScaling>History</Text>
         <Text style={st.sub} allowFontScaling>Export makes a PDF for your bank.</Text>
       </View>
 
-      <View style={st.statsCard}>
-        <View style={st.statsRow}>
-          <View style={[st.stat, st.statBorder]}><Text style={st.statNum} allowFontScaling>{checked}</Text><Text style={st.statLabel} allowFontScaling>CHECKED</Text></View>
-          <View style={[st.stat, st.statBorder]}><Text style={[st.statNum, { color: T.red }]} allowFontScaling>{stopped}</Text><Text style={st.statLabel} allowFontScaling>STOPPED</Text></View>
-          <View style={st.stat}><Text style={[st.statNum, { color: T.green }]} allowFontScaling>{careMode ? notesSent : looped}</Text><Text style={st.statLabel} allowFontScaling>{careMode ? 'REPLIES' : 'LOOPED IN'}</Text></View>
-        </View>
-        <View style={st.chartWrap}>
-          <Text style={st.chartLabel} allowFontScaling>LAST 7 DAYS</Text>
-          <View style={st.chart}>
-            {week.map((d, i) => (
-              <View key={i} style={st.chartCol}>
-                <View style={[st.chartBar, { height: Math.max(4, 16 + d.n * 5.4), backgroundColor: d.red ? T.red : T.green, opacity: d.n === 0 ? 0.18 : 1 }]} />
-                <Text style={st.chartDay} allowFontScaling>{d.label}</Text>
-              </View>
-            ))}
-          </View>
+      <View style={st.summary}>
+        <Text style={st.summaryText} allowFontScaling>
+          {checked === 0 ? 'Nothing checked yet.' : checked + (checked === 1 ? ' text checked' : ' texts checked') + (stopped ? ', ' + stopped + (stopped === 1 ? ' scam stopped' : ' scams stopped') : '') + ((careMode ? notesSent : looped) ? ', ' + (careMode ? notesSent + (notesSent === 1 ? ' reply' : ' replies') : looped + ' looped in') : '') + '.'}
+        </Text>
+        <View style={st.chart}>
+          {week.map((d, i) => (
+            <View key={i} style={st.chartCol}>
+              <View style={[st.chartBar, { height: Math.max(4, 10 + d.n * 6), backgroundColor: d.red ? T.red : T.green, opacity: d.n === 0 ? 0.16 : 1 }]} />
+              <Text style={st.chartDay} allowFontScaling>{d.label}</Text>
+            </View>
+          ))}
         </View>
       </View>
 
@@ -176,31 +171,21 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
 
       {days.map(day => (
         <View key={day.label}>
-          <Text style={st.dayLabel} allowFontScaling>{day.label.toUpperCase()}</Text>
+          <Text style={st.dayLabel} allowFontScaling>{day.label}</Text>
           <View style={st.dayCard}>
-            {day.items.map((h, i) => {
+            {day.items.map((h) => {
               const M = MARK[h.level];
               const sourceLine = SOURCE_LINE[h.source];
               return (
-                <Pressable key={h.id} style={[st.row, i === day.items.length - 1 && { borderBottomWidth: 0 }]}
+                <Pressable key={h.id} style={st.row}
                   onPress={() => h.source === 'family' ? ctx.openWard(h.id) : ctx.check(h.excerpt, h.sender)} accessibilityRole="button">
-                  <View style={[st.rowIcon, { backgroundColor: M.tint }]}>
-                    <M.Icon size={15} color={M.color} strokeWidth={2.4} />
-                  </View>
+                  <View style={[st.dot, { backgroundColor: M.color }]} />
                   <View style={{ flex: 1, minWidth: 0 }}>
-                    <View style={st.rowTop}>
-                      <Text style={st.rowSender} allowFontScaling numberOfLines={1}>{h.sender || (h.source === 'share' ? 'From another app' : 'Pasted message')}</Text>
-                      <Text style={st.rowTime} allowFontScaling>{hm(h.at)}</Text>
-                    </View>
                     <Text style={st.rowSnippet} allowFontScaling numberOfLines={2}>{h.excerpt}</Text>
                     <View style={st.rowFoot}>
-                      <View style={[st.mark, { backgroundColor: M.tint }]}>
-                        <Text style={[st.markText, { color: M.color }]} allowFontScaling>{M.mark.toUpperCase()}</Text>
-                      </View>
-                      {!!sourceLine && <Text style={st.sourceLine} allowFontScaling>{sourceLine}</Text>}
+                      <Text style={st.rowMeta} allowFontScaling numberOfLines={1}>{[M.mark, h.sender, sourceLine, hm(h.at)].filter(Boolean).join('  ·  ')}</Text>
                       {h.level !== 'green' && !careMode && (
-                        <Pressable style={st.reportBtn} onPress={() => reportScam(ctx, h.id)} accessibilityRole="button" accessibilityLabel="Report">
-                          <Flag size={13} color={h.reported ? T.sub : T.red} strokeWidth={2.4} />
+                        <Pressable onPress={() => reportScam(ctx, h.id)} accessibilityRole="button" accessibilityLabel="Report">
                           <Text style={[st.reportText, h.reported && { color: T.sub }]} allowFontScaling>{h.reported ? 'Reported' : 'Report'}</Text>
                         </Pressable>
                       )}
@@ -219,56 +204,37 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
 }
 
 const st = StyleSheet.create({
+  summary: { marginHorizontal: 24, paddingTop: 6, paddingBottom: 8 },
+  summaryText: { fontSize: 17, fontFamily: F.medium, color: T.ink, lineHeight: 25 },
+  dot: { width: 9, height: 9, borderRadius: 5, marginTop: 9 },
+  rowMeta: { flex: 1, fontSize: 14, fontFamily: F.body, color: T.sub },
   root: { flex: 1, backgroundColor: T.ground },
   exportRow: { flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 18, paddingTop: 8, paddingBottom: 10 },
   exportBtn: { height: 44, flexDirection: 'row', alignItems: 'center', gap: 6 },
   exportText: { fontSize: 15, fontFamily: F.bold, color: T.green },
-  title: { fontSize: 27, fontFamily: F.display, letterSpacing: -0.54, color: T.ink, lineHeight: 30 },
+  title: { fontSize: 34, fontFamily: F.display, letterSpacing: -0.9, color: T.ink, lineHeight: 38 },
   sub: { fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 22.5, marginTop: 6 },
 
-  statsCard: {
-    marginHorizontal: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14,
-    shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
-  },
-  statsRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: T.divider },
-  stat: { flex: 1, paddingHorizontal: 16, paddingVertical: 14 },
-  statBorder: { borderRightWidth: 1, borderRightColor: T.divider },
-  statNum: { fontSize: 26, fontFamily: F.display, color: T.ink, lineHeight: 26 },
-  statLabel: { fontSize: 11.5, fontFamily: F.semibold, letterSpacing: 0.9, color: T.sub, marginTop: 5 },
-  chartWrap: { paddingHorizontal: 16, paddingVertical: 14 },
-  chartLabel: { fontSize: 11.5, fontFamily: F.semibold, letterSpacing: 1.4, color: T.sub, marginBottom: 12 },
-  chart: { flexDirection: 'row', alignItems: 'flex-end', gap: 9, height: 56 },
+  chart: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginTop: 14, height: 58 },
   chartCol: { flex: 1, justifyContent: 'flex-end', gap: 5, height: '100%' },
   chartBar: { width: '100%' },
   chartDay: { fontSize: 11, fontFamily: F.semibold, color: T.sub, textAlign: 'center' },
 
-  repeatCard: {
-    marginHorizontal: 22, marginVertical: 14, backgroundColor: T.redTint, borderWidth: 1, borderColor: T.redEdge,
-    paddingHorizontal: 15, paddingVertical: 14, flexDirection: 'row', gap: 12, borderRadius: 12,
-  },
+  repeatCard: { marginHorizontal: 24, marginTop: 14, flexDirection: 'row', gap: 12, paddingVertical: 14, borderTopWidth: 1, borderBottomWidth: 1, borderColor: T.hairline },
   repeatTitle: { fontSize: 16, fontFamily: F.bold, color: T.ink },
   repeatBody: { fontSize: 15, fontFamily: F.body, color: T.sub, lineHeight: 21, marginTop: 3 },
   repeatLink: { fontSize: 15, fontFamily: F.bold, color: T.red, marginTop: 8 },
 
-  empty: { marginHorizontal: 22, marginTop: 14, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, padding: 17 },
+  empty: { marginHorizontal: 24, marginTop: 14, borderTopWidth: 1, borderTopColor: T.hairline, padding: 17 },
   emptyTitle: { fontSize: 17, fontFamily: F.bold, color: T.ink },
   emptyBody: { fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 22.5, marginTop: 6 },
 
-  dayLabel: { paddingHorizontal: 22, paddingTop: 10, paddingBottom: 8, fontSize: 11.5, fontFamily: F.semibold, letterSpacing: 1.4, color: T.sub },
+  dayLabel: { paddingHorizontal: 24, paddingTop: 22, paddingBottom: 6, fontSize: 13, fontFamily: F.semibold, color: T.sub, letterSpacing: 0.4, textTransform: 'uppercase' },
   dayCard: {
-    marginHorizontal: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, overflow: 'hidden',
-    shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
+    marginHorizontal: 24, borderTopWidth: 1, borderTopColor: T.hairline,
   },
-  row: { flexDirection: 'row', gap: 12, paddingHorizontal: 15, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: T.divider },
-  rowIcon: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
-  rowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 },
-  rowSender: { flex: 1, fontSize: 16, fontFamily: F.bold, color: T.ink },
-  rowTime: { fontSize: 13, fontFamily: F.body, color: T.sub },
-  rowSnippet: { fontSize: 15, fontFamily: F.body, color: T.sub, lineHeight: 21, marginTop: 3 },
-  rowFoot: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 7, flexWrap: 'wrap' },
-  mark: { alignSelf: 'flex-start', paddingHorizontal: 7, paddingVertical: 3 },
-  markText: { fontSize: 11, fontFamily: F.display, letterSpacing: 0.9 },
-  sourceLine: { fontSize: 13, fontFamily: F.semibold, color: T.green },
-  reportBtn: { marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 4, paddingHorizontal: 2 },
-  reportText: { fontSize: 13, fontFamily: F.semibold, color: T.red },
+  row: { flexDirection: 'row', gap: 12, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: T.hairline },
+  rowSnippet: { fontSize: 16.5, fontFamily: F.body, color: T.ink, lineHeight: 23 },
+  rowFoot: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 6 },
+  reportText: { fontSize: 14, fontFamily: F.semibold, color: T.red },
 });

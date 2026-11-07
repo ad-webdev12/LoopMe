@@ -26,11 +26,6 @@ export default function MoreScreen({ ctx }: { ctx: Ctx }) {
         <Text style={st.rowTitle} allowFontScaling>{title}</Text>
         <Text style={st.rowSub} allowFontScaling>{sub}</Text>
       </View>
-      {state && (
-        <View style={[st.pill, state === 'on' ? st.pillOn : st.pillOff]}>
-          <Text style={[st.pillText, state === 'on' ? { color: T.greenInk } : { color: T.sub }]} allowFontScaling>{state === 'on' ? 'On' : 'Off'}</Text>
-        </View>
-      )}
       <ChevronRight size={17} color={color} strokeWidth={2.2} />
     </Pressable>
   );
@@ -39,18 +34,18 @@ export default function MoreScreen({ ctx }: { ctx: Ctx }) {
   return (
     <KFIn duration={260} style={{ flex: 1 }} playKey="more">
     <ScrollView style={st.root} showsVerticalScrollIndicator={false}>
-      <View style={{ paddingHorizontal: 22, paddingTop: 18, paddingBottom: 14 }}>
+      <View style={{ paddingHorizontal: 24, paddingTop: 18, paddingBottom: 14 }}>
         <Text style={st.title} allowFontScaling>More</Text>
       </View>
 
       <Text style={st.section} allowFontScaling>Running on its own</Text>
       <View style={st.card}>
         <Row Icon={MessageSquareOff} color={T.green} title="Unknown texts"
-          sub={ctx.tallies.junk > 0 ? ctx.tallies.junk + ' stopped before you saw them' : 'Off. Tap to switch on.'}
+          sub={ctx.tallies.junk > 0 ? ctx.tallies.junk + ' stopped before you saw them' : 'Off. One switch in iPhone Settings.'}
           state={ctx.tallies.filtered > 0 ? 'on' : 'off'}
           onPress={() => ctx.go('switches')} />
         <Row Icon={PhoneOff} color={T.green} title="Scam callers"
-          sub={calls === 'enabled' ? 'On. Scam numbers are labeled when they ring.' : 'Off. Tap to switch on.'}
+          sub={calls === 'enabled' ? 'On. Scam numbers are labeled when they ring.' : 'Off. One switch in iPhone Settings.'}
           state={calls === 'enabled' ? 'on' : 'off'}
           onPress={() => ctx.go('switches')} />
         <Row Icon={Share2} color={T.green} title="Check from any app"
@@ -99,24 +94,22 @@ export default function MoreScreen({ ctx }: { ctx: Ctx }) {
 
 const st = StyleSheet.create({
   root: { flex: 1, backgroundColor: T.ground },
-  title: { fontSize: 27, fontFamily: F.display, letterSpacing: -0.54, color: T.ink, lineHeight: 30 },
-  section: { paddingHorizontal: 22, paddingBottom: 7, fontSize: 14.5, fontFamily: F.bold, color: T.sub },
+  title: { fontSize: 34, fontFamily: F.display, letterSpacing: -0.9, color: T.ink, lineHeight: 38 },
+  section: { paddingHorizontal: 24, paddingTop: 26, paddingBottom: 8, fontSize: 13, fontFamily: F.semibold, color: T.sub, letterSpacing: 0.4, textTransform: 'uppercase' },
   card: {
-    marginHorizontal: 22, marginBottom: 16, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, overflow: 'hidden',
-    shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
+    marginHorizontal: 24, marginBottom: 16, borderTopWidth: 1, borderTopColor: T.hairline,
   },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15, borderBottomWidth: 1, borderBottomColor: T.divider },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: T.hairline },
   rowTitle: { fontSize: 16.5, fontFamily: F.bold, color: T.ink },
   rowSub: { fontSize: 14.5, fontFamily: F.body, color: T.sub, marginTop: 2, lineHeight: 20 },
-  pill: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 8 },
-  pillOn: { backgroundColor: T.greenTint },
-  pillOff: { backgroundColor: T.rowHover },
-  pillText: { fontSize: 13, fontFamily: F.semibold },
+  pill: { },
+  pillOn: { },
+  pillOff: { },
+  pillText: { fontSize: 14, fontFamily: F.semibold },
   panicRow: {
-    marginHorizontal: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.redEdge,
+    marginHorizontal: 24, backgroundColor: T.surface, borderWidth: 1, borderColor: T.redEdge,
     padding: 15, flexDirection: 'row', alignItems: 'center', gap: 12,
-    shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
   },
   panicTitle: { fontSize: 16.5, fontFamily: F.bold, color: T.red },
-  version: { paddingHorizontal: 22, paddingTop: 20, fontSize: 13.5, fontFamily: F.body, color: T.sub, lineHeight: 19 },
+  version: { paddingHorizontal: 24, paddingTop: 20, fontSize: 13.5, fontFamily: F.body, color: T.sub, lineHeight: 19 },
 });

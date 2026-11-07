@@ -61,11 +61,11 @@ export function Ob1({ ctx }: { ctx: Ctx }) {
   return (
     <KFIn duration={300} style={{ flex: 1 }} playKey="ob1">
     <View style={s1.root}>
-      <View style={{ paddingHorizontal: 22, paddingTop: 24, paddingBottom: 18 }}>
+      <View style={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 18 }}>
         <Kicker text="Setting up" step={1} />
         <Title text="Whose phone is this?" />
       </View>
-      <View style={{ paddingHorizontal: 22, gap: 10 }}>
+      <View style={{ paddingHorizontal: 24, gap: 10 }}>
         <Choice title="My parent’s, or someone I look after" bold body="I am setting it up for them. Two minutes."
           onPress={() => { ctx.update({ ...ctx.settings, role: 'elder' }); ctx.go('ob2'); }} />
         <Choice title="Mine" bold body="Set it up for me."
@@ -83,11 +83,10 @@ const s1 = StyleSheet.create({
   choice: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: T.surface,
     borderWidth: 1, borderColor: T.hairline, borderRadius: 14, padding: 18,
-    shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
   },
   choiceTitle: { fontSize: 17, fontFamily: F.display, color: T.ink },
   choiceBody: { fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 22.5, marginTop: 3 },
-  reassureText: { marginHorizontal: 22, marginTop: 22, fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 23 },
+  reassureText: { marginHorizontal: 24, marginTop: 22, fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 23 },
 });
 
 // ---------------- Ob2: who is this phone for? (caregiver) ----------------
@@ -97,7 +96,7 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
   return (
     <KFIn duration={300} style={{ flex: 1 }} playKey="ob2">
     <View style={s1.root}>
-      <View style={{ paddingHorizontal: 22, paddingTop: 24, paddingBottom: 18 }}>
+      <View style={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 18 }}>
         <Kicker text="Setting up" step={2} of={4} />
         <Title text="Who is this phone for?" />
       </View>
@@ -118,7 +117,7 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
         </View>
       </View>
       <Text style={s2.note} allowFontScaling>They see every setting and can change any of it.</Text>
-      <View style={{ marginTop: 'auto', paddingHorizontal: 22, paddingBottom: 30 }}>
+      <View style={{ marginTop: 'auto', paddingHorizontal: 24, paddingBottom: 30 }}>
         <CTA label="Continue" onPress={() => {
           if (!name.trim()) { ctx.flash('Add their first name so alerts and notes can use it.'); return; }
           ctx.update({ ...ctx.settings, careName: name.trim(), careRel: rel }); ctx.go('ob3');
@@ -130,16 +129,15 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
 }
 const s2 = StyleSheet.create({
   card: {
-    marginHorizontal: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline,
+    marginHorizontal: 24, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline,
     borderRadius: 14, padding: 18, gap: 18,
-    shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
   },
   fieldLabel: { fontSize: 12, fontFamily: F.semibold, letterSpacing: 1.4, textTransform: 'uppercase', color: T.sub, marginBottom: 7 },
   input: { height: 48, borderWidth: 1, borderColor: '#c9c9c4', backgroundColor: T.ground, paddingHorizontal: 14, fontSize: 17, fontFamily: F.body, color: T.ink },
   rel: { flex: 1, height: 44, borderWidth: 1, borderColor: T.fieldBorder, backgroundColor: T.surface, alignItems: 'center', justifyContent: 'center' },
   relOn: { backgroundColor: T.greenTint, borderColor: T.green },
   relText: { fontSize: 15.5, fontFamily: F.bold, color: T.sub },
-  note: { marginHorizontal: 22, marginTop: 18, fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 24 },
+  note: { marginHorizontal: 24, marginTop: 18, fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 24 },
 });
 
 // ---------------- Ob3: nothing leaves this phone ----------------
@@ -153,7 +151,7 @@ export function Ob3({ ctx }: { ctx: Ctx }) {
   return (
     <KFIn duration={300} style={{ flex: 1 }} playKey="ob3">
     <View style={s1.root}>
-      <View style={{ paddingHorizontal: 22, paddingTop: 24, paddingBottom: 18 }}>
+      <View style={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 18 }}>
         <Kicker text="Setting up" step={care ? 3 : 2} of={care ? 4 : 3} />
         <Title text="Nothing leaves this phone." />
       </View>
@@ -165,7 +163,7 @@ export function Ob3({ ctx }: { ctx: Ctx }) {
           </View>
         ))}
       </View>
-      <View style={{ marginTop: 'auto', paddingHorizontal: 22, paddingBottom: 30 }}>
+      <View style={{ marginTop: 'auto', paddingHorizontal: 24, paddingBottom: 30 }}>
         <CTA label="Continue" onPress={() => ctx.go('ob4')} />
       </View>
     </View>
@@ -174,10 +172,9 @@ export function Ob3({ ctx }: { ctx: Ctx }) {
 }
 const s3 = StyleSheet.create({
   card: {
-    marginHorizontal: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14,
-    shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
+    marginHorizontal: 24, borderTopWidth: 1, borderTopColor: T.hairline,
   },
-  row: { flexDirection: 'row', gap: 13, paddingHorizontal: 17, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: T.divider },
+  row: { flexDirection: 'row', gap: 13, paddingHorizontal: 17, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: T.hairline },
   num: { color: T.green, fontSize: 15, fontFamily: F.bold, width: 14 },
   text: { flex: 1, fontSize: 17, fontFamily: F.body, color: T.ink, lineHeight: 25.5 },
 });
@@ -217,7 +214,7 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
   return (
     <KFIn duration={300} style={{ flex: 1 }} playKey="ob4">
     <View style={s1.root}>
-      <View style={{ paddingHorizontal: 22, paddingTop: 24, paddingBottom: 18 }}>
+      <View style={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 18 }}>
         <Kicker text="Last step" step={care ? 4 : 3} of={care ? 4 : 3} />
         <Title text="Who should we loop in?" />
         <Text style={s4.sub} allowFontScaling>One person. One link. They hear the moment a scam lands.</Text>
@@ -245,7 +242,7 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
           {sent ? <Check size={20} color="#fff" strokeWidth={2.4} /> : <Send size={20} color="#fff" strokeWidth={2.2} />}
         </Pressable>
       )}
-      <View style={{ marginTop: 'auto', paddingHorizontal: 22, paddingBottom: 30 }}>
+      <View style={{ marginTop: 'auto', paddingHorizontal: 24, paddingBottom: 30 }}>
         <CTA label="Done, start checking" onPress={() => { ctx.update({ ...ctx.settings, introSeen: true, role: 'elder' }); ctx.go('home'); }} />
       </View>
     </View>
@@ -255,17 +252,16 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
 const s4 = StyleSheet.create({
   sub: { fontSize: 17, fontFamily: F.body, color: T.sub, lineHeight: 26.4, marginTop: 10 },
   addRow: {
-    marginHorizontal: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14,
+    marginHorizontal: 24, borderTopWidth: 1, borderTopColor: T.hairline,
     paddingHorizontal: 17, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', gap: 13,
-    shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
   },
   addIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: T.greenTint, alignItems: 'center', justifyContent: 'center' },
   addText: { fontSize: 17, fontFamily: F.bold, color: T.ink },
-  picked: { marginHorizontal: 22, marginTop: 10, backgroundColor: T.greenTint, paddingHorizontal: 16, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  picked: { marginHorizontal: 24, marginTop: 10, backgroundColor: T.greenTint, paddingHorizontal: 16, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', gap: 12 },
   pickedAvatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center' },
   pickedInitials: { color: '#fff', fontSize: 15, fontFamily: F.bold },
   pickedName: { fontSize: 17, fontFamily: F.bold, color: T.ink },
-  linkBtn: { marginHorizontal: 22, marginTop: 10, backgroundColor: T.green, borderRadius: 14, paddingHorizontal: 17, paddingVertical: 15, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  linkBtn: { marginHorizontal: 24, marginTop: 10, backgroundColor: T.green, borderRadius: 14, paddingHorizontal: 17, paddingVertical: 15, flexDirection: 'row', alignItems: 'center', gap: 12 },
   linkTitle: { fontSize: 17, fontFamily: F.bold, color: '#fff' },
   linkSub: { fontSize: 14.5, fontFamily: F.body, color: 'rgba(255,255,255,.85)', lineHeight: 20, marginTop: 2 },
   pickedMeta: { fontSize: 15, fontFamily: F.body, color: T.sub },

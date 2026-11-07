@@ -110,7 +110,7 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
         </Pressable>
       </View>
 
-      <View style={[st.banner, { backgroundColor: meta.tint }]}>
+      <View style={st.banner}>
         <View style={st.bannerTop}>
           <meta.Icon size={26} color={meta.bg} strokeWidth={2.4} />
           <Text style={[st.word, { color: meta.ink }]} allowFontScaling>{meta.word}</Text>
@@ -278,7 +278,7 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
 }
 
 const st = StyleSheet.create({
-  cwCard: { marginHorizontal: 22, marginTop: 4, marginBottom: 14, backgroundColor: T.amberTint, borderRadius: 12, paddingHorizontal: 15, paddingVertical: 13 },
+  cwCard: { marginHorizontal: 24, marginTop: 4, marginBottom: 14, backgroundColor: T.amberTint, borderRadius: 12, paddingHorizontal: 15, paddingVertical: 13 },
   cwTop: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 6 },
   cwKicker: { fontSize: 13, fontFamily: F.semibold, letterSpacing: 0.9, color: T.amberInk, textTransform: 'uppercase' },
   cwLine: { fontSize: 17, fontFamily: F.body, color: T.amberInk, lineHeight: 24.6 },
@@ -289,43 +289,43 @@ const st = StyleSheet.create({
   backText: { fontSize: 17, fontFamily: F.medium, color: T.ink },
   time: { fontSize: 14.5, fontFamily: F.body, color: T.sub, paddingRight: 4 },
 
-  banner: { marginHorizontal: 20, borderRadius: 14, paddingHorizontal: 18, paddingTop: 16, paddingBottom: 18 },
+  banner: { marginHorizontal: 24, paddingTop: 10, paddingBottom: 6 },
   bannerTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   chip: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   kicker: { fontSize: 14.5, fontFamily: F.semibold },
   word: { fontSize: 34, fontFamily: F.display, letterSpacing: -0.9, lineHeight: 36 },
   line: { fontSize: 17, fontFamily: F.medium, marginTop: 6, lineHeight: 23.4 },
 
-  section: { paddingHorizontal: 20, paddingTop: 22 },
+  section: { paddingHorizontal: 24, paddingTop: 26, paddingBottom: 8, fontSize: 13, fontFamily: F.semibold, color: T.sub, letterSpacing: 0.4, textTransform: 'uppercase' },
   sectionLabel: { fontSize: 14.5, fontFamily: F.semibold, color: T.sub },
   step: { fontSize: 19, fontFamily: F.semibold, color: T.ink, marginTop: 7, lineHeight: 26.6 },
 
   whyRow: {
-    marginHorizontal: 20, marginTop: 16, paddingVertical: 13,
+    marginHorizontal: 24, marginTop: 16, paddingVertical: 13,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     borderTopWidth: 1, borderBottomWidth: 1, borderColor: T.hairline,
   },
   whyLabel: { fontSize: 17, fontFamily: F.semibold, color: T.green },
   whyRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   whyCount: { fontSize: 15, fontFamily: F.body, color: T.sub },
-  signals: { paddingHorizontal: 20, paddingTop: 6 },
+  signals: { paddingHorizontal: 24, paddingTop: 6 },
   sigRow: { flexDirection: 'row', gap: 11, paddingVertical: 11, borderTopWidth: 1, borderTopColor: T.divider },
   sigNum: { fontSize: 15, fontFamily: F.semibold, width: 12, paddingTop: 1 },
   sigText: { flex: 1, fontSize: 17, fontFamily: F.body, color: T.ink2, lineHeight: 25.5 },
 
-  noteWrap: { paddingHorizontal: 20, paddingTop: 22 },
+  noteWrap: { paddingHorizontal: 24, paddingTop: 22 },
   noteHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   noteAvatar: { width: 22, height: 22, borderRadius: 11, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center' },
   noteAvatarText: { color: '#fff', fontSize: 12, fontFamily: F.semibold },
   noteFrom: { fontSize: 14.5, fontFamily: F.semibold, color: T.green },
-  noteCard: { marginTop: 8, backgroundColor: T.greenTint, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 13 },
+  noteCard: { marginTop: 8, borderTopWidth: 1, borderTopColor: T.hairline, borderBottomWidth: 1, borderBottomColor: T.hairline, paddingHorizontal: 14, paddingVertical: 13 },
   noteText: { fontSize: 17, fontFamily: F.body, color: T.greenInk2, lineHeight: 25.5 },
 
-  msgRow: { marginTop: 8, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 14 },
+  msgRow: { marginTop: 8 },
   msgText: { flex: 1, fontSize: 17, fontFamily: F.body, color: T.ink2, lineHeight: 26.4 },
   showAll: { fontSize: 16, fontFamily: F.semibold, color: T.green, paddingTop: 8, paddingLeft: 15 },
 
-  actions: { paddingHorizontal: 20, paddingTop: 24, gap: 10 },
+  actions: { paddingHorizontal: 24, paddingTop: 24, gap: 10 },
   smallRow: { flexDirection: 'row', gap: 8 },
   rightRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 2 },
   rightLabel: { fontSize: 15, fontFamily: F.body, color: T.sub },
@@ -341,7 +341,7 @@ const st = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16,
   },
   readLabel: { fontSize: 17, fontFamily: F.semibold, color: T.ink },
-  readPanel: { backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 12, paddingHorizontal: 15, paddingTop: 14, paddingBottom: 16 },
+  readPanel: { borderTopWidth: 1, borderTopColor: T.hairline, paddingHorizontal: 15, paddingTop: 14, paddingBottom: 16 },
   readHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 11 },
   readMeter: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   bars: { flexDirection: 'row', alignItems: 'flex-end', gap: 2, height: 14 },
@@ -352,7 +352,7 @@ const st = StyleSheet.create({
   tokens: { fontSize: 17, lineHeight: 31.5, fontFamily: F.body },
   stopText: { fontSize: 15.5, fontFamily: F.semibold, color: T.sub },
 
-  footer: { marginHorizontal: 20, marginTop: 28, borderTopWidth: 1, borderTopColor: T.hairline, paddingTop: 18, alignItems: 'center' },
+  footer: { marginHorizontal: 24, marginTop: 28, borderTopWidth: 1, borderTopColor: T.hairline, paddingTop: 18, alignItems: 'center' },
   footBtn: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   footText: { fontSize: 17, fontFamily: F.semibold, color: T.green },
 });

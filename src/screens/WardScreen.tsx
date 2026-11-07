@@ -33,7 +33,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
   const weekWard = ward.filter(w => Date.now() - w.at < 7 * 86400000);
 
   const seen = p ? 'Last seen on Loop Me ' + ago(p.at).replace(/^(\d)/, 'at $1') : ward.length ? 'Linked, last alert ' + ago(ward[0].at) : 'Linked, waiting for the first update';
-  const headline = !p ? 'Linked. The first weekly picture arrives once ' + watchName + ' opens Loop Me.'
+  const headline = !p ? 'Linked. The weekly picture arrives once ' + watchName + ' opens the app.'
     : p.checked7 === 0 ? 'A quiet week. No unknown texts reached ' + watchName + '.'
     : p.stopped7 === 0 && p.flagged7 === 0 ? p.checked7 + (p.checked7 === 1 ? ' text was checked' : ' texts were checked') + ' this week. All of them were fine.'
     : (p.stopped7 ? p.stopped7 + (p.stopped7 === 1 ? ' scam stopped' : ' scams stopped') : '') + (p.stopped7 && p.flagged7 ? ', ' : '') + (p.flagged7 ? p.flagged7 + ' worth a look' : '') + ' this week.';
@@ -61,7 +61,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
           <Shield size={17} color={T.green} strokeWidth={2} />
           <Text style={st.brandText} allowFontScaling>LOOP ME</Text>
         </View>
-        <Text style={st.roleTag} allowFontScaling>LOOKING AFTER</Text>
+        <Text style={st.roleTag} allowFontScaling>Looking after</Text>
       </View>
 
       <View style={st.head}>
@@ -96,16 +96,14 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
       {needsYou && (
         <View>
           <Text style={st.section} allowFontScaling>Worth a word</Text>
-          <Pressable style={[st.needCard, needsYou.level === 'amber' && { backgroundColor: T.amberTint }]} onPress={() => ctx.openFamilyAlert(needsYou.id)} accessibilityRole="button">
-            <View style={[st.needIcon, needsYou.level === 'amber' && { backgroundColor: T.amber }]}>
-              {needsYou.level === 'amber' ? <Info size={16} color="#fff" strokeWidth={2.4} /> : <OctagonX size={16} color="#fff" strokeWidth={2.4} />}
-            </View>
+          <Pressable style={st.needCard} onPress={() => ctx.openFamilyAlert(needsYou.id)} accessibilityRole="button">
+            <View style={[st.needDot, { backgroundColor: needsYou.level === 'amber' ? T.amber : T.red }]} />
             <View style={{ flex: 1 }}>
-              <Text style={[st.needTitle, needsYou.level === 'amber' && { color: T.amberInk }]} allowFontScaling>{needsYou.level === 'red' ? 'Scam text stopped' : 'Text worth a second look'}</Text>
-              <Text style={[st.needMeta, needsYou.level === 'amber' && { color: T.amberInk }]} allowFontScaling>{ago(needsYou.at)}, from {needsYou.sender || 'an unknown number'}. {watchName} has been told what to do.</Text>
+              <Text style={st.needTitle} allowFontScaling>{needsYou.level === 'red' ? 'Scam text stopped' : 'Text worth a second look'}</Text>
+              <Text style={st.needMeta} allowFontScaling>{ago(needsYou.at)}, from {needsYou.sender || 'an unknown number'}. {watchName} has been told what to do.</Text>
               <View style={st.needLink}>
-                <Text style={[st.needLinkText, needsYou.level === 'amber' && { color: T.amberInk }]} allowFontScaling>Reply in one tap</Text>
-                <ArrowRight size={14} color={needsYou.level === 'amber' ? T.amberInk : T.redInk} strokeWidth={2.4} />
+                <Text style={st.needLinkText} allowFontScaling>Reply in one tap</Text>
+                <ArrowRight size={14} color={T.green} strokeWidth={2.4} />
               </View>
             </View>
           </Pressable>
@@ -206,7 +204,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
         </View>
       )}
 
-      <Pressable style={{ paddingHorizontal: 20, paddingTop: 14 }} onPress={ctx.unlinkFamily} accessibilityRole="button">
+      <Pressable style={{ paddingHorizontal: 24, paddingTop: 14 }} onPress={ctx.unlinkFamily} accessibilityRole="button">
         <Text style={st.stop} allowFontScaling>Stop looking after {watchName}</Text>
       </Pressable>
       <View style={{ height: 110 }} />
@@ -216,17 +214,16 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
 }
 
 const card = {
-  marginHorizontal: 20, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14,
-  shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
+  marginHorizontal: 24, borderTopWidth: 1, borderTopColor: T.hairline,
 } as const;
 
 const st = StyleSheet.create({
   root: { flex: 1, backgroundColor: T.ground },
-  brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 12, paddingBottom: 2 },
+  brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingTop: 12, paddingBottom: 2 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   brandText: { fontSize: 13, fontFamily: F.bold, letterSpacing: 0.65, color: T.green },
-  roleTag: { fontSize: 12, fontFamily: F.semibold, letterSpacing: 0.9, color: T.sub },
-  head: { flexDirection: 'row', alignItems: 'flex-start', gap: 13, paddingHorizontal: 20, paddingTop: 14 },
+  roleTag: { fontSize: 13, fontFamily: F.semibold, color: T.sub },
+  head: { flexDirection: 'row', alignItems: 'flex-start', gap: 13, paddingHorizontal: 24, paddingTop: 14 },
   avatar: { width: 46, height: 46, borderRadius: 23, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center' },
   avatarText: { color: '#fff', fontSize: 17, fontFamily: F.semibold },
   name: { fontSize: 23, fontFamily: F.display, letterSpacing: -0.4, color: T.ink, lineHeight: 26 },
@@ -235,9 +232,9 @@ const st = StyleSheet.create({
   status: { fontSize: 15, fontFamily: F.body, color: T.sub, flex: 1 },
   callBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center' },
 
-  week: { ...card, marginTop: 18, paddingHorizontal: 17, paddingTop: 15, paddingBottom: 15 },
+  week: { marginHorizontal: 24, marginTop: 18, paddingTop: 16, paddingBottom: 8, borderTopWidth: 1, borderTopColor: T.hairline },
   weekLabel: { fontSize: 13, fontFamily: F.semibold, color: T.sub, letterSpacing: 0.3 },
-  weekHead: { fontSize: 21, fontFamily: F.display, letterSpacing: -0.3, color: T.ink, lineHeight: 26, marginTop: 6 },
+  weekHead: { fontSize: 20, fontFamily: F.display, letterSpacing: -0.3, color: T.ink, lineHeight: 26, marginTop: 6 },
   weekFoot: { fontSize: 14, fontFamily: F.body, color: T.sub, lineHeight: 20, marginTop: 12 },
   stats: { flexDirection: 'row', marginTop: 14, borderTopWidth: 1, borderTopColor: T.divider, paddingTop: 12 },
   stat: { flex: 1, paddingRight: 10 },
@@ -245,16 +242,16 @@ const st = StyleSheet.create({
   statNum: { fontSize: 26, fontFamily: F.display, color: T.ink, lineHeight: 28 },
   statLabel: { fontSize: 13, fontFamily: F.semibold, color: T.sub, marginTop: 3 },
 
-  section: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 8, fontSize: 14, fontFamily: F.semibold, color: T.sub },
-  needCard: { marginHorizontal: 20, flexDirection: 'row', gap: 12, backgroundColor: T.redTint, borderRadius: 14, padding: 15 },
-  needIcon: { width: 32, height: 32, borderRadius: 16, backgroundColor: T.red, alignItems: 'center', justifyContent: 'center' },
-  needTitle: { fontSize: 17, fontFamily: F.bold, color: T.redInk },
-  needMeta: { fontSize: 15, fontFamily: F.body, color: T.redInk, opacity: 0.85, lineHeight: 21, marginTop: 3 },
+  section: { paddingHorizontal: 24, paddingTop: 26, paddingBottom: 8, fontSize: 13, fontFamily: F.semibold, color: T.sub, letterSpacing: 0.4, textTransform: 'uppercase' },
+  needCard: { marginHorizontal: 24, flexDirection: 'row', gap: 12, paddingVertical: 14, borderTopWidth: 1, borderBottomWidth: 1, borderColor: T.hairline },
+  needDot: { width: 10, height: 10, borderRadius: 5, marginTop: 7 },
+  needTitle: { fontSize: 17, fontFamily: F.bold, color: T.ink },
+  needMeta: { fontSize: 15, fontFamily: F.body, color: T.sub, lineHeight: 21, marginTop: 3 },
   needLink: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 9 },
-  needLinkText: { fontSize: 15, fontFamily: F.semibold, color: T.redInk },
+  needLinkText: { fontSize: 15, fontFamily: F.semibold, color: T.green },
 
   listCard: { ...card, overflow: 'hidden' },
-  repeatRow: { paddingHorizontal: 15, paddingVertical: 13, gap: 10, borderBottomWidth: 1, borderBottomColor: T.divider },
+  repeatRow: { paddingHorizontal: 0, paddingVertical: 13, gap: 10, borderBottomWidth: 1, borderBottomColor: T.hairline },
   repeatTop: { },
   repeatNum: { fontSize: 16, fontFamily: F.semibold, color: T.ink },
   repeatMeta: { fontSize: 14, fontFamily: F.body, color: T.sub, marginTop: 2 },
@@ -264,7 +261,7 @@ const st = StyleSheet.create({
   blockedText: { fontSize: 13, fontFamily: F.semibold, color: T.green },
 
   stepWrap: { borderBottomWidth: 1, borderBottomColor: T.divider },
-  stepRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 15, paddingVertical: 13 },
+  stepRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 0, paddingVertical: 13 },
   stepDot: { width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   stepLabel: { fontSize: 16, fontFamily: F.semibold, color: T.ink },
   stepState: { fontSize: 14, fontFamily: F.body, color: T.sub, marginTop: 2 },
@@ -277,13 +274,13 @@ const st = StyleSheet.create({
   quietCard: { ...card, padding: 17 },
   quietTitle: { fontSize: 17, fontFamily: F.bold, color: T.ink },
   quietBody: { fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 23, marginTop: 6 },
-  eventRow: { flexDirection: 'row', gap: 12, paddingHorizontal: 15, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: T.divider },
+  eventRow: { flexDirection: 'row', gap: 12, paddingHorizontal: 0, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: T.hairline },
   eventIcon: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
   eventTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 },
   eventTitle: { flex: 1, fontSize: 16, fontFamily: F.semibold, color: T.ink },
   eventWhen: { fontSize: 13, fontFamily: F.body, color: T.sub },
   eventSnippet: { fontSize: 15, fontFamily: F.body, color: T.sub, lineHeight: 21, marginTop: 3 },
   eventStatus: { fontSize: 14, fontFamily: F.semibold, marginTop: 6 },
-  privacy: { paddingHorizontal: 20, paddingTop: 16, fontSize: 14.5, fontFamily: F.body, color: T.sub, lineHeight: 21.5 },
+  privacy: { paddingHorizontal: 24, paddingTop: 16, fontSize: 14.5, fontFamily: F.body, color: T.sub, lineHeight: 21.5 },
   stop: { fontSize: 15.5, fontFamily: F.semibold, color: T.red },
 });

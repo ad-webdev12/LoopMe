@@ -35,7 +35,7 @@ export default function PeopleScreen({ ctx }: { ctx: Ctx }) {
     <KFIn duration={260} style={{ flex: 1 }} playKey="people">
     <ScrollView style={st.root} showsVerticalScrollIndicator={false}>
       <View style={{ height: 14 }} />
-      <View style={{ paddingHorizontal: 22, paddingBottom: 14 }}>
+      <View style={{ paddingHorizontal: 24, paddingBottom: 14 }}>
         <Text style={st.title} allowFontScaling>People you trust</Text>
         <Text style={st.sub} allowFontScaling>Up to three. One tap calls them.</Text>
       </View>
@@ -71,13 +71,12 @@ export default function PeopleScreen({ ctx }: { ctx: Ctx }) {
 
 const st = StyleSheet.create({
   root: { flex: 1, backgroundColor: T.ground },
-  title: { fontSize: 27, fontFamily: F.display, letterSpacing: -0.54, color: T.ink, lineHeight: 30 },
+  title: { fontSize: 34, fontFamily: F.display, letterSpacing: -0.9, color: T.ink, lineHeight: 38 },
   sub: { fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 22.5, marginTop: 6 },
   card: {
-    marginHorizontal: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, overflow: 'hidden',
-    shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
+    marginHorizontal: 24, borderTopWidth: 1, borderTopColor: T.hairline,
   },
-  personRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 15, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: T.divider },
+  personRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 0, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: T.hairline },
   avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: T.greenTint, alignItems: 'center', justifyContent: 'center' },
   avatarText: { fontSize: 14, fontFamily: F.bold, color: T.green },
   pName: { fontSize: 17, fontFamily: F.bold, color: T.ink },

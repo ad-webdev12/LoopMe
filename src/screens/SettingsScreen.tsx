@@ -46,7 +46,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
     { key: 'alerts' as const, title: 'Warn me straight away', why: 'A full red screen when a text is a scam.' },
     { key: 'auto' as const, title: 'Check unknown texts', why: 'Scams go to Junk before you see them.' },
     { key: 'aloud' as const, title: 'Read answers out loud', why: 'Every answer, spoken.' },
-    { key: 'improve' as const, title: 'Help improve Loop Me', why: 'When you correct an answer, the text is sent, with numbers and names blanked, so the next version catches it. Nothing else is ever sent.' },
+    { key: 'improve' as const, title: 'Help improve Loop Me', why: 'Your corrections, with numbers blanked, train the next version. Nothing else is sent.' },
   ];
 
   return (
@@ -58,11 +58,11 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
           <Text style={st.backText} allowFontScaling>Back</Text>
         </Pressable>
       </View>
-      <View style={{ paddingHorizontal: 22, paddingBottom: 14 }}>
+      <View style={{ paddingHorizontal: 24, paddingBottom: 14 }}>
         <Text style={st.title} allowFontScaling>Settings</Text>
       </View>
 
-      <Text style={st.section} allowFontScaling>WATCHING FOR SCAMS</Text>
+      <Text style={st.section} allowFontScaling>Watching for scams</Text>
       <View style={st.card}>
         {rows.map((r, i) => (
           <View key={r.key} style={[st.toggleRow, i === rows.length - 1 && { borderBottomWidth: 0 }]}>
@@ -89,7 +89,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
         </Pressable>
       </View>
 
-      <Text style={[st.section, { paddingTop: 14 }]} allowFontScaling>YOUR FAMILY CODE WORD</Text>
+      <Text style={[st.section, { paddingTop: 14 }]} allowFontScaling>Family code word</Text>
       <View style={st.card}>
         <View style={st.cwHead}>
           <KeyRound size={17} color={T.green} strokeWidth={2.2} />
@@ -124,7 +124,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
         <Text style={st.cwNote} allowFontScaling>Only your family knows it.</Text>
       </View>
 
-      <Text style={st.section} allowFontScaling>SENDERS YOU TRUST</Text>
+      <Text style={st.section} allowFontScaling>Safe senders</Text>
       <View style={st.card}>
         {st_.allowlist.map((a, i) => (
           <View key={i} style={st.allowRow}>
@@ -154,7 +154,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
         )}
       </View>
 
-      <Text style={[st.section, { paddingTop: 14 }]} allowFontScaling>NUMBERS YOU BLOCKED</Text>
+      <Text style={[st.section, { paddingTop: 14 }]} allowFontScaling>Blocked numbers</Text>
       <Text style={st.blockHint} allowFontScaling>Blocked numbers cannot ring you. Their texts go to Junk.</Text>
       <View style={st.card}>
         {st_.blocked.map((n) => (
@@ -181,7 +181,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
         )}
       </View>
 
-      <Text style={[st.section, { paddingTop: 14 }]} allowFontScaling>SETUP</Text>
+      <Text style={[st.section, { paddingTop: 14 }]} allowFontScaling>Setup</Text>
       <View style={st.card}>
         <Pressable style={st.setupRow} onPress={() => ctx.go('care')} accessibilityRole="button">
           <Text style={st.setupText} allowFontScaling>Set up for someone else</Text>
@@ -203,16 +203,15 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
 const st = StyleSheet.create({
   blockHint: { paddingHorizontal: 20, paddingBottom: 8, fontSize: 15, fontFamily: F.body, color: T.sub, lineHeight: 22 },
   root: { flex: 1, backgroundColor: T.ground },
-  topRow: { paddingHorizontal: 18, paddingTop: 8, paddingBottom: 10 },
+  topRow: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 10 },
   back: { height: 44, flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start' },
   backText: { fontSize: 16, fontFamily: F.semibold, color: T.ink },
-  title: { fontSize: 27, fontFamily: F.display, letterSpacing: -0.54, color: T.ink, lineHeight: 30 },
-  section: { paddingHorizontal: 22, paddingBottom: 7, fontSize: 12, fontFamily: F.semibold, letterSpacing: 1.4, color: T.sub },
+  title: { fontSize: 34, fontFamily: F.display, letterSpacing: -0.9, color: T.ink, lineHeight: 38 },
+  section: { paddingHorizontal: 24, paddingTop: 26, paddingBottom: 8, fontSize: 13, fontFamily: F.semibold, color: T.sub, letterSpacing: 0.4, textTransform: 'uppercase' },
   card: {
-    marginHorizontal: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, overflow: 'hidden',
-    shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
+    marginHorizontal: 24, borderTopWidth: 1, borderTopColor: T.hairline,
   },
-  toggleRow: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingHorizontal: 15, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: T.divider },
+  toggleRow: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingHorizontal: 0, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: T.hairline },
   rowTitle: { fontSize: 16.5, fontFamily: F.bold, color: T.ink },
   rowWhy: { fontSize: 14.5, fontFamily: F.body, color: T.sub, lineHeight: 20.5, marginTop: 3 },
   track: { width: 52, height: 31, borderRadius: 16, borderWidth: 1, padding: 2 },
@@ -231,10 +230,10 @@ const st = StyleSheet.create({
   cwRemove: { fontSize: 15.5, fontFamily: F.semibold, color: T.sub },
   cwNote: { fontSize: 13.5, fontFamily: F.body, color: T.sub, lineHeight: 19, paddingHorizontal: 15, paddingTop: 11, paddingBottom: 14 },
   setupSub: { fontSize: 14.5, fontFamily: F.body, color: T.sub, marginTop: 2 },
-  allowRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 15, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: T.divider },
+  allowRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 0, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: T.hairline },
   allowLabel: { fontSize: 16, fontFamily: F.semibold, color: T.ink },
   allowRemove: { fontSize: 14, fontFamily: F.semibold, color: T.sub },
-  addRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 15, paddingVertical: 14 },
+  addRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 0, paddingVertical: 14 },
   addText: { fontSize: 16, fontFamily: F.bold, color: T.ink },
   addForm: { paddingBottom: 14 },
   addInput: {
@@ -242,7 +241,7 @@ const st = StyleSheet.create({
     borderWidth: 1, borderColor: T.fieldBorder, borderRadius: 10, backgroundColor: T.ground,
     fontSize: 17, fontFamily: F.body, color: T.ink,
   },
-  setupRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 15, borderBottomWidth: 1, borderBottomColor: T.divider },
+  setupRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: T.hairline },
   setupText: { fontSize: 16, fontFamily: F.bold, color: T.ink },
-  version: { paddingHorizontal: 22, paddingTop: 16, fontSize: 13.5, fontFamily: F.body, color: T.sub, lineHeight: 19 },
+  version: { paddingHorizontal: 24, paddingTop: 16, fontSize: 13.5, fontFamily: F.body, color: T.sub, lineHeight: 19 },
 });

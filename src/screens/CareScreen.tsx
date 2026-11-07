@@ -39,10 +39,10 @@ export default function CareScreen({ ctx }: { ctx: Ctx }) {
           <Text style={st.backText} allowFontScaling>Back</Text>
         </Pressable>
       </View>
-      <View style={{ paddingHorizontal: 22, paddingBottom: 14 }}>
+      <View style={{ paddingHorizontal: 24, paddingBottom: 14 }}>
         <View style={st.badge}>
           <User size={14} color={T.amber} strokeWidth={2.2} />
-          <Text style={st.badgeText} allowFontScaling>CAREGIVER MODE</Text>
+          <Text style={st.badgeText} allowFontScaling>Caregiver mode</Text>
         </View>
         <Text style={st.title} allowFontScaling>Set up for {name}</Text>
         <Text style={st.sub} allowFontScaling>Four things, then hand the phone back.</Text>
@@ -62,7 +62,7 @@ export default function CareScreen({ ctx }: { ctx: Ctx }) {
           </Pressable>
         ))}
       </View>
-      <View style={{ paddingHorizontal: 22, paddingTop: 14, paddingBottom: 104, gap: 9 }}>
+      <View style={{ paddingHorizontal: 24, paddingTop: 14, paddingBottom: 104, gap: 9 }}>
         <Text style={st.doneLabel} allowFontScaling>{count} OF 4 DONE</Text>
         <Pressable style={st.cta} onPress={() => ctx.go('home')} accessibilityRole="button">
           <Text style={st.ctaText} allowFontScaling>Hand the phone back</Text>
@@ -79,22 +79,21 @@ export default function CareScreen({ ctx }: { ctx: Ctx }) {
 
 const st = StyleSheet.create({
   root: { flex: 1, backgroundColor: T.ground },
-  topRow: { paddingHorizontal: 18, paddingTop: 8, paddingBottom: 10 },
+  topRow: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 10 },
   back: { height: 44, flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start' },
   backText: { fontSize: 16, fontFamily: F.semibold, color: T.ink },
   badge: { flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: T.amberTint, alignSelf: 'flex-start', paddingHorizontal: 9, paddingVertical: 5, marginBottom: 11 },
   badgeText: { fontSize: 11.5, fontFamily: F.display, letterSpacing: 1.4, color: T.amber },
-  title: { fontSize: 27, fontFamily: F.display, letterSpacing: -0.54, color: T.ink, lineHeight: 30 },
+  title: { fontSize: 34, fontFamily: F.display, letterSpacing: -0.9, color: T.ink, lineHeight: 38 },
   sub: { fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 22.5, marginTop: 6 },
   card: {
-    marginHorizontal: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, overflow: 'hidden',
-    shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
+    marginHorizontal: 24, borderTopWidth: 1, borderTopColor: T.hairline,
   },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 13, padding: 15, borderBottomWidth: 1, borderBottomColor: T.divider },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: T.hairline },
   tick: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   rowTitle: { fontSize: 16.5, fontFamily: F.bold, color: T.ink },
   rowBody: { fontSize: 15, fontFamily: F.body, color: T.sub, lineHeight: 21, marginTop: 3 },
-  doneLabel: { fontSize: 11.5, fontFamily: F.semibold, letterSpacing: 1.4, color: T.sub },
+  doneLabel: { fontSize: 13, fontFamily: F.semibold, letterSpacing: 0.4, color: T.sub },
   cta: { height: 58, borderRadius: 12, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 17, marginTop: 4 },
   ctaText: { fontSize: 17, fontFamily: F.bold, color: '#fff' },
   ghost: { height: 50, borderWidth: 1, borderColor: T.fieldBorder, backgroundColor: T.surface, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
