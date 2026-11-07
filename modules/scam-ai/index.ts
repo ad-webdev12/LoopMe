@@ -116,6 +116,7 @@ const native = requireOptionalNativeModule<{
   cloudPublishPulse(pulse: Omit<FamilyPulse, 'at'>): Promise<boolean>;
   cloudSendNote(checkId: string, text: string, verdict: string, from: string): Promise<boolean>;
   cloudSubmitSample(text: string, label: string, country: string): Promise<boolean>;
+  cloudPing(): Promise<boolean>;
   cloudSync(): Promise<number>;
   cloudSnapshot(): FamilySnapshot;
   cloudSubscribe(): Promise<boolean>;
@@ -202,6 +203,12 @@ export async function cloudPublishCheck(c: Omit<SharedCheck, 'at'> & { at?: numb
 export async function cloudPublishPulse(p: Omit<FamilyPulse, 'at'>): Promise<boolean> {
   if (!native) return false;
   try { return await native.cloudPublishPulse(p); } catch { return false; }
+}
+
+/** Caretaker: ask the owner's phone to send anything it is holding. Lands as a silent push there. */
+export async function cloudPing(): Promise<boolean> {
+  if (!native) return false;
+  try { return await native.cloudPing(); } catch { return false; }
 }
 
 /** Opt-in: a corrected, redacted text into the public database for retraining. */

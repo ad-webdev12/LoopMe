@@ -25,6 +25,7 @@ let LM_ZONE = "LoopMeFamily"
 let LM_CHECK = "Check"
 let LM_NOTE = "Note"
 let LM_PULSE = "Pulse"
+let LM_PING = "Ping"     // caretaker to owner: "send me anything you are holding", delivered as a silent push
 let LM_REFRESH_TASK = "com.loopmescamsafety.app.refresh"   // one record per owner, overwritten: counts, last seen, what is switched on
 let LM_SUB_SHARED = "loopme-shared-db"
 let LM_SUB_PRIVATE = "loopme-private-db"
@@ -206,6 +207,20 @@ final class CloudLink: @unchecked Sendable {
     }
   }
 
+  /// Caretaker side: one overwritten record in the owner's zone. The owner's
+  /// phone subscribes to its own zone, so this lands there as a silent push
+  /// within seconds and the owner's app publishes whatever the text filter
+  /// caught while it was closed. Fired when the caretaker opens the app.
+  func ping() async {
+    guard let zone = store.joinedZone, await accountState() == "available" else { return }
+    let rec = CKRecord(recordType: LM_PING, recordID: CKRecord.ID(recordName: "ping", zoneID: zone))
+    rec["at"] = Date() as CKRecordValue
+    let op = CKModifyRecordsOperation(recordsToSave: [rec], recordIDsToDelete: [])
+    op.savePolicy = .allKeys
+    op.qualityOfService = .userInitiated
+    (try? container.sharedCloudDatabase)?.add(op)
+  }
+
   /// Owner side, from background refresh: every flagged entry the text filter
   /// or share sheet logged and nobody has published yet goes to the caretaker.
   /// The entries stay in the log for the app to fold into history later; they
@@ -377,6 +392,8 @@ final class CloudLink: @unchecked Sendable {
           let note = CKNotification(fromRemoteNotificationDictionary: info),
           note.containerIdentifier == LM_CONTAINER else { return false }
     _ = try? await sync(notify: true)
+    // Owner: a push is also the moment to send anything the filter caught.
+    if store.joinedZone == nil { _ = await publishPendingFromFilter() }
     return true
   }
 

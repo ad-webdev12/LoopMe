@@ -5,7 +5,7 @@
 // saved history, the text filter and share sheet feeding history through the
 // app group, and the family link over the family's own iCloud.
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, AppState, Linking as RNLinking, LogBox, SafeAreaView, StatusBar, StyleSheet, View } from 'react-native';
+import { Alert, AppState, Linking as RNLinking, LogBox, SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
 import * as Haptics from 'expo-haptics';
@@ -217,6 +217,7 @@ export default function App() {
     if (drained.length || newChecks.length || newNotes.length) refreshHist();
     if (next.role === 'caretaker') setPulse(Family.pulse());
     if (next.familyRole === 'caretaker') {
+      void Family.ping();
       void scheduleWeeklySummary(next);
       const unseen = (await listChecks()).find(r => r.source === 'family' && !r.seen && Date.now() - r.at < 12 * 3600 * 1000 && !(r.notes || []).some(n => n.mine));
       if (unseen) { setAlertId(unseen.id); setScreen('familyAlert'); }
@@ -519,6 +520,7 @@ export default function App() {
     <SafeAreaView style={[st.root, darkBar && { backgroundColor: barColor }]}>
       <StatusBar barStyle={darkBar ? 'light-content' : 'dark-content'} />
       <View style={st.body}>
+        <ScreenGuard screen={screen} onReset={() => setScreen('home')}>
         {screen === 'ob1' && <Ob1 ctx={ctx} />}
         {screen === 'ob2' && <Ob2 ctx={ctx} />}
         {screen === 'ob3' && <Ob3 ctx={ctx} />}
@@ -542,6 +544,7 @@ export default function App() {
         {screen === 'familyAlert' && <FamilyAlertScreen ctx={ctx} />}
         {screen === 'note' && <NoteScreen ctx={ctx} />}
         {screen === 'switches' && <SwitchesScreen ctx={ctx} />}
+        </ScreenGuard>
         {TAB_SCREENS.includes(screen) && (
           <TabBar careMode={careMode} watchName={watchName} screen={screen} go={goTab} />
         )}
@@ -549,6 +552,26 @@ export default function App() {
       </View>
     </SafeAreaView>
   );
+}
+
+// A screen that throws must never leave a blank page. It says so, in words,
+// and offers a way back.
+class ScreenGuard extends React.Component<{ screen: string; onReset: () => void; children: React.ReactNode }, { error: Error | null; at: string }> {
+  state = { error: null as Error | null, at: '' };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  componentDidUpdate(prev: { screen: string }) {
+    if (prev.screen !== this.props.screen && this.state.error) this.setState({ error: null });
+  }
+  render() {
+    if (!this.state.error) return this.props.children;
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 28 }}>
+        <Text style={{ fontSize: 24, fontFamily: 'Archivo_800ExtraBold', color: T.ink }} allowFontScaling>Something went wrong on this screen.</Text>
+        <Text style={{ fontSize: 15, fontFamily: 'Archivo_400Regular', color: T.sub, marginTop: 10 }} allowFontScaling>{String(this.state.error.message || this.state.error)}</Text>
+        <Text onPress={this.props.onReset} style={{ fontSize: 17, fontFamily: 'Archivo_700Bold', color: T.green, marginTop: 22 }} allowFontScaling>Back to the start</Text>
+      </View>
+    );
+  }
 }
 
 const st = StyleSheet.create({

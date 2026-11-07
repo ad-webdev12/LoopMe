@@ -176,7 +176,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
       {ward.length === 0 ? (
         <View style={st.quietCard}>
           <Text style={st.quietTitle} allowFontScaling>Nothing flagged yet</Text>
-          <Text style={st.quietBody} allowFontScaling>You hear from this phone when something on {watchName}’s looks wrong. If their app is closed, it can take up to a day.</Text>
+          <Text style={st.quietBody} allowFontScaling>You hear from this phone the moment something on {watchName}’s looks wrong.</Text>
         </View>
       ) : (
         <View style={st.listCard}>

@@ -8,10 +8,9 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
 import {
-  Shield, Settings as Cog, ChevronRight, ArrowRight, Image as Img, Mic, OctagonX, TriangleAlert, CircleCheck,
+  Shield, Settings as Cog, ChevronRight, ArrowRight, Image as Img, Mic,
 } from 'lucide-react-native';
 import { T, F } from '../theme';
-import { KFIn } from '../ui/kf';
 import { recognizeText, listenOnce, stopListening, callDirectoryStatus } from '../../modules/scam-ai';
 import { timeLabel } from '../lib/clock';
 import type { Ctx } from '../App';
@@ -101,203 +100,163 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
     { label: watchedBy ? 'Watched by ' + watchedBy : 'Watched by no one', on: !!watchedBy },
   ];
 
-  const RecentIcon = recent?.level === 'red' ? OctagonX : recent?.level === 'amber' ? TriangleAlert : CircleCheck;
-  const recentTint = recent?.level === 'red' ? T.redTint : recent?.level === 'amber' ? T.amberTint : T.greenTint;
-  const recentColor = recent?.level === 'red' ? T.red : recent?.level === 'amber' ? T.amber : T.green;
+  const recents = ctx.hist.filter(h => h.source !== 'family').slice(0, 3);
+  const dateLine = new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+  const anyOn = filterOn || callsOn || !!watchedBy;
+  const onBits = [filterOn ? 'Watching unknown texts' : '', callsOn ? 'Blocking scam callers' : '', watchedBy ? 'Watched by ' + watchedBy : ''].filter(Boolean);
+  const statusLine = careMode ? '' : !anyOn ? 'Nothing is running on its own yet. Tap to switch it on.' : onBits.join('  ·  ') + (onBits.length < 3 ? '  ·  Tap for the rest' : '');
+  const monthLine = mine.length === 0 ? ''
+    : mine.length + (mine.length === 1 ? ' text checked' : ' texts checked') + ' this month'
+      + (stopped ? ', ' + stopped + (stopped === 1 ? ' scam stopped' : ' scams stopped') : '')
+      + (beforeYou ? ', ' + beforeYou + ' before you saw ' + (beforeYou === 1 ? 'it' : 'them') : '') + '.';
 
   return (
-    <KFIn duration={240} style={{ flex: 1 }} playKey="home">
+    <View style={{ flex: 1 }}>
     <ScrollView style={st.root} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <View style={st.brandRow}>
         <View style={st.brand}>
-          <Shield size={17} color={T.green} strokeWidth={2} />
+          <Shield size={16} color={T.green} strokeWidth={2} />
           <Text style={st.brandText} allowFontScaling>LOOP ME</Text>
         </View>
         <Pressable style={st.gear} onPress={() => ctx.go('settings')} accessibilityRole="button" accessibilityLabel="Settings">
-          <Cog size={19} color={T.ink2} strokeWidth={2} />
+          <Cog size={20} color={T.sub} strokeWidth={1.9} />
         </Pressable>
+      </View>
+
+      <View style={st.head}>
+        <Text style={st.title} allowFontScaling>{greeting}.</Text>
+        <Text style={st.date} allowFontScaling>{dateLine}</Text>
       </View>
 
       {careMode && (
-        <Pressable style={st.careStripWrap} onPress={() => ctx.go(s.familyLinked ? 'ward' : 'watch')} accessibilityRole="button">
-          <View style={st.careStrip}>
-            <View style={st.careAvatar}><Text style={st.careAvatarText} allowFontScaling>{watchName[0]}</Text></View>
-            <View style={{ flex: 1 }}>
-              <Text style={st.careTitle} allowFontScaling>Looking after {watchName}</Text>
-              <Text style={st.careSub} allowFontScaling>{careSub}</Text>
-            </View>
-            <ChevronRight size={16} color={T.green} strokeWidth={2.2} />
+        <Pressable style={st.careRow} onPress={() => ctx.go(s.familyLinked ? 'ward' : 'watch')} accessibilityRole="button">
+          <View style={st.careAvatar}><Text style={st.careAvatarText} allowFontScaling>{watchName[0]}</Text></View>
+          <View style={{ flex: 1 }}>
+            <Text style={st.careTitle} allowFontScaling>{watchName}</Text>
+            <Text style={st.careSub} allowFontScaling>{careSub}</Text>
           </View>
+          <ChevronRight size={18} color={T.muted} strokeWidth={2} />
         </Pressable>
       )}
 
-      <View style={st.head}>
-        <Text style={st.greeting} allowFontScaling>{greeting}</Text>
-        <Text style={st.title} allowFontScaling>Check a message</Text>
-      </View>
-
-      <View style={st.card}>
+      <View style={st.hero}>
         <TextInput
           style={st.box} multiline
-          placeholder="Paste or type the message here"
+          placeholder="Paste the text here"
           placeholderTextColor={T.muted}
           value={text} onChangeText={setText}
           accessibilityLabel="Message to check"
         />
         {clip && !text.trim() && (
-          <Pressable
-            style={st.pasteRow}
-            onPress={async () => { try { const c = (await Clipboard.getStringAsync())?.trim(); if (c) setText(c); } catch {} }}
-            accessibilityRole="button">
+          <Pressable style={st.pasteRow} onPress={async () => { try { const c = (await Clipboard.getStringAsync())?.trim(); if (c) setText(c); } catch {} }} accessibilityRole="button">
             <Text style={st.pasteText} allowFontScaling>Paste what I copied</Text>
           </Pressable>
         )}
-        <Pressable style={st.checkBtn} onPress={() => ctx.check(text)} accessibilityRole="button" accessibilityLabel="Check this message">
-          <Text style={st.checkText} allowFontScaling>Check this message</Text>
-          <ArrowRight size={19} color="#fff" strokeWidth={2.1} />
+        <Pressable style={st.checkBtn} onPress={() => ctx.check(text)} accessibilityRole="button" accessibilityLabel="Check it">
+          <Text style={st.checkText} allowFontScaling>Check it</Text>
+          <ArrowRight size={20} color="#fff" strokeWidth={2.2} />
         </Pressable>
       </View>
 
-      <View style={st.addRow}>
-        <Pressable style={st.addBtn} onPress={speakIt} accessibilityRole="button" accessibilityLabel="Speak it">
-          <Mic size={22} color={listening ? T.red : T.green} strokeWidth={1.9} />
-          <Text style={[st.addLabel, listening && { color: T.red }]} allowFontScaling>{listening ? 'Listening' : 'Say it instead'}</Text>
+      <View style={st.altRow}>
+        <Pressable style={st.alt} onPress={speakIt} accessibilityRole="button" accessibilityLabel="Say it instead">
+          <Mic size={17} color={listening ? T.red : T.green} strokeWidth={2} />
+          <Text style={[st.altText, listening && { color: T.red }]} allowFontScaling>{listening ? 'Listening' : 'Say it instead'}</Text>
         </Pressable>
-        <Pressable style={st.addBtn} onPress={() => fromImage(false)} accessibilityRole="button" accessibilityLabel="Screenshot">
-          <Img size={22} color={T.green} strokeWidth={1.9} />
-          <Text style={st.addLabel} allowFontScaling>From a screenshot</Text>
+        <View style={st.altDot} />
+        <Pressable style={st.alt} onPress={() => fromImage(false)} accessibilityRole="button" accessibilityLabel="From a screenshot">
+          <Img size={17} color={T.green} strokeWidth={2} />
+          <Text style={st.altText} allowFontScaling>From a screenshot</Text>
         </Pressable>
       </View>
 
       {!careMode && (
-        <Pressable style={st.now} onPress={() => ctx.go('switches')} accessibilityRole="button" accessibilityLabel="What is running right now">
-          <View style={st.nowTop}>
-            <View style={[st.nowDot, { backgroundColor: filterOn || callsOn || watchedBy ? T.green : T.amber }]} />
-            <Text style={st.nowLabel} allowFontScaling>Right now</Text>
-          </View>
-          <Text style={st.nowLine} allowFontScaling>{nowLine}</Text>
-          <View style={st.pillRow}>
-            {pills.map(pl => (
-              <View key={pl.label} style={[st.pill, pl.on ? st.pillOn : st.pillOff]}>
-                <Text style={[st.pillText, pl.on ? { color: T.greenInk } : { color: T.sub }]} allowFontScaling>{pl.label}{pl.on ? '' : ' · off'}</Text>
-              </View>
-            ))}
-          </View>
+        <Pressable style={st.status} onPress={() => ctx.go('switches')} accessibilityRole="button" accessibilityLabel="What is running right now">
+          <View style={[st.statusDot, { backgroundColor: anyOn ? T.green : T.amber }]} />
+          <Text style={st.statusText} allowFontScaling numberOfLines={2}>{statusLine}</Text>
+          <ChevronRight size={16} color={T.muted} strokeWidth={2} />
         </Pressable>
       )}
 
       {!careMode && ctx.hist.length === 0 && (
-        <Pressable style={st.tryCard} onPress={() => ctx.check('Your parcel is held at the depot. A redelivery fee of 1.99 is due. Pay within 24 hours at bit.ly/x8s2 or it will be returned.')} accessibilityRole="button">
-          <Text style={st.tryTitle} allowFontScaling>See what happens with a scam text</Text>
-          <Text style={st.trySub} allowFontScaling>We wrote one. Tap to check it.</Text>
+        <Pressable style={st.tryRow} onPress={() => ctx.check('Your parcel is held at the depot. A redelivery fee of 1.99 is due. Pay within 24 hours at bit.ly/x8s2 or it will be returned.')} accessibilityRole="button">
+          <Text style={st.tryText} allowFontScaling>See what a scam text looks like</Text>
+          <ArrowRight size={17} color={T.green} strokeWidth={2.2} />
         </Pressable>
       )}
 
-      {(mine.length > 0 || ctx.tallies.junk > 0) && (
-        <View style={st.tallyCard}>
-          <View style={st.tallyRow}>
-            <View style={[st.tally, st.tallyB]}><Text style={st.tallyNum} allowFontScaling>{mine.length}</Text><Text style={st.tallyLabel} allowFontScaling>checked{'\n'}this month</Text></View>
-            <View style={[st.tally, st.tallyB]}><Text style={[st.tallyNum, { color: T.red }]} allowFontScaling>{stopped}</Text><Text style={st.tallyLabel} allowFontScaling>scams{'\n'}stopped</Text></View>
-            <View style={st.tally}><Text style={[st.tallyNum, { color: T.green }]} allowFontScaling>{Math.max(beforeYou, ctx.tallies.junk)}</Text><Text style={st.tallyLabel} allowFontScaling>stopped before{'\n'}you saw them</Text></View>
+      {recents.length > 0 && (
+        <View style={st.recentWrap}>
+          <View style={st.recentHead}>
+            <Text style={st.sectionLabel} allowFontScaling>Recent</Text>
+            <Pressable onPress={() => ctx.go('history')} accessibilityRole="button"><Text style={st.seeAll} allowFontScaling>All</Text></Pressable>
           </View>
-          {!!sinceLabel && <Text style={st.tallySince} allowFontScaling>Looking out for you since {sinceLabel}</Text>}
-        </View>
-      )}
-
-      {recent && (
-        <View>
-          <Text style={st.recentLabel} allowFontScaling>Recent check</Text>
-          <Pressable style={st.recentCard} onPress={() => ctx.go('history')} accessibilityRole="button">
-            <View style={[st.recentIcon, { backgroundColor: recentTint }]}>
-              <RecentIcon size={17} color={recentColor} strokeWidth={2.2} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={st.recentTitle} allowFontScaling numberOfLines={1}>{recent.excerpt.slice(0, 30)}{recent.excerpt.length > 30 ? '…' : ''}</Text>
-              <Text style={st.recentMeta} allowFontScaling>{recentMeta}</Text>
-            </View>
-            <ChevronRight size={17} color={T.muted} strokeWidth={2.2} />
-          </Pressable>
+          {recents.map((r, i) => (
+            <Pressable key={r.id} style={[st.recentRow, i === recents.length - 1 && { borderBottomWidth: 0 }]} onPress={() => ctx.go('history')} accessibilityRole="button">
+              <View style={[st.levelDot, { backgroundColor: r.level === 'red' ? T.red : r.level === 'amber' ? T.amber : T.green }]} />
+              <Text style={st.recentText} allowFontScaling numberOfLines={1}>{r.excerpt}</Text>
+              <Text style={st.recentWhen} allowFontScaling>{when(r.at)}</Text>
+            </Pressable>
+          ))}
+          {!!monthLine && <Text style={st.month} allowFontScaling>{monthLine}{sinceLabel ? ' Looking out for you since ' + sinceLabel + '.' : ''}</Text>}
         </View>
       )}
       <View style={{ height: 110 }} />
     </ScrollView>
-    </KFIn>
+    </View>
   );
 }
 
 function when(at: number): string {
   const d = new Date(at), now = new Date();
   const hm = timeLabel(d);
-  if (d.toDateString() === now.toDateString()) return 'today, ' + hm;
-  if (now.getTime() - at < 6 * 86400000) return d.toLocaleDateString(undefined, { weekday: 'long' }) + ', ' + hm;
+  if (d.toDateString() === now.toDateString()) return hm;
+  if (now.getTime() - at < 6 * 86400000) return d.toLocaleDateString(undefined, { weekday: 'short' });
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
 const st = StyleSheet.create({
   root: { flex: 1, backgroundColor: T.ground },
-  tryCard: { marginHorizontal: 20, marginTop: 22, backgroundColor: T.ink, borderRadius: 14, paddingHorizontal: 18, paddingVertical: 18 },
-  tryTitle: { fontSize: 18, fontFamily: F.bold, color: '#fff' },
-  trySub: { fontSize: 15, fontFamily: F.body, color: 'rgba(255,255,255,.75)', marginTop: 4 },
-  now: { marginHorizontal: 20, marginTop: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, paddingHorizontal: 16, paddingTop: 13, paddingBottom: 14, shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 } },
-  nowTop: { flexDirection: 'row', alignItems: 'center', gap: 7 },
-  nowDot: { width: 8, height: 8, borderRadius: 4 },
-  nowLabel: { fontSize: 13, fontFamily: F.semibold, color: T.sub, letterSpacing: 0.3 },
-  nowLine: { fontSize: 16.5, fontFamily: F.medium, color: T.ink, lineHeight: 23, marginTop: 6 },
-  pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 11 },
-  pill: { borderRadius: 8, paddingHorizontal: 9, height: 28, justifyContent: 'center' },
-  pillOn: { backgroundColor: T.greenTint },
-  pillOff: { backgroundColor: T.ground, borderWidth: 1, borderColor: T.hairline },
-  pillText: { fontSize: 13, fontFamily: F.semibold },
-  brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, paddingHorizontal: 20, paddingBottom: 2 },
+  brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, paddingHorizontal: 24, paddingBottom: 2 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 7 },
-  brandText: { fontSize: 13, fontFamily: F.bold, letterSpacing: 0.65, color: T.green },
-  gear: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', marginRight: -9 },
+  brandText: { fontSize: 12.5, fontFamily: F.bold, letterSpacing: 1.1, color: T.green },
+  gear: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', marginRight: -10 },
+  head: { paddingHorizontal: 24, paddingTop: 22, paddingBottom: 18 },
+  title: { fontSize: 34, fontFamily: F.display, letterSpacing: -0.9, color: T.ink, lineHeight: 38 },
+  date: { fontSize: 16, fontFamily: F.body, color: T.sub, marginTop: 6 },
 
-  careStripWrap: { paddingHorizontal: 20, paddingTop: 12 },
-  careStrip: { flexDirection: 'row', alignItems: 'center', gap: 11, backgroundColor: T.greenTint, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 13 },
-  careAvatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center' },
-  careAvatarText: { color: '#fff', fontSize: 13, fontFamily: F.semibold },
-  careTitle: { fontSize: 16, fontFamily: F.semibold, color: T.greenInk },
-  careSub: { fontSize: 14, fontFamily: F.body, color: T.greenInk2, marginTop: 1 },
+  careRow: { marginHorizontal: 24, marginBottom: 18, flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderTopWidth: 1, borderBottomWidth: 1, borderColor: T.hairline },
+  careAvatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center' },
+  careAvatarText: { color: '#fff', fontSize: 15, fontFamily: F.bold },
+  careTitle: { fontSize: 17, fontFamily: F.bold, color: T.ink },
+  careSub: { fontSize: 14.5, fontFamily: F.body, color: T.sub, marginTop: 1 },
 
-  head: { paddingHorizontal: 20, paddingTop: 12 },
-  greeting: { fontSize: 16, fontFamily: F.body, color: T.sub },
-  title: { fontSize: 25, fontFamily: F.display, letterSpacing: -0.41, color: T.ink, marginTop: 2, lineHeight: 28 },
+  hero: { marginHorizontal: 24, backgroundColor: T.surface, borderRadius: 18, borderWidth: 1, borderColor: T.hairline, overflow: 'hidden' },
+  box: { minHeight: 168, paddingHorizontal: 20, paddingTop: 18, paddingBottom: 12, fontSize: 19, fontFamily: F.body, color: T.ink, lineHeight: 28, textAlignVertical: 'top' },
+  pasteRow: { paddingHorizontal: 20, paddingBottom: 14 },
+  pasteText: { fontSize: 16.5, fontFamily: F.semibold, color: T.green },
+  checkBtn: { height: 62, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 22 },
+  checkText: { fontSize: 19, fontFamily: F.bold, color: '#fff' },
 
-  card: {
-    marginHorizontal: 20, marginTop: 14, backgroundColor: T.surface,
-    borderWidth: 1, borderColor: T.hairline, borderRadius: 14, overflow: 'hidden',
-    shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
-  },
-  box: { minHeight: 124, maxHeight: 240, paddingHorizontal: 16, paddingVertical: 15, fontSize: 17, lineHeight: 25, fontFamily: F.body, color: T.ink, textAlignVertical: 'top' },
-  pasteRow: { paddingHorizontal: 16, paddingBottom: 10 },
-  pasteText: { fontSize: 16, fontFamily: F.semibold, color: T.green },
-  checkBtn: { height: 58, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 },
-  checkText: { fontSize: 17, fontFamily: F.bold, color: '#fff' },
+  altRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 14, paddingTop: 16, paddingHorizontal: 24 },
+  alt: { flexDirection: 'row', alignItems: 'center', gap: 7, height: 40 },
+  altText: { fontSize: 16, fontFamily: F.semibold, color: T.green },
+  altDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: T.muted },
 
-  orLabel: { paddingHorizontal: 20, paddingTop: 18, fontSize: 15, fontFamily: F.body, color: T.sub },
-  addRow: { flexDirection: 'row', gap: 6, paddingHorizontal: 16, paddingTop: 8 },
-  addBtn: { flex: 1, borderRadius: 12, paddingTop: 11, paddingBottom: 12, alignItems: 'center', gap: 7 },
-  addLabel: { fontSize: 14, fontFamily: F.semibold, color: T.ink },
+  status: { marginHorizontal: 24, marginTop: 26, flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 14, borderTopWidth: 1, borderBottomWidth: 1, borderColor: T.hairline },
+  statusDot: { width: 8, height: 8, borderRadius: 4 },
+  statusText: { flex: 1, fontSize: 15, fontFamily: F.medium, color: T.ink2, lineHeight: 21 },
 
-  tallyCard: {
-    marginHorizontal: 20, marginTop: 22, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14,
-    shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
-  },
-  tallyRow: { flexDirection: 'row' },
-  tally: { flex: 1, paddingHorizontal: 14, paddingVertical: 13 },
-  tallyB: { borderRightWidth: 1, borderRightColor: T.divider },
-  tallyNum: { fontSize: 26, fontFamily: F.display, color: T.ink, lineHeight: 28 },
-  tallyLabel: { fontSize: 13, fontFamily: F.semibold, color: T.sub, marginTop: 4, lineHeight: 17 },
-  tallySince: { paddingHorizontal: 14, paddingVertical: 10, borderTopWidth: 1, borderTopColor: T.divider, fontSize: 14, fontFamily: F.body, color: T.sub },
+  tryRow: { marginHorizontal: 24, marginTop: 22, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  tryText: { fontSize: 17, fontFamily: F.semibold, color: T.green },
 
-  recentLabel: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 8, fontSize: 14, fontFamily: F.semibold, color: T.sub },
-  recentCard: {
-    marginHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline, borderRadius: 14, padding: 15,
-    shadowColor: '#171717', shadowOpacity: 0.05, shadowRadius: 2, shadowOffset: { width: 0, height: 1 },
-  },
-  recentIcon: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
-  recentTitle: { fontSize: 16, fontFamily: F.semibold, color: T.ink },
-  recentMeta: { fontSize: 14, fontFamily: F.body, color: T.sub, marginTop: 2 },
+  recentWrap: { marginHorizontal: 24, marginTop: 26 },
+  recentHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 },
+  sectionLabel: { fontSize: 13, fontFamily: F.semibold, color: T.sub, letterSpacing: 0.4, textTransform: 'uppercase' },
+  seeAll: { fontSize: 15, fontFamily: F.semibold, color: T.green },
+  recentRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: T.hairline },
+  levelDot: { width: 9, height: 9, borderRadius: 5 },
+  recentText: { flex: 1, fontSize: 16.5, fontFamily: F.body, color: T.ink },
+  recentWhen: { fontSize: 14, fontFamily: F.body, color: T.sub },
+  month: { marginTop: 14, fontSize: 15, fontFamily: F.body, color: T.sub, lineHeight: 22 },
 });

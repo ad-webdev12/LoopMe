@@ -4,7 +4,7 @@
 // receives into its own history. The transport is CloudKit, in the family's
 // own iCloud (modules/scam-ai/ios/CloudLink.swift).
 import {
-  cloudCreateInvite, cloudLinkStatus, cloudPublishCheck, cloudPublishPulse, cloudSendNote, cloudSnapshot, cloudSubscribe,
+  cloudCreateInvite, cloudLinkStatus, cloudPublishCheck, cloudPublishPulse, cloudPing, cloudSendNote, cloudSnapshot, cloudSubscribe,
   cloudSync, cloudUnlink, addCloudListener, sharedDrainLog, sharedPutConfig, sharedTallies, callDirectoryStatus,
   CloudEvent, FamilyNote, FamilyPulse, LinkStatus, SharedCheck, FilterLogEntry,
 } from '../../modules/scam-ai';
@@ -104,6 +104,14 @@ export async function fold(): Promise<{ newChecks: CheckRecord[]; newNotes: Fami
     });
   }
   return { newChecks, newNotes, newBlocks, newSafes };
+}
+
+/** Caretaker: poke the other phone, at most once a minute. */
+let lastPing = 0;
+export async function ping(): Promise<void> {
+  if (Date.now() - lastPing < 60 * 1000) return;
+  lastPing = Date.now();
+  await cloudPing();
 }
 
 /** Pull, then fold. */

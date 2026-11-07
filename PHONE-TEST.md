@@ -159,8 +159,9 @@ with "Stop. Do not reply." and no buttons, then the buttons appear, with
 **Background refresh (needs patience)**
 
 With the family link on and the filter on, leave phone A untouched after a
-scam text arrives from an unknown number. Within a few hours (iOS decides
-when) phone B gets the alert without phone A opening Loop Me.
+scam text arrives from an unknown number. Open Loop Me on phone B: within
+seconds the alert arrives, without phone A opening Loop Me. Left alone, iOS
+also runs the refresh on its own, about every 15 minutes at best.
 
 **Was this right? (1 minute)**
 

@@ -97,6 +97,11 @@ public class ScamAiModule: Module {
       return true
     }
 
+    AsyncFunction("cloudPing") { () -> Bool in
+      await CloudLink.shared.ping()
+      return true
+    }
+
     AsyncFunction("cloudSendNote") { (checkId: String, text: String, verdict: String, from: String) -> Bool in
       try await CloudLink.shared.sendNote(checkId: checkId, text: text, verdict: verdict, from: from)
       return true

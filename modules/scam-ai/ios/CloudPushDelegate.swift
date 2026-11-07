@@ -42,7 +42,7 @@ public class CloudPushDelegate: ExpoAppDelegateSubscriber {
 
   static func scheduleRefresh() {
     let req = BGAppRefreshTaskRequest(identifier: LM_REFRESH_TASK)
-    req.earliestBeginDate = Date(timeIntervalSinceNow: 30 * 60)
+    req.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)
     try? BGTaskScheduler.shared.submit(req)
   }
 
