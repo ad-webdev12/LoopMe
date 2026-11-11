@@ -6,7 +6,8 @@ import { ChevronLeft, ArrowRight } from 'lucide-react-native';
 import { T, F } from '../theme';
 import { KFIn } from '../ui/kf';
 import { readAloud } from '../lib/speech';
-import { sendSms, panicText } from '../lib/familyLink';
+import * as Family from '../lib/family';
+import { newRecord } from '../lib/history';
 import { reportRoute } from '../lib/region';
 import * as Clipboard from 'expo-clipboard';
 import type { Ctx } from '../App';
@@ -19,7 +20,7 @@ export default function PanicScreen({ ctx }: { ctx: Ctx }) {
     { t: 'First: you are okay.', b: 'This happens to careful people every day. One step at a time.' },
     { t: 'Stop all contact now.', b: 'Do not reply, answer, or send anything more. Whatever they say.' },
     { t: 'Call your bank.', b: 'Use the number on the back of your card. Never one from a message.', a: 'Call the number on my card' },
-    { t: 'Loop in someone you trust.', b: 'One tap sends them a short note.', a: 'Send a note to ' + (first ? first.name.split(' ')[0] : 'someone') },
+    { t: 'Tell the person who looks out for you.', b: ctx.settings.watchedBy ? 'It appears on ' + ctx.settings.watchedBy.split(' ')[0] + '’s phone straight away.' : 'Nobody is linked yet. Send the invite from People.', a: ctx.settings.watchedBy ? 'Tell ' + ctx.settings.watchedBy.split(' ')[0] : 'Open People' },
     { t: 'Report it.', b: route.site
         ? 'Reporting to ' + route.siteName + ' stops them doing it to someone else. The details are copied for you to paste.'
         : 'Tell your bank and the police. The details are copied for you to paste.',
@@ -37,8 +38,9 @@ export default function PanicScreen({ ctx }: { ctx: Ctx }) {
       ctx.flash('Turn your card over and dial the number printed on the back.');
     }
     else if (i === 3) {
-      if (!first) { ctx.go('people'); return; }
-      await sendSms(first.phone, panicText(ctx.settings.myName));
+      if (!ctx.settings.watchedBy) { ctx.go('people'); return; }
+      const ok = await Family.publish(newRecord({ message: 'I think I may have been caught by a scam. Please call me.', level: 'amber', score: 0, tags: ['help'], reason: 'Asked for help from the recovery steps.', source: 'typed' }), ctx.settings, true);
+      ctx.flash(ok ? 'It is on ' + ctx.settings.watchedBy.split(' ')[0] + '’s phone now.' : 'Could not reach iCloud just now. It will go when the phone is back online.');
     } else if (i === 4) {
       const last = ctx.hist.find(h => h.level !== 'green' && h.source !== 'family');
       if (last) {

@@ -72,12 +72,18 @@ iCloud database with phone numbers, emails and long numbers blanked out, so the
 next version can be trained on real scams. Nothing identifies you in it. Nothing
 else is ever sent, and you can switch it off at any time.
 
-The Loop Me icon in the Messages app drawer checks only what you copied. It
-cannot read your conversation; no app can. The result is shown to you and
-nothing is sent into the chat.
+The Loop Me icon in the Messages app drawer checks only what you paste into
+it with Apple's paste button. It cannot read your conversation; no app can.
+The result is shown to you and nothing is sent into the chat. "Tell" in the
+drawer sends the same flagged check to the linked phone over your own iCloud,
+exactly as the app would.
 
-When the family link is not set up, "Loop in" writes a plain text message and
-hands it to Messages for you to send. Nothing else is sent anywhere.
+The widget, the Control Center button and the Action button open Loop Me on
+whatever you last copied. They read nothing themselves.
+
+The invite is the only text message Loop Me ever prepares. Everything else
+between the two phones travels over the family link and appears in the app
+and in notifications.
 
 ## The text filter, the call directory and the share sheet
 

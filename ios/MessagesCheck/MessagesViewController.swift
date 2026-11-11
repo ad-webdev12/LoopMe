@@ -1,12 +1,16 @@
 import UIKit
 import Messages
+import AVFoundation
 
 // Loop Me inside the Messages app. It sits in the "+" list like Photos or
 // Audio. iOS lets no app read the conversation, so the person copies the
 // message and taps one button. That button is Apple's own paste control, which
 // hands over the clipboard with no "would like to paste" alert. The answer is
-// the same red, amber or green field the app shows, right here in the drawer.
-// Nothing is sent; the detector and the model run in this process.
+// the same red, amber or green field the app shows, right here in the drawer,
+// and the things that matter can be done without leaving Messages: tell the
+// person who looks out for you (over the family link), hear it read aloud,
+// say the answer was wrong. Nothing is sent anywhere else; the detector and
+// the model run in this process.
 final class MessagesViewController: MSMessagesAppViewController {
   static let model = CoreModel.named("ScamText", threshold: 0.8)
 
@@ -23,13 +27,22 @@ final class MessagesViewController: MSMessagesAppViewController {
   private let line = UILabel()
   private let steps = UIStackView()
   private let quote = UILabel()
-  private let primary = UIButton(type: .system)
+  private let tell = UIButton(type: .system)
+  private let more = UIButton(type: .system)
+  private let small = UIStackView()
+  private let speak = UIButton(type: .system)
+  private let wrong = UIButton(type: .system)
   private let again = UIButton(type: .system)
   private var pasteButton: UIControl?
   private var bottom: UIStackView!
+  private let voice = AVSpeechSynthesizer()
 
   private var text = ""
   private var verdict: Verdict?
+  private var recordId = ""
+  private var canTell = false
+  private var told = false
+  private var corrected = false
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -40,6 +53,11 @@ final class MessagesViewController: MSMessagesAppViewController {
   override func didTransition(to presentationStyle: MSMessagesAppPresentationStyle) {
     super.didTransition(to: presentationStyle)
     relayout()
+  }
+
+  override func willResignActive(with conversation: MSConversation) {
+    super.willResignActive(with: conversation)
+    voice.stopSpeaking(at: .immediate)
   }
 
   // MARK: - Paste
@@ -60,24 +78,32 @@ final class MessagesViewController: MSMessagesAppViewController {
 
   private func run(_ t: String) {
     text = t
+    told = false
+    corrected = false
     var opts = DetectorOptions()
     opts.allowlist = SharedStore.allowlist
     let v = Engine.check(t, opts, model: MessagesViewController.model)
     verdict = v
+    recordId = "m-" + UUID().uuidString
     SharedStore.bump("messages")
     if v.level != .green {
-      SharedStore.logVerdict([
-        "id": "m-" + UUID().uuidString,
-        "at": Date().timeIntervalSince1970 * 1000,
-        "source": "messages",
-        "sender": "",
-        "excerpt": Redact.privateDetails(t).prefix(180).description,
-        "level": v.level.rawValue, "score": v.score, "tags": v.tags,
-        "reason": v.reason, "safeStep": v.safeStep, "signals": v.signals,
-      ])
+      SharedStore.logVerdict(entry(v))
       UINotificationFeedbackGenerator().notificationOccurred(v.level == .red ? .error : .warning)
     }
     show(v)
+  }
+
+  private func entry(_ v: Verdict, asked: Bool = false, published: Bool = false) -> [String: Any] {
+    [
+      "id": recordId,
+      "at": Date().timeIntervalSince1970 * 1000,
+      "source": "messages",
+      "sender": "",
+      "excerpt": Redact.privateDetails(text).prefix(180).description,
+      "level": v.level.rawValue, "score": v.score, "tags": v.tags,
+      "reason": v.reason, "safeStep": v.safeStep, "signals": v.signals,
+      "asked": asked, "published": published,
+    ]
   }
 
   // MARK: - Build
@@ -97,7 +123,6 @@ final class MessagesViewController: MSMessagesAppViewController {
     quote.numberOfLines = 3
 
     steps.axis = .vertical
-    steps.spacing = 0
     for (i, s) in ["Hold the message", "Tap Copy", "Tap Paste below"].enumerated() {
       steps.addArrangedSubview(stepRow(i + 1, s))
     }
@@ -111,13 +136,26 @@ final class MessagesViewController: MSMessagesAppViewController {
     top.translatesAutoresizingMaskIntoConstraints = false
     view.addSubview(top)
 
-    for b in [primary, again] {
+    for b in [tell, more, again] {
       b.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
       b.layer.cornerRadius = 14
       b.heightAnchor.constraint(equalToConstant: 56).isActive = true
     }
-    primary.addTarget(self, action: #selector(openApp), for: .touchUpInside)
+    tell.addTarget(self, action: #selector(tellTapped), for: .touchUpInside)
+    more.addTarget(self, action: #selector(openApp), for: .touchUpInside)
     again.addTarget(self, action: #selector(reset), for: .touchUpInside)
+
+    for b in [speak, wrong] {
+      b.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+      b.heightAnchor.constraint(equalToConstant: 40).isActive = true
+    }
+    speak.addTarget(self, action: #selector(speakTapped), for: .touchUpInside)
+    wrong.addTarget(self, action: #selector(wrongTapped), for: .touchUpInside)
+    small.axis = .horizontal
+    small.distribution = .fillEqually
+    small.spacing = 8
+    small.addArrangedSubview(speak)
+    small.addArrangedSubview(wrong)
 
     let pc: UIControl
     if #available(iOS 16.0, *) {
@@ -143,7 +181,7 @@ final class MessagesViewController: MSMessagesAppViewController {
     pc.heightAnchor.constraint(equalToConstant: 56).isActive = true
     pasteButton = pc
 
-    bottom = UIStackView(arrangedSubviews: [pc, primary, again])
+    bottom = UIStackView(arrangedSubviews: [pc, tell, more, small, again])
     bottom.axis = .vertical
     bottom.spacing = 8
     bottom.translatesAutoresizingMaskIntoConstraints = false
@@ -194,8 +232,10 @@ final class MessagesViewController: MSMessagesAppViewController {
   // MARK: - States
 
   private func showIdle() {
+    voice.stopSpeaking(at: .immediate)
     verdict = nil
     text = ""
+    canTell = false
     view.backgroundColor = paper
     eyebrow.text = "LOOP ME"
     eyebrow.textColor = sub
@@ -203,9 +243,6 @@ final class MessagesViewController: MSMessagesAppViewController {
     headline.textColor = ink
     line.text = ""
     quote.text = ""
-    for case let l as UILabel in steps.arrangedSubviews.flatMap({ $0.subviews }) where l.font.pointSize == 17 { l.textColor = ink }
-    primary.isHidden = true
-    again.isHidden = true
     pasteButton?.isHidden = false
     relayout()
   }
@@ -221,28 +258,51 @@ final class MessagesViewController: MSMessagesAppViewController {
     line.textColor = .white
     quote.text = v.reason
     quote.textColor = UIColor.white.withAlphaComponent(0.85)
-    primary.setTitle(v.level == .green ? "See it in Loop Me" : "Show me more", for: .normal)
-    primary.backgroundColor = .white
-    primary.setTitleColor(color, for: .normal)
+
+    let who = ExtensionCloud.caretakerFirstName
+    canTell = v.level != .green && who != nil
+    tell.setTitle(canTell ? "Tell " + who! : "", for: .normal)
+    tell.backgroundColor = .white
+    tell.setTitleColor(color, for: .normal)
+    tell.isEnabled = true
+
+    more.setTitle(v.level == .green ? "See it in Loop Me" : "Show me more", for: .normal)
+    if canTell {
+      more.backgroundColor = .clear
+      more.setTitleColor(.white, for: .normal)
+      more.layer.borderWidth = 1
+      more.layer.borderColor = UIColor.white.withAlphaComponent(0.55).cgColor
+    } else {
+      more.backgroundColor = .white
+      more.setTitleColor(color, for: .normal)
+      more.layer.borderWidth = 0
+    }
+
+    speak.setTitle("Read it to me", for: .normal)
+    speak.setTitleColor(.white, for: .normal)
+    wrong.setTitle(v.level == .green ? "No, it is a scam" : "No, it is fine", for: .normal)
+    wrong.setTitleColor(.white, for: .normal)
+    wrong.isEnabled = true
+
     again.setTitle("Check another message", for: .normal)
     again.backgroundColor = .clear
-    again.setTitleColor(.white, for: .normal)
-    again.layer.borderWidth = 1
-    again.layer.borderColor = UIColor.white.withAlphaComponent(0.55).cgColor
-    primary.isHidden = false
-    again.isHidden = false
+    again.setTitleColor(UIColor.white.withAlphaComponent(0.9), for: .normal)
+
     pasteButton?.isHidden = true
     relayout()
   }
 
   // Compact is the strip under the keyboard, about 250 points tall. It keeps
-  // the headline and one button. Expanded shows the steps or the reason.
+  // the headline and the one button that matters. Expanded shows the rest.
   private func relayout() {
     let compact = presentationStyle == .compact
     let idle = verdict == nil
     steps.isHidden = !idle || compact
     quote.isHidden = idle || compact || (quote.text ?? "").isEmpty
     line.isHidden = idle || (line.text ?? "").isEmpty
+    tell.isHidden = idle || !canTell
+    more.isHidden = idle || (compact && canTell)
+    small.isHidden = idle || compact
     again.isHidden = idle || compact
     headline.font = .systemFont(ofSize: compact ? 24 : 28, weight: .heavy)
   }
@@ -254,6 +314,45 @@ final class MessagesViewController: MSMessagesAppViewController {
   @objc private func readBoard() {
     guard let t = UIPasteboard.general.string?.trimmingCharacters(in: .whitespacesAndNewlines), !t.isEmpty else { return }
     run(t)
+  }
+
+  // Over the family link, from here. The record is also left in the shared
+  // log marked published, so the app shows it in History as already told.
+  @objc private func tellTapped() {
+    guard let v = verdict, !told, let who = ExtensionCloud.caretakerFirstName else { return }
+    told = true
+    tell.isEnabled = false
+    tell.setTitle("Sending to " + who, for: .normal)
+    let id = recordId
+    let excerpt = Redact.privateDetails(text).prefix(180).description
+    Task {
+      let ok = await ExtensionCloud.publish(id: id, level: v.level.rawValue, excerpt: excerpt, reason: v.reason, at: Date().timeIntervalSince1970 * 1000)
+      await MainActor.run {
+        SharedStore.markPublished([id])
+        SharedStore.logVerdict(self.entry(v, asked: true, published: ok))
+        self.tell.setTitle(ok ? who + " has it" : "It will go when the phone is online", for: .normal)
+        if ok { UINotificationFeedbackGenerator().notificationOccurred(.success) }
+      }
+    }
+  }
+
+  @objc private func speakTapped() {
+    guard let v = verdict else { return }
+    if voice.isSpeaking { voice.stopSpeaking(at: .immediate); return }
+    let what = (headline.text ?? "") + " " + v.safeStep + " " + v.reason
+    let u = AVSpeechUtterance(string: what)
+    u.rate = 0.46
+    try? AVAudioSession.sharedInstance().setCategory(.playback, options: .duckOthers)
+    try? AVAudioSession.sharedInstance().setActive(true)
+    voice.speak(u)
+  }
+
+  @objc private func wrongTapped() {
+    guard let v = verdict, !corrected else { return }
+    corrected = true
+    SharedStore.logCorrection(text, v.level == .green ? "scam" : "fine")
+    wrong.setTitle("Noted. It will remember.", for: .normal)
+    wrong.isEnabled = false
   }
 
   @objc private func openApp() {

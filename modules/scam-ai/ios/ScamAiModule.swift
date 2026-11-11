@@ -24,14 +24,17 @@ public class ScamAiModule: Module {
 
     // Which real AI tier is available on THIS phone, right now.
     // -> "foundation" | "coreml" | "none"
+    // The bundled classifier answers in about 30 ms with a calibrated
+    // probability, so it is the judge wherever it loaded. Apple Intelligence
+    // is slower and wordier; it steps in only on a phone without the model.
     AsyncFunction("availableTier") { () -> String in
+      if ScamClassifier.shared.isLoaded { return "coreml" }
       if #available(iOS 26.0, *) {
         #if canImport(FoundationModels)
         let model = SystemLanguageModel.default
         if case .available = model.availability { return "foundation" }
         #endif
       }
-      if ScamClassifier.shared.isLoaded { return "coreml" }
       return "none"
     }
 
@@ -141,6 +144,10 @@ public class ScamAiModule: Module {
     // Verdicts the text filter and share sheet produced while the app was closed.
     Function("sharedDrainLog") { () -> [[String: Any]] in
       return SharedStore.drainLog()
+    }
+
+    Function("sharedDrainCorrections") { () -> [[String: Any]] in
+      return SharedStore.drainCorrections()
     }
 
     Function("sharedTallies") { () -> [String: Double] in
@@ -317,6 +324,7 @@ enum ScamAI {
     let clean = text.trimmingCharacters(in: .whitespacesAndNewlines)
     if clean.isEmpty { return json(tier: "none", label: "safe", p: 0, reason: "There is nothing to check yet.", category: "empty") }
 
+    if let r = ScamClassifier.shared.classify(clean) { return r }
     if #available(iOS 26.0, *) {
       #if canImport(FoundationModels)
       if case .available = SystemLanguageModel.default.availability {
@@ -324,7 +332,6 @@ enum ScamAI {
       }
       #endif
     }
-    if let r = ScamClassifier.shared.classify(clean) { return r }
     return json(tier: "none", label: "safe", p: 0, reason: "On-device AI is not available on this phone; using the built-in checks.", category: "unavailable")
   }
 
@@ -386,47 +393,63 @@ enum ScamAI {
   }
 }
 
-// Bundled Core ML text classifier (Create ML MLTextClassifier -> NLModel).
-// Loads ScamText.mlmodelc from the app bundle if present.
+// Bundled Core ML text classifiers.
+//
+// ScamText is the strong one (Create ML BERT transfer learning). It leans on
+// Apple's contextual-embedding assets, which iOS downloads per language and
+// which can be missing on a fresh phone or a simulator; without them the
+// model answers nil. So the assets are requested at launch, and ScamFilter,
+// the small maxent model the text filter uses, answers whenever ScamText
+// cannot. Both are compiled once and cached, keyed by the file's date.
 final class ScamClassifier {
   static let shared = ScamClassifier()
-  private var model: NLModel?
-  var isLoaded: Bool { model != nil }
+  private var strong: NLModel?
+  private var small: NLModel?
+  var isLoaded: Bool { strong != nil || small != nil }
 
   private init() {
-    if let url = Bundle.main.url(forResource: "ScamText", withExtension: "mlmodelc"), let m = try? NLModel(contentsOf: url) {
-      model = m
-      return
+    strong = ScamClassifier.load("ScamText")
+    small = ScamClassifier.load("ScamFilter")
+    if #available(iOS 17.0, *) {
+      for lang in [NLLanguage.english, .spanish, .french, .portuguese, .german, .italian, .dutch, .hindi, .indonesian] {
+        guard let emb = NLContextualEmbedding(language: lang), !emb.hasAvailableAssets else { continue }
+        emb.requestAssets { _, _ in }
+      }
     }
-    // The pod copies the raw .mlmodel. Compile it once and keep the result in
-    // Caches, keyed by the file's modification date, so launches stay fast.
-    guard let raw = Bundle.main.url(forResource: "ScamText", withExtension: "mlmodel") else { return }
+  }
+
+  private static func load(_ name: String) -> NLModel? {
+    if let url = Bundle.main.url(forResource: name, withExtension: "mlmodelc"), let m = try? NLModel(contentsOf: url) { return m }
+    guard let raw = Bundle.main.url(forResource: name, withExtension: "mlmodel") else { return nil }
     let fm = FileManager.default
     let stamp = (try? fm.attributesOfItem(atPath: raw.path)[.modificationDate] as? Date)?.timeIntervalSince1970 ?? 0
     let cacheDir = fm.urls(for: .cachesDirectory, in: .userDomainMask).first ?? fm.temporaryDirectory
-    let cached = cacheDir.appendingPathComponent("ScamText-\(Int(stamp)).mlmodelc")
+    let cached = cacheDir.appendingPathComponent("\(name)-\(Int(stamp)).mlmodelc")
     if !fm.fileExists(atPath: cached.path) {
-      guard let tmp = try? MLModel.compileModel(at: raw) else { return }
+      guard let tmp = try? MLModel.compileModel(at: raw) else { return nil }
       try? fm.removeItem(at: cached)
-      guard (try? fm.moveItem(at: tmp, to: cached)) != nil else { return }
+      guard (try? fm.moveItem(at: tmp, to: cached)) != nil else { return nil }
     }
-    model = try? NLModel(contentsOf: cached)
+    return try? NLModel(contentsOf: cached)
   }
 
   func classify(_ text: String) -> String? {
-    guard let model = model else { return nil }
-    guard let label = model.predictedLabel(for: text) else { return nil }
-    let hypotheses = model.predictedLabelHypotheses(for: text, maximumCount: 2)
-    let scamProb = hypotheses["scam"] ?? (label == "scam" ? 0.8 : 0.15)
+    var scamProb: Double?
+    if let m = strong, m.predictedLabel(for: text) != nil {
+      scamProb = m.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0
+    } else if let m = small, m.predictedLabel(for: text) != nil {
+      scamProb = m.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0
+    }
+    guard let p = scamProb else { return nil }
     // The JS side applies the 0.8 threshold; the label here only drives wording.
-    let isScam = scamProb >= 0.8
+    let isScam = p >= 0.8
     let reason = isScam
       ? "The on-device model recognizes the wording and structure of a known scam."
       : "The on-device model does not match this to a known scam pattern."
     return ScamAI.json(
       tier: "coreml",
       label: isScam ? "scam" : "safe",
-      p: scamProb,
+      p: p,
       reason: reason,
       category: isScam ? "model-flagged" : "safe"
     )

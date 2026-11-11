@@ -54,6 +54,19 @@ enum SharedStore {
     for i in list.indices where ids.contains((list[i]["id"] as? String) ?? "") { list[i]["published"] = true }
     defaults.set(list, forKey: "filter.log")
   }
+  /// "Was this right?" from the Messages drawer. The app folds these into
+  /// the same memory as corrections made on the verdict screen.
+  static func logCorrection(_ text: String, _ label: String) {
+    var list = defaults.array(forKey: "corrections.pending") as? [[String: Any]] ?? []
+    list.append(["text": text, "label": label, "at": Date().timeIntervalSince1970 * 1000])
+    if list.count > 50 { list = Array(list.suffix(50)) }
+    defaults.set(list, forKey: "corrections.pending")
+  }
+  static func drainCorrections() -> [[String: Any]] {
+    let list = defaults.array(forKey: "corrections.pending") as? [[String: Any]] ?? []
+    defaults.removeObject(forKey: "corrections.pending")
+    return list
+  }
   static func drainLog() -> [[String: Any]] {
     let list = defaults.array(forKey: "filter.log") as? [[String: Any]] ?? []
     defaults.removeObject(forKey: "filter.log")

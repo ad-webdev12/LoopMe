@@ -11,16 +11,23 @@ import NaturalLanguage
 // Either may only raise the alarm. Neither can talk a rule hit down.
 final class CoreModel {
   private let model: NLModel
+  // ScamText needs Apple's contextual-embedding assets, which a phone may not
+  // have yet; it then answers nil. ScamFilter steps in for that text.
+  private let fallback: NLModel?
   let threshold: Double
 
-  private init(model: NLModel, threshold: Double) { self.model = model; self.threshold = threshold }
+  private init(model: NLModel, fallback: NLModel?, threshold: Double) { self.model = model; self.fallback = fallback; self.threshold = threshold }
+
+  static func named(_ name: String, threshold: Double, bundle: Bundle = .main) -> CoreModel? {
+    guard let m = load(name, bundle) else { return nil }
+    let fb = name == "ScamText" ? load("ScamFilter", bundle) : nil
+    return CoreModel(model: m, fallback: fb, threshold: threshold)
+  }
 
   /// Loads `name.mlmodelc` (compiled by Xcode) or, failing that, compiles
   /// `name.mlmodel` once and keeps the result in Caches.
-  static func named(_ name: String, threshold: Double, bundle: Bundle = .main) -> CoreModel? {
-    if let url = bundle.url(forResource: name, withExtension: "mlmodelc"), let m = try? NLModel(contentsOf: url) {
-      return CoreModel(model: m, threshold: threshold)
-    }
+  private static func load(_ name: String, _ bundle: Bundle) -> NLModel? {
+    if let url = bundle.url(forResource: name, withExtension: "mlmodelc"), let m = try? NLModel(contentsOf: url) { return m }
     guard let raw = bundle.url(forResource: name, withExtension: "mlmodel") else { return nil }
     let fm = FileManager.default
     let stamp = (try? fm.attributesOfItem(atPath: raw.path)[.modificationDate] as? Date)?.timeIntervalSince1970 ?? 0
@@ -31,13 +38,16 @@ final class CoreModel {
       try? fm.removeItem(at: cached)
       guard (try? fm.moveItem(at: tmp, to: cached)) != nil else { return nil }
     }
-    guard let m = try? NLModel(contentsOf: cached) else { return nil }
-    return CoreModel(model: m, threshold: threshold)
+    return try? NLModel(contentsOf: cached)
   }
 
   /// Probability that the text is a scam, 0 to 1.
   func probability(_ text: String) -> Double {
-    model.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0
+    if model.predictedLabel(for: text) != nil {
+      return model.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0
+    }
+    guard let fb = fallback, fb.predictedLabel(for: text) != nil else { return 0 }
+    return fb.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0
   }
 }
 

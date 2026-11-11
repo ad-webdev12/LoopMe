@@ -54,16 +54,8 @@ export default function MoreScreen({ ctx }: { ctx: Ctx }) {
         <Row Icon={HandHeart} color={T.green}
           title={careMode ? 'Looking after ' + watchName : 'Look after someone else'}
           sub={careMode ? (s.familyLinked ? 'Linked.' : 'Waiting for their invite link.') : 'Their alerts, on your phone.'}
-          last={careMode}
+          last
           onPress={() => careMode ? ctx.go(s.familyLinked ? 'ward' : 'watch') : ctx.go('watch')} />
-        {!careMode && (
-          <Row Icon={UserPlus} color={T.green}
-            title={watchedBy ? 'Watched over by ' + watchedBy : s.familyInvited ? 'Invite sent, waiting for a tap' : 'Watched over by no one yet'}
-            sub={watchedBy ? 'Linked.' : 'One link to someone you trust.'}
-            state={watchedBy ? 'on' : undefined}
-            last
-            onPress={() => ctx.go('watchedBy')} />
-        )}
       </View>
 
       <Text style={st.section} allowFontScaling>Learn and set up</Text>

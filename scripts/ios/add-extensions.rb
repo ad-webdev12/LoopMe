@@ -1,4 +1,5 @@
-# Adds the three app extensions to ios/LoopMe.xcodeproj. Idempotent: run it as
+# Adds the app extensions (text filter, call directory, share sheet, Messages
+# drawer, widget) to ios/LoopMe.xcodeproj. Idempotent: run it as
 # often as you like; targets that already exist are left alone.
 #
 #   scripts/ios/add-extensions.sh
@@ -39,6 +40,7 @@ EXTENSIONS = [
   { name: 'CallDirectory', dir: 'CallDirectory', bundle: 'com.loopmescamsafety.app.calls',      frameworks: ['CallKit'] },
   { name: 'ShareCheck',    dir: 'ShareCheck',    bundle: 'com.loopmescamsafety.app.share',      frameworks: ['Vision', 'UniformTypeIdentifiers'] },
   { name: 'MessagesCheck', dir: 'MessagesCheck', bundle: 'com.loopmescamsafety.app.messages',   frameworks: ['Messages'], type: :messages_extension, assets: true },
+  { name: 'CheckWidget',   dir: 'CheckWidget',   bundle: 'com.loopmescamsafety.app.widget',     frameworks: ['WidgetKit', 'SwiftUI'], plain: true, min_ios: '16.0' },
 ]
 
 embed = app.copy_files_build_phases.find { |p| p.name == 'Embed Foundation Extensions' }
@@ -55,8 +57,12 @@ EXTENSIONS.each do |ext|
   target = project.new_target(ext[:type] || :app_extension, ext[:name], :ios, '15.1')
   group = group_for(project, ext[:name], ext[:dir])
   own_sources = Dir[File.join(ROOT, 'ios', ext[:dir], '*.swift')].map { |f| group.new_file(f) }
-  target.add_file_references(own_sources + engine_refs + [store_ref])
-  target.add_resources([engine_json_ref])
+  if ext[:plain]
+    target.add_file_references(own_sources)
+  else
+    target.add_file_references(own_sources + engine_refs + [store_ref])
+    target.add_resources([engine_json_ref])
+  end
   if ext[:assets]
     assets = group.new_file(File.join(ROOT, 'ios', ext[:dir], 'Assets.xcassets'))
     target.add_resources([assets])
@@ -73,7 +79,7 @@ EXTENSIONS.each do |ext|
     s['DEVELOPMENT_TEAM'] = TEAM
     s['SWIFT_VERSION'] = '5.0'
     s['TARGETED_DEVICE_FAMILY'] = '1'
-    s['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+    s['IPHONEOS_DEPLOYMENT_TARGET'] = ext[:min_ios] || '15.1'
     s['MARKETING_VERSION'] = main_cfg['MARKETING_VERSION'] || '1.0'
     s['CURRENT_PROJECT_VERSION'] = main_cfg['CURRENT_PROJECT_VERSION'] || '1'
     s['SKIP_INSTALL'] = 'YES'
@@ -89,6 +95,22 @@ EXTENSIONS.each do |ext|
   file = embed.add_file_reference(target.product_reference, true)
   file.settings = { 'ATTRIBUTES' => ['RemoveHeadersOnCopy'] }
   puts "#{ext[:name]}: added"
+end
+
+# The Messages drawer talks to the family link itself (ios/Shared/ExtensionCloud.swift),
+# so a "Tell" tap lands on the caretaker's phone without opening the app.
+if (mc = project.targets.find { |t| t.name == 'MessagesCheck' })
+  cloud_path = File.join(ROOT, 'ios', 'Shared', 'ExtensionCloud.swift')
+  unless mc.source_build_phase.files_references.any? { |r| r.path && r.path.end_with?('ExtensionCloud.swift') }
+    ref = shared_group.files.find { |r| r.path && r.path.end_with?('ExtensionCloud.swift') } || shared_group.new_file(cloud_path)
+    mc.source_build_phase.add_file_reference(ref, true)
+    puts 'MessagesCheck: + ExtensionCloud.swift'
+  end
+  %w[CloudKit AVFoundation].each do |fw|
+    next if mc.frameworks_build_phase.files_references.any? { |r| r.path && r.path.end_with?(fw + '.framework') }
+    mc.add_system_framework(fw)
+    puts "MessagesCheck: + #{fw}"
+  end
 end
 
 # The Siri intent lives in the app target. AppIntents is iOS 16+, so it is

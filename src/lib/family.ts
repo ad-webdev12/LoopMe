@@ -5,13 +5,14 @@
 // own iCloud (modules/scam-ai/ios/CloudLink.swift).
 import {
   cloudCreateInvite, cloudLinkStatus, cloudPublishCheck, cloudPublishPulse, cloudPing, cloudSendNote, cloudSnapshot, cloudSubscribe,
-  cloudSync, cloudUnlink, addCloudListener, sharedDrainLog, sharedPutConfig, sharedTallies, callDirectoryStatus,
+  cloudSync, cloudUnlink, addCloudListener, sharedDrainLog, sharedDrainCorrections, sharedPutConfig, sharedTallies, callDirectoryStatus,
   CloudEvent, FamilyNote, FamilyPulse, LinkStatus, SharedCheck, FilterLogEntry,
 } from '../../modules/scam-ai';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { CheckRecord, Note, listChecks, upsertMany, updateCheck } from './history';
 import { timeLabel } from './clock';
+import * as Feedback from './feedback';
 import type { Settings } from './storage';
 
 export type { FamilyNote, FamilyPulse, LinkStatus, SharedCheck, CloudEvent };
@@ -126,11 +127,12 @@ export async function sync(): Promise<{ newChecks: CheckRecord[]; newNotes: Fami
  * caretaker just as if it had been checked in the app.
  */
 export async function drainExtensions(s: Settings): Promise<CheckRecord[]> {
+  for (const c of sharedDrainCorrections()) void Feedback.rememberText(c.text, c.label, s);
   const entries: FilterLogEntry[] = sharedDrainLog();
   if (!entries.length) return [];
   const recs: CheckRecord[] = entries.map(e => ({
     id: e.id, at: e.at, level: e.level, score: e.score, tags: e.tags, reason: e.reason, excerpt: e.excerpt,
-    source: e.source, askedFamily: false, sender: e.sender || undefined, safeStep: e.safeStep, signals: e.signals,
+    source: e.source, askedFamily: !!e.asked, sender: e.sender || undefined, safeStep: e.safeStep, signals: e.signals,
   }));
   await upsertMany(recs);
   const already = new Set(entries.filter(e => e.published).map(e => e.id));

@@ -8,6 +8,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, AppState, Linking as RNLinking, LogBox, SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
+import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { useFonts } from 'expo-font';
 import { Archivo_400Regular } from '@expo-google-fonts/archivo/400Regular';
@@ -19,7 +20,6 @@ import { T } from './theme';
 import { instant, upgrade, FusedVerdict } from './engine/ai';
 import { loadSettings, saveSettings, isPostPanic, Settings } from './lib/storage';
 import { addCheck, listChecks, newRecord, updateCheck, CheckRecord } from './lib/history';
-import { sendSms, loopInText } from './lib/familyLink';
 import * as Family from './lib/family';
 import * as Feedback from './lib/feedback';
 import { registerFamilyCategories, ensureNotificationPermission, cancelReminders, scheduleWeekly } from './lib/notify';
@@ -60,6 +60,8 @@ export interface Ctx {
   go: (s: ScreenId) => void;
   flash: (t: string) => void;
   check: (text: string, sender?: string) => void;
+  /** True while a check waits for the on-device model. */
+  checking: boolean;
   msg: string;
   verdict: FusedVerdict | null;
   recordId: string;
@@ -121,6 +123,7 @@ export default function App() {
   const [recordId, setRecordId] = useState('');
   const [toast, setToast] = useState('');
   const [note, setNote] = useState<{ from: string; text: string } | null>(null);
+  const [checking, setChecking] = useState(false);
   const [hist, setHist] = useState<CheckRecord[]>([]);
   const [wardOpen, setWardOpen] = useState<string | null>(null);
   const [alertId, setAlertId] = useState<string | null>(null);
@@ -367,24 +370,37 @@ export default function App() {
     // 'Warn me straight away' (Settings) chooses the full-screen red alert;
     // with it off, a red verdict still lands, just on the calmer screen.
     const wantsAlert = s?.alerts !== false;
-    setScreen(v.level === 'red' && wantsAlert ? 'alert' : 'verdict');
+    const show = (lv: FusedVerdict['level']) => setScreen(lv === 'red' && wantsAlert ? 'alert' : 'verdict');
+    // A red from the rules shows at once. Anything else waits for the model,
+    // up to two seconds, so the first screen the person sees is the answer
+    // and not a verdict that changes under their thumb.
+    let shown = v.level === 'red';
+    if (shown) show('red'); else setChecking(true);
+    const reveal = (lv: FusedVerdict['level']) => {
+      if (shown) return;
+      shown = true;
+      setChecking(false);
+      if (activeCheck.current === rec.id) show(lv);
+    };
+    const timer = setTimeout(() => reveal(v.level), 2200);
     // A flagged check goes to the caretaker on its own, over the family link.
     if (v.level !== 'green' && s) void Family.publish(rec, s, false);
     // Real on-device AI second opinion fuses in when it resolves. The guard
     // keeps a slow result from an OLDER check off a newer check's screen.
     upgrade(raw, v, detOpts).then((fused) => {
-      if (!fused.fused) return;
+      clearTimeout(timer);
+      if (!fused.fused) { reveal(v.level); return; }
       updateCheck(rec.id, { level: fused.level, reason: fused.reason }).then(refreshHist);
       if (fused.level !== 'green' && v.level === 'green' && s) void Family.publish({ ...rec, level: fused.level, reason: fused.reason }, s, false);
-      if (activeCheck.current !== rec.id) return;
+      if (activeCheck.current !== rec.id) { shown = true; setChecking(false); return; }
       recentTags.current = fused.tags;
       setVerdict(fused);
-    }).catch(() => {});
+      reveal(fused.level);
+    }).catch(() => { clearTimeout(timer); reveal(v.level); });
   }, [flash, refreshHist]);
 
-  // Elder side. With the family link: the check lands on the caretaker's
-  // phone as a full-screen alert. Without it: one plain text to the first
-  // trusted contact, readable with no app on the other end.
+  // Elder side. The check lands on the caretaker's phone as a full-screen
+  // alert over the family link. There is no text-message version.
   const loopIn = useCallback(async (recId: string) => {
     const s = settingsRef.current;
     if (!s) return;
@@ -397,11 +413,10 @@ export default function App() {
       flash(ok ? 'It is on ' + (s.watchedBy?.split(' ')[0] || 'their') + '’s phone now.' : 'Could not reach iCloud just now. It will go when the phone is back online.');
       return;
     }
-    const first = s.trusted[0];
-    if (!first) { go('people'); return; }
-    await updateCheck(recId, { askedFamily: true });
-    refreshHist();
-    await sendSms(first.phone, loopInText(s.myName, rec));
+    // No link yet: nothing is texted. The invite is the only text Loop Me
+    // ever sends, and it goes from the People screen.
+    flash('Send someone the invite first. After that, nothing is ever texted.');
+    go('people');
   }, [flash, go, refreshHist]);
 
   // Caretaker side. A note always travels over the family link; there is no
@@ -471,8 +486,16 @@ export default function App() {
     // 'Check unknown texts for me' (Settings) gates the unknown-sender path.
     // A check the person asked for by hand always runs.
     if (where === 'alert' && text) { if (settingsRef.current.autoCheck !== false) check(text, 'an unknown number'); return; }
-    if (where === 'check' && text) check(text);
-  }, [check]);
+    if (where === 'check' && text) { check(text); return; }
+    // The widget, Control Center and the Action button open the app with no
+    // text: read what was copied here, where the person can see it happen.
+    if (where === 'check' && queryParams?.clip) {
+      Clipboard.getStringAsync().then(c => {
+        const t = (c || '').trim();
+        if (t) check(t); else flash('Copy a message first, then tap again.');
+      }).catch(() => flash('Copy a message first, then tap again.'));
+    }
+  }, [check, flash]);
 
   // The URL the app was COLD-LAUNCHED with must be handled exactly once;
   // getInitialURL() keeps returning it for the life of the process.
@@ -507,7 +530,7 @@ export default function App() {
     closeFamilyAlert: () => { if (alertId) updateCheck(alertId, { seen: true }).then(refreshHist); setAlertId(null); setScreen('ward'); },
     noteOpen,
     closeNote: () => { setNoteOpen(null); setScreen(verdict ? 'verdict' : 'home'); },
-    loopIn, sendNoteTo, refreshFamily, unlinkFamily, blockNumber, correct, tallies, pulse,
+    loopIn, sendNoteTo, refreshFamily, unlinkFamily, blockNumber, correct, tallies, pulse, checking,
   };
 
   const goTab = (t: TabId) => go(t as ScreenId);

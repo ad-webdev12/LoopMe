@@ -34,7 +34,7 @@ text_model = ref_for(project.main_group['scam-ai'] || project.main_group.new_gro
   target = project.targets.find { |t| t.name == name }
   next puts("#{name}: missing, run add-extensions.rb first") unless target
   engine_refs.each { |r| ensure_source(target, r) }
-  ensure_source(target, filter_model) if name == 'TextFilter'
+  ensure_source(target, filter_model) if name == 'TextFilter' || name == 'ShareCheck' || name == 'MessagesCheck'
   ensure_source(target, text_model) if name == 'ShareCheck' || name == 'MessagesCheck'
 end
 project.save

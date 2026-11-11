@@ -40,8 +40,9 @@ Everything below is real data — nothing is pre-filled.
    → full-screen red alert → "Do not tap the link."
 5. On the verdict: **Why we say that** (numbered reasons — the last one is the
    on-device AI's own sentence), **Read this to me, slowly** (word-by-word
-   highlight; flagged words hold longer), **Loop in <your person>** → real
-   Messages composer with the real text and link.
+   highlight; flagged words hold longer), **Loop in <your person>** → it lands on
+   their phone over the link. With no link, Loop Me opens People so you can
+   send the invite; it never writes a text for you.
 6. **Speak it** → allow mic + speech → say a message out loud → it types
    itself and checks. This phone does it fully on-device.
 7. **Screenshot** → take a screenshot of any real text conversation first →
@@ -140,10 +141,22 @@ Apple ID on a spare phone).
 
 **Loop Me inside Messages (1 minute)**
 
-In Messages, hold a scam text, tap Copy. Tap the + or the app drawer under
-the keyboard, tap Loop Me. The card reads the copied text at once (iOS shows
-its "pasted from Messages" line) and shows Stop / Be careful / Looks okay.
-"Open in Loop Me" lands on the full verdict. Nothing is sent to the chat.
+In Messages, hold a scam text, tap Copy. Tap the + under the keyboard, tap
+Loop Me, tap the green Paste button. No "would like to paste" alert appears
+(it is Apple's own paste control). The strip turns red, amber or green with
+the answer. Drag it up: "Tell <name>" sends it to the caretaker's phone over
+the link without opening the app (their phone lights up within seconds),
+"Read it to me" speaks it, "No, it is fine" is remembered by the app next
+time it opens, "Show me more" lands on the full verdict. Nothing is sent to
+the chat.
+
+**Widget, Lock Screen and Control Center (1 minute)**
+
+Hold the Home Screen, +, search Loop Me, add "Check what I copied". Copy a
+scam text, tap the widget: the app opens on the red hold. Lock Screen:
+Customize › add the Loop Me circle. iOS 18: Control Center › + › Loop Me,
+or Settings › Action Button › Controls › Loop Me. Each one does the same.
+With nothing copied the app says "Copy a message first, then tap again."
 
 **Siri (30 seconds)**
 

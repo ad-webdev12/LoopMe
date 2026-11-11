@@ -74,6 +74,8 @@ The family link is new. Link one person you trust and a scam text on your phone 
 
 Loop Me now works while it is closed: a text filter for numbers you do not know (Settings › Messages › Unknown & Junk), a call directory that labels scam callers (Settings › Phone › Call Blocking), and a share sheet that checks anything from any app.
 
+Loop Me inside Messages: copy a text, tap Loop Me in the + list, tap Paste. The answer appears right there, and so do the buttons that matter: tell the person who looks out for you, hear it read aloud, say it was wrong. A Home Screen and Lock Screen widget, a Control Center button and the Action button open Loop Me on whatever you last copied.
+
 A new on-device model reads the message the way a person would, so cons that avoid the usual words still get caught. In our tests it catches 98 in 100 scam texts with fewer than 2 in 100 false alarms, entirely on the phone, in English plus the common cons in Spanish, French, Portuguese, German, Italian, Dutch, Hindi, Indonesian and Tagalog.
 
 Tell it when it is wrong and it remembers. Switch on Help improve Loop Me and your correction, with numbers blanked, trains the next version.
@@ -146,9 +148,10 @@ signing adds them when you archive, but check the developer portal if signing co
 - iCloud, CloudKit, container `iCloud.com.loopmescamsafety.app`
 - Push Notifications (silent pushes carry the CloudKit changes)
 - Background Modes: Remote notifications, Background fetch (`BGTaskSchedulerPermittedIdentifiers` = `com.loopmescamsafety.app.refresh`)
-- iMessage app (MessagesCheck, bundle `.messages`): reads only what the person copied, shows the verdict in the Messages drawer
+- iMessage app (MessagesCheck, bundle `.messages`): reads only what the person pastes with Apple's paste button, shows the verdict in the Messages drawer, and writes a "Tell" straight to the CloudKit zone (it carries the iCloud capability too)
+- Widget extension (CheckWidget, bundle `.widget`): Home Screen, Lock Screen and Control Center (iOS 18) buttons that open the app on the clipboard
 - Siri / Shortcuts App Intent "Check what I copied" (iOS 16+, registers on its own)
-- App Groups: `group.com.loopmescamsafety.app` (shared by the app and the three extensions)
+- App Groups: `group.com.loopmescamsafety.app` (shared by the app and the five extensions)
 - Time Sensitive Notifications
 
 **Three new bundle IDs** are created automatically by Xcode the first time you archive:
@@ -196,7 +199,7 @@ caretaker's side. Everything else works on a single device.
 
 1. **App Store Connect** → **Apps** → **+** → **New App**. Platform iOS, name "Loop Me", primary language English (U.S.), bundle ID `com.loopmescamsafety.app`, SKU `loopme-1`.
 2. Fill the fields above (description, keywords, subtitle, promo text, category, URLs, App Privacy = No data collected).
-3. In **Xcode**: open `ios/LoopMe.xcworkspace`, select **Any iOS Device (arm64)**, set the **Signing Team** on the LoopMe target **and on the four extension targets** (TextFilter, CallDirectory, ShareCheck, MessagesCheck) to your account, Automatically manage signing. The version is already 1.0.1, build 7.
+3. In **Xcode**: open `ios/LoopMe.xcworkspace`, select **Any iOS Device (arm64)**, set the **Signing Team** on the LoopMe target **and on the five extension targets** (TextFilter, CallDirectory, ShareCheck, MessagesCheck, CheckWidget) to your account, Automatically manage signing. The version is already 1.0.1, build 7.
 4. **Product → Archive** → when it finishes, **Distribute App → App Store Connect → Upload**.
 5. Back in App Store Connect, the build appears under the version in ~15 min. Attach it, add screenshots, then **Add for Review → Submit**.
 6. Review is typically 24–48h. You'll get email at each step.

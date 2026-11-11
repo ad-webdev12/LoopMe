@@ -30,7 +30,9 @@ const nowMs = (): number =>
 
 let cachedTier: AiTier | null = null;
 export async function getAiTier(): Promise<AiTier> {
-  if (cachedTier == null) cachedTier = await availableTier();
+  // 'none' is not cached: the model compiles on first launch and may be
+  // ready a moment later.
+  if (cachedTier == null || cachedTier === 'none') cachedTier = await availableTier();
   return cachedTier;
 }
 
@@ -123,10 +125,12 @@ export async function upgrade(message: string, rule: Verdict, opts?: DetectorOpt
 
   // Apple Intelligence returns a label with a looser probability; the Core ML
   // classifier returns a calibrated probability. Normalize to one number.
-  const p = tier === 'foundation'
+  // Go by the tier that actually answered, not the one expected.
+  const answered: AiTier = (ai.tier as AiTier) || tier;
+  const p = answered === 'foundation'
     ? (ai.label === 'scam' ? Math.max(ai.probability, 0.8) : ai.label === 'suspicious' ? Math.min(Math.max(ai.probability, 0.5), 0.89) : 0)
     : ai.probability;
-  if (p < (tier === 'foundation' ? 0.5 : COREML_THRESHOLD)) return { ...rule, ai, aiTier: tier, fused: false };
+  if (p < (answered === 'foundation' ? 0.5 : COREML_THRESHOLD)) return { ...rule, ai, aiTier: tier, fused: false };
 
   const level: Verdict['level'] = rule.level === 'amber' && p >= 0.9 ? 'red' : 'amber';
   if (level === rule.level) {
@@ -135,13 +139,13 @@ export async function upgrade(message: string, rule: Verdict, opts?: DetectorOpt
     return { ...rule, signals, confidence: rule.confidence === 'unsure' ? 'fairly' : rule.confidence, ai, aiTier: tier, fused: true };
   }
 
-  const note = tier === 'foundation' && ai.reason
+  const note = answered === 'foundation' && ai.reason
     ? ai.reason
     : 'The on-device model recognizes the shape of this message as a scam, even though it does not match a specific known trick.';
   return {
     ...rule,
     level,
-    reason: rule.level === 'green' ? (tier === 'foundation' && ai.reason ? ai.reason : 'This does not match a named trick, but it reads like a scam.') : rule.reason,
+    reason: rule.level === 'green' ? (answered === 'foundation' && ai.reason ? ai.reason : 'This does not match a named trick, but it reads like a scam.') : rule.reason,
     safeStep: level === 'red'
       ? 'Do not reply and do not send anything. Delete the message.'
       : 'Do not tap anything yet. Contact the company yourself on a number you already trust.',

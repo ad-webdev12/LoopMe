@@ -63,17 +63,16 @@ export function Ob1({ ctx }: { ctx: Ctx }) {
     <View style={s1.root}>
       <View style={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 18 }}>
         <Kicker text="Setting up" step={1} />
-        <Title text="Whose phone is this?" />
+        <Title text="Which phone is this?" />
+        <Text style={s1.lead} allowFontScaling>Loop Me works in pairs. One phone is protected. One phone hears about it.</Text>
       </View>
       <View style={{ paddingHorizontal: 24, borderBottomWidth: 1, borderBottomColor: T.hairline }}>
-        <Choice title="My parent’s, or someone I look after" bold body="I am setting it up for them. Two minutes."
+        <Choice title="The phone to protect" bold body="This is the phone that gets the texts. Scams are caught here."
           onPress={() => { ctx.update({ ...ctx.settings, role: 'elder' }); ctx.go('ob2'); }} />
-        <Choice title="Mine" bold body="Set it up for me."
-          onPress={() => { ctx.update({ ...ctx.settings, role: 'elder', careName: '' }); ctx.go('ob3'); }} />
-        <Choice title="Mine, and I look after someone else" body="Their phone stays theirs. I hear when something looks wrong."
+        <Choice title="The phone that hears about it" bold body="Someone else’s phone is protected. This one gets the alerts."
           onPress={() => ctx.go('watch')} />
       </View>
-      <Text style={s1.reassureText} allowFontScaling>No account. Nothing leaves this phone.</Text>
+      <Text style={s1.reassureText} allowFontScaling>Protecting your own phone and watching someone else’s? Pick the first. You can add the second later from More.</Text>
     </View>
     </KFIn>
   );
@@ -87,38 +86,52 @@ const s1 = StyleSheet.create({
   choiceTitle: { fontSize: 17, fontFamily: F.display, color: T.ink },
   choiceBody: { fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 22.5, marginTop: 3 },
   reassureText: { marginHorizontal: 24, marginTop: 22, fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 23 },
+  lead: { marginTop: 10, fontSize: 17, fontFamily: F.body, color: T.sub, lineHeight: 26 },
 });
 
 // ---------------- Ob2: who is this phone for? (caregiver) ----------------
 export function Ob2({ ctx }: { ctx: Ctx }) {
   const [name, setName] = useState(ctx.settings.careName);
   const [rel, setRel] = useState(ctx.settings.careRel || 'Mother');
+  const [whose, setWhose] = useState<'mine' | 'theirs'>(ctx.settings.careName ? 'theirs' : 'mine');
   return (
     <KFIn duration={300} style={{ flex: 1 }} playKey="ob2">
     <View style={s1.root}>
       <View style={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 18 }}>
         <Kicker text="Setting up" step={2} of={4} />
-        <Title text="Who is this phone for?" />
+        <Title text="Whose phone is it?" />
       </View>
       <View style={s2.card}>
-        <View>
-          <Text style={s2.fieldLabel} allowFontScaling>Their first name</Text>
-          <TextInput style={s2.input} value={name} onChangeText={setName} placeholder="First name" placeholderTextColor={T.muted} accessibilityLabel="Their first name" />
+        <View style={{ flexDirection: 'row', gap: 7 }}>
+          {([['mine', 'Mine'], ['theirs', 'Someone I look after']] as const).map(([v, label]) => (
+            <Pressable key={v} style={[s2.rel, whose === v && s2.relOn]} onPress={() => setWhose(v)} accessibilityRole="button">
+              <Text style={[s2.relText, whose === v && { color: T.green }]} allowFontScaling>{label}</Text>
+            </Pressable>
+          ))}
         </View>
-        <View>
-          <Text style={s2.fieldLabel} allowFontScaling>They are your</Text>
-          <View style={{ flexDirection: 'row', gap: 7 }}>
-            {['Mother', 'Father', 'Other'].map(r => (
-              <Pressable key={r} style={[s2.rel, rel === r && s2.relOn]} onPress={() => setRel(r)} accessibilityRole="button">
-                <Text style={[s2.relText, rel === r && { color: T.green }]} allowFontScaling>{r}</Text>
-              </Pressable>
-            ))}
+        {whose === 'theirs' && (
+          <View>
+            <Text style={s2.fieldLabel} allowFontScaling>Their first name</Text>
+            <TextInput style={s2.input} value={name} onChangeText={setName} placeholder="First name" placeholderTextColor={T.muted} accessibilityLabel="Their first name" />
           </View>
-        </View>
+        )}
+        {whose === 'theirs' && (
+          <View>
+            <Text style={s2.fieldLabel} allowFontScaling>They are your</Text>
+            <View style={{ flexDirection: 'row', gap: 7 }}>
+              {['Mother', 'Father', 'Other'].map(r => (
+                <Pressable key={r} style={[s2.rel, rel === r && s2.relOn]} onPress={() => setRel(r)} accessibilityRole="button">
+                  <Text style={[s2.relText, rel === r && { color: T.green }]} allowFontScaling>{r}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        )}
       </View>
-      <Text style={s2.note} allowFontScaling>They see every setting and can change any of it.</Text>
+      <Text style={s2.note} allowFontScaling>{whose === 'theirs' ? 'You are setting it up on their phone. They keep every setting.' : 'Two more steps.'}</Text>
       <View style={{ marginTop: 'auto', paddingHorizontal: 24, paddingBottom: 30 }}>
         <CTA label="Continue" onPress={() => {
+          if (whose === 'mine') { ctx.update({ ...ctx.settings, careName: '' }); ctx.go('ob3'); return; }
           if (!name.trim()) { ctx.flash('Add their first name so alerts and notes can use it.'); return; }
           ctx.update({ ...ctx.settings, careName: name.trim(), careRel: rel }); ctx.go('ob3');
         }} />
@@ -213,8 +226,8 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
     <View style={s1.root}>
       <View style={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 18 }}>
         <Kicker text="Last step" step={care ? 4 : 3} of={care ? 4 : 3} />
-        <Title text="Who should we loop in?" />
-        <Text style={s4.sub} allowFontScaling>One person. One link. They hear the moment a scam lands.</Text>
+        <Title text="Who should hear when a scam lands?" />
+        <Text style={s4.sub} allowFontScaling>They get one text with a link. Tapping it joins their phone to this one. No Loop Me yet on their side? The link takes them to the App Store first.</Text>
       </View>
       <Pressable style={s4.addRow} onPress={addFromContacts} accessibilityRole="button">
         <View style={s4.addIcon}><Plus size={18} color={T.green} strokeWidth={2} /></View>
@@ -233,8 +246,8 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
       {first && (
         <Pressable style={[s4.linkBtn, (sending || sent) && { opacity: sent ? 0.7 : 0.6 }]} onPress={sendLink} disabled={sending} accessibilityRole="button">
           <View style={{ flex: 1 }}>
-            <Text style={s4.linkTitle} allowFontScaling>{sent ? 'Link sent to ' + first.name.split(' ')[0] : 'Send ' + first.name.split(' ')[0] + ' the link'}</Text>
-            <Text style={s4.linkSub} allowFontScaling>{sent ? 'It joins the moment they tap it. Nothing else to do.' : 'One text, one tap on their side. No app to set up for them.'}</Text>
+            <Text style={s4.linkTitle} allowFontScaling>{sent ? 'Invite sent to ' + first.name.split(' ')[0] : 'Send ' + first.name.split(' ')[0] + ' the invite'}</Text>
+            <Text style={s4.linkSub} allowFontScaling>{sent ? 'Done the moment they tap it.' : 'The only text Loop Me ever sends.'}</Text>
           </View>
           {sent ? <Check size={20} color="#fff" strokeWidth={2.4} /> : <Send size={20} color="#fff" strokeWidth={2.2} />}
         </Pressable>

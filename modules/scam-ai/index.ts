@@ -80,7 +80,7 @@ export type CloudEvent =
 export interface FilterLogEntry {
   id: string;
   at: number;
-  source: 'filter' | 'share';
+  source: 'filter' | 'share' | 'messages';
   sender: string;
   excerpt: string;
   level: 'red' | 'amber' | 'green';
@@ -90,6 +90,7 @@ export interface FilterLogEntry {
   safeStep: string;
   signals: string[];
   published?: boolean;  // background refresh already sent it to the caretaker
+  asked?: boolean;      // the person tapped Tell in the Messages drawer
 }
 
 export interface AiJudgement {
@@ -123,6 +124,7 @@ const native = requireOptionalNativeModule<{
   cloudUnlink(): Promise<boolean>;
   sharedPutConfig(allowlist: string[], blocked: string[], flagged: string[], autoCheck: boolean): void;
   sharedDrainLog(): FilterLogEntry[];
+  sharedDrainCorrections(): { text: string; label: 'scam' | 'fine' }[];
   sharedTallies(): { filtered: number; junk: number; shared: number };
   callDirectoryReload(): Promise<string>;
   callDirectoryStatus(): Promise<'enabled' | 'disabled' | 'unknown'>;
@@ -262,6 +264,12 @@ export function sharedPutConfig(c: { allowlist: string[]; blocked: string[]; fla
 export function sharedDrainLog(): FilterLogEntry[] {
   if (!native) return [];
   try { return native.sharedDrainLog() || []; } catch { return []; }
+}
+
+/** "Was this right?" answers given in the Messages drawer, waiting to be remembered. */
+export function sharedDrainCorrections(): { text: string; label: 'scam' | 'fine' }[] {
+  if (!native) return [];
+  try { return native.sharedDrainCorrections() || []; } catch { return []; }
 }
 
 export function sharedTallies(): { filtered: number; junk: number; shared: number; lastFilteredAt: number } {

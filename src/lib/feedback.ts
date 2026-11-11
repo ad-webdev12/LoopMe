@@ -32,6 +32,16 @@ export async function remembered(text: string): Promise<Label | null> {
   return m[keyOf(text)] || null;
 }
 
+/** A correction made outside the app (the Messages drawer). Same memory, no history row to update. */
+export async function rememberText(text: string, label: Label, s: Settings): Promise<void> {
+  const t = text.trim();
+  if (!t) return;
+  const m = await load();
+  m[keyOf(t)] = label;
+  try { await AsyncStorage.setItem(KEY, JSON.stringify(m)); } catch {}
+  if (s.improve) void cloudSubmitSample(redactPrivate(t), label === 'scam' ? 'scam' : 'safe', phoneRegion() || 'XX');
+}
+
 export async function correct(recId: string, label: Label, s: Settings, fullText?: string): Promise<void> {
   const rec = (await listChecks()).find(r => r.id === recId);
   if (!rec) return;

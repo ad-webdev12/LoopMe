@@ -86,9 +86,9 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
       ) : (
         <View>
           <View style={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 16 }}>
-            <Text style={sw.kicker} allowFontScaling>Family link</Text>
-            <Text style={sw.title} allowFontScaling>Who should hear about it?</Text>
-            <Text style={sw.sub} allowFontScaling>One text. One tap on their side.</Text>
+            <Text style={sw.kicker} allowFontScaling>The phone that hears about it</Text>
+            <Text style={sw.title} allowFontScaling>Who should hear when a scam lands?</Text>
+            <Text style={sw.sub} allowFontScaling>They get one text with a link. Tapping it joins their phone to this one. After that, nothing is ever texted.</Text>
           </View>
 
           {s.familyInvited && (
@@ -169,15 +169,15 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
       {!paired ? (
         <View>
           <View style={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 16 }}>
-            <Text style={sw.kicker} allowFontScaling>Looking after someone</Text>
-            <Text style={sw.title} allowFontScaling>They send you one link</Text>
-            <Text style={sw.sub} allowFontScaling>On their phone: More › Watched over by › choose you. Tap the link that arrives here.</Text>
+            <Text style={sw.kicker} allowFontScaling>The phone that hears about it</Text>
+            <Text style={sw.title} allowFontScaling>Tap the invite from their phone</Text>
+            <Text style={sw.sub} allowFontScaling>The invite is sent from Loop Me on the protected phone. Setting that phone up yourself? Choose “The phone to protect” on it and pick your own number.</Text>
           </View>
           <View style={sw.stepsCard}>
             {[
-              'On their phone: More › Watched over by',
-              'They pick you from their contacts',
-              'You tap the link in the text they send',
+              'On the protected phone, open Loop Me',
+              'People › Choose someone and send the invite › pick you',
+              'A text arrives here. Tap the link in it',
             ].map((t, i) => (
               <View key={i} style={[sw.stepRow, i === 2 && { borderBottomWidth: 0 }]}>
                 <View style={sw.stepNum}><Text style={sw.stepNumText} allowFontScaling>{i + 1}</Text></View>
@@ -191,7 +191,6 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
             <Row yes text="Three one-tap replies that appear on their screen" />
             <Row yes={false} text="Never their ordinary messages, photos or location" last />
           </View>
-          <Text style={sw.note} allowFontScaling>Setting it up for them? Send the invite from their phone to your number.</Text>
           <View style={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 40 }}>
             <Pressable style={sw.ghostBtn} onPress={() => ctx.go('home')} accessibilityRole="button">
               <Text style={sw.ghostText} allowFontScaling>I will tap the link when it arrives</Text>

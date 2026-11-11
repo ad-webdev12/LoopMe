@@ -4,7 +4,7 @@
 // filter and the share sheet have caught, so the person can see it working
 // even on the days nothing happens.
 import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
 import {
@@ -152,9 +152,9 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
             <Text style={st.pasteText} allowFontScaling>Paste what I copied</Text>
           </Pressable>
         )}
-        <Pressable style={st.checkBtn} onPress={() => ctx.check(text)} accessibilityRole="button" accessibilityLabel="Check it">
-          <Text style={st.checkText} allowFontScaling>Check it</Text>
-          <ArrowRight size={20} color="#fff" strokeWidth={2.2} />
+        <Pressable style={[st.checkBtn, ctx.checking && { opacity: 0.75 }]} onPress={() => { if (!ctx.checking) ctx.check(text); }} accessibilityRole="button" accessibilityLabel="Check it">
+          <Text style={st.checkText} allowFontScaling>{ctx.checking ? 'Checking' : 'Check it'}</Text>
+          {ctx.checking ? <ActivityIndicator color="#fff" /> : <ArrowRight size={20} color="#fff" strokeWidth={2.2} />}
         </Pressable>
       </View>
 
