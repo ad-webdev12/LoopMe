@@ -1,208 +1,266 @@
 import UIKit
 import Messages
 
-// Loop Me inside the Messages app. It sits in the app drawer under the
-// keyboard like a sticker app. iOS lets no app read the conversation, so the
-// one thing the person does is: hold the message, tap Copy, tap the Loop Me
-// icon. The verdict appears right here, in the same big words as the app,
-// and one tap opens the full answer. Nothing is sent and nothing leaves the
-// phone; the detector and the model run in this process.
+// Loop Me inside the Messages app. It sits in the "+" list like Photos or
+// Audio. iOS lets no app read the conversation, so the person copies the
+// message and taps one button. That button is Apple's own paste control, which
+// hands over the clipboard with no "would like to paste" alert. The answer is
+// the same red, amber or green field the app shows, right here in the drawer.
+// Nothing is sent; the detector and the model run in this process.
 final class MessagesViewController: MSMessagesAppViewController {
   static let model = CoreModel.named("ScamText", threshold: 0.8)
 
-  private let card = UIView()
-  private let eyebrow = UILabel()
-  private let word = UILabel()
-  private let line = UILabel()
-  private let step = UILabel()
-  private let quote = UILabel()
-  private let primary = UIButton(type: .system)
-  private let secondary = UIButton(type: .system)
-  private var lastText = ""
-  private var lastChecked = ""
-
+  private let paper = UIColor(red: 0.973, green: 0.973, blue: 0.965, alpha: 1)
+  private let ink = UIColor(red: 0.09, green: 0.09, blue: 0.09, alpha: 1)
+  private let sub = UIColor(red: 0.44, green: 0.44, blue: 0.44, alpha: 1)
+  private let hair = UIColor(red: 0.898, green: 0.898, blue: 0.886, alpha: 1)
   private let green = UIColor(red: 0.051, green: 0.42, blue: 0.341, alpha: 1)
   private let red = UIColor(red: 0.925, green: 0.188, blue: 0.075, alpha: 1)
   private let amber = UIColor(red: 0.722, green: 0.471, blue: 0.102, alpha: 1)
-  private let ink = UIColor(red: 0.09, green: 0.09, blue: 0.09, alpha: 1)
-  private let sub = UIColor(red: 0.44, green: 0.44, blue: 0.44, alpha: 1)
+
+  private let eyebrow = UILabel()
+  private let headline = UILabel()
+  private let line = UILabel()
+  private let steps = UIStackView()
+  private let quote = UILabel()
+  private let primary = UIButton(type: .system)
+  private let again = UIButton(type: .system)
+  private var pasteButton: UIControl?
+  private var bottom: UIStackView!
+
+  private var text = ""
+  private var verdict: Verdict?
 
   override func viewDidLoad() {
     super.viewDidLoad()
-    view.backgroundColor = UIColor(red: 0.973, green: 0.973, blue: 0.965, alpha: 1)
     build()
     showIdle()
   }
 
-  override func willBecomeActive(with conversation: MSConversation) {
-    super.willBecomeActive(with: conversation)
-    checkClipboard()
-  }
-
   override func didTransition(to presentationStyle: MSMessagesAppPresentationStyle) {
     super.didTransition(to: presentationStyle)
-    layoutForStyle()
+    relayout()
   }
 
-  // MARK: - The check
+  // MARK: - Paste
 
-  private func checkClipboard() {
-    // iOS shows its own "Loop Me pasted from Messages" line the first time.
-    // That is the honest signal: the only thing read is what was copied.
-    guard UIPasteboard.general.hasStrings, let text = UIPasteboard.general.string?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else {
-      showIdle(); return
+  // UIPasteControl calls this with whatever was copied. Reading the board
+  // this way never shows the system paste alert.
+  override func paste(itemProviders: [NSItemProvider]) {
+    guard let p = itemProviders.first(where: { $0.canLoadObject(ofClass: NSString.self) }) else { return }
+    _ = p.loadObject(ofClass: NSString.self) { [weak self] obj, _ in
+      guard let s = (obj as? NSString)?.trimmingCharacters(in: .whitespacesAndNewlines), !s.isEmpty else { return }
+      DispatchQueue.main.async { self?.run(String(s)) }
     }
-    if text == lastChecked { return }
-    lastChecked = text
-    run(text)
   }
 
-  private func run(_ text: String) {
-    lastText = text
+  override func canPaste(_ itemProviders: [NSItemProvider]) -> Bool {
+    itemProviders.contains { $0.canLoadObject(ofClass: NSString.self) }
+  }
+
+  private func run(_ t: String) {
+    text = t
     var opts = DetectorOptions()
     opts.allowlist = SharedStore.allowlist
-    let v = Engine.check(text, opts, model: MessagesViewController.model)
-    SharedStore.bump("shared")
+    let v = Engine.check(t, opts, model: MessagesViewController.model)
+    verdict = v
+    SharedStore.bump("messages")
     if v.level != .green {
       SharedStore.logVerdict([
         "id": "m-" + UUID().uuidString,
         "at": Date().timeIntervalSince1970 * 1000,
-        "source": "share",
+        "source": "messages",
         "sender": "",
-        "excerpt": Redact.privateDetails(text).prefix(180).description,
+        "excerpt": Redact.privateDetails(t).prefix(180).description,
         "level": v.level.rawValue, "score": v.score, "tags": v.tags,
         "reason": v.reason, "safeStep": v.safeStep, "signals": v.signals,
       ])
+      UINotificationFeedbackGenerator().notificationOccurred(v.level == .red ? .error : .warning)
     }
-    show(v, text: text)
+    show(v)
   }
 
-  // MARK: - Views
+  // MARK: - Build
 
   private func build() {
-    card.backgroundColor = .white
-    card.layer.cornerRadius = 14
-    card.layer.borderWidth = 1
-    card.layer.borderColor = UIColor(red: 0.898, green: 0.898, blue: 0.886, alpha: 1).cgColor
-    card.translatesAutoresizingMaskIntoConstraints = false
-    view.addSubview(card)
+    pasteConfiguration = UIPasteConfiguration(forAccepting: NSString.self)
+    view.backgroundColor = paper
 
-    for l in [eyebrow, word, line, step, quote] {
+    for l in [eyebrow, headline, line, quote] {
       l.numberOfLines = 0
-      l.translatesAutoresizingMaskIntoConstraints = false
       l.adjustsFontForContentSizeCategory = true
-      card.addSubview(l)
     }
     eyebrow.font = .systemFont(ofSize: 13, weight: .semibold)
-    eyebrow.textColor = sub
-    word.font = .systemFont(ofSize: 30, weight: .heavy)
-    line.font = .systemFont(ofSize: 17, weight: .regular)
-    line.textColor = ink
-    step.font = .systemFont(ofSize: 17, weight: .semibold)
-    step.textColor = ink
+    headline.font = .systemFont(ofSize: 28, weight: .heavy)
+    line.font = .systemFont(ofSize: 17, weight: .semibold)
     quote.font = .systemFont(ofSize: 15, weight: .regular)
-    quote.textColor = sub
     quote.numberOfLines = 3
 
-    for b in [primary, secondary] {
-      b.translatesAutoresizingMaskIntoConstraints = false
-      b.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
-      b.layer.cornerRadius = 12
-      b.contentEdgeInsets = UIEdgeInsets(top: 14, left: 16, bottom: 14, right: 16)
-      card.addSubview(b)
+    steps.axis = .vertical
+    steps.spacing = 0
+    for (i, s) in ["Hold the message", "Tap Copy", "Tap Paste below"].enumerated() {
+      steps.addArrangedSubview(stepRow(i + 1, s))
     }
-    primary.backgroundColor = green
-    primary.setTitleColor(.white, for: .normal)
+
+    let top = UIStackView(arrangedSubviews: [eyebrow, headline, line, steps, quote])
+    top.axis = .vertical
+    top.spacing = 8
+    top.setCustomSpacing(4, after: eyebrow)
+    top.setCustomSpacing(14, after: headline)
+    top.setCustomSpacing(14, after: line)
+    top.translatesAutoresizingMaskIntoConstraints = false
+    view.addSubview(top)
+
+    for b in [primary, again] {
+      b.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+      b.layer.cornerRadius = 14
+      b.heightAnchor.constraint(equalToConstant: 56).isActive = true
+    }
     primary.addTarget(self, action: #selector(openApp), for: .touchUpInside)
-    secondary.backgroundColor = UIColor(red: 0.973, green: 0.973, blue: 0.965, alpha: 1)
-    secondary.setTitleColor(ink, for: .normal)
-    secondary.addTarget(self, action: #selector(pasteTapped), for: .touchUpInside)
+    again.addTarget(self, action: #selector(reset), for: .touchUpInside)
 
+    let pc: UIControl
+    if #available(iOS 16.0, *) {
+      let c = UIPasteControl.Configuration()
+      c.displayMode = .labelOnly
+      c.baseBackgroundColor = green
+      c.baseForegroundColor = .white
+      c.cornerStyle = .large
+      let control = UIPasteControl(configuration: c)
+      control.target = self
+      pc = control
+    } else {
+      // Older iOS: a plain button that reads the board (iOS may ask first).
+      let b = UIButton(type: .system)
+      b.setTitle("Check what I copied", for: .normal)
+      b.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
+      b.backgroundColor = green
+      b.setTitleColor(.white, for: .normal)
+      b.layer.cornerRadius = 14
+      b.addTarget(self, action: #selector(readBoard), for: .touchUpInside)
+      pc = b
+    }
+    pc.heightAnchor.constraint(equalToConstant: 56).isActive = true
+    pasteButton = pc
+
+    bottom = UIStackView(arrangedSubviews: [pc, primary, again])
+    bottom.axis = .vertical
+    bottom.spacing = 8
+    bottom.translatesAutoresizingMaskIntoConstraints = false
+    view.addSubview(bottom)
+
+    let g = view.safeAreaLayoutGuide
     NSLayoutConstraint.activate([
-      card.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-      card.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-      card.topAnchor.constraint(equalTo: view.topAnchor, constant: 14),
-      card.bottomAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
-
-      eyebrow.topAnchor.constraint(equalTo: card.topAnchor, constant: 16),
-      eyebrow.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 18),
-      eyebrow.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -18),
-      word.topAnchor.constraint(equalTo: eyebrow.bottomAnchor, constant: 4),
-      word.leadingAnchor.constraint(equalTo: eyebrow.leadingAnchor),
-      word.trailingAnchor.constraint(equalTo: eyebrow.trailingAnchor),
-      line.topAnchor.constraint(equalTo: word.bottomAnchor, constant: 8),
-      line.leadingAnchor.constraint(equalTo: eyebrow.leadingAnchor),
-      line.trailingAnchor.constraint(equalTo: eyebrow.trailingAnchor),
-      step.topAnchor.constraint(equalTo: line.bottomAnchor, constant: 10),
-      step.leadingAnchor.constraint(equalTo: eyebrow.leadingAnchor),
-      step.trailingAnchor.constraint(equalTo: eyebrow.trailingAnchor),
-      quote.topAnchor.constraint(equalTo: step.bottomAnchor, constant: 10),
-      quote.leadingAnchor.constraint(equalTo: eyebrow.leadingAnchor),
-      quote.trailingAnchor.constraint(equalTo: eyebrow.trailingAnchor),
-      primary.topAnchor.constraint(equalTo: quote.bottomAnchor, constant: 14),
-      primary.leadingAnchor.constraint(equalTo: eyebrow.leadingAnchor),
-      primary.trailingAnchor.constraint(equalTo: eyebrow.trailingAnchor),
-      secondary.topAnchor.constraint(equalTo: primary.bottomAnchor, constant: 8),
-      secondary.leadingAnchor.constraint(equalTo: eyebrow.leadingAnchor),
-      secondary.trailingAnchor.constraint(equalTo: eyebrow.trailingAnchor),
-      secondary.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -16),
+      top.topAnchor.constraint(equalTo: g.topAnchor, constant: 18),
+      top.leadingAnchor.constraint(equalTo: g.leadingAnchor, constant: 24),
+      top.trailingAnchor.constraint(equalTo: g.trailingAnchor, constant: -24),
+      bottom.leadingAnchor.constraint(equalTo: g.leadingAnchor, constant: 24),
+      bottom.trailingAnchor.constraint(equalTo: g.trailingAnchor, constant: -24),
+      bottom.bottomAnchor.constraint(equalTo: g.bottomAnchor, constant: -12),
+      bottom.topAnchor.constraint(greaterThanOrEqualTo: top.bottomAnchor, constant: 12),
     ])
   }
 
-  private func layoutForStyle() {
-    // Compact (the drawer) hides the quote and the second button; expanded shows everything.
-    let compact = presentationStyle == .compact
-    quote.isHidden = compact || quote.text?.isEmpty != false
-    secondary.isHidden = compact && !lastChecked.isEmpty
+  private func stepRow(_ n: Int, _ s: String) -> UIView {
+    let row = UIView()
+    let num = UILabel()
+    num.text = "\(n)"
+    num.font = .systemFont(ofSize: 15, weight: .bold)
+    num.textColor = green
+    let t = UILabel()
+    t.text = s
+    t.font = .systemFont(ofSize: 17, weight: .regular)
+    t.textColor = ink
+    t.numberOfLines = 0
+    let rule = UIView()
+    rule.backgroundColor = hair
+    for v in [num, t, rule] { v.translatesAutoresizingMaskIntoConstraints = false; row.addSubview(v) }
+    NSLayoutConstraint.activate([
+      rule.topAnchor.constraint(equalTo: row.topAnchor),
+      rule.leadingAnchor.constraint(equalTo: row.leadingAnchor),
+      rule.trailingAnchor.constraint(equalTo: row.trailingAnchor),
+      rule.heightAnchor.constraint(equalToConstant: 1),
+      num.leadingAnchor.constraint(equalTo: row.leadingAnchor),
+      num.widthAnchor.constraint(equalToConstant: 22),
+      num.firstBaselineAnchor.constraint(equalTo: t.firstBaselineAnchor),
+      t.leadingAnchor.constraint(equalTo: num.trailingAnchor, constant: 8),
+      t.trailingAnchor.constraint(equalTo: row.trailingAnchor),
+      t.topAnchor.constraint(equalTo: row.topAnchor, constant: 13),
+      t.bottomAnchor.constraint(equalTo: row.bottomAnchor, constant: -13),
+    ])
+    return row
   }
+
+  // MARK: - States
 
   private func showIdle() {
+    verdict = nil
+    text = ""
+    view.backgroundColor = paper
     eyebrow.text = "LOOP ME"
-    word.text = "Copy a message, then tap here."
-    word.textColor = ink
-    word.font = .systemFont(ofSize: 22, weight: .heavy)
-    line.text = "Hold the message, tap Copy, then tap the Loop Me icon. The answer appears here. Nothing is sent to anyone."
-    step.text = ""
+    eyebrow.textColor = sub
+    headline.text = "Copy the message, then tap Paste."
+    headline.textColor = ink
+    line.text = ""
     quote.text = ""
-    primary.setTitle("Check what I copied", for: .normal)
-    primary.removeTarget(nil, action: nil, for: .allEvents)
-    primary.addTarget(self, action: #selector(pasteTapped), for: .touchUpInside)
-    secondary.setTitle("Open Loop Me", for: .normal)
-    secondary.removeTarget(nil, action: nil, for: .allEvents)
-    secondary.addTarget(self, action: #selector(openApp), for: .touchUpInside)
-    layoutForStyle()
+    for case let l as UILabel in steps.arrangedSubviews.flatMap({ $0.subviews }) where l.font.pointSize == 17 { l.textColor = ink }
+    primary.isHidden = true
+    again.isHidden = true
+    pasteButton?.isHidden = false
+    relayout()
   }
 
-  private func show(_ v: Verdict, text: String) {
+  private func show(_ v: Verdict) {
     let color: UIColor = v.level == .red ? red : v.level == .amber ? amber : green
-    eyebrow.text = "OUR ANSWER"
-    word.font = .systemFont(ofSize: 30, weight: .heavy)
-    word.textColor = color
-    word.text = v.level == .red ? "Stop. This is a scam." : v.level == .amber ? "Be careful." : "Looks okay."
-    line.text = v.reason
-    step.text = v.safeStep
-    quote.text = "“" + text.prefix(140) + (text.count > 140 ? "…" : "") + "”"
-    primary.setTitle(v.level == .green ? "See the full answer in Loop Me" : "Open in Loop Me and tell someone", for: .normal)
-    primary.removeTarget(nil, action: nil, for: .allEvents)
-    primary.addTarget(self, action: #selector(openApp), for: .touchUpInside)
-    secondary.setTitle("Check a different message", for: .normal)
-    secondary.removeTarget(nil, action: nil, for: .allEvents)
-    secondary.addTarget(self, action: #selector(pasteTapped), for: .touchUpInside)
-    if v.level == .red { UINotificationFeedbackGenerator().notificationOccurred(.error) }
-    layoutForStyle()
+    view.backgroundColor = color
+    eyebrow.text = v.level == .red ? "SCAM" : v.level == .amber ? "BE CAREFUL" : "LOOKS OKAY"
+    eyebrow.textColor = UIColor.white.withAlphaComponent(0.8)
+    headline.text = v.level == .red ? "Stop. Do not reply." : v.level == .amber ? "Be careful with this one." : "This looks okay."
+    headline.textColor = .white
+    line.text = v.safeStep
+    line.textColor = .white
+    quote.text = v.reason
+    quote.textColor = UIColor.white.withAlphaComponent(0.85)
+    primary.setTitle(v.level == .green ? "See it in Loop Me" : "Show me more", for: .normal)
+    primary.backgroundColor = .white
+    primary.setTitleColor(color, for: .normal)
+    again.setTitle("Check another message", for: .normal)
+    again.backgroundColor = .clear
+    again.setTitleColor(.white, for: .normal)
+    again.layer.borderWidth = 1
+    again.layer.borderColor = UIColor.white.withAlphaComponent(0.55).cgColor
+    primary.isHidden = false
+    again.isHidden = false
+    pasteButton?.isHidden = true
+    relayout()
   }
 
-  @objc private func pasteTapped() {
-    lastChecked = ""
-    checkClipboard()
-    if lastChecked.isEmpty { requestPresentationStyle(.expanded) }
+  // Compact is the strip under the keyboard, about 250 points tall. It keeps
+  // the headline and one button. Expanded shows the steps or the reason.
+  private func relayout() {
+    let compact = presentationStyle == .compact
+    let idle = verdict == nil
+    steps.isHidden = !idle || compact
+    quote.isHidden = idle || compact || (quote.text ?? "").isEmpty
+    line.isHidden = idle || (line.text ?? "").isEmpty
+    again.isHidden = idle || compact
+    headline.font = .systemFont(ofSize: compact ? 24 : 28, weight: .heavy)
+  }
+
+  // MARK: - Actions
+
+  @objc private func reset() { showIdle() }
+
+  @objc private func readBoard() {
+    guard let t = UIPasteboard.general.string?.trimmingCharacters(in: .whitespacesAndNewlines), !t.isEmpty else { return }
+    run(t)
   }
 
   @objc private func openApp() {
     var comps = URLComponents()
     comps.scheme = "loopmein"
     comps.host = "check"
-    if !lastText.isEmpty { comps.queryItems = [URLQueryItem(name: "text", value: String(lastText.prefix(2000)))] }
+    if !text.isEmpty { comps.queryItems = [URLQueryItem(name: "text", value: String(text.prefix(2000)))] }
     guard let url = comps.url else { return }
     extensionContext?.open(url, completionHandler: nil)
   }

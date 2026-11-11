@@ -160,7 +160,6 @@ export default function VerdictScreen({ ctx }: { ctx: Ctx }) {
       <Pressable style={st.whyRow} onPress={() => setWhy(!why)} accessibilityRole="button">
         <Text style={st.whyLabel} allowFontScaling>{why ? 'Hide' : 'Why'}</Text>
         <View style={st.whyRight}>
-          <Text style={st.whyCount} allowFontScaling>{signals.length}{signals.length === 1 ? ' reason' : ' reasons'}</Text>
           {why ? <ChevronUp size={16} color={T.green} strokeWidth={2.2} /> : <ChevronDown size={16} color={T.green} strokeWidth={2.2} />}
         </View>
       </Pressable>

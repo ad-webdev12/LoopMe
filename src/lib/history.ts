@@ -29,7 +29,8 @@ export type Source =
   | 'qr'
   | 'family'   // flagged on the phone this one looks after
   | 'filter'   // the text filter stopped it before it reached Messages
-  | 'share';   // checked from the share sheet in another app
+  | 'share'    // checked from the share sheet in another app
+  | 'messages'; // checked from the Loop Me button inside the Messages app
 
 export interface CheckRecord {
   id: string;

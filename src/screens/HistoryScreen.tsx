@@ -23,6 +23,7 @@ const MARK = {
 const SOURCE_LINE: Record<string, string> = {
   filter: 'Stopped before it reached you',
   share: 'Checked from the share sheet',
+  messages: 'Checked in Messages',
   link: 'Checked automatically',
   family: 'On the phone you look after',
 };
@@ -92,7 +93,7 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
     const rows = hist.map(h => `
       <tr>
         <td>${esc(new Date(h.at).toLocaleDateString())}<br><span class="dim">${esc(hm(h.at))}</span></td>
-        <td>${esc(h.sender || (h.source === 'share' ? 'Shared from another app' : 'Pasted into Loop Me'))}</td>
+        <td>${esc(h.sender || (h.source === 'share' ? 'Shared from another app' : h.source === 'messages' ? 'Checked in Messages' : 'Pasted into Loop Me'))}</td>
         <td><span class="mark ${h.level}">${MARK[h.level].mark}</span>${h.reported ? '<br><span class="dim">Reported</span>' : ''}</td>
         <td>“${esc(h.excerpt)}”<div class="why">${esc(h.reason)}</div></td>
       </tr>`).join('');
@@ -183,7 +184,7 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text style={st.rowSnippet} allowFontScaling numberOfLines={2}>{h.excerpt}</Text>
                     <View style={st.rowFoot}>
-                      <Text style={st.rowMeta} allowFontScaling numberOfLines={1}>{[M.mark, h.sender, sourceLine, hm(h.at)].filter(Boolean).join('  ·  ')}</Text>
+                      <Text style={st.rowMeta} allowFontScaling numberOfLines={2}>{[M.mark, h.sender, sourceLine, hm(h.at)].filter(Boolean).join('  ·  ')}</Text>
                       {h.level !== 'green' && !careMode && (
                         <Pressable onPress={() => reportScam(ctx, h.id)} accessibilityRole="button" accessibilityLabel="Report">
                           <Text style={[st.reportText, h.reported && { color: T.sub }]} allowFontScaling>{h.reported ? 'Reported' : 'Report'}</Text>

@@ -65,7 +65,7 @@ export function Ob1({ ctx }: { ctx: Ctx }) {
         <Kicker text="Setting up" step={1} />
         <Title text="Whose phone is this?" />
       </View>
-      <View style={{ paddingHorizontal: 24, gap: 10 }}>
+      <View style={{ paddingHorizontal: 24, borderBottomWidth: 1, borderBottomColor: T.hairline }}>
         <Choice title="My parent’s, or someone I look after" bold body="I am setting it up for them. Two minutes."
           onPress={() => { ctx.update({ ...ctx.settings, role: 'elder' }); ctx.go('ob2'); }} />
         <Choice title="Mine" bold body="Set it up for me."
@@ -81,8 +81,8 @@ export function Ob1({ ctx }: { ctx: Ctx }) {
 const s1 = StyleSheet.create({
   root: { flex: 1, backgroundColor: T.ground },
   choice: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: T.surface,
-    borderWidth: 1, borderColor: T.hairline, borderRadius: 14, padding: 18,
+    flexDirection: 'row', alignItems: 'center',
+    borderTopWidth: 1, borderTopColor: T.hairline, paddingVertical: 18, paddingHorizontal: 0,
   },
   choiceTitle: { fontSize: 17, fontFamily: F.display, color: T.ink },
   choiceBody: { fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 22.5, marginTop: 3 },
@@ -128,11 +128,8 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
   );
 }
 const s2 = StyleSheet.create({
-  card: {
-    marginHorizontal: 24, backgroundColor: T.surface, borderWidth: 1, borderColor: T.hairline,
-    borderRadius: 14, padding: 18, gap: 18,
-  },
-  fieldLabel: { fontSize: 12, fontFamily: F.semibold, letterSpacing: 1.4, textTransform: 'uppercase', color: T.sub, marginBottom: 7 },
+  card: { marginHorizontal: 24, gap: 22 },
+  fieldLabel: { fontSize: 15.5, fontFamily: F.body, color: T.sub, marginBottom: 8 },
   input: { height: 48, borderWidth: 1, borderColor: '#c9c9c4', backgroundColor: T.ground, paddingHorizontal: 14, fontSize: 17, fontFamily: F.body, color: T.ink },
   rel: { flex: 1, height: 44, borderWidth: 1, borderColor: T.fieldBorder, backgroundColor: T.surface, alignItems: 'center', justifyContent: 'center' },
   relOn: { backgroundColor: T.greenTint, borderColor: T.green },
