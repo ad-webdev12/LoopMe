@@ -12,12 +12,6 @@ import * as Notifications from 'expo-notifications';
 import * as Clipboard from 'expo-clipboard';
 import { endCallActivity, watchPush } from '../modules/scam-ai';
 import * as Haptics from 'expo-haptics';
-import { useFonts } from 'expo-font';
-import { Archivo_400Regular } from '@expo-google-fonts/archivo/400Regular';
-import { Archivo_500Medium } from '@expo-google-fonts/archivo/500Medium';
-import { Archivo_600SemiBold } from '@expo-google-fonts/archivo/600SemiBold';
-import { Archivo_700Bold } from '@expo-google-fonts/archivo/700Bold';
-import { Archivo_800ExtraBold } from '@expo-google-fonts/archivo/800ExtraBold';
 import { T, Palette } from './theme';
 import { palette, setNavDir } from './ui/base';
 import { instant, upgrade, FusedVerdict } from './engine/ai';
@@ -109,7 +103,7 @@ export interface Ctx {
 
 // The floating bar shows on the four tabs only; pushed screens have Back.
 const TAB_SCREENS: ScreenId[] = ['home', 'history', 'family', 'settings', 'ward'];
-const ALL_SCREENS: ScreenId[] = ['home', 'checking', 'scam', 'amber', 'green', 'detail', 'callcheck', 'history', 'family', 'ask', 'maria', 'settings', 'setup', 'learn', 'practice', 'caregiver', 'scammed', 'blocked', 'safe', 'drawerInfo', 'ward', 'listen', 'watchedBy', 'watch'];
+const ALL_SCREENS: ScreenId[] = ['home', 'checking', 'scam', 'amber', 'green', 'detail', 'callcheck', 'history', 'family', 'ask', 'maria', 'settings', 'setup', 'learn', 'practice', 'caregiver', 'scammed', 'blocked', 'safe', 'drawerInfo', 'ward', 'listen', 'watchedBy', 'watch', 'intro', 'ob1', 'ob2', 'ob3', 'ob4'];
 
 LogBox.ignoreLogs(['SafeAreaView has been deprecated']);
 
@@ -130,10 +124,6 @@ function sixDigits(): string {
 }
 
 export default function App() {
-  const [fontsLoaded] = useFonts({
-    Archivo_400Regular, Archivo_500Medium, Archivo_600SemiBold,
-    Archivo_700Bold, Archivo_800ExtraBold,
-  });
   const [settings, setSettings] = useState<Settings | null>(null);
   const [screen, setScreen] = useState<ScreenId>('intro');
   const [msg, setMsg] = useState('');
@@ -560,7 +550,7 @@ export default function App() {
     watchPush({ name: settings.watching?.name?.split(' ')[0] || '', phone: settings.watching?.phone || '', linked: settings.familyLinked, alerts });
   }, [hist, settings?.role, settings?.watching?.name, settings?.watching?.phone, settings?.familyLinked]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!settings || !fontsLoaded) return <View style={st.root} />;
+  if (!settings) return <View style={st.root} />;
 
   const careMode = settings.role === 'caretaker';
   const watchName = settings.watching?.name?.split(' ')[0] || settings.careName.split(' ')[0] || 'Family';
@@ -652,9 +642,9 @@ class ScreenGuard extends React.Component<{ screen: string; onReset: () => void;
     if (!this.state.error) return this.props.children;
     return (
       <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 28 }}>
-        <Text style={{ fontSize: 24, fontFamily: 'Archivo_800ExtraBold', color: T.ink }} allowFontScaling>Something went wrong on this screen.</Text>
-        <Text style={{ fontSize: 15, fontFamily: 'Archivo_400Regular', color: T.sub, marginTop: 10 }} allowFontScaling>{String(this.state.error.message || this.state.error)}</Text>
-        <Text onPress={this.props.onReset} style={{ fontSize: 17, fontFamily: 'Archivo_700Bold', color: T.green, marginTop: 22 }} allowFontScaling>Back to the start</Text>
+        <Text style={{ fontSize: 24, fontWeight: '800', color: T.ink }} allowFontScaling>Something went wrong on this screen.</Text>
+        <Text style={{ fontSize: 17, color: T.ink, marginTop: 10 }} allowFontScaling>{String(this.state.error.message || this.state.error)}</Text>
+        <Text onPress={this.props.onReset} style={{ fontSize: 17, fontWeight: '600', color: T.green, marginTop: 22 }} allowFontScaling>Back to the start</Text>
       </View>
     );
   }

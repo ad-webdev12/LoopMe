@@ -32,10 +32,6 @@ export default function PracticeScreen({ ctx }: { ctx: Ctx }) {
 
         {state === 'intro' && (
           <>
-            <Swap playKey="intro" style={st.card}>
-              <Text style={[font(16, '600'), { color: white }]} allowFontScaling>A practice run, so it feels familiar</Text>
-              <Text style={[font(16, '400', 1.45), { color: '#fff', marginTop: 6 }]} allowFontScaling>This is the most common scam call. No app can hear a real call, so learn the pattern now, while it’s safe.</Text>
-            </Swap>
             <View style={st.bottom}>
               <Pill label="Start the practice call" height={58} onPress={() => setState('call')} icon={<Phone size={20} color="#fff" strokeWidth={2} />} />
               <Pill label="Not now" height={54} bg="transparent" border="rgba(255,255,255,.3)" onPress={() => ctx.go('settings')} />

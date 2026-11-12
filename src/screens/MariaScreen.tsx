@@ -44,15 +44,12 @@ export default function MariaScreen({ ctx }: { ctx: Ctx }) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingRight: 14 }}>
           <BackLink onPress={() => ctx.go(careMode ? 'ward' : 'family')} />
-          {!careMode && (
-            <View style={[st.badge, { backgroundColor: C.amberTint }]}><Text style={[font(13, '600'), { color: T.amberInk }]} allowFontScaling>This is {who}’s phone</Text></View>
-          )}
         </View>
         <View style={{ paddingHorizontal: 20, paddingTop: 16, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <Avatar name={ownerName} photo={careMode ? undefined : undefined} size={52} />
           <View>
             <Text style={[font(26, '700'), { color: C.ink }]} allowFontScaling>{careMode ? ownerFirst : (s.careRel && s.careName ? s.careRel.replace('Mother', 'Mom').replace('Father', 'Dad') : ownerFirst)}</Text>
-            <Text style={[font(15, '400'), { color: C.ink2, marginTop: 2 }]} allowFontScaling>{ownerName}</Text>
+            <Text style={[font(15, '400'), { color: C.ink2, marginTop: 2 }]} allowFontScaling>{careMode ? ownerName : 'What ' + who + ' sees on ' + (person?.relation === 'Daughter' ? 'her' : person?.relation === 'Son' ? 'his' : 'their') + ' phone'}</Text>
           </View>
         </View>
 

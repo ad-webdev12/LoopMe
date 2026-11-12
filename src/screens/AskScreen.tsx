@@ -60,7 +60,6 @@ export default function AskScreen({ ctx }: { ctx: Ctx }) {
         {!sent ? (
           <>
             <Pill label={'Send to ' + who} onPress={send} icon={<Send size={19} color="#fff" strokeWidth={2} />} />
-            <Text style={[font(15, '400'), { color: C.ink2, textAlign: 'center', paddingTop: 10 }]} allowFontScaling>Only this message is shared. Nothing else on your phone.</Text>
           </>
         ) : (
           <Pill label="Back to Check" bg={C.card} color={T.green} onPress={() => ctx.go('home')} />

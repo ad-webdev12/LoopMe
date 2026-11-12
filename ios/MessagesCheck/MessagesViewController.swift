@@ -390,8 +390,10 @@ final class MessagesViewController: MSMessagesAppViewController {
     let top = UIStackView(arrangedSubviews: [pill("Looks okay", bg: UIColor.black.withAlphaComponent(0.16), fg: .white)]); top.alignment = .leading
     col.addArrangedSubview(top); col.setCustomSpacing(14, after: top)
     col.addArrangedSubview(label("Looks okay.", 34, .heavy, .white, ls: -1))
-    col.setCustomSpacing(10, after: col.arrangedSubviews.last!)
-    col.addArrangedSubview(label("Nothing here matches a scam we know. It doesn’t ask for money, a code or a link.", 17, .medium, .white, lines: 3))
+    if let r = verdict?.reason, !r.isEmpty {
+      col.setCustomSpacing(10, after: col.arrangedSubviews.last!)
+      col.addArrangedSubview(label(r, 17, .medium, .white, lines: 3))
+    }
     col.addArrangedSubview(spacer())
     let second = who != nil ? button("Ask " + who! + " anyway", bg: UIColor.white.withAlphaComponent(0.2), fg: .white, action: #selector(askTapped)) : button("See it in Loop Me", bg: UIColor.white.withAlphaComponent(0.2), fg: .white, action: #selector(openApp))
     col.addArrangedSubview(rowOf([button("Done", bg: .white, fg: greenDeep, action: #selector(reset)), second]))

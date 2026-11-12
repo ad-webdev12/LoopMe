@@ -22,10 +22,6 @@ export default function DrawerInfoScreen({ ctx }: { ctx: Ctx }) {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 }}>
             <Image source={APP_ICON} style={{ width: 24, height: 24, borderRadius: 6 }} />
             <Text style={[font(15, '600'), { color: '#3c3c43' }]} allowFontScaling>Loop Me</Text>
-            <View style={{ marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-              <Lock size={13} color="#000" strokeWidth={2} />
-              <Text style={[font(13.5, '500'), { color: '#000' }]} allowFontScaling>Stays on this phone</Text>
-            </View>
           </View>
           <Text style={[font(26, '800', 1.1, -0.5), { color: '#000', marginTop: 12 }]} allowFontScaling>Not sure about a message?{'\n'}Copy it, then tap Paste.</Text>
           <View style={{ flexDirection: 'row', gap: 6, marginTop: 16 }}>

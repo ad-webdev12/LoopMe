@@ -88,10 +88,6 @@ export default function CheckingScreen({ ctx }: { ctx: Ctx }) {
         ))}
       </View>
 
-      <View style={{ marginTop: 'auto', paddingBottom: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-        <Lock size={16} color={C.ink2} strokeWidth={2} />
-        <Text style={[font(15, '500'), { color: C.ink2 }]} allowFontScaling>Checked on this phone. Nothing is sent.</Text>
-      </View>
     </Screen>
   );
 }

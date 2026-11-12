@@ -72,10 +72,8 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
             <Text style={[font(16, '400', 1.45), { color: '#fff', marginTop: 4 }]} allowFontScaling>{v?.safeStep || 'Call the number on the back of your card. If it’s really them, they’ll tell you there.'}</Text>
           </>
         )}
-        {level === 'green' && (
-          <Text style={[font(16, '400', 1.45), { color: '#fff', marginTop: 18 }]} allowFontScaling>
-            It doesn’t ask for money, a code or a link.{who ? ' If it still feels off, ask ' + who + '.' : ''}
-          </Text>
+        {level === 'green' && !!v?.reason && (
+          <Text style={[font(16, '400', 1.45), { color: '#fff', marginTop: 18 }]} allowFontScaling>{v.reason}</Text>
         )}
 
         <View style={{ marginTop: 'auto', paddingTop: 24, gap: 10 }}>

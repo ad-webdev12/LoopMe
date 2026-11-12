@@ -120,7 +120,7 @@ export const T = {
 export const LEVEL_META = {
   red: { bg: '#ec3013', soft: '#fdeeea', color: '#8c1f0c', Icon: OctagonX, word: 'Stop', sub: 'This looks like a scam.' },
   amber: { bg: '#b8781a', soft: '#fbf0dd', color: '#7a4e0d', Icon: TriangleAlert, word: 'Be careful', sub: 'Something about this is not right.' },
-  green: { bg: '#0d6b57', soft: '#eef4f1', color: '#0d4a3b', Icon: CircleCheck, word: 'Looks okay', sub: 'Nothing here matches a scam we know.' },
+  green: { bg: '#0d6b57', soft: '#eef4f1', color: '#0d4a3b', Icon: CircleCheck, word: 'Looks okay', sub: '' },
 } as const;
 
 /** Motion, exact per the handoff. */

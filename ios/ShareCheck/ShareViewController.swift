@@ -141,7 +141,7 @@ final class ShareViewController: UIViewController {
       switch v.level {
       case .red: return ("Stop", "This looks like a scam.", C.redTint, C.redInk, C.red)
       case .amber: return ("Be careful", "Something about this is not right.", C.amberTint, C.amberInk, C.amber)
-      case .green: return ("Looks okay", "Nothing here matches a scam we know. That is not a promise.", C.greenTint, C.greenInk, C.green)
+      case .green: return ("Looks okay", "", C.greenTint, C.greenInk, C.green)
       }
     }()
 

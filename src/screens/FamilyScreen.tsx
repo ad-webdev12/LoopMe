@@ -87,7 +87,6 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
             <Text style={[font(17, '600'), { color: T.green }]} allowFontScaling>Add someone to your loop</Text>
           </Pressable>
         </View>
-        <Note C={C}>Photos and numbers come from your Contacts.{others[0] ? ' ' + firstName(others[0].name) + ' doesn’t need Loop Me for you to call ' + (others[0].relation === 'Daughter' ? 'her' : others[0].relation === 'Son' ? 'him' : 'them') + '.' : ''}</Note>
 
         <View style={[st.list, { backgroundColor: C.card, marginTop: 18, paddingVertical: 0 }]}>
           <Pressable onPress={() => ctx.go('maria')} style={({ pressed }) => [st.linkRow, { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep }, pressed && { opacity: 0.6 }]} accessibilityRole="button">
