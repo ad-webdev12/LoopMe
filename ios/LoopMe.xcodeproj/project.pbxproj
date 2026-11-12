@@ -85,6 +85,7 @@
 		DE0B95E66911A4CE77CDB728 /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FABF292FF3560D3714FFB3 /* MessagesViewController.swift */; };
 		E15ACF1CF3D5C03CC2D21A46 /* Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8EDDE520E38DDFCAF7795B /* Features.swift */; };
 		E24B5E34C2766B616553884D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3880F1449DE7286E50DBC971 /* Foundation.framework */; };
+		E7F3F04BAA2D86260740787B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 98258F38DBFCE92106CC73A9 /* Assets.xcassets */; };
 		E8D4CDAF16449FE4C232C498 /* CheckIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B8301F0B448431EB1AFB68 /* CheckIntent.swift */; };
 		EC6D56B1A3CF7D110D406197 /* EngineTables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00E8730011997697DCFBAF71 /* EngineTables.swift */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
@@ -224,6 +225,7 @@
 		8F8510B5AC47DFE60E38D3E8 /* Pods-LoopMe.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LoopMe.release.xcconfig"; path = "Target Support Files/Pods-LoopMe/Pods-LoopMe.release.xcconfig"; sourceTree = "<group>"; };
 		9190332B13D0484345A5F164 /* loopme-icon.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; path = "loopme-icon.png"; sourceTree = "<group>"; };
 		945077E77B5E2962B39434D8 /* Normalize.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Normalize.swift; sourceTree = "<group>"; };
+		98258F38DBFCE92106CC73A9 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9A54E6BC69289D3C1B1B113B /* LoopMeWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoopMeWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A4D265154FE44392D71A81F4 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Vision.framework; sourceTree = DEVELOPER_DIR; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = LoopMe/SplashScreen.storyboard; sourceTree = "<group>"; };
@@ -514,6 +516,7 @@
 			isa = PBXGroup;
 			children = (
 				B7F121CD2BAC36E5DF5B7C1D /* LoopMeWatchApp.swift */,
+				98258F38DBFCE92106CC73A9 /* Assets.xcassets */,
 			);
 			path = LoopMeWatch;
 			sourceTree = "<group>";
@@ -755,6 +758,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B27B01E5DDF5C34B982E4157 /* PrivacyInfo.xcprivacy in Resources */,
+				E7F3F04BAA2D86260740787B /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

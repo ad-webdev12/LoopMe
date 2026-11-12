@@ -222,5 +222,20 @@ if app_group && File.exist?(intent_path) && !app.source_build_phase.files_refere
   puts 'LoopMe: + CheckIntent.swift (AppIntents, weak)'
 end
 
+
+# Watch app icon catalog (App Store upload refuses a watch app with no icon).
+if (watch = project.targets.find { |t| t.name == 'LoopMeWatch' })
+  wgroup = project.main_group['LoopMeWatch'] || project.main_group.new_group('LoopMeWatch', 'LoopMeWatch')
+  unless wgroup.files.any? { |r| r.path && r.path.end_with?('Assets.xcassets') }
+    ref = wgroup.new_file(File.join(ROOT, 'ios', 'LoopMeWatch', 'Assets.xcassets'))
+    watch.add_resources([ref])
+    puts 'LoopMeWatch: Assets.xcassets added'
+  end
+  watch.build_configurations.each do |cfg|
+    cfg.build_settings['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon'
+    cfg.build_settings['ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME'] = 'AccentColor'
+  end
+end
+
 project.save
 puts 'saved'
