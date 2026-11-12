@@ -9,6 +9,7 @@ import { Alert, AppState, Linking as RNLinking, LogBox, SafeAreaView, StatusBar,
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
 import * as Clipboard from 'expo-clipboard';
+import { endCallActivity, watchPush } from '../modules/scam-ai';
 import * as Haptics from 'expo-haptics';
 import { useFonts } from 'expo-font';
 import { Archivo_400Regular } from '@expo-google-fonts/archivo/400Regular';
@@ -44,6 +45,7 @@ import WardItemScreen from './screens/WardItemScreen';
 import MoreScreen from './screens/MoreScreen';
 import FamilyAlertScreen from './screens/FamilyAlertScreen';
 import NoteScreen from './screens/NoteScreen';
+import ListenScreen from './screens/ListenScreen';
 import SwitchesScreen from './screens/SwitchesScreen';
 
 export type ScreenId =
@@ -51,7 +53,7 @@ export type ScreenId =
   | 'watch' | 'watchWait' | 'watchedBy'
   | 'home' | 'verdict' | 'alert'
   | 'history' | 'people' | 'panic' | 'settings' | 'learn' | 'care' | 'more'
-  | 'call' | 'ward' | 'wardItem' | 'familyAlert' | 'note' | 'switches';
+  | 'call' | 'ward' | 'wardItem' | 'familyAlert' | 'note' | 'switches' | 'listen';
 
 export interface Ctx {
   settings: Settings;
@@ -297,7 +299,7 @@ export default function App() {
   // Coming back to the foreground: pull what arrived while we were away.
   useEffect(() => {
     const sub = AppState.addEventListener('change', (st) => {
-      if (st === 'active') { void refreshFamily(); setTallies(sharedTallies()); }
+      if (st === 'active') { void refreshFamily(); setTallies(sharedTallies()); endCallActivity(); }
     });
     return () => sub.remove();
   }, [refreshFamily]);
@@ -510,15 +512,23 @@ export default function App() {
     return () => sub.remove();
   }, [handleUrl, settings != null]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // The watch shows the caretaker the last few alerts and a Call button.
+  useEffect(() => {
+    if (!settings || settings.role !== 'caretaker') return;
+    const alerts = hist.filter(h => h.source === 'family' && h.level !== 'green').slice(0, 5)
+      .map(h => ({ id: h.id, level: h.level, excerpt: h.excerpt, at: h.at, reason: h.reason }));
+    watchPush({ name: settings.watching?.name?.split(' ')[0] || '', phone: settings.watching?.phone || '', linked: settings.familyLinked, alerts });
+  }, [hist, settings?.role, settings?.watching?.name, settings?.watching?.phone, settings?.familyLinked]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (!settings || !fontsLoaded) return <View style={st.root} />;
 
   const careMode = settings.role === 'caretaker';
   const watchName = settings.watching?.name?.split(' ')[0] || settings.careName.split(' ')[0] || 'Family';
   const alertRec = alertId ? hist.find(r => r.id === alertId) : undefined;
-  const darkBar = screen === 'alert' || screen === 'call' || screen === 'familyAlert' || screen === 'note';
+  const darkBar = screen === 'alert' || screen === 'call' || screen === 'familyAlert' || screen === 'note' || screen === 'listen';
   const barColor = screen === 'alert' ? T.red
     : screen === 'familyAlert' ? (alertRec?.level === 'amber' ? T.amber : T.red)
-    : screen === 'note' ? T.green
+    : screen === 'note' || screen === 'listen' ? T.green
     : T.callDark;
 
   const ctx: Ctx = {
@@ -549,6 +559,7 @@ export default function App() {
         {screen === 'ob3' && <Ob3 ctx={ctx} />}
         {screen === 'ob4' && <Ob4 ctx={ctx} />}
         {screen === 'watch' && <WatchSetup ctx={ctx} />}
+        {screen === 'listen' && <ListenScreen ctx={ctx} />}
         {screen === 'watchWait' && <WatchWait ctx={ctx} />}
         {screen === 'watchedBy' && <WatchedBy ctx={ctx} />}
         {screen === 'home' && <HomeScreen ctx={ctx} />}

@@ -1,6 +1,7 @@
 import WidgetKit
 import SwiftUI
 import AppIntents
+import ActivityKit
 
 // One tap from the Home Screen, the Lock Screen or Control Center: open Loop
 // Me on whatever was last copied. The widget itself reads nothing; the app
@@ -87,10 +88,45 @@ struct CheckControl: ControlWidget {
   }
 }
 
+// On the caretaker's lock screen and in the Dynamic Island while they are on
+// the phone with the person they look after: the text, so both can read it.
+@available(iOS 16.2, *)
+struct CallTogetherActivity: Widget {
+  var body: some WidgetConfiguration {
+    ActivityConfiguration(for: CallActivityAttributes.self) { ctx in
+      let red = ctx.state.level == "red"
+      VStack(alignment: .leading, spacing: 6) {
+        Text(red ? "SCAM ON \(ctx.attributes.personName.uppercased())’S PHONE" : "WORTH A LOOK").font(.caption).bold().foregroundColor(.white.opacity(0.85))
+        Text("“\(ctx.state.excerpt)”").font(.system(size: 15, weight: .medium)).foregroundColor(.white).lineLimit(4)
+        Text(ctx.state.advice).font(.caption).foregroundColor(.white.opacity(0.9)).lineLimit(2)
+      }
+      .padding(14)
+      .activityBackgroundTint(red ? Color(red: 0.925, green: 0.188, blue: 0.075) : Color(red: 0.722, green: 0.471, blue: 0.102))
+    } dynamicIsland: { ctx in
+      DynamicIsland {
+        DynamicIslandExpandedRegion(.bottom) {
+          VStack(alignment: .leading, spacing: 4) {
+            Text(ctx.attributes.personName + "’s phone").font(.caption).bold()
+            Text("“\(ctx.state.excerpt)”").font(.footnote).lineLimit(3)
+            Text(ctx.state.advice).font(.caption2).foregroundColor(.secondary).lineLimit(2)
+          }
+        }
+      } compactLeading: {
+        Image(systemName: "exclamationmark.shield.fill").foregroundColor(ctx.state.level == "red" ? .red : .orange)
+      } compactTrailing: {
+        Text(ctx.attributes.personName).font(.caption2).lineLimit(1)
+      } minimal: {
+        Image(systemName: "exclamationmark.shield.fill").foregroundColor(ctx.state.level == "red" ? .red : .orange)
+      }
+    }
+  }
+}
+
 @main
 struct CheckWidgetBundle: WidgetBundle {
   var body: some Widget {
     CheckWidget()
+    if #available(iOS 16.2, *) { CallTogetherActivity() }
     if #available(iOS 18.0, *) { CheckControl() }
   }
 }

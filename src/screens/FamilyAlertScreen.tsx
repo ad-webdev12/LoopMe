@@ -8,6 +8,7 @@ import { T, F } from '../theme';
 import { KFFade, KFRise } from '../ui/kf';
 import { timeLabel } from '../lib/clock';
 import { quickNote } from '../lib/family';
+import { startCallActivity } from '../../modules/scam-ai';
 import type { Ctx } from '../App';
 
 export default function FamilyAlertScreen({ ctx }: { ctx: Ctx }) {
@@ -26,7 +27,12 @@ export default function FamilyAlertScreen({ ctx }: { ctx: Ctx }) {
 
   const reply = async (verdict: 'scam' | 'safe' | 'call') => {
     await ctx.sendNoteTo(rec.id, quickNote(verdict), verdict);
-    if (verdict === 'call' && phone) Linking.openURL('tel:' + phone.replace(/[^\d+]/g, '')).catch(() => {});
+    if (verdict === 'call' && phone) {
+      // The text stays on the lock screen and in the Dynamic Island for the
+      // length of the call, so both of them can read it together.
+      startCallActivity(name, rec.excerpt, red ? 'red' : 'amber', red ? 'Tell them: do not reply, do not tap, delete it.' : 'Read it together. If they were asked for money or a code, it is a scam.');
+      Linking.openURL('tel:' + phone.replace(/[^\d+]/g, '')).catch(() => {});
+    }
     ctx.closeFamilyAlert();
   };
 
@@ -51,7 +57,7 @@ export default function FamilyAlertScreen({ ctx }: { ctx: Ctx }) {
           <Text style={st.secondaryText} allowFontScaling>That one is fine</Text>
         </Pressable>
         <View style={st.links}>
-          <Pressable onPress={() => reply('call')} accessibilityRole="button"><Text style={st.link} allowFontScaling>{phone ? 'Call ' + name : 'Say you will call'}</Text></Pressable>
+          <Pressable onPress={() => reply('call')} accessibilityRole="button"><Text style={st.link} allowFontScaling>{phone ? 'Call ' + name + ', read it together' : 'Say you will call'}</Text></Pressable>
           <Text style={st.linkDot}>·</Text>
           <Pressable onPress={() => ctx.openWard(rec.id)} accessibilityRole="button"><Text style={st.link} allowFontScaling>Write a note</Text></Pressable>
           <Text style={st.linkDot}>·</Text>

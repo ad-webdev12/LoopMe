@@ -1,0 +1,7 @@
+{
+  "tokens": ["TG9vcE1lLXB1YmxpYw=="],
+  "usecases": [
+    { "fileStem": "block", "shardCount": 1, "name": "com.loopmescamsafety.app.callerid.block" },
+    { "fileStem": "identity", "shardCount": 1, "name": "com.loopmescamsafety.app.callerid.identity" }
+  ]
+}

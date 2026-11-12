@@ -150,6 +150,49 @@ the link without opening the app (their phone lights up within seconds),
 time it opens, "Show me more" lands on the full verdict. Nothing is sent to
 the chat.
 
+**Listen mode (2 minutes)**
+
+Home › Listen to a call or a voicemail › Start listening. Allow microphone and
+speech. Play a voicemail on another phone next to it, or read a scam text out
+loud in a different voice: "Your account is locked, read me the code we sent
+you." The words appear as you speak; that sentence turns red and the top of
+the screen says "This is a scam. Hang up." with a haptic. "Save it and tell
+<name>" runs it as a normal check. Stop listening ends the microphone at once.
+
+**Screenshot watcher (1 minute)**
+
+Use "From a screenshot" once so photo access is granted. Then screenshot any
+scam text in Messages and open Loop Me: a row "Check the screenshot you just
+took" sits above the box. Tap it: the words are read on the phone and checked.
+"Not now" hides it for that screenshot only.
+
+**Who is calling (iOS 18, needs the lookup service)**
+
+Run `server/callerid/run.sh` on a Mac on the same Wi-Fi, point the URLs in
+`ios/CallerID/CallerID.swift` at `http://<mac>.local:8080`, rebuild. Home ›
+status line › the third block "Who is calling" › Open Settings › switch Loop Me
+on under Call Identification. Ring the phone from a number in `input.txtpb`:
+the label "Reported scam caller · N reports" shows before it rings.
+
+**Call and read together (two phones, 1 minute)**
+
+Phone A checks a scam text. Phone B's alert: tap "Call Margaret, read it
+together". The call starts and the text stays on B's lock screen and in the
+Dynamic Island for the whole call. Both read it. Returning to Loop Me ends it.
+
+**Apple Watch (caretaker, 1 minute)**
+
+With the watch paired to phone B and Loop Me installed on it (Watch app ›
+Loop Me), a red check on phone A taps the wrist and the alert mirrors there
+with the three reply buttons. Open Loop Me on the watch: the last alerts and
+"Call Margaret".
+
+**Invite without a text (two phones in one room)**
+
+Phone A: People › Nobody yet › "Show a code to scan". Phone B: open the Camera,
+point it at phone A, tap the link. Or "AirDrop it" and accept on B. Either way
+B lands on "You are looking after Margaret" with no text message sent.
+
 **Widget, Lock Screen and Control Center (1 minute)**
 
 Hold the Home Screen, +, search Loop Me, add "Check what I copied". Copy a

@@ -81,6 +81,24 @@ exactly as the app would.
 The widget, the Control Center button and the Action button open Loop Me on
 whatever you last copied. They read nothing themselves.
 
+Listen mode turns speech into words on the phone and checks them there. It
+never records, and nothing it hears leaves the phone. It stops the moment you
+tap Stop or leave the screen.
+
+The screenshot watcher looks only for screenshots you have already allowed
+Loop Me to see, only when the app is open, and only to offer a check. The
+image is read on the phone and discarded.
+
+Who is calling (iOS 18) looks up unknown callers against the Loop Me lookup
+service using Apple's Live Caller ID Lookup. The lookup is encrypted so that
+the service cannot learn which number was asked about, and Apple routes the
+request so the service cannot see your IP address either. The service holds
+only numbers reported for unwanted calls in public datasets and numbers Loop
+Me users chose to share after blocking them. It never learns who called you.
+
+The Apple Watch app shows alerts the iPhone already has. Nothing is checked on
+the watch and nothing leaves it.
+
 The invite is the only text message Loop Me ever prepares. Everything else
 between the two phones travels over the family link and appears in the app
 and in notifications.

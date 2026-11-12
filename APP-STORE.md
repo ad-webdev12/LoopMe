@@ -74,6 +74,8 @@ The family link is new. Link one person you trust and a scam text on your phone 
 
 Loop Me now works while it is closed: a text filter for numbers you do not know (Settings › Messages › Unknown & Junk), a call directory that labels scam callers (Settings › Phone › Call Blocking), and a share sheet that checks anything from any app.
 
+Who is calling: on iOS 18, every unknown call is looked up as it rings, privately (the number never leaves the phone), and a reported scam caller is named before you answer. Listen mode: hold the phone near a landline, a speakerphone or a voicemail and watch the words turn red as a con unfolds. Took a screenshot of a text? Loop Me offers to check it, no copying. If you look after someone: call them from the alert and the text stays on your lock screen while you read it together, and the same alert reaches your Apple Watch with one button to ring them. The invite can now be a code the other phone's camera scans, or AirDrop.
+
 Loop Me inside Messages: copy a text, tap Loop Me in the + list, tap Paste. The answer appears right there, and so do the buttons that matter: tell the person who looks out for you, hear it read aloud, say it was wrong. A Home Screen and Lock Screen widget, a Control Center button and the Action button open Loop Me on whatever you last copied.
 
 A new on-device model reads the message the way a person would, so cons that avoid the usual words still get caught. In our tests it catches 98 in 100 scam texts with fewer than 2 in 100 false alarms, entirely on the phone, in English plus the common cons in Spanish, French, Portuguese, German, Italian, Dutch, Hindi, Indonesian and Tagalog.
@@ -149,7 +151,9 @@ signing adds them when you archive, but check the developer portal if signing co
 - Push Notifications (silent pushes carry the CloudKit changes)
 - Background Modes: Remote notifications, Background fetch (`BGTaskSchedulerPermittedIdentifiers` = `com.loopmescamsafety.app.refresh`)
 - iMessage app (MessagesCheck, bundle `.messages`): reads only what the person pastes with Apple's paste button, shows the verdict in the Messages drawer, and writes a "Tell" straight to the CloudKit zone (it carries the iCloud capability too)
-- Widget extension (CheckWidget, bundle `.widget`): Home Screen, Lock Screen and Control Center (iOS 18) buttons that open the app on the clipboard
+- Widget extension (CheckWidget, bundle `.widget`): Home Screen, Lock Screen and Control Center (iOS 18) buttons that open the app on the clipboard, plus the Live Activity shown during "call and read together" (`NSSupportsLiveActivities` in the app's Info.plist)
+- Live Caller ID Lookup extension (CallerID, bundle `.callerid`, ExtensionKit, iOS 18): talks only to the Loop Me lookup service in `server/callerid` over Private Information Retrieval. Needs the service running on `lookup.loopmescamsafety.app` / `issuer.loopmescamsafety.app`, the DNS TXT record and Apple's onboarding form (Identity & Trust in the CloudKit console) before App Store users can switch it on; Xcode installs work without onboarding
+- Apple Watch app (LoopMeWatch, bundle `.watchkitapp`, watchOS 10): the caretaker's last alerts and a Call button, fed by WatchConnectivity; no checking happens on the watch
 - Siri / Shortcuts App Intent "Check what I copied" (iOS 16+, registers on its own)
 - App Groups: `group.com.loopmescamsafety.app` (shared by the app and the five extensions)
 - Time Sensitive Notifications
@@ -199,7 +203,7 @@ caretaker's side. Everything else works on a single device.
 
 1. **App Store Connect** → **Apps** → **+** → **New App**. Platform iOS, name "Loop Me", primary language English (U.S.), bundle ID `com.loopmescamsafety.app`, SKU `loopme-1`.
 2. Fill the fields above (description, keywords, subtitle, promo text, category, URLs, App Privacy = No data collected).
-3. In **Xcode**: open `ios/LoopMe.xcworkspace`, select **Any iOS Device (arm64)**, set the **Signing Team** on the LoopMe target **and on the five extension targets** (TextFilter, CallDirectory, ShareCheck, MessagesCheck, CheckWidget) to your account, Automatically manage signing. The version is already 1.0.1, build 7.
+3. In **Xcode**: open `ios/LoopMe.xcworkspace`, select **Any iOS Device (arm64)**, set the **Signing Team** on the LoopMe target **and on the seven other targets** (TextFilter, CallDirectory, ShareCheck, MessagesCheck, CheckWidget, CallerID, LoopMeWatch) to your account, Automatically manage signing. The version is already 1.0.1, build 7.
 4. **Product → Archive** → when it finishes, **Distribute App → App Store Connect → Upload**.
 5. Back in App Store Connect, the build appears under the version in ~15 min. Attach it, add screenshots, then **Add for Review → Submit**.
 6. Review is typically 24–48h. You'll get email at each step.

@@ -6,7 +6,7 @@ import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-na
 import { ChevronLeft, ChevronRight, Check, MessageSquare, Phone } from 'lucide-react-native';
 import { T, F } from '../theme';
 import { KFIn } from '../ui/kf';
-import { callDirectoryStatus } from '../../modules/scam-ai';
+import { callDirectoryStatus, callerIdStatus, callerIdOpenSettings, CallerIdStatus } from '../../modules/scam-ai';
 import type { Ctx } from '../App';
 
 function Path({ steps }: { steps: string[] }) {
@@ -24,7 +24,9 @@ function Path({ steps }: { steps: string[] }) {
 
 export default function SwitchesScreen({ ctx }: { ctx: Ctx }) {
   const [calls, setCalls] = useState<'enabled' | 'disabled' | 'unknown'>('unknown');
-  useEffect(() => { callDirectoryStatus().then(setCalls).catch(() => {}); }, []);
+  const [lookup, setLookup] = useState<CallerIdStatus>('unavailable');
+  useEffect(() => { callDirectoryStatus().then(setCalls).catch(() => {}); callerIdStatus().then(setLookup).catch(() => {}); }, []);
+  const lookupOn = lookup === 'enabled';
   const filterOn = Date.now() - (ctx.tallies.lastFilteredAt || 0) < 7 * 86400000;
   const callsOn = calls === 'enabled';
   const open = () => Linking.openSettings();
@@ -40,8 +42,8 @@ export default function SwitchesScreen({ ctx }: { ctx: Ctx }) {
         </Pressable>
       </View>
       <View style={{ paddingHorizontal: 24, paddingBottom: 6 }}>
-        <Text style={st.title} allowFontScaling>Two switches</Text>
-        <Text style={st.sub} allowFontScaling>Both live in the iPhone Settings app. One minute, once. The button opens Settings. Tap Back once to reach Apps.</Text>
+        <Text style={st.title} allowFontScaling>{lookup === 'unavailable' ? 'Two switches' : 'Three switches'}</Text>
+        <Text style={st.sub} allowFontScaling>They live in the iPhone Settings app. One minute, once. The button opens Settings. Tap Back once to reach Apps.</Text>
       </View>
 
       <View style={st.block}>
@@ -74,6 +76,22 @@ export default function SwitchesScreen({ ctx }: { ctx: Ctx }) {
           <ChevronRight size={18} color="#fff" strokeWidth={2.4} />
         </Pressable>
       </View>
+      {lookup !== 'unavailable' && (
+        <View style={st.block}>
+          <View style={st.head}>
+            <View style={[st.icon, { backgroundColor: lookupOn ? T.green : T.amber }]}>{lookupOn ? <Check size={18} color="#fff" strokeWidth={3} /> : <Phone size={18} color="#fff" strokeWidth={2.2} />}</View>
+            <View style={{ flex: 1 }}>
+              <Text style={st.headTitle} allowFontScaling>Who is calling</Text>
+              <Text style={st.headState} allowFontScaling>{lookupOn ? 'On. Reported scam numbers are named before the phone rings.' : 'Off. Every unknown call is looked up as it rings, without the number leaving the phone.'}</Text>
+            </View>
+          </View>
+          <Path steps={['Tap the button below', 'Switch Loop Me on under Call Identification']} />
+          <Pressable style={st.cta} onPress={() => { callerIdOpenSettings().then(ok => { if (!ok) Linking.openSettings(); }); }} accessibilityRole="button">
+            <Text style={st.ctaText} allowFontScaling>Open Settings</Text>
+            <ChevronRight size={18} color="#fff" strokeWidth={2.4} />
+          </Pressable>
+        </View>
+      )}
       <View style={{ height: 110 }} />
     </ScrollView>
     </KFIn>

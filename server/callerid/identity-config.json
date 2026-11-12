@@ -1,0 +1,9 @@
+{
+  "inputDatabase": "identity.binpb",
+  "outputDatabase": "identity-SHARD_ID.bin",
+  "outputPirParameters": "identity-SHARD_ID.params.txtpb",
+  "rlweParameters": "n_4096_logq_27_28_28_logt_5",
+  "sharding": { "entryCountPerShard": 5000 },
+  "trialsPerShard": 5,
+  "databaseType": "keyword"
+}

@@ -113,6 +113,96 @@ if (mc = project.targets.find { |t| t.name == 'MessagesCheck' })
   end
 end
 
+# The Live Activity attributes are one file compiled into the app (via the
+# ScamAi pod) and into the widget extension.
+if (wt = project.targets.find { |t| t.name == 'CheckWidget' })
+  attrs_path = File.join(ROOT, 'modules', 'scam-ai', 'ios', 'CallActivityAttributes.swift')
+  unless wt.source_build_phase.files_references.any? { |r| r.path && r.path.end_with?('CallActivityAttributes.swift') }
+    ref = shared_group.files.find { |r| r.path && r.path.end_with?('CallActivityAttributes.swift') } || shared_group.new_file(attrs_path)
+    wt.source_build_phase.add_file_reference(ref, true)
+    puts 'CheckWidget: + CallActivityAttributes.swift'
+  end
+end
+
+# Live Caller ID Lookup (iOS 18) is an ExtensionKit extension: a different
+# product type, embedded under Extensions/ rather than PlugIns/.
+unless project.targets.any? { |t| t.name == 'CallerID' }
+  target = project.new_target(:app_extension, 'CallerID', :ios, '18.0')
+  target.product_type = 'com.apple.product-type.extensionkit-extension'
+  target.product_reference.explicit_file_type = 'wrapper.extensionkit-extension'
+  group = group_for(project, 'CallerID', 'CallerID')
+  target.add_file_references(Dir[File.join(ROOT, 'ios', 'CallerID', '*.swift')].map { |f| group.new_file(f) })
+  target.add_system_framework('IdentityLookup')
+  target.build_configurations.each do |cfg|
+    s = cfg.build_settings
+    s['PRODUCT_BUNDLE_IDENTIFIER'] = 'com.loopmescamsafety.app.callerid'
+    s['INFOPLIST_FILE'] = 'CallerID/Info.plist'
+    s['CODE_SIGN_ENTITLEMENTS'] = 'CallerID/CallerID.entitlements'
+    s['CODE_SIGN_STYLE'] = 'Automatic'
+    s['DEVELOPMENT_TEAM'] = TEAM
+    s['SWIFT_VERSION'] = '5.0'
+    s['TARGETED_DEVICE_FAMILY'] = '1'
+    s['IPHONEOS_DEPLOYMENT_TARGET'] = '18.0'
+    s['MARKETING_VERSION'] = main_cfg['MARKETING_VERSION'] || '1.0'
+    s['CURRENT_PROJECT_VERSION'] = main_cfg['CURRENT_PROJECT_VERSION'] || '1'
+    s['SKIP_INSTALL'] = 'YES'
+    s['GENERATE_INFOPLIST_FILE'] = 'NO'
+    s['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
+    s['SWIFT_OPTIMIZATION_LEVEL'] = cfg.name == 'Debug' ? '-Onone' : '-O'
+    s['LD_RUNPATH_SEARCH_PATHS'] = ['$(inherited)', '@executable_path/Frameworks', '@executable_path/../../Frameworks']
+    s['PRODUCT_NAME'] = '$(TARGET_NAME)'
+  end
+  app.add_dependency(target)
+  embed_ext = app.copy_files_build_phases.find { |p| p.name == 'Embed ExtensionKit Extensions' }
+  unless embed_ext
+    embed_ext = app.new_copy_files_build_phase('Embed ExtensionKit Extensions')
+    embed_ext.dst_subfolder_spec = '16'
+    embed_ext.dst_path = '$(EXTENSIONS_FOLDER_PATH)'
+  end
+  f = embed_ext.add_file_reference(target.product_reference, true)
+  f.settings = { 'ATTRIBUTES' => ['RemoveHeadersOnCopy'] }
+  puts 'CallerID: added'
+end
+
+# Apple Watch app (watchOS 10, single target), embedded in the iPhone app.
+unless project.targets.any? { |t| t.name == 'LoopMeWatch' }
+  target = project.new_target(:application, 'LoopMeWatch', :watchos, '10.0')
+  group = group_for(project, 'LoopMeWatch', 'LoopMeWatch')
+  target.add_file_references(Dir[File.join(ROOT, 'ios', 'LoopMeWatch', '*.swift')].map { |f| group.new_file(f) })
+  target.build_configurations.each do |cfg|
+    s = cfg.build_settings
+    s['PRODUCT_BUNDLE_IDENTIFIER'] = 'com.loopmescamsafety.app.watchkitapp'
+    s['INFOPLIST_FILE'] = 'LoopMeWatch/Info.plist'
+    s['CODE_SIGN_STYLE'] = 'Automatic'
+    s['DEVELOPMENT_TEAM'] = TEAM
+    s['SWIFT_VERSION'] = '5.0'
+    s['SDKROOT'] = 'watchos'
+    s['TARGETED_DEVICE_FAMILY'] = '4'
+    s['WATCHOS_DEPLOYMENT_TARGET'] = '10.0'
+    s['MARKETING_VERSION'] = main_cfg['MARKETING_VERSION'] || '1.0'
+    s['CURRENT_PROJECT_VERSION'] = main_cfg['CURRENT_PROJECT_VERSION'] || '1'
+    s['SKIP_INSTALL'] = 'YES'
+    s['GENERATE_INFOPLIST_FILE'] = 'NO'
+    s['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
+    s['ENABLE_PREVIEWS'] = 'YES'
+    s['SWIFT_OPTIMIZATION_LEVEL'] = cfg.name == 'Debug' ? '-Onone' : '-O'
+    s['LD_RUNPATH_SEARCH_PATHS'] = ['$(inherited)', '@executable_path/Frameworks']
+    s['PRODUCT_NAME'] = '$(TARGET_NAME)'
+    s['ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME'] = 'AccentColor'
+    s.delete('IPHONEOS_DEPLOYMENT_TARGET')
+  end
+  app.add_dependency(target)
+  embed_watch = app.copy_files_build_phases.find { |p| p.name == 'Embed Watch Content' }
+  unless embed_watch
+    embed_watch = app.new_copy_files_build_phase('Embed Watch Content')
+    embed_watch.dst_subfolder_spec = '16'
+    embed_watch.dst_path = '$(CONTENTS_FOLDER_PATH)/Watch'
+  end
+  f = embed_watch.add_file_reference(target.product_reference, true)
+  f.settings = { 'ATTRIBUTES' => ['RemoveHeadersOnCopy'] }
+  puts 'LoopMeWatch: added'
+end
+
 # The Siri intent lives in the app target. AppIntents is iOS 16+, so it is
 # weak-linked and the code is @available-guarded.
 intent_path = File.join(ROOT, 'ios', 'LoopMe', 'CheckIntent.swift')

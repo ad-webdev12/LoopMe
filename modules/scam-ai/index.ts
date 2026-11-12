@@ -125,10 +125,21 @@ const native = requireOptionalNativeModule<{
   sharedPutConfig(allowlist: string[], blocked: string[], flagged: string[], autoCheck: boolean): void;
   sharedDrainLog(): FilterLogEntry[];
   sharedDrainCorrections(): { text: string; label: 'scam' | 'fine' }[];
+  startListening(): Promise<boolean>;
+  stopListeningLive(): void;
+  latestScreenshot(sinceMs: number): Promise<{ uri: string; at: number; id: string } | null>;
+  qrPng(text: string): string | null;
+  startCallActivity(name: string, excerpt: string, level: string, advice: string): boolean;
+  endCallActivity(): void;
+  callerIdStatus(): Promise<'enabled' | 'disabled' | 'unavailable'>;
+  callerIdOpenSettings(): Promise<boolean>;
+  callerIdRefresh(): Promise<void>;
+  watchPush(payload: Record<string, unknown>): void;
   sharedTallies(): { filtered: number; junk: number; shared: number };
   callDirectoryReload(): Promise<string>;
   callDirectoryStatus(): Promise<'enabled' | 'disabled' | 'unknown'>;
   addListener(event: 'cloudEvent', cb: (e: CloudEvent) => void): { remove: () => void };
+  addListener(event: 'speech', cb: (e: { text: string; final: boolean }) => void): { remove: () => void };
 }>('ScamAi');
 
 export const isNativeAiLinked = () => native != null;
@@ -287,3 +298,43 @@ export async function callDirectoryStatus(): Promise<'enabled' | 'disabled' | 'u
   if (!native) return 'unknown';
   try { return await native.callDirectoryStatus(); } catch { return 'unknown'; }
 }
+
+// ---- Listen mode, screenshots, QR, Live Activity, Caller ID, Watch --------
+
+/** Starts the running transcript. Pieces arrive through `addSpeechListener`. */
+export async function startListening(): Promise<boolean> {
+  if (!native) return false;
+  try { return await native.startListening(); } catch { return false; }
+}
+export function stopListeningLive(): void { try { native?.stopListeningLive(); } catch {} }
+export function addSpeechListener(fn: (e: { text: string; final: boolean }) => void): { remove: () => void } {
+  if (!native) return { remove: () => {} };
+  try { return native.addListener('speech', fn); } catch { return { remove: () => {} }; }
+}
+
+/** The newest screenshot taken after `sinceMs`, as a temp file, or null. */
+export async function latestScreenshot(sinceMs: number): Promise<{ uri: string; at: number; id: string } | null> {
+  if (!native) return null;
+  try { return await native.latestScreenshot(sinceMs); } catch { return null; }
+}
+
+export function qrPng(text: string): string | null {
+  try { return native?.qrPng(text) ?? null; } catch { return null; }
+}
+
+export function startCallActivity(name: string, excerpt: string, level: 'red' | 'amber', advice: string): boolean {
+  try { return !!native?.startCallActivity(name, excerpt, level, advice); } catch { return false; }
+}
+export function endCallActivity(): void { try { native?.endCallActivity(); } catch {} }
+
+export type CallerIdStatus = 'enabled' | 'disabled' | 'unavailable';
+export async function callerIdStatus(): Promise<CallerIdStatus> {
+  if (!native) return 'unavailable';
+  try { return await native.callerIdStatus(); } catch { return 'unavailable'; }
+}
+export async function callerIdOpenSettings(): Promise<boolean> {
+  if (!native) return false;
+  try { return await native.callerIdOpenSettings(); } catch { return false; }
+}
+
+export function watchPush(payload: Record<string, unknown>): void { try { native?.watchPush(payload); } catch {} }

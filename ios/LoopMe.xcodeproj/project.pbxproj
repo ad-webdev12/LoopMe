@@ -14,12 +14,14 @@
 		0DE448DA0B3785F8F4361284 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C26B90D014DFB78C17A71F2 /* AVFoundation.framework */; };
 		0DF3BF0A459511A45AFFFE40 /* EngineTables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00E8730011997697DCFBAF71 /* EngineTables.swift */; };
 		0FCD1BCEB49F519FED6A51CF /* SharedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843F3674735390B0569A8130 /* SharedStore.swift */; };
+		0FF62CAB2C51C70B55C154B2 /* LoopMeWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 9A54E6BC69289D3C1B1B113B /* LoopMeWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		109374FCF00289BE05F86117 /* CheckWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FCA30486BE39E181066EAE /* CheckWidget.swift */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		16CCB0C3F5596EAA97278DA3 /* EngineTables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00E8730011997697DCFBAF71 /* EngineTables.swift */; };
 		1D8C1B862CD935D42C1A6AFC /* Links.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B562C1AAA3540A9060ACC35 /* Links.swift */; };
 		20A70092BEE5A2CB175EB574 /* engine.json in Resources */ = {isa = PBXBuildFile; fileRef = 7425BA7C6F3DEEAC8357EDA8 /* engine.json */; };
 		2505D1E2294CEE7976317129 /* Links.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B562C1AAA3540A9060ACC35 /* Links.swift */; };
+		25B5D62982B9B56F82597E3A /* CallerID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597E9DA98ACB2784A3827D3D /* CallerID.swift */; };
 		25E9D7CA906BAB17D58754F4 /* Normalize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 945077E77B5E2962B39434D8 /* Normalize.swift */; };
 		2600A6CA86136FD65E544B61 /* CoreModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49312EEB42FDF8F28BCEFC21 /* CoreModel.swift */; };
 		29E7B71A48E1D4A7D310903A /* CheckWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 42115E1BD3B71773905047FB /* CheckWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -30,6 +32,7 @@
 		36F5DEEC29A2F0AF7DF541CB /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F6485172735D415D209CC3 /* ExpoModulesProvider.swift */; };
 		39B363F38E5085852ACA2610 /* Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8EDDE520E38DDFCAF7795B /* Features.swift */; };
 		39E63B7C4EA07B55DFE2807F /* Redact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E5E20DE30DBF5658A97F933 /* Redact.swift */; };
+		3D150DCC2C83672BAE9D7106 /* IdentityLookup.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F287993CA910A0BA96FC21A1 /* IdentityLookup.framework */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		45A288453C6A5FD53C3789F5 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5491F0CE324E1554B41E5EA2 /* CloudKit.framework */; };
 		4AEB60AE0802914E84CBD35B /* Redact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E5E20DE30DBF5658A97F933 /* Redact.swift */; };
@@ -37,9 +40,11 @@
 		4E9621969F662760A3C2C6E6 /* ScamFilter.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 2DD78DC50CE9ACB4842E9A7C /* ScamFilter.mlmodel */; };
 		52D5D4417BB83C41051B891C /* Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8EDDE520E38DDFCAF7795B /* Features.swift */; };
 		57EAA29A0BB8476182E5D7D8 /* Messages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF812AAE84E6F6EDE774E6BE /* Messages.framework */; };
+		5D0BB09EFB0555F927407C23 /* LoopMeWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7F121CD2BAC36E5DF5B7C1D /* LoopMeWatchApp.swift */; };
 		5FFE864ACB26EBC91345C2A0 /* engine.json in Resources */ = {isa = PBXBuildFile; fileRef = 7425BA7C6F3DEEAC8357EDA8 /* engine.json */; };
 		634D856FD92C4B8FEAC7440A /* ScamFilter.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 2DD78DC50CE9ACB4842E9A7C /* ScamFilter.mlmodel */; };
 		6515549980DA10932E89B689 /* CoreModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49312EEB42FDF8F28BCEFC21 /* CoreModel.swift */; };
+		6872FAB67A33002B57F6B0EA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 342A00FB96CE89695B5C68A2 /* Foundation.framework */; };
 		68C5DC205265B688AC9F0327 /* Links.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B562C1AAA3540A9060ACC35 /* Links.swift */; };
 		68FCBF5A8683A5CB84D0987F /* ScamFilter.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 2DD78DC50CE9ACB4842E9A7C /* ScamFilter.mlmodel */; };
 		6BC1FB859D2A450AD9DC73FF /* EngineTables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00E8730011997697DCFBAF71 /* EngineTables.swift */; };
@@ -47,7 +52,9 @@
 		6FC74F49356DA91A89988A43 /* Redact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E5E20DE30DBF5658A97F933 /* Redact.swift */; };
 		7085657BCFB49F21A935DFB5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3880F1449DE7286E50DBC971 /* Foundation.framework */; };
 		720E19F2E723D18CCEF60EEA /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389B4380A6D0BE5521D3E969 /* Engine.swift */; };
+		77405A4AD6D685573D327FCC /* CallActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 098B2FF7C61A85DA7F0C6E5D /* CallActivityAttributes.swift */; };
 		7DEE84D04979E71681823124 /* engine.json in Resources */ = {isa = PBXBuildFile; fileRef = 7425BA7C6F3DEEAC8357EDA8 /* engine.json */; };
+		867254FA458ECFD023329377 /* CallerID.appex in Embed ExtensionKit Extensions */ = {isa = PBXBuildFile; fileRef = 7372FE9448BD42F5FBA205D3 /* CallerID.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		876C68FB4DF275560B2D11B7 /* ScamText.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = B76AA3FEB71AB627E6DE44E9 /* ScamText.mlmodel */; };
 		8848BE495E18922275F1367D /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4D265154FE44392D71A81F4 /* Vision.framework */; };
 		89EC9347CA84CAF3D98D26E6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3880F1449DE7286E50DBC971 /* Foundation.framework */; };
@@ -63,6 +70,7 @@
 		A75276FC27EF97C9F46C58F6 /* engine.json in Resources */ = {isa = PBXBuildFile; fileRef = 7425BA7C6F3DEEAC8357EDA8 /* engine.json */; };
 		A8C82D08746870F55127BD84 /* TextFilter.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E225C34A5A7CA6D1A7AA0BC9 /* TextFilter.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B1403F4F326A4FA4ABC6703B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 644635D9F1E34418844BF8A0 /* PrivacyInfo.xcprivacy */; };
+		B27B01E5DDF5C34B982E4157 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 644635D9F1E34418844BF8A0 /* PrivacyInfo.xcprivacy */; };
 		B9B402692B25BC52AC5AD7CD /* IdentityLookup.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F287993CA910A0BA96FC21A1 /* IdentityLookup.framework */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		C2537CAFF147A3EE134E529A /* Redact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E5E20DE30DBF5658A97F933 /* Redact.swift */; };
@@ -83,6 +91,7 @@
 		F4B955399F287E5B817C14B5 /* Links.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B562C1AAA3540A9060ACC35 /* Links.swift */; };
 		F52EF9B463ADC459D3A020E3 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8ED0B366ABBFBCD7F6948A /* ShareViewController.swift */; };
 		F8A5A7ED0392327C43C63071 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3880F1449DE7286E50DBC971 /* Foundation.framework */; };
+		FADF3950677213B607F75B94 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3880F1449DE7286E50DBC971 /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +108,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = B50C64B2F752ABD9DE023B86;
 			remoteInfo = CallDirectory;
+		};
+		6811DFF26119EEE25333A83E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E5BA8D77ED4A7DC153F16EAE;
+			remoteInfo = CallerID;
+		};
+		83C0B2920222D43FC21C821C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 53752502D72784079126EB6C;
+			remoteInfo = LoopMeWatch;
 		};
 		A720EBDCA7EF46A766640408 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -124,6 +147,28 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		16473EAA05638D9535739695 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				0FF62CAB2C51C70B55C154B2 /* LoopMeWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		55A2C2B66F9CC4A81AF3AC70 /* Embed ExtensionKit Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(EXTENSIONS_FOLDER_PATH)";
+			dstSubfolderSpec = 16;
+			files = (
+				867254FA458ECFD023329377 /* CallerID.appex in Embed ExtensionKit Extensions */,
+			);
+			name = "Embed ExtensionKit Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BCF710CC44DBA604D78A406A /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -145,6 +190,7 @@
 		00E8730011997697DCFBAF71 /* EngineTables.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EngineTables.swift; sourceTree = "<group>"; };
 		05AF5A31EDD9D2A30BCC24EA /* CallDirectory.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CallDirectory.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		07FABF292FF3560D3714FFB3 /* MessagesViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MessagesViewController.swift; sourceTree = "<group>"; };
+		098B2FF7C61A85DA7F0C6E5D /* CallActivityAttributes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CallActivityAttributes.swift; path = "../../modules/scam-ai/ios/CallActivityAttributes.swift"; sourceTree = "<group>"; };
 		0C63369D9224D15C2D439A89 /* ExtensionCloud.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExtensionCloud.swift; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* LoopMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoopMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = LoopMe/Images.xcassets; sourceTree = "<group>"; };
@@ -152,6 +198,7 @@
 		25B6B2818200D3D2F554CF34 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = DEVELOPER_DIR; };
 		264F377F32143F7867000D84 /* MessagesCheck.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MessagesCheck.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		2DD78DC50CE9ACB4842E9A7C /* ScamFilter.mlmodel */ = {isa = PBXFileReference; includeInIndex = 1; path = ScamFilter.mlmodel; sourceTree = "<group>"; };
+		342A00FB96CE89695B5C68A2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		35F6485172735D415D209CC3 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-LoopMe/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		3880F1449DE7286E50DBC971 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		389B4380A6D0BE5521D3E969 /* Engine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Engine.swift; sourceTree = "<group>"; };
@@ -161,10 +208,12 @@
 		4B562C1AAA3540A9060ACC35 /* Links.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Links.swift; sourceTree = "<group>"; };
 		4D04B69602AE0096904881CE /* CallKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CallKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/CallKit.framework; sourceTree = DEVELOPER_DIR; };
 		5491F0CE324E1554B41E5EA2 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/CloudKit.framework; sourceTree = DEVELOPER_DIR; };
+		597E9DA98ACB2784A3827D3D /* CallerID.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CallerID.swift; sourceTree = "<group>"; };
 		5BC43A396AA9E9FBFDDF6130 /* AppIntents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/AppIntents.framework; sourceTree = DEVELOPER_DIR; };
 		644635D9F1E34418844BF8A0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = PrivacyInfo.xcprivacy; path = LoopMe/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		6C26B90D014DFB78C17A71F2 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/AVFoundation.framework; sourceTree = DEVELOPER_DIR; };
 		6EAB95A3D3A419B7BDF41BAF /* libPods-LoopMe.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-LoopMe.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7372FE9448BD42F5FBA205D3 /* CallerID.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.extensionkit-extension"; includeInIndex = 0; path = CallerID.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		7425BA7C6F3DEEAC8357EDA8 /* engine.json */ = {isa = PBXFileReference; includeInIndex = 1; path = engine.json; sourceTree = "<group>"; };
 		8053B7FC48E47DD52593E09F /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		843F3674735390B0569A8130 /* SharedStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SharedStore.swift; path = "../../modules/scam-ai/ios/SharedStore.swift"; sourceTree = "<group>"; };
@@ -173,11 +222,13 @@
 		8E5E20DE30DBF5658A97F933 /* Redact.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Redact.swift; sourceTree = "<group>"; };
 		8F8510B5AC47DFE60E38D3E8 /* Pods-LoopMe.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LoopMe.release.xcconfig"; path = "Target Support Files/Pods-LoopMe/Pods-LoopMe.release.xcconfig"; sourceTree = "<group>"; };
 		945077E77B5E2962B39434D8 /* Normalize.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Normalize.swift; sourceTree = "<group>"; };
+		9A54E6BC69289D3C1B1B113B /* LoopMeWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoopMeWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A4D265154FE44392D71A81F4 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Vision.framework; sourceTree = DEVELOPER_DIR; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = LoopMe/SplashScreen.storyboard; sourceTree = "<group>"; };
 		AF4EE409F876664A8A05F080 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/WidgetKit.framework; sourceTree = DEVELOPER_DIR; };
 		B76AA3FEB71AB627E6DE44E9 /* ScamText.mlmodel */ = {isa = PBXFileReference; includeInIndex = 1; path = ScamText.mlmodel; sourceTree = "<group>"; };
 		B797DD6CA6B87E34E708590B /* CallDirectoryHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CallDirectoryHandler.swift; sourceTree = "<group>"; };
+		B7F121CD2BAC36E5DF5B7C1D /* LoopMeWatchApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LoopMeWatchApp.swift; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		BC01462043E0C48AD8DB3922 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
 		BC8EDDE520E38DDFCAF7795B /* Features.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Features.swift; sourceTree = "<group>"; };
@@ -210,6 +261,14 @@
 			files = (
 				6C228B9E6006065741A1137A /* libPods-LoopMe.a in Frameworks */,
 				8A8D7101F7871A22A5B0FFF6 /* AppIntents.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		33B1F7D58362634D890EE9FE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6872FAB67A33002B57F6B0EA /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,6 +310,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D6524CEBE07A8F00EA1491CD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FADF3950677213B607F75B94 /* Foundation.framework in Frameworks */,
+				3D150DCC2C83672BAE9D7106 /* IdentityLookup.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -284,6 +352,7 @@
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				6EAB95A3D3A419B7BDF41BAF /* libPods-LoopMe.a */,
 				B5AF58857D4210C8B3C89E01 /* iOS */,
+				B613C84342B301E6E38C8179 /* watchOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -294,6 +363,7 @@
 				936F2C19A2584173DF06C700 /* Engine */,
 				843F3674735390B0569A8130 /* SharedStore.swift */,
 				0C63369D9224D15C2D439A89 /* ExtensionCloud.swift */,
+				098B2FF7C61A85DA7F0C6E5D /* CallActivityAttributes.swift */,
 			);
 			name = Shared;
 			path = Shared;
@@ -307,6 +377,15 @@
 			);
 			name = MessagesCheck;
 			path = MessagesCheck;
+			sourceTree = "<group>";
+		};
+		566830F4E33E53517B63BB37 /* CallerID */ = {
+			isa = PBXGroup;
+			children = (
+				597E9DA98ACB2784A3827D3D /* CallerID.swift */,
+			);
+			name = CallerID;
+			path = CallerID;
 			sourceTree = "<group>";
 		};
 		77C4068D250B0B03037E23AE /* scam-ai */ = {
@@ -341,6 +420,8 @@
 				77C4068D250B0B03037E23AE /* scam-ai */,
 				42A419BA525570D9F4644A76 /* MessagesCheck */,
 				04E67F1F8048E8185B59B1EF /* CheckWidget */,
+				566830F4E33E53517B63BB37 /* CallerID */,
+				BE16936B634B5D1CB73396FC /* LoopMeWatch */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -356,6 +437,8 @@
 				8464F0A783C38B6FF77038A0 /* ShareCheck.appex */,
 				264F377F32143F7867000D84 /* MessagesCheck.appex */,
 				42115E1BD3B71773905047FB /* CheckWidget.appex */,
+				7372FE9448BD42F5FBA205D3 /* CallerID.appex */,
+				9A54E6BC69289D3C1B1B113B /* LoopMeWatch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -413,6 +496,14 @@
 			name = iOS;
 			sourceTree = "<group>";
 		};
+		B613C84342B301E6E38C8179 /* watchOS */ = {
+			isa = PBXGroup;
+			children = (
+				342A00FB96CE89695B5C68A2 /* Foundation.framework */,
+			);
+			name = watchOS;
+			sourceTree = "<group>";
+		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
@@ -420,6 +511,15 @@
 			);
 			name = Supporting;
 			path = LoopMe/Supporting;
+			sourceTree = "<group>";
+		};
+		BE16936B634B5D1CB73396FC /* LoopMeWatch */ = {
+			isa = PBXGroup;
+			children = (
+				B7F121CD2BAC36E5DF5B7C1D /* LoopMeWatchApp.swift */,
+			);
+			name = LoopMeWatch;
+			path = LoopMeWatch;
 			sourceTree = "<group>";
 		};
 		CE31B51D8971EE578A98702D /* LoopMe */ = {
@@ -472,6 +572,8 @@
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
 				27D6DC3D8B24F1D0D6DA922D /* [CP] Embed Pods Frameworks */,
 				BCF710CC44DBA604D78A406A /* Embed Foundation Extensions */,
+				55A2C2B66F9CC4A81AF3AC70 /* Embed ExtensionKit Extensions */,
+				16473EAA05638D9535739695 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
@@ -481,10 +583,29 @@
 				FDED574555836B786213E0AE /* PBXTargetDependency */,
 				394E2119DDD872B1D1EE0D03 /* PBXTargetDependency */,
 				ECF59C003E5B3167BF83926C /* PBXTargetDependency */,
+				4308D55DA989A7F50021388C /* PBXTargetDependency */,
+				2478689E2E9E356371C81431 /* PBXTargetDependency */,
 			);
 			name = LoopMe;
 			productName = LoopMe;
 			productReference = 13B07F961A680F5B00A75B9A /* LoopMe.app */;
+			productType = "com.apple.product-type.application";
+		};
+		53752502D72784079126EB6C /* LoopMeWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A9CF36661C798A001697DEAC /* Build configuration list for PBXNativeTarget "LoopMeWatch" */;
+			buildPhases = (
+				495D0C6AFB53BE05DA2529F2 /* Sources */,
+				33B1F7D58362634D890EE9FE /* Frameworks */,
+				03FBC3B1B7BA52CB59207D02 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LoopMeWatch;
+			productName = LoopMeWatch;
+			productReference = 9A54E6BC69289D3C1B1B113B /* LoopMeWatch.app */;
 			productType = "com.apple.product-type.application";
 		};
 		589A28AF20BB8F697FC0B525 /* MessagesCheck */ = {
@@ -572,6 +693,23 @@
 			productReference = E225C34A5A7CA6D1A7AA0BC9 /* TextFilter.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		E5BA8D77ED4A7DC153F16EAE /* CallerID */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C98F3E2154371E22BA6CA7AC /* Build configuration list for PBXNativeTarget "CallerID" */;
+			buildPhases = (
+				5BE6A2F61FE35B3F853BC536 /* Sources */,
+				D6524CEBE07A8F00EA1491CD /* Frameworks */,
+				0B23CEE2E7B99377AA218096 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CallerID;
+			productName = CallerID;
+			productReference = 7372FE9448BD42F5FBA205D3 /* CallerID.appex */;
+			productType = "com.apple.product-type.extensionkit-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -604,12 +742,29 @@
 				5E5C6516D81C33AD41870453 /* ShareCheck */,
 				589A28AF20BB8F697FC0B525 /* MessagesCheck */,
 				6515195A89FF20083DFBCAEF /* CheckWidget */,
+				E5BA8D77ED4A7DC153F16EAE /* CallerID */,
+				53752502D72784079126EB6C /* LoopMeWatch */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		0384643E47BB21D1B3C918F4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		03FBC3B1B7BA52CB59207D02 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B27B01E5DDF5C34B982E4157 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0B23CEE2E7B99377AA218096 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -764,6 +919,7 @@
 				"${PODS_CONFIGURATION_BUILD_DIR}/RNSVG/RNSVGFilters.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/React-Core_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-cxxreact/React-cxxreact_privacy.bundle",
+				"${PODS_ROOT}/../../modules/scam-ai/ios/Resources/ScamFilter.mlmodel",
 				"${PODS_ROOT}/../../modules/scam-ai/ios/Resources/ScamText.mlmodel",
 			);
 			name = "[CP] Copy Pods Resources";
@@ -777,6 +933,7 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RNSVGFilters.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-Core_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-cxxreact_privacy.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ScamFilter.mlmodel",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ScamText.mlmodel",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -821,6 +978,23 @@
 			buildActionMask = 2147483647;
 			files = (
 				109374FCF00289BE05F86117 /* CheckWidget.swift in Sources */,
+				77405A4AD6D685573D327FCC /* CallActivityAttributes.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		495D0C6AFB53BE05DA2529F2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5D0BB09EFB0555F927407C23 /* LoopMeWatchApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5BE6A2F61FE35B3F853BC536 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				25B5D62982B9B56F82597E3A /* CallerID.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -878,6 +1052,12 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2478689E2E9E356371C81431 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = LoopMeWatch;
+			target = 53752502D72784079126EB6C /* LoopMeWatch */;
+			targetProxy = 83C0B2920222D43FC21C821C /* PBXContainerItemProxy */;
+		};
 		32187B01B149BAB3AD334B05 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = CallDirectory;
@@ -895,6 +1075,12 @@
 			name = MessagesCheck;
 			target = 589A28AF20BB8F697FC0B525 /* MessagesCheck */;
 			targetProxy = DB92061B760F7CED2E869571 /* PBXContainerItemProxy */;
+		};
+		4308D55DA989A7F50021388C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CallerID;
+			target = E5BA8D77ED4A7DC153F16EAE /* CallerID */;
+			targetProxy = 6811DFF26119EEE25333A83E /* PBXContainerItemProxy */;
 		};
 		ECF59C003E5B3167BF83926C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -929,6 +1115,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.1;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -959,6 +1146,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.1;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.messages;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1056,6 +1244,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.1;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.messages;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1085,6 +1274,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.1;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.calls;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1114,6 +1304,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.1;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.textfilter;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1142,7 +1333,38 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.1;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		49EB7E07E0DCAEE955BE4819 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = CallerID/CallerID.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = 8TPMGLDM22;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CallerID/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.1;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
+				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.callerid;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1171,6 +1393,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.1;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.textfilter;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1179,6 +1402,36 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		75CEEB2D2E830C8ECFA46E13 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = 8TPMGLDM22;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LoopMeWatch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.1;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
+				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Release;
 		};
@@ -1300,6 +1553,35 @@
 			};
 			name = Release;
 		};
+		8C704CD1CF71A6C70451FC90 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = 8TPMGLDM22;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LoopMeWatch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.1;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
+				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
 		A4B58A780214E1701FAC48E8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1318,7 +1600,37 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.1;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		B26BF2FAFB05851671E3D3BC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = CallerID/CallerID.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = 8TPMGLDM22;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CallerID/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.1;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
+				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.callerid;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1346,6 +1658,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.1;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1374,6 +1687,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.1;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.calls;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1446,6 +1760,24 @@
 			buildConfigurations = (
 				069E4D7F07795B38AF80967A /* Release */,
 				D5F1D4CA5A36DDD2B72549F3 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A9CF36661C798A001697DEAC /* Build configuration list for PBXNativeTarget "LoopMeWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				75CEEB2D2E830C8ECFA46E13 /* Release */,
+				8C704CD1CF71A6C70451FC90 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C98F3E2154371E22BA6CA7AC /* Build configuration list for PBXNativeTarget "CallerID" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49EB7E07E0DCAEE955BE4819 /* Release */,
+				B26BF2FAFB05851671E3D3BC /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

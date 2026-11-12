@@ -63,8 +63,53 @@ public class ScamAiModule: Module {
       SpeechListener.shared.stop()
     }
 
+    // ---- Listen mode: a running transcript, on-device, as events --------
+    Events("cloudEvent", "speech")
+    AsyncFunction("startListening") { () -> Bool in
+      ContinuousListener.shared.onText = { [weak self] text, final in
+        self?.sendEvent("speech", ["text": text, "final": final])
+      }
+      return await ContinuousListener.shared.start()
+    }
+    Function("stopListeningLive") { () in
+      ContinuousListener.shared.stop()
+    }
+
+    // ---- The screenshot they just took -----------------------------------
+    AsyncFunction("latestScreenshot") { (sinceMs: Double) -> [String: Any]? in
+      return await Screenshots.latest(sinceMs: sinceMs)
+    }
+
+    // ---- Invite as a QR code ----------------------------------------------
+    Function("qrPng") { (text: String) -> String? in
+      return QR.png(text)
+    }
+
+    // ---- Live Activity while reading a text together on a call -----------
+    Function("startCallActivity") { (name: String, excerpt: String, level: String, advice: String) -> Bool in
+      return CallActivity.start(name: name, excerpt: excerpt, level: level, advice: advice)
+    }
+    Function("endCallActivity") { () in
+      CallActivity.end()
+    }
+
+    // ---- Live Caller ID Lookup --------------------------------------------
+    AsyncFunction("callerIdStatus") { () -> String in
+      return await CallerID.status()
+    }
+    AsyncFunction("callerIdOpenSettings") { () -> Bool in
+      return await CallerID.openSettings()
+    }
+    AsyncFunction("callerIdRefresh") { () in
+      await CallerID.refresh()
+    }
+
+    // ---- Apple Watch ------------------------------------------------------
+    Function("watchPush") { (payload: [String: Any]) in
+      WatchBridge.shared.push(payload)
+    }
+
     // ---- Family link over CloudKit -------------------------------------
-    Events("cloudEvent")
     OnStartObserving { CloudBus.shared.attach { [weak self] e in self?.sendEvent("cloudEvent", e) } }
     OnStopObserving { CloudBus.shared.detach() }
 

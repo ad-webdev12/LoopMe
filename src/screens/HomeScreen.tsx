@@ -4,14 +4,14 @@
 // filter and the share sheet have caught, so the person can see it working
 // even on the days nothing happens.
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, AppState, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
 import {
-  Shield, Settings as Cog, ChevronRight, ArrowRight, Image as Img, Mic,
-} from 'lucide-react-native';
+  Shield, Settings as Cog, ChevronRight, ArrowRight, Image as Img, Mic, Ear } from 'lucide-react-native';
 import { T, F } from '../theme';
-import { recognizeText, listenOnce, stopListening, callDirectoryStatus } from '../../modules/scam-ai';
+import { recognizeText, listenOnce, stopListening, callDirectoryStatus, latestScreenshot } from '../../modules/scam-ai';
 import { timeLabel } from '../lib/clock';
 import type { Ctx } from '../App';
 
@@ -80,7 +80,32 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
   useEffect(() => {
     Clipboard.hasStringAsync().then(setClip).catch(() => {});
     callDirectoryStatus().then(setCalls).catch(() => {});
-  }, []);
+    void lookForScreenshot();
+    const sub = AppState.addEventListener('change', st => { if (st === 'active') void lookForScreenshot(); });
+    return () => sub.remove();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // A screenshot taken in the last quarter hour, offered once. Older people
+  // screenshot a text to show family; this saves the copy step entirely.
+  const [shot, setShot] = useState<{ uri: string; at: number; id: string } | null>(null);
+  const lookForScreenshot = async () => {
+    try {
+      const seen = Number(await AsyncStorage.getItem('loopmein.shot.seen')) || 0;
+      const since = Math.max(seen, Date.now() - 15 * 60000);
+      const found = await latestScreenshot(since);
+      if (found && found.at > seen) setShot(found);
+    } catch {}
+  };
+  const dismissShot = async () => { if (shot) { try { await AsyncStorage.setItem('loopmein.shot.seen', String(shot.at)); } catch {} } setShot(null); };
+  const checkShot = async () => {
+    if (!shot) return;
+    const uri = shot.uri;
+    await dismissShot();
+    ctx.flash('Reading the words, on this phone…');
+    try {
+      const found = (await recognizeText(uri)).trim();
+      if (found) { setText(found); ctx.check(found); } else ctx.flash('No words found in that screenshot.');
+    } catch { ctx.flash('Could not read that screenshot.'); }
+  };
   const [calls, setCalls] = useState<'enabled' | 'disabled' | 'unknown'>('unknown');
 
   // What is running right now, in real state. A quiet day should read as
@@ -139,6 +164,14 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
         </Pressable>
       )}
 
+      {shot && !careMode && (
+        <View style={st.shotRow}>
+          <Pressable style={{ flex: 1 }} onPress={checkShot} accessibilityRole="button">
+            <Text style={st.shotText} allowFontScaling>Check the screenshot you just took</Text>
+          </Pressable>
+          <Pressable onPress={dismissShot} accessibilityRole="button" accessibilityLabel="Not now" hitSlop={10}><Text style={st.shotDismiss} allowFontScaling>Not now</Text></Pressable>
+        </View>
+      )}
       <View style={st.hero}>
         <TextInput
           style={st.box} multiline
@@ -169,6 +202,12 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
           <Text style={st.altText} allowFontScaling>From a screenshot</Text>
         </Pressable>
       </View>
+      {!careMode && (
+        <Pressable style={st.listenRow} onPress={() => ctx.go('listen')} accessibilityRole="button">
+          <Ear size={18} color={T.green} strokeWidth={2.2} />
+          <Text style={st.listenText} allowFontScaling>Listen to a call or a voicemail</Text>
+        </Pressable>
+      )}
 
       {!careMode && (
         <Pressable style={st.status} onPress={() => ctx.go('switches')} accessibilityRole="button" accessibilityLabel="What is running right now">
@@ -248,6 +287,11 @@ const st = StyleSheet.create({
   statusText: { flex: 1, fontSize: 15, fontFamily: F.medium, color: T.ink2, lineHeight: 21 },
 
   tryRow: { marginHorizontal: 24, marginTop: 22, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  listenRow: { marginHorizontal: 24, marginTop: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  listenText: { fontSize: 17, fontFamily: F.semibold, color: T.green },
+  shotRow: { marginHorizontal: 24, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 14, borderTopWidth: 1, borderTopColor: T.hairline, paddingVertical: 12 },
+  shotText: { fontSize: 17, fontFamily: F.semibold, color: T.green },
+  shotDismiss: { fontSize: 15, fontFamily: F.body, color: T.sub },
   tryText: { fontSize: 17, fontFamily: F.semibold, color: T.green },
 
   recentWrap: { marginHorizontal: 24, marginTop: 26 },

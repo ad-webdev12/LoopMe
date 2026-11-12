@@ -1,0 +1,7 @@
+block*.bin*
+identity*.bin*
+*.params.txtpb
+input.txtpb
+shared.txt
+pirservice.log
+icons/

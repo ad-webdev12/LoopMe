@@ -6,13 +6,13 @@
 // phone appears full-screen on the caretaker's, and the caretaker's replies
 // appear full-screen on the owner's. No texts travel after the invite.
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Linking, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { ChevronLeft, ArrowRight, Check, X, Send, Phone, UserPlus } from 'lucide-react-native';
 import { T, F } from '../theme';
 import { KFIn, KFPop, bez } from '../ui/kf';
 import { sendSms, inviteText } from '../lib/familyLink';
 import * as Family from '../lib/family';
-import { cloudAccountState } from '../../modules/scam-ai';
+import { cloudAccountState, qrPng } from '../../modules/scam-ai';
 import { pickTrustedPerson } from '../lib/contacts';
 import { ensureNotificationPermission } from '../lib/notify';
 import type { Ctx } from '../App';
@@ -22,6 +22,7 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
   const s = ctx.settings;
   const [account, setAccount] = useState<'available' | 'noAccount' | 'restricted' | 'unknown' | null>(null);
   const [busy, setBusy] = useState(false);
+  const [qr, setQr] = useState<string | null>(null);
   const linked = s.familyLinked && s.familyRole === 'owner';
   const name = s.watchedBy?.split(' ')[0] || null;
 
@@ -49,6 +50,24 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
       }
       await sendSms(to?.phone || null, inviteText(s.myName || s.careName, url));
     } finally { setBusy(false); }
+  };
+
+  // Same link, no text at all: a code the other phone's camera reads, or
+  // AirDrop when the two phones are in the same room.
+  const inviteUrl = async (): Promise<string | null> => {
+    const url = await Family.invite(s.myName || s.careName);
+    if (!url) { ctx.flash('Sign in to iCloud first: Settings › your name.'); return null; }
+    await ensureNotificationPermission();
+    ctx.update({ ...s, familyInvited: true });
+    return url;
+  };
+  const showCode = async () => {
+    setBusy(true);
+    try { const url = await inviteUrl(); if (url) setQr(qrPng(url)); } finally { setBusy(false); }
+  };
+  const airdrop = async () => {
+    setBusy(true);
+    try { const url = await inviteUrl(); if (url) await Share.share({ url, message: 'Loop Me invite' }); } finally { setBusy(false); }
   };
 
   return (
@@ -120,11 +139,22 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
             <Text style={sw.note} allowFontScaling>Runs on your own iCloud. Stop it here any time.</Text>
           )}
 
-          <View style={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 40 }}>
+          {qr && (
+            <View style={{ paddingHorizontal: 24, paddingTop: 20 }}>
+              <Text style={sw.section} allowFontScaling>In the same room</Text>
+              <Text style={sw.note} allowFontScaling>On their phone, open the Camera and point it at this code. Tap the link that appears.</Text>
+              <Image source={{ uri: 'data:image/png;base64,' + qr }} style={{ width: '100%', aspectRatio: 1, marginTop: 12 }} accessibilityLabel="Invite code" />
+            </View>
+          )}
+          <View style={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 40, gap: 14 }}>
             <Pressable style={[sw.cta, busy && { opacity: 0.6 }]} onPress={sendInvite} disabled={busy} accessibilityRole="button">
               <Text style={sw.ctaText} allowFontScaling>{s.familyInvited ? 'Send the invite again' : 'Choose someone and send the invite'}</Text>
               {busy ? <ActivityIndicator color="#fff" /> : <Send size={19} color="#fff" strokeWidth={2.2} />}
             </Pressable>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 18 }}>
+              <Pressable onPress={showCode} disabled={busy} accessibilityRole="button"><Text style={sw.warnLink} allowFontScaling>Show a code to scan</Text></Pressable>
+              <Pressable onPress={airdrop} disabled={busy} accessibilityRole="button"><Text style={sw.warnLink} allowFontScaling>AirDrop it</Text></Pressable>
+            </View>
           </View>
         </View>
       )}
