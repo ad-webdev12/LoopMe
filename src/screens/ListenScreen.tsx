@@ -67,7 +67,7 @@ export default function ListenScreen({ ctx }: { ctx: Ctx }) {
     <Takeover color={field} haptic={null} playKey={field}>
       <View style={{ paddingHorizontal: 22, paddingTop: 8, paddingBottom: 22 }}>
         <BackLink onPress={() => { stop(); ctx.go('home'); }} color="#fff" />
-        <Text style={[font(13, '600'), { color: 'rgba(255,255,255,.8)', marginTop: 6 }]} allowFontScaling>{on ? 'Listening' : 'Listen mode'}</Text>
+        <Text style={[font(13, '600'), { color: '#fff', marginTop: 6 }]} allowFontScaling>{on ? 'Listening' : 'Listen mode'}</Text>
         <Text style={[font(32, '800', 1.05, -0.5), { color: '#fff', marginTop: 8 }]} allowFontScaling>{headline}</Text>
         {!!overall && overall.level !== 'green' && <Text style={[font(16, '400', 1.4), { color: '#fff', marginTop: 10 }]} allowFontScaling>{overall.reason}</Text>}
       </View>

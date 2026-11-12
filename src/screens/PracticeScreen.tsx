@@ -23,7 +23,7 @@ export default function PracticeScreen({ ctx }: { ctx: Ctx }) {
   return (
     <Takeover color={T.practice} haptic={null} playKey="practice">
       <View style={{ flex: 1, paddingTop: 70, paddingHorizontal: 24 }}>
-        <Text style={[font(17, '400'), { color: 'rgba(255,255,255,.75)', textAlign: 'center' }]} allowFontScaling>Practice call</Text>
+        <Text style={[font(17, '400'), { color: '#fff', textAlign: 'center' }]} allowFontScaling>Practice call</Text>
         <Text style={[font(32, '500'), { color: white, textAlign: 'center', marginTop: 6 }]} allowFontScaling>Unknown caller</Text>
         <View style={st.badge}>
           <TriangleAlert size={16} color="#ff8a75" strokeWidth={2.2} />
@@ -34,7 +34,7 @@ export default function PracticeScreen({ ctx }: { ctx: Ctx }) {
           <>
             <Swap playKey="intro" style={st.card}>
               <Text style={[font(16, '600'), { color: white }]} allowFontScaling>A practice run, so it feels familiar</Text>
-              <Text style={[font(16, '400', 1.45), { color: 'rgba(255,255,255,.85)', marginTop: 6 }]} allowFontScaling>This is the most common scam call. No app can hear a real call, so learn the pattern now, while it’s safe.</Text>
+              <Text style={[font(16, '400', 1.45), { color: '#fff', marginTop: 6 }]} allowFontScaling>This is the most common scam call. No app can hear a real call, so learn the pattern now, while it’s safe.</Text>
             </Swap>
             <View style={st.bottom}>
               <Pill label="Start the practice call" height={58} onPress={() => setState('call')} icon={<Phone size={20} color="#fff" strokeWidth={2} />} />
@@ -45,7 +45,7 @@ export default function PracticeScreen({ ctx }: { ctx: Ctx }) {
 
         {state === 'call' && (
           <>
-            <Text style={[font(15, '400'), { color: 'rgba(255,255,255,.7)', textAlign: 'center', marginTop: 12 }]} allowFontScaling>{mm}</Text>
+            <Text style={[font(15, '400'), { color: '#fff', textAlign: 'center', marginTop: 12 }]} allowFontScaling>{mm}</Text>
             <Swap playKey="line" ms={300} style={st.bubble}>
               <Text style={[font(17, '400', 1.45), { color: white }]} allowFontScaling>“This is Officer Daniels with the IRS. There’s a warrant out for your arrest. You can settle it today with Apple gift cards. Don’t hang up.”</Text>
             </Swap>

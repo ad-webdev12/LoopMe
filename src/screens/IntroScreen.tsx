@@ -191,7 +191,7 @@ export default function IntroScreen({ ctx }: { ctx: Ctx }) {
           <ArrowRight size={20} color={beat === 0 ? '#ec3013' : '#0d4a3b'} strokeWidth={2.2} />
         </Pressable>
         <Pressable style={st.skip} onPress={skip} accessibilityRole="button">
-          <Text style={[st.skipText, { color: 'rgba(255,255,255,.85)' }]} allowFontScaling>I’ve used this before</Text>
+          <Text style={[st.skipText, { color: '#fff' }]} allowFontScaling>I’ve used this before</Text>
         </Pressable>
       </View>
     </View>
@@ -218,14 +218,14 @@ const st = StyleSheet.create({
 
   b0caption: { position: 'absolute', left: 26, top: 266, flexDirection: 'row', alignItems: 'center', gap: 8 },
   b0square: { width: 7, height: 7, backgroundColor: '#fff' },
-  b0captionText: { fontSize: 11, fontFamily: F.bold, letterSpacing: 1.76, color: 'rgba(255,255,255,.85)' },
+  b0captionText: { fontSize: 11, fontFamily: F.bold, letterSpacing: 1.76, color: '#fff' },
   b0shieldWrap: { paddingTop: 52, paddingHorizontal: 26 },
   b0display: { fontSize: 38, fontFamily: F.display, letterSpacing: -1.14, color: '#fff', lineHeight: 38 },
   b0sub: { fontSize: 17, fontFamily: F.semibold, color: 'rgba(255,255,255,.9)', lineHeight: 24.6, marginTop: 16 },
 
   wipeField: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: T.green },
   wipeHeadline: { fontSize: 30, fontFamily: F.display, letterSpacing: -0.78, color: '#fff', lineHeight: 31.8 },
-  wipeSub: { fontSize: 15.5, fontFamily: F.semibold, color: 'rgba(255,255,255,.88)', lineHeight: 23.25, marginTop: 14 },
+  wipeSub: { fontSize: 15.5, fontFamily: F.semibold, color: '#fff', lineHeight: 23.25, marginTop: 14 },
   flagStrip: { alignSelf: 'stretch', marginTop: 14, backgroundColor: '#ec3013', paddingHorizontal: 14, paddingVertical: 11, flexDirection: 'row', alignItems: 'center', gap: 9 },
   flagText: { fontSize: 14, fontFamily: F.bold, color: '#fff' },
 

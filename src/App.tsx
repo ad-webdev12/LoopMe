@@ -19,7 +19,7 @@ import { Archivo_600SemiBold } from '@expo-google-fonts/archivo/600SemiBold';
 import { Archivo_700Bold } from '@expo-google-fonts/archivo/700Bold';
 import { Archivo_800ExtraBold } from '@expo-google-fonts/archivo/800ExtraBold';
 import { T, Palette } from './theme';
-import { palette } from './ui/base';
+import { palette, setNavDir } from './ui/base';
 import { instant, upgrade, FusedVerdict } from './engine/ai';
 import { loadSettings, saveSettings, isPostPanic, Settings } from './lib/storage';
 import { addCheck, listChecks, newRecord, updateCheck, CheckRecord } from './lib/history';
@@ -107,7 +107,9 @@ export interface Ctx {
   tallies: { filtered: number; junk: number; shared: number; lastFilteredAt: number };
 }
 
-const TAB_SCREENS: ScreenId[] = ['home', 'history', 'family', 'settings', 'learn', 'setup', 'caregiver', 'blocked', 'safe', 'drawerInfo', 'ward', 'callcheck'];
+// The floating bar shows on the four tabs only; pushed screens have Back.
+const TAB_SCREENS: ScreenId[] = ['home', 'history', 'family', 'settings', 'ward'];
+const ALL_SCREENS: ScreenId[] = ['home', 'checking', 'scam', 'amber', 'green', 'detail', 'callcheck', 'history', 'family', 'ask', 'maria', 'settings', 'setup', 'learn', 'practice', 'caregiver', 'scammed', 'blocked', 'safe', 'drawerInfo', 'ward', 'listen', 'watchedBy', 'watch'];
 
 LogBox.ignoreLogs(['SafeAreaView has been deprecated']);
 
@@ -170,12 +172,18 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToast(''), 2400);
   }, []);
 
+  const TAB_ORDER: ScreenId[] = ['ward', 'home', 'history', 'family', 'settings'];
   const go = useCallback((s: ScreenId) => {
     // Nothing may skip setup: any road "home" before onboarding is done leads
     // back into it (a share or Shortcut can arrive before first-run finishes).
     const cur = settingsRef.current;
     if (s === 'home' && cur && !(cur.introSeen && cur.role)) s = cur.introSeen ? 'ob1' : 'intro';
-    setScreen(s);
+    // Tabs slide toward where they sit on the bar; everything else pushes in from the right.
+    setScreen(prev => {
+      const a = TAB_ORDER.indexOf(prev), b = TAB_ORDER.indexOf(s);
+      setNavDir(a >= 0 && b >= 0 ? (b > a ? 1 : b < a ? -1 : 0) : 1);
+      return s;
+    });
   }, []);
 
   // Owner side, on the caretaker's say-so: block without a toast, the
@@ -517,6 +525,8 @@ export default function App() {
     // 'Check unknown texts for me' (Settings) gates the unknown-sender path.
     // A check the person asked for by hand always runs.
     if (where === 'alert' && text) { if (settingsRef.current.autoCheck !== false) check(text, 'an unknown number'); return; }
+    // loopmein://go?screen=settings opens a screen by name (used by the phone test guide).
+    if (where === 'go' && typeof queryParams?.screen === 'string' && ALL_SCREENS.includes(queryParams.screen as ScreenId)) { go(queryParams.screen as ScreenId); return; }
     if (where === 'check' && queryParams?.photo) { setPendingPhoto(true); go('home'); return; }
     if (where === 'check' && text) { check(text); return; }
     // The widget, Control Center and the Action button open the app with no

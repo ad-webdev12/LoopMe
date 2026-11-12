@@ -59,7 +59,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
           {p ? (
             <>
               <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 14 }}>
-                <Text style={[font(56, '800', 1.0, -2), { color: p.stopped7 ? T.red : T.green, marginBottom: -6 }]} allowFontScaling={false}>{p.stopped7}</Text>
+                <Text style={[font(56, '800', 1.0, -2, true), { color: p.stopped7 ? T.red : T.green, marginBottom: -6 }]} allowFontScaling={false}>{p.stopped7}</Text>
                 <Text style={[font(17, '600', 1.25), { color: C.ink, flex: 1 }]} allowFontScaling>{p.stopped7 === 1 ? 'scam stopped' : 'scams stopped'}{'\n'}<Text style={{ fontWeight: '400', color: C.ink2 }}>{p.checked7} {p.checked7 === 1 ? 'text' : 'texts'} checked{p.flagged7 ? ', ' + p.flagged7 + ' worth a look' : ''}</Text></Text>
               </View>
               <Text style={[font(13, '500'), { color: C.meta, marginTop: 12 }]} allowFontScaling>Last seen {whenLabel(p.at).toLowerCase()}</Text>

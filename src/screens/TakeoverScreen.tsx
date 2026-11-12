@@ -50,7 +50,7 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
         <Text style={[font(50, '800', 1.0, -1), { color: '#fff' }]} allowFontScaling>{headline}</Text>
         <Text style={[font(18, '400', 1.4), { color: '#fff', marginTop: 14 }]} allowFontScaling>{sub}</Text>
 
-        <MessageCard C={{ ...C, card: '#fff', ink: '#000', meta: '#6c6c70' }} sender={sender} when={whenLabel(rec?.at || Date.now())} text={ctx.msg}
+        <MessageCard C={{ ...C, card: '#fff', ink: '#000', meta: '#000' }} sender={sender} when={whenLabel(rec?.at || Date.now())} text={ctx.msg}
           matches={level === 'green' ? [] : (v?.matches || [])}
           mark={level === 'amber' ? T.amberInk : T.redInk} underline={level === 'amber' ? T.amber : T.red}
           shadow={level === 'red' ? 'rgba(80,10,0,.25)' : level === 'amber' ? 'rgba(60,30,0,.25)' : undefined}

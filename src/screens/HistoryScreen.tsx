@@ -90,7 +90,7 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
 
         <View style={[st.summary, { backgroundColor: C.card }]}>
           <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 14 }}>
-            <Text style={[font(76, '800', 1.0, -3), { color: scams ? T.red : T.green, marginBottom: -10 }]} allowFontScaling={false}>{scams}</Text>
+            <Text style={[font(76, '800', 1.0, -3, true), { color: scams ? T.red : T.green, marginBottom: -10 }]} allowFontScaling={false}>{scams}</Text>
             <Text style={[font(17, '600', 1.25), { color: C.ink, flex: 1 }]} allowFontScaling>
               {scams === 1 ? 'scam stopped' : 'scams stopped'}{'\n'}{range === 'Week' ? 'this week' : range === 'Month' ? 'in ' + monthName : 'so far'}{'\n'}
               <Text style={{ fontWeight: '400', color: C.ink2 }}>{fine} other {fine === 1 ? 'text was' : 'texts were'} fine</Text>

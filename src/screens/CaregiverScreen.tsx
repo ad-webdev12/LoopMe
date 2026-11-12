@@ -58,7 +58,7 @@ export default function CaregiverScreen({ ctx }: { ctx: Ctx }) {
         </View>
         <Text style={[font(15, '600'), { color: T.green, paddingHorizontal: 20, paddingTop: 14 }]} allowFontScaling>{done} of 4 done</Text>
         <View style={{ marginHorizontal: 16, marginTop: 12, gap: 10 }}>
-          <Pill label="Hand the phone back" icon={<ArrowRight size={18} color="#fff" strokeWidth={2.2} />} onPress={() => { ctx.go('home'); ctx.flash('All set. Hand the phone back.'); }} />
+          <Pill label="Hand the phone back" trailing={<ArrowRight size={18} color="#fff" strokeWidth={2.2} />} onPress={() => { ctx.go('home'); ctx.flash('All set. Hand the phone back.'); }} />
           <Pill label="Send myself a copy of these settings" height={54} bg={C.card} color={C.ink} onPress={copy} />
         </View>
       </ScrollView>

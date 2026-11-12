@@ -19,11 +19,23 @@ export const F = {
 
 export type Weight = '400' | '500' | '600' | '700' | '800';
 
-/** System font at an exact size, weight, line-height (ratio) and letter-spacing. */
-export function font(size: number, weight: Weight = '400', lh?: number, ls?: number): TextStyle {
-  const s: TextStyle = { fontSize: size, fontWeight: weight };
-  if (lh != null) s.lineHeight = Math.round(size * lh * 10) / 10;
-  if (ls != null) s.letterSpacing = ls;
+/**
+ * Three sizes only: DISPLAY for titles and headlines, BODY for everything
+ * you read and tap, SMALL for a date or a step number. Hierarchy comes from
+ * weight and colour, never from a fourth size. Call with `raw: true` for the
+ * one big number on History.
+ */
+export const SIZE = { display: 38, body: 17, small: 15 } as const;
+export function snap(size: number): number {
+  if (size >= 26) return SIZE.display;
+  if (size >= 16) return SIZE.body;
+  return SIZE.small;
+}
+export function font(size: number, weight: Weight = '400', lh?: number, ls?: number, raw = false): TextStyle {
+  const sz = raw ? size : snap(size);
+  const s: TextStyle = { fontSize: sz, fontWeight: weight };
+  if (lh != null) s.lineHeight = Math.round(sz * Math.max(lh, sz >= SIZE.display ? 1.02 : 1.25) * 10) / 10;
+  if (ls != null) s.letterSpacing = sz >= SIZE.display ? ls : 0;
   return s;
 }
 
@@ -35,7 +47,7 @@ export interface Palette {
 }
 
 export const LIGHT: Palette = {
-  ground: '#f2f2f7', card: '#ffffff', ink: '#000000', ink2: '#3c3c43', meta: '#6c6c70',
+  ground: '#f2f2f7', card: '#ffffff', ink: '#000000', ink2: '#000000', meta: '#000000',
   sep: '#c6c6c8', sep2: '#e5e5ea', segTrack: 'rgba(118,118,128,.12)', chevron: '#c4c4c7', pressed: '#e5e5ea',
   greenTint: '#eef4f1', greenFine: '#d7e8e0', redTint: '#fdeeea', amberTint: '#fbf0dd',
   bubble: '#e9e9eb', switchOff: '#e9e9ea', dark: false,
@@ -44,7 +56,7 @@ export const LIGHT: Palette = {
 // Dark mode with real tokens (never a colour inversion). Takeovers and the
 // Home green header never change; photos and the app icon are never altered.
 export const DARK: Palette = {
-  ground: '#000000', card: '#1c1c1e', ink: '#ffffff', ink2: 'rgba(235,235,245,.6)', meta: 'rgba(235,235,245,.5)',
+  ground: '#000000', card: '#1c1c1e', ink: '#ffffff', ink2: '#ffffff', meta: '#ffffff',
   sep: '#38383a', sep2: '#2c2c2e', segTrack: 'rgba(118,118,128,.24)', chevron: '#48484a', pressed: '#2c2c2e',
   greenTint: 'rgba(13,107,87,.18)', greenFine: 'rgba(13,107,87,.28)', redTint: 'rgba(236,48,19,.18)', amberTint: 'rgba(184,120,26,.18)',
   bubble: '#2c2c2e', switchOff: '#39393d', dark: true,
@@ -75,10 +87,10 @@ export const T = {
   surface: '#ffffff',
   card: '#ffffff',
   ink: '#000000',
-  ink2: '#3c3c43',
-  sub: '#3c3c43',
-  meta: '#6c6c70',
-  muted: '#6c6c70',
+  ink2: '#000000',
+  sub: '#000000',
+  meta: '#000000',
+  muted: '#000000',
   hairline: '#e5e5ea',
   divider: '#c6c6c8',
   fieldBorder: '#d1d1d6',

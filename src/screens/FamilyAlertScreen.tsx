@@ -35,11 +35,11 @@ export default function FamilyAlertScreen({ ctx }: { ctx: Ctx }) {
       <View style={{ flex: 1, paddingTop: 70, paddingHorizontal: 22, paddingBottom: 30 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Avatar name={s.watching?.name || name} photo={s.watching?.photo} size={30} onPhoto />
-          <Text style={[font(15, '600'), { color: 'rgba(255,255,255,.85)' }]} allowFontScaling>{name}’s phone · {whenLabel(rec.at)}</Text>
+          <Text style={[font(15, '600'), { color: '#fff' }]} allowFontScaling>{name}’s phone · {whenLabel(rec.at)}</Text>
         </View>
         <Text style={[font(44, '800', 1.02, -1), { color: '#fff', marginTop: 18 }]} allowFontScaling>{headline}</Text>
         <View style={{ marginTop: 20, backgroundColor: '#fff', borderRadius: 20, paddingTop: 14, paddingHorizontal: 16, paddingBottom: 16, shadowColor: red ? 'rgba(80,10,0,1)' : 'rgba(60,30,0,1)', shadowOpacity: 0.25, shadowRadius: 30, shadowOffset: { width: 0, height: 12 } }}>
-          <Text style={[font(13, '400'), { color: '#6c6c70' }]} allowFontScaling>{rec.sender || 'Unknown number'}</Text>
+          <Text style={[font(13, '400'), { color: '#000' }]} allowFontScaling>{rec.sender || 'Unknown number'}</Text>
           <Text style={[font(16.5, '400', 1.4), { color: '#000', marginTop: 8 }]} allowFontScaling numberOfLines={6}>{rec.excerpt}</Text>
         </View>
         <Text style={[font(16, '400', 1.4), { color: '#fff', marginTop: 14 }]} allowFontScaling>{name} has been told: {rec.reason}</Text>

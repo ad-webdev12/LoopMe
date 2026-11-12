@@ -60,7 +60,7 @@ export default function MariaScreen({ ctx }: { ctx: Ctx }) {
           <View style={[st.alert, { backgroundColor: red ? T.red : T.amber }]}>
             <Text style={[font(14, '600'), { color: '#fff' }]} allowFontScaling>{whenLabel(rec.at)}</Text>
             <Text style={[font(26, '800', 1.12), { color: '#fff', marginTop: 6 }]} allowFontScaling>
-              {ownerFirst} got {red ? 'a scam text.' : 'a text worth a look.'}{'\n'}{rec.askedFamily ? 'They asked you about it.' : 'They didn’t reply.'}
+              {ownerFirst} got {red ? 'a scam text.' : 'a text worth a look.'}{'\n'}{rec.askedFamily ? 'They asked you about it.' : ownerFirst + ' hasn’t replied yet.'}
             </Text>
             <View style={st.quote}><Text style={[font(15, '400', 1.4), { color: '#fff' }]} allowFontScaling numberOfLines={6}>“{rec.excerpt}”</Text></View>
             <Text style={[font(15, '400', 1.4), { color: '#fff', marginTop: 10 }]} allowFontScaling>{rec.reason}</Text>

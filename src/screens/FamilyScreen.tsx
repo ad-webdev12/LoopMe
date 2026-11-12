@@ -58,7 +58,7 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
               <Action C={C} Icon={Send} label={'Ask ' + (person.relation === 'Daughter' || person.relation === 'Sister' ? 'her' : person.relation === 'Son' || person.relation === 'Brother' ? 'him' : 'them')} onPress={() => person.linked ? ctx.go('ask') : ctx.go('watchedBy')} />
             </View>
             {!person.linked && (
-              <Pill label={s.familyInvited ? 'Send the invite again' : 'Send ' + who + ' the invite'} height={50} style={{ alignSelf: 'stretch', marginTop: 12 }} onPress={() => ctx.go('watchedBy')} icon={<ArrowRight size={18} color="#fff" strokeWidth={2.2} />} />
+              <Pill label={s.familyInvited ? 'Send the invite again' : 'Send ' + who + ' the invite'} height={50} style={{ alignSelf: 'stretch', marginTop: 12 }} onPress={() => ctx.go('watchedBy')} trailing={<ArrowRight size={18} color="#fff" strokeWidth={2.2} />} />
             )}
           </View>
         ) : (

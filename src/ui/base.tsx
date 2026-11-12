@@ -16,19 +16,26 @@ AccessibilityInfo.isReduceMotionEnabled().then(v => { reduceMotion = v; }).catch
 AccessibilityInfo.addEventListener('reduceMotionChanged', v => { reduceMotion = v; });
 export const motionOff = () => reduceMotion;
 
+// Which way the next screen comes from: +1 from the right (push, or a tab to
+// the right), -1 from the left (a tab to the left), 0 cross-fade only.
+let navDir = 1;
+export const setNavDir = (d: number) => { navDir = d; };
+
 const bez = (b: readonly [number, number, number, number]) => Easing.bezier(b[0], b[1], b[2], b[3]);
 
 // ---- screen wrappers --------------------------------------------------------
 /** Pushed / tab screen: opacity 0→1, x 16→0, 340ms cubic-bezier(.2,.8,.2,1). */
 export function Screen({ C, children, style, playKey }: { C: Palette; children: React.ReactNode; style?: StyleProp<ViewStyle>; playKey?: unknown }) {
   const v = useRef(new Animated.Value(0)).current;
+  const dir = useRef(navDir).current;
   useEffect(() => {
     v.setValue(0);
     Animated.timing(v, { toValue: 1, duration: reduceMotion ? 150 : MOTION.screen.ms, easing: bez(MOTION.screen.bez), useNativeDriver: true }).start();
   }, [playKey]); // eslint-disable-line react-hooks/exhaustive-deps
-  const tx = reduceMotion ? 0 : v.interpolate({ inputRange: [0, 1], outputRange: [16, 0] });
+  const tx = reduceMotion ? 0 : v.interpolate({ inputRange: [0, 1], outputRange: [24 * dir, 0] });
+  const sc = reduceMotion ? 1 : v.interpolate({ inputRange: [0, 1], outputRange: [0.985, 1] });
   return (
-    <Animated.View style={[{ flex: 1, backgroundColor: C.ground, opacity: v, transform: [{ translateX: tx }] }, style]}>
+    <Animated.View style={[{ flex: 1, backgroundColor: C.ground, opacity: v, transform: [{ translateX: tx }, { scale: sc }] }, style]}>
       {children}
     </Animated.View>
   );
@@ -180,14 +187,15 @@ export function Row({ C, title, sub, chip, chipColor, right, chevron, onPress, l
 
 // ---- buttons ----------------------------------------------------------------
 /** Full pill button, 56 tall, radius 28, 17/600. */
-export function Pill({ label, onPress, bg = T.green, color = '#fff', icon, height = 56, style, disabled, border }: {
-  label: string; onPress?: () => void; bg?: string; color?: string; icon?: React.ReactNode; height?: number; style?: StyleProp<ViewStyle>; disabled?: boolean; border?: string;
+export function Pill({ label, onPress, bg = T.green, color = '#fff', icon, trailing, height = 56, style, disabled, border }: {
+  label: string; onPress?: () => void; bg?: string; color?: string; icon?: React.ReactNode; trailing?: React.ReactNode; height?: number; style?: StyleProp<ViewStyle>; disabled?: boolean; border?: string;
 }) {
   return (
     <Pressable onPress={onPress} disabled={disabled} accessibilityRole="button"
       style={({ pressed }) => [{ height, borderRadius: height / 2, backgroundColor: bg, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }, border ? { borderWidth: 1, borderColor: border } : null, pressed && { opacity: 0.8 }, disabled && { opacity: 0.6 }, style]}>
       {icon}
       <Text style={[font(17, '600'), { color }]} allowFontScaling>{label}</Text>
+      {trailing}
     </Pressable>
   );
 }

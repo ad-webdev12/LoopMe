@@ -110,7 +110,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
             <Pressable onPress={() => ctx.go(careMode ? 'ward' : 'family')} style={({ pressed }) => [st.pill, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel="Family">
               <View style={{ flexDirection: 'row' }}>
                 {people.map((p, i) => (
-                  <View key={i} style={i > 0 ? { marginLeft: -10 } : undefined}><Avatar name={p.name} photo={p.photo} size={30} ring="#fff" /></View>
+                  <View key={i} style={i > 0 ? { marginLeft: p.photo ? -10 : -4 } : undefined}><Avatar name={p.name} photo={p.photo} size={30} ring="#fff" /></View>
                 ))}
               </View>
               <Text style={[font(14, '600', 1.2), { color: '#3c3c43' }]} numberOfLines={1} allowFontScaling={false}>{pillText}</Text>

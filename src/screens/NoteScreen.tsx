@@ -26,7 +26,7 @@ export default function NoteScreen({ ctx }: { ctx: Ctx }) {
       <View style={{ flex: 1, paddingTop: 70, paddingHorizontal: 22, paddingBottom: 30 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           {person && <Avatar name={person.name} photo={person.photo} size={30} onPhoto />}
-          <Text style={[font(15, '600'), { color: 'rgba(255,255,255,.85)' }]} allowFontScaling>From {first}, just now</Text>
+          <Text style={[font(15, '600'), { color: '#fff' }]} allowFontScaling>From {first}, just now</Text>
         </View>
         <Text style={[font(44, '800', 1.02, -1), { color: '#fff', marginTop: 18 }]} allowFontScaling>{headline}</Text>
         <View style={{ marginTop: 20, backgroundColor: '#fff', borderRadius: 20, paddingVertical: 14, paddingHorizontal: 16 }}>

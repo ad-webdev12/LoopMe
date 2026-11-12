@@ -273,6 +273,6 @@ const s4 = StyleSheet.create({
   pickedName: { fontSize: 17, fontFamily: F.bold, color: T.ink },
   linkBtn: { marginHorizontal: 24, marginTop: 10, backgroundColor: T.green, borderRadius: 14, paddingHorizontal: 17, paddingVertical: 15, flexDirection: 'row', alignItems: 'center', gap: 12 },
   linkTitle: { fontSize: 17, fontFamily: F.bold, color: '#fff' },
-  linkSub: { fontSize: 14.5, fontFamily: F.body, color: 'rgba(255,255,255,.85)', lineHeight: 20, marginTop: 2 },
+  linkSub: { fontSize: 14.5, fontFamily: F.body, color: '#fff', lineHeight: 20, marginTop: 2 },
   pickedMeta: { fontSize: 15, fontFamily: F.body, color: T.sub },
 });

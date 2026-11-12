@@ -5,6 +5,7 @@
 // delay. Inactive tabs are grey icons only, sharing the remaining width.
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { ScanText, Clock, Users, Settings, LucideIcon } from 'lucide-react-native';
 import { T, font, Palette } from '../theme';
 import { motionOff } from './base';
@@ -44,9 +45,12 @@ export default function TabBar({ C, screen, go, careMode, watchName }: { C: Pale
       prev.current = active;
       labelOpacity.setValue(0);
       Animated.parallel([
-        Animated.timing(x, { toValue: target, duration: motionOff() ? 150 : 450, easing: Easing.bezier(0.3, 0.9, 0.25, 1), useNativeDriver: true }),
+        motionOff()
+          ? Animated.timing(x, { toValue: target, duration: 150, useNativeDriver: true })
+          : Animated.spring(x, { toValue: target, damping: 18, stiffness: 180, mass: 0.9, useNativeDriver: true }),
         Animated.timing(labelOpacity, { toValue: 1, duration: 300, delay: 120, useNativeDriver: true }),
       ]).start();
+      Haptics.selectionAsync().catch(() => {});
     } else {
       x.setValue(target);
     }
@@ -62,8 +66,8 @@ export default function TabBar({ C, screen, go, careMode, watchName }: { C: Pale
       </Animated.View>
       {tabs.map((t, i) => (
         <Pressable key={t.t} onPress={() => go(t.t)} accessibilityRole="button" accessibilityLabel={t.label} accessibilityState={{ selected: i === active }}
-          style={{ width: i === active ? PILL_W : rest, height: 48, alignItems: 'center', justifyContent: 'center' }}>
-          {i !== active && <t.Icon size={23} color={C.dark ? 'rgba(235,235,245,.6)' : T.meta} strokeWidth={1.9} />}
+          style={({ pressed }) => [{ width: i === active ? PILL_W : rest, height: 48, alignItems: 'center', justifyContent: 'center' }, pressed && { transform: [{ scale: 0.92 }] }]}>
+          {i !== active && <t.Icon size={23} color={C.dark ? '#fff' : '#000'} strokeWidth={1.9} />}
         </Pressable>
       ))}
     </View>
