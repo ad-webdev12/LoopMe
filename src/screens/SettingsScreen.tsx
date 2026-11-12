@@ -1,247 +1,121 @@
-// Settings. Three toggles, the text-filter note, the family code word, safe
-// senders (really editable), blocked numbers (really blocked, through the
-// call directory), setup rows, version line.
-import React, { useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+// Settings. Permissions row first (pulses red until both are on), the iOS
+// toggles, the family secret word behind Face ID, blocked and safe lists,
+// then learn and get help. Footer with the version.
+import React, { useEffect, useState } from 'react';
+import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import * as LocalAuthentication from 'expo-local-authentication';
 import Constants from 'expo-constants';
-import { ChevronLeft, ChevronRight, Plus, KeyRound, Ban } from 'lucide-react-native';
-import { T, F } from '../theme';
-import { KFIn } from '../ui/kf';
-import { callDirectoryReload } from '../../modules/scam-ai';
+import { Bell, MessageCircle, Volume2, Moon, ScanFace, Ban, Check, BookOpen, Phone, HandHeart, LifeBuoy, Sparkles } from 'lucide-react-native';
+import { T, font } from '../theme';
+import { Screen, LargeTitle, Group, Row, IOSSwitch, PulseDot, Note, SectionHeader, SmallBtn, Swap, usePulse } from '../ui/base';
+import { callDirectoryStatus } from '../../modules/scam-ai';
+import { loopPerson, firstName } from '../ui/pieces';
 import type { Ctx } from '../App';
 
 export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
-  const st_ = ctx.settings;
-  const [toggles, setToggles] = useState({ alerts: st_.alerts, auto: st_.autoCheck, aloud: st_.readAloud, improve: st_.improve });
-  const [word, setWord] = useState(st_.codeWord);
-  const [blocking, setBlocking] = useState(false);
-  const [blockNum, setBlockNum] = useState('');
-  const [sender, setSender] = useState('');
-  const [adding, setAdding] = useState(false);
-  const version = Constants.expoConfig?.version || '1.0';
-  const saveWord = () => {
-    const w = word.trim();
-    ctx.update({ ...st_, codeWord: w, codeWordSet: !!w });
-    ctx.flash(w ? 'Code word saved. It stays on this phone.' : 'Code word removed.');
+  const { C, settings: s } = ctx;
+  const [calls, setCalls] = useState<'enabled' | 'disabled' | 'unknown'>('unknown');
+  const [word, setWord] = useState<'locked' | 'scanning' | 'shown'>('locked');
+  useEffect(() => { callDirectoryStatus().then(setCalls).catch(() => {}); return () => setWord('locked'); }, []);
+  const permsDone = ctx.tallies.filtered > 0 && calls === 'enabled';
+  const rowBg = usePulse(C.card, C.redTint);
+  const who = firstName(loopPerson(s)?.name);
+  const version = Constants.expoConfig?.version || '1.0.1';
+
+  const showWord = async () => {
+    if (word === 'shown') { setWord('locked'); return; }
+    if (!s.codeWordSet || !s.codeWord) { ctx.flash('Set the secret word under Set up for someone else.'); return; }
+    setWord('scanning');
+    try {
+      const r = await LocalAuthentication.authenticateAsync({ promptMessage: 'Show the family secret word', cancelLabel: 'Cancel' });
+      setWord(r.success ? 'shown' : 'locked');
+    } catch { setWord('locked'); }
   };
-  const flip = (key: 'alerts' | 'auto' | 'aloud' | 'improve') => {
-    const next = { ...toggles, [key]: !toggles[key] };
-    setToggles(next);
-    ctx.update({ ...st_, alerts: next.alerts, autoCheck: next.auto, readAloud: next.aloud, improve: next.improve });
-  };
-  const addSender = () => {
-    const v = sender.trim();
-    if (!v) { setAdding(false); return; }
-    if (st_.allowlist.some(a => a.toLowerCase() === v.toLowerCase())) { ctx.flash('That one is already on the list.'); return; }
-    ctx.update({ ...st_, allowlist: [...st_.allowlist, v] });
-    setSender(''); setAdding(false);
-    ctx.flash('Saved. Messages from ' + v + ' will not be flagged.');
-  };
-  const unblock = async (n: string) => {
-    ctx.update({ ...st_, blocked: st_.blocked.filter(b => b !== n) });
-    await callDirectoryReload();
-    ctx.flash('Unblocked.');
-  };
-  const rows = [
-    { key: 'alerts' as const, title: 'Warn me straight away', why: 'A full red screen when a text is a scam.' },
-    { key: 'auto' as const, title: 'Check unknown texts', why: 'Scams go to Junk before you see them.' },
-    { key: 'aloud' as const, title: 'Read answers out loud', why: 'Every answer, spoken.' },
-    { key: 'improve' as const, title: 'Help improve Loop Me', why: 'Your corrections, with numbers blanked, train the next version. Nothing else is sent.' },
-  ];
+  const set = (patch: Partial<typeof s>) => ctx.update({ ...s, ...patch });
 
   return (
-    <KFIn duration={260} style={{ flex: 1 }} playKey="settings">
-    <ScrollView style={st.root} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-      <View style={st.topRow}>
-        <Pressable style={st.back} onPress={() => ctx.go('more')} accessibilityRole="button">
-          <ChevronLeft size={18} color={T.ink} strokeWidth={2.2} />
-          <Text style={st.backText} allowFontScaling>Back</Text>
-        </Pressable>
-      </View>
-      <View style={{ paddingHorizontal: 24, paddingBottom: 14 }}>
-        <Text style={st.title} allowFontScaling>Settings</Text>
-      </View>
+    <Screen C={C} playKey="settings">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
+        <LargeTitle C={C}>Settings</LargeTitle>
 
-      <Text style={st.section} allowFontScaling>Watching for scams</Text>
-      <View style={st.card}>
-        {rows.map((r, i) => (
-          <View key={r.key} style={[st.toggleRow, i === rows.length - 1 && { borderBottomWidth: 0 }]}>
-            <View style={{ flex: 1 }}>
-              <Text style={st.rowTitle} allowFontScaling>{r.title}</Text>
-              <Text style={st.rowWhy} allowFontScaling>{r.why}</Text>
-            </View>
-            <Pressable
-              style={[st.track, { backgroundColor: toggles[r.key] ? T.green : T.rowHover, borderColor: toggles[r.key] ? T.green : T.fieldBorder, justifyContent: toggles[r.key] ? 'flex-end' : 'flex-start' }]}
-              onPress={() => flip(r.key)} accessibilityRole="switch" accessibilityState={{ checked: toggles[r.key] }}>
-              <View style={st.thumb} />
-            </Pressable>
-          </View>
-        ))}
-      </View>
-
-      <View style={[st.card, { marginTop: 14 }]}>
-        <Pressable style={[st.setupRow, { borderBottomWidth: 0 }]} onPress={() => ctx.go('switches')} accessibilityRole="button">
-          <View style={{ flex: 1 }}>
-            <Text style={st.setupText} allowFontScaling>Two switches in iPhone Settings</Text>
-            <Text style={st.setupSub} allowFontScaling>Unknown texts, and scam callers. One minute.</Text>
-          </View>
-          <ChevronRight size={17} color={T.green} strokeWidth={2.2} />
-        </Pressable>
-      </View>
-
-      <Text style={[st.section, { paddingTop: 14 }]} allowFontScaling>Family code word</Text>
-      <View style={st.card}>
-        <View style={st.cwHead}>
-          <KeyRound size={17} color={T.green} strokeWidth={2.2} />
-          <Text style={st.cwTitle} allowFontScaling>A word only your family knows</Text>
-        </View>
-        <Text style={st.cwBody} allowFontScaling>
-          If a caller sounds like family and wants money, ask for this word.
-        </Text>
-        <TextInput
-          style={st.cwInput}
-          value={word}
-          onChangeText={setWord}
-          placeholder="Pick a word: a pet, a street, anything"
-          placeholderTextColor={T.sub}
-          autoCorrect={false}
-          autoCapitalize="none"
-          returnKeyType="done"
-          onSubmitEditing={saveWord}
-          accessibilityLabel="Family code word"
-          allowFontScaling
-        />
-        <View style={st.cwActions}>
-          <Pressable style={st.cwSave} onPress={saveWord} accessibilityRole="button">
-            <Text style={st.cwSaveText} allowFontScaling>{st_.codeWordSet ? 'Update the word' : 'Save the word'}</Text>
+        {permsDone ? (
+          <Pressable onPress={() => ctx.go('setup')} style={[st.perm, { backgroundColor: C.card }]} accessibilityRole="button">
+            <View style={{ marginHorizontal: 3 }}><PulseDot size={12} color={T.green} still /></View>
+            <Text style={[font(17, '600'), { color: C.ink, flex: 1 }]} allowFontScaling>iPhone permissions</Text>
+            <Text style={[font(17, '400'), { color: T.green }]} allowFontScaling>All allowed</Text>
           </Pressable>
-          {st_.codeWordSet && (
-            <Pressable onPress={() => { setWord(''); ctx.update({ ...st_, codeWord: '', codeWordSet: false }); ctx.flash('Code word removed.'); }} accessibilityRole="button">
-              <Text style={st.cwRemove} allowFontScaling>Remove</Text>
-            </Pressable>
+        ) : (
+          <Pressable onPress={() => ctx.go('setup')} accessibilityRole="button">
+            <Animated.View style={[st.perm, { backgroundColor: rowBg, paddingRight: 14 }]}>
+              <View style={{ marginHorizontal: 3 }}><PulseDot size={12} /></View>
+              <View style={{ flex: 1 }}>
+                <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Turn on scam protection</Text>
+                <Text style={[font(15, '500', 1.35), { color: T.redText, marginTop: 2 }]} allowFontScaling>Allow 2 iPhone permissions</Text>
+              </View>
+              <View style={st.start}><Text style={[font(15, '600'), { color: '#fff' }]} allowFontScaling>Start</Text></View>
+            </Animated.View>
+          </Pressable>
+        )}
+
+        <Group C={C} style={{ marginTop: 20 }}>
+          <Row C={C} chip={Bell} chipColor={T.red} title="Full-screen warning" pad={9} right={<IOSSwitch C={C} on={s.alerts !== false} onChange={v => set({ alerts: v })} />} />
+          <Row C={C} chip={MessageCircle} chipColor={T.green} title="Check unknown texts" pad={9} right={<IOSSwitch C={C} on={s.autoCheck !== false} onChange={v => set({ autoCheck: v })} />} />
+          <Row C={C} chip={Volume2} chipColor={T.iosGrey} title="Read answers aloud" pad={9} right={<IOSSwitch C={C} on={!!s.readAloud} onChange={v => set({ readAloud: v })} />} />
+          <Row C={C} chip={Sparkles} chipColor={T.amber} title="Help improve Loop Me" pad={9} right={<IOSSwitch C={C} on={!!s.improve} onChange={v => set({ improve: v })} />} />
+          <Row C={C} chip={Moon} chipColor="#1c1c1e" title="Dark mode" pad={9} last right={<IOSSwitch C={C} on={!!s.darkMode} onChange={v => set({ darkMode: v })} />} />
+        </Group>
+        <Note C={C} top={10}>Scam texts from numbers you don’t know go straight to Junk.{s.improve ? ' Your corrections, with numbers blanked, train the next version.' : ''}</Note>
+
+        <View style={st.secret}>
+          <Text style={[font(15, '600'), { color: '#fff' }]} allowFontScaling>Your family’s secret word</Text>
+          {word === 'locked' && (
+            <Swap playKey="locked">
+              <Text style={[font(28, '800', 1.0, s.codeWordSet ? 6 : 0), { color: '#fff', marginTop: 10 }]} allowFontScaling={false}>{s.codeWordSet ? '•••••••' : 'Not set'}</Text>
+              <Text style={[font(16, '400', 1.4), { color: '#fff', marginTop: 8 }]} allowFontScaling>If a caller sounds like family and asks for money, ask them for it.</Text>
+              <SmallBtn label={s.codeWordSet ? 'Show it' : 'Set it'} bg="#fff" color={T.greenDeep} style={{ marginTop: 12 }} icon={<ScanFace size={18} color={T.greenDeep} strokeWidth={2} />} onPress={() => s.codeWordSet ? showWord() : ctx.go('caregiver')} />
+            </Swap>
+          )}
+          {word === 'scanning' && (
+            <Swap playKey="scan" style={{ alignItems: 'center', paddingTop: 14, paddingBottom: 6, gap: 10 }}>
+              <ScanFace size={54} color="#fff" strokeWidth={1.6} />
+              <Text style={[font(15, '600'), { color: '#fff' }]} allowFontScaling>Face ID</Text>
+            </Swap>
+          )}
+          {word === 'shown' && (
+            <Swap playKey="shown">
+              <Text style={[font(34, '800', 1.0), { color: '#fff', marginTop: 10 }]} allowFontScaling>{s.codeWord}</Text>
+              <Text style={[font(16, '400', 1.4), { color: '#fff', marginTop: 8 }]} allowFontScaling>Hides again when you leave this screen.</Text>
+              <SmallBtn label="Hide" bg="rgba(255,255,255,.16)" color="#fff" style={{ marginTop: 12 }} onPress={() => setWord('locked')} />
+            </Swap>
           )}
         </View>
-        <Text style={st.cwNote} allowFontScaling>Only your family knows it.</Text>
-      </View>
 
-      <Text style={st.section} allowFontScaling>Safe senders</Text>
-      <View style={st.card}>
-        {st_.allowlist.map((a, i) => (
-          <View key={i} style={st.allowRow}>
-            <Text style={st.allowLabel} allowFontScaling>{a}</Text>
-            <Pressable onPress={() => ctx.update({ ...st_, allowlist: st_.allowlist.filter((_, j) => j !== i) })} accessibilityRole="button">
-              <Text style={st.allowRemove} allowFontScaling>Remove</Text>
-            </Pressable>
-          </View>
-        ))}
-        {adding ? (
-          <View style={st.addForm}>
-            <TextInput
-              style={st.addInput} value={sender} onChangeText={setSender} autoFocus
-              placeholder="A name or number, like your bank’s real alert number" placeholderTextColor={T.muted}
-              returnKeyType="done" onSubmitEditing={addSender} accessibilityLabel="Safe sender" allowFontScaling
-            />
-            <View style={st.cwActions}>
-              <Pressable style={st.cwSave} onPress={addSender} accessibilityRole="button"><Text style={st.cwSaveText} allowFontScaling>Save</Text></Pressable>
-              <Pressable onPress={() => { setAdding(false); setSender(''); }} accessibilityRole="button"><Text style={st.cwRemove} allowFontScaling>Cancel</Text></Pressable>
-            </View>
-          </View>
-        ) : (
-          <Pressable style={st.addRow} onPress={() => setAdding(true)} accessibilityRole="button">
-            <Plus size={17} color={T.green} strokeWidth={2.2} />
-            <Text style={st.addText} allowFontScaling>Add a safe sender</Text>
+        <Group C={C} style={{ marginTop: 20 }}>
+          <Row C={C} chip={Ban} chipColor={T.red} title="Blocked Numbers" pad={9} chevron onPress={() => ctx.go('blocked')} right={<Text style={[font(17, '400'), { color: C.meta }]} allowFontScaling>{s.blocked.length}</Text>} />
+          <Row C={C} chip={Check} chipColor={T.green} title="Safe Senders" pad={9} last chevron onPress={() => ctx.go('safe')} right={<Text style={[font(17, '400'), { color: C.meta }]} allowFontScaling>{s.allowlist.length}</Text>} />
+        </Group>
+
+        <SectionHeader C={C}>Learn and get help</SectionHeader>
+        <Group C={C}>
+          <Row C={C} chip={MessageCircle} chipColor={T.amber} title="Use Loop Me in Messages" sub="Check a text without leaving Messages" chevron onPress={() => ctx.go('drawerInfo')} />
+          <Row C={C} chip={BookOpen} chipColor={T.amber} title="Learn the tricks" sub="Five worth knowing, in plain words" chevron onPress={() => ctx.go('learn')} />
+          <Row C={C} chip={Phone} chipColor={T.green} title="Practice a scam call" sub="A rehearsal. Nobody really calls." chevron onPress={() => ctx.go('practice')} />
+          <Row C={C} chip={HandHeart} chipColor={T.iosGrey} title="Set up for someone else" sub="Four things to check" chevron onPress={() => ctx.go('caregiver')} />
+          <Row C={C} chip={LifeBuoy} chipColor={T.red} title="I think I’ve been scammed" titleWeight="600" danger sub="Five steps, starting with your bank" chevron last onPress={() => ctx.go('scammed')} />
+        </Group>
+        {s.familyLinked && (
+          <Pressable onPress={ctx.unlinkFamily} style={{ paddingTop: 18 }} accessibilityRole="button">
+            <Text style={[font(15, '500'), { color: T.redText, textAlign: 'center' }]} allowFontScaling>{s.familyRole === 'owner' ? 'Stop ' + (who || 'them') + ' hearing from this phone' : 'Stop looking after this phone'}</Text>
           </Pressable>
         )}
-      </View>
-
-      <Text style={[st.section, { paddingTop: 14 }]} allowFontScaling>Blocked numbers</Text>
-      <Text style={st.blockHint} allowFontScaling>Blocked numbers cannot ring you. Their texts go to Junk.</Text>
-      <View style={st.card}>
-        {st_.blocked.map((n) => (
-          <View key={n} style={st.allowRow}>
-            <Text style={st.allowLabel} allowFontScaling>{n}</Text>
-            <Pressable onPress={() => unblock(n)} accessibilityRole="button">
-              <Text style={st.allowRemove} allowFontScaling>Unblock</Text>
-            </Pressable>
-          </View>
-        ))}
-        {blocking ? (
-          <View style={st.addForm}>
-            <TextInput style={st.addInput} value={blockNum} onChangeText={setBlockNum} placeholder="The number that called or texted" placeholderTextColor={T.muted} keyboardType="phone-pad" autoFocus accessibilityLabel="Number to block" />
-            <View style={st.cwActions}>
-              <Pressable style={st.cwSave} onPress={async () => { const n = blockNum; setBlocking(false); setBlockNum(''); await ctx.blockNumber(n); }} accessibilityRole="button"><Text style={st.cwSaveText} allowFontScaling>Block it</Text></Pressable>
-              <Pressable onPress={() => { setBlocking(false); setBlockNum(''); }} accessibilityRole="button"><Text style={st.cwRemove} allowFontScaling>Cancel</Text></Pressable>
-            </View>
-          </View>
-        ) : (
-          <Pressable style={st.addRow} onPress={() => setBlocking(true)} accessibilityRole="button">
-            <Ban size={17} color={T.red} strokeWidth={2.2} />
-            <Text style={st.addText} allowFontScaling>Block a number</Text>
-          </Pressable>
-        )}
-      </View>
-
-      <Text style={[st.section, { paddingTop: 14 }]} allowFontScaling>Setup</Text>
-      <View style={st.card}>
-        <Pressable style={st.setupRow} onPress={() => ctx.go('care')} accessibilityRole="button">
-          <Text style={st.setupText} allowFontScaling>Set up for someone else</Text>
-          <ChevronRight size={17} color={T.green} strokeWidth={2.2} />
-        </Pressable>
-        <Pressable style={[st.setupRow, { borderBottomWidth: 0 }]} onPress={() => ctx.go('intro')} accessibilityRole="button">
-          <Text style={st.setupText} allowFontScaling>Play the introduction again</Text>
-          <ChevronRight size={17} color={T.green} strokeWidth={2.2} />
-        </Pressable>
-      </View>
-
-      <Text style={st.version} allowFontScaling>Loop Me {version} · checks happen on this phone · no account · the family link runs on your own iCloud</Text>
-      <View style={{ height: 104 }} />
-    </ScrollView>
-    </KFIn>
+        <Note C={C} center top={18}>Loop Me {version}{'\n'}Everything is checked on this phone. No account.</Note>
+      </ScrollView>
+    </Screen>
   );
 }
 
 const st = StyleSheet.create({
-  blockHint: { paddingHorizontal: 20, paddingBottom: 8, fontSize: 15, fontFamily: F.body, color: T.sub, lineHeight: 22 },
-  root: { flex: 1, backgroundColor: T.ground },
-  topRow: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 10 },
-  back: { height: 44, flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start' },
-  backText: { fontSize: 16, fontFamily: F.semibold, color: T.ink },
-  title: { fontSize: 34, fontFamily: F.display, letterSpacing: -0.9, color: T.ink, lineHeight: 38 },
-  section: { paddingHorizontal: 24, paddingTop: 26, paddingBottom: 8, fontSize: 13, fontFamily: F.semibold, color: T.sub, letterSpacing: 0.4, textTransform: 'uppercase' },
-  card: {
-    marginHorizontal: 24, borderTopWidth: 1, borderTopColor: T.hairline,
-  },
-  toggleRow: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingHorizontal: 0, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: T.hairline },
-  rowTitle: { fontSize: 16.5, fontFamily: F.bold, color: T.ink },
-  rowWhy: { fontSize: 14.5, fontFamily: F.body, color: T.sub, lineHeight: 20.5, marginTop: 3 },
-  track: { width: 52, height: 31, borderRadius: 16, borderWidth: 1, padding: 2 },
-  thumb: { width: 25, height: 25, borderRadius: 13, backgroundColor: '#fff', shadowColor: '#d6d6d1', shadowOpacity: 1, shadowRadius: 2, shadowOffset: { width: 0, height: 1 } },
-  cwHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 15, paddingTop: 14 },
-  cwTitle: { fontSize: 16.5, fontFamily: F.bold, color: T.ink },
-  cwBody: { fontSize: 14.5, fontFamily: F.body, color: T.sub, lineHeight: 20.5, paddingHorizontal: 15, paddingTop: 6 },
-  cwInput: {
-    marginHorizontal: 15, marginTop: 12, paddingHorizontal: 13, paddingVertical: 12,
-    borderWidth: 1, borderColor: T.fieldBorder, borderRadius: 10, backgroundColor: T.ground,
-    fontSize: 17, fontFamily: F.body, color: T.ink,
-  },
-  cwActions: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingHorizontal: 15, paddingTop: 11 },
-  cwSave: { backgroundColor: T.green, paddingHorizontal: 16, paddingVertical: 11, borderRadius: 10 },
-  cwSaveText: { fontSize: 15.5, fontFamily: F.semibold, color: '#fff' },
-  cwRemove: { fontSize: 15.5, fontFamily: F.semibold, color: T.sub },
-  cwNote: { fontSize: 13.5, fontFamily: F.body, color: T.sub, lineHeight: 19, paddingHorizontal: 15, paddingTop: 11, paddingBottom: 14 },
-  setupSub: { fontSize: 14.5, fontFamily: F.body, color: T.sub, marginTop: 2 },
-  allowRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 0, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: T.hairline },
-  allowLabel: { fontSize: 16, fontFamily: F.semibold, color: T.ink },
-  allowRemove: { fontSize: 14, fontFamily: F.semibold, color: T.sub },
-  addRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 0, paddingVertical: 14 },
-  addText: { fontSize: 16, fontFamily: F.bold, color: T.ink },
-  addForm: { paddingBottom: 14 },
-  addInput: {
-    marginHorizontal: 15, marginTop: 12, paddingHorizontal: 13, paddingVertical: 12,
-    borderWidth: 1, borderColor: T.fieldBorder, borderRadius: 10, backgroundColor: T.ground,
-    fontSize: 17, fontFamily: F.body, color: T.ink,
-  },
-  setupRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: T.hairline },
-  setupText: { fontSize: 16, fontFamily: F.bold, color: T.ink },
-  version: { paddingHorizontal: 24, paddingTop: 16, fontSize: 13.5, fontFamily: F.body, color: T.sub, lineHeight: 19 },
+  perm: { marginHorizontal: 16, borderRadius: 16, paddingVertical: 14, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  start: { height: 36, paddingHorizontal: 16, borderRadius: 18, backgroundColor: T.red, alignItems: 'center', justifyContent: 'center' },
+  secret: { marginHorizontal: 16, marginTop: 20, backgroundColor: T.greenDeep, borderRadius: 20, padding: 18, minHeight: 150 },
 });

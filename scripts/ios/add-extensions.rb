@@ -106,6 +106,12 @@ if (mc = project.targets.find { |t| t.name == 'MessagesCheck' })
     mc.source_build_phase.add_file_reference(ref, true)
     puts 'MessagesCheck: + ExtensionCloud.swift'
   end
+  icon_path = File.join(ROOT, 'ios', 'MessagesCheck', 'loopme-icon.png')
+  unless mc.resources_build_phase.files_references.any? { |r| r.path && r.path.end_with?('loopme-icon.png') }
+    ref = (project.main_group['MessagesCheck'] || project.main_group.new_group('MessagesCheck', 'MessagesCheck')).new_file(icon_path)
+    mc.resources_build_phase.add_file_reference(ref, true)
+    puts 'MessagesCheck: + loopme-icon.png'
+  end
   %w[CloudKit AVFoundation].each do |fw|
     next if mc.frameworks_build_phase.files_references.any? { |r| r.path && r.path.end_with?(fw + '.framework') }
     mc.add_system_framework(fw)

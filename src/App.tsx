@@ -5,7 +5,8 @@
 // saved history, the text filter and share sheet feeding history through the
 // app group, and the family link over the family's own iCloud.
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, AppState, Linking as RNLinking, LogBox, SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Alert, AppState, Linking as RNLinking, LogBox, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
 import * as Clipboard from 'expo-clipboard';
@@ -17,7 +18,8 @@ import { Archivo_500Medium } from '@expo-google-fonts/archivo/500Medium';
 import { Archivo_600SemiBold } from '@expo-google-fonts/archivo/600SemiBold';
 import { Archivo_700Bold } from '@expo-google-fonts/archivo/700Bold';
 import { Archivo_800ExtraBold } from '@expo-google-fonts/archivo/800ExtraBold';
-import { T } from './theme';
+import { T, Palette } from './theme';
+import { palette } from './ui/base';
 import { instant, upgrade, FusedVerdict } from './engine/ai';
 import { loadSettings, saveSettings, isPostPanic, Settings } from './lib/storage';
 import { addCheck, listChecks, newRecord, updateCheck, CheckRecord } from './lib/history';
@@ -31,32 +33,39 @@ import IntroScreen from './screens/IntroScreen';
 import { Ob1, Ob2, Ob3, Ob4 } from './screens/SetupScreens';
 import { WatchSetup, WatchWait, WatchedBy } from './screens/PairScreens';
 import HomeScreen from './screens/HomeScreen';
-import VerdictScreen from './screens/VerdictScreen';
-import AlertScreen from './screens/AlertScreen';
+import CheckingScreen from './screens/CheckingScreen';
+import TakeoverScreen from './screens/TakeoverScreen';
+import DetailScreen from './screens/DetailScreen';
+import CallCheckScreen from './screens/CallCheckScreen';
 import HistoryScreen from './screens/HistoryScreen';
-import PeopleScreen from './screens/PeopleScreen';
-import PanicScreen from './screens/PanicScreen';
+import FamilyScreen from './screens/FamilyScreen';
+import AskScreen from './screens/AskScreen';
+import MariaScreen from './screens/MariaScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import SetupScreen from './screens/SetupScreen';
 import LearnScreen from './screens/LearnScreen';
-import CareScreen from './screens/CareScreen';
-import CallScreen from './screens/CallScreen';
+import PracticeScreen from './screens/PracticeScreen';
+import CaregiverScreen from './screens/CaregiverScreen';
+import ScammedScreen from './screens/ScammedScreen';
+import ListsScreen from './screens/ListsScreen';
+import DrawerInfoScreen from './screens/DrawerInfoScreen';
 import WardScreen from './screens/WardScreen';
-import WardItemScreen from './screens/WardItemScreen';
-import MoreScreen from './screens/MoreScreen';
 import FamilyAlertScreen from './screens/FamilyAlertScreen';
 import NoteScreen from './screens/NoteScreen';
 import ListenScreen from './screens/ListenScreen';
-import SwitchesScreen from './screens/SwitchesScreen';
 
 export type ScreenId =
   | 'intro' | 'ob1' | 'ob2' | 'ob3' | 'ob4'
   | 'watch' | 'watchWait' | 'watchedBy'
-  | 'home' | 'verdict' | 'alert'
-  | 'history' | 'people' | 'panic' | 'settings' | 'learn' | 'care' | 'more'
-  | 'call' | 'ward' | 'wardItem' | 'familyAlert' | 'note' | 'switches' | 'listen';
+  | 'home' | 'checking' | 'scam' | 'amber' | 'green' | 'detail' | 'callcheck'
+  | 'history' | 'family' | 'ask' | 'maria'
+  | 'settings' | 'setup' | 'learn' | 'practice' | 'caregiver' | 'scammed' | 'blocked' | 'safe' | 'drawerInfo'
+  | 'ward' | 'wardItem' | 'familyAlert' | 'note' | 'listen';
 
 export interface Ctx {
   settings: Settings;
+  /** Colour tokens for the current mode (light or dark). */
+  C: Palette;
   update: (s: Settings) => void;
   screen: ScreenId;
   go: (s: ScreenId) => void;
@@ -64,6 +73,11 @@ export interface Ctx {
   check: (text: string, sender?: string) => void;
   /** True while a check waits for the on-device model. */
   checking: boolean;
+  /** Open an earlier check on its own verdict screen. */
+  openRecord: (id: string) => void;
+  /** The Messages drawer asked for the photo picker; Home opens it once. */
+  pendingPhoto: boolean;
+  clearPendingPhoto: () => void;
   msg: string;
   verdict: FusedVerdict | null;
   recordId: string;
@@ -93,7 +107,7 @@ export interface Ctx {
   tallies: { filtered: number; junk: number; shared: number; lastFilteredAt: number };
 }
 
-const TAB_SCREENS: ScreenId[] = ['home', 'history', 'people', 'more', 'learn', 'settings', 'care', 'ward'];
+const TAB_SCREENS: ScreenId[] = ['home', 'history', 'family', 'settings', 'learn', 'setup', 'caregiver', 'blocked', 'safe', 'drawerInfo', 'ward', 'callcheck'];
 
 LogBox.ignoreLogs(['SafeAreaView has been deprecated']);
 
@@ -126,6 +140,7 @@ export default function App() {
   const [toast, setToast] = useState('');
   const [note, setNote] = useState<{ from: string; text: string } | null>(null);
   const [checking, setChecking] = useState(false);
+  const [pendingPhoto, setPendingPhoto] = useState(false);
   const [hist, setHist] = useState<CheckRecord[]>([]);
   const [wardOpen, setWardOpen] = useState<string | null>(null);
   const [alertId, setAlertId] = useState<string | null>(null);
@@ -152,7 +167,7 @@ export default function App() {
   const flash = useCallback((t: string) => {
     setToast(t);
     clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(''), 2200);
+    toastTimer.current = setTimeout(() => setToast(''), 2400);
   }, []);
 
   const go = useCallback((s: ScreenId) => {
@@ -343,9 +358,12 @@ export default function App() {
   }, [settings != null, refreshHist]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const activeCheck = useRef('');
+  // The Checking screen plays for 2.8 seconds while the rules and the model
+  // run underneath; the takeover that follows is the final answer.
+  const CHECK_MS = 2800;
   const check = useCallback((text: string, sender?: string) => {
     const raw = (text || '').trim();
-    if (!raw) { flash('Paste a message first, then tap Check.'); return; }
+    if (!raw) { flash('Copy a message first, then tap Check.'); return; }
     const s = settingsRef.current;
     const detOpts = {
       allowlist: s?.allowlist,
@@ -355,51 +373,62 @@ export default function App() {
     };
     const v = instant(raw, detOpts);
     recentTags.current = v.tags;
-    // A text the person already corrected is never misjudged twice.
-    Feedback.remembered(raw).then((label) => {
-      if (!label || activeCheck.current !== rec.id) return;
-      const fixed: FusedVerdict = label === 'scam'
-        ? { ...v, level: 'red', reason: 'You told Loop Me this one is a scam.', safeStep: 'Do not reply. Delete the message.', confidence: 'very', aiTier: v.aiTier, fused: true }
-        : { ...v, level: 'green', reason: 'You told Loop Me this one is fine.', safeStep: 'Nothing to do.', confidence: 'very', aiTier: v.aiTier, fused: true };
-      setVerdict(fixed);
-      updateCheck(rec.id, { level: fixed.level, reason: fixed.reason }).then(refreshHist);
-    }).catch(() => {});
     const rec = newRecord({ message: raw, level: v.level, score: v.score, tags: v.tags, reason: v.reason, source: sender ? 'link' : 'typed' });
     if (sender) rec.sender = sender;
     addCheck(rec).then(() => { refreshHist(); if (s) listChecks().then(h => Family.sendPulse(s, h)); });
     activeCheck.current = rec.id;
     setMsg(raw); setVerdict(v); setRecordId(rec.id); setNote(null);
-    // 'Warn me straight away' (Settings) chooses the full-screen red alert;
-    // with it off, a red verdict still lands, just on the calmer screen.
-    const wantsAlert = s?.alerts !== false;
-    const show = (lv: FusedVerdict['level']) => setScreen(lv === 'red' && wantsAlert ? 'alert' : 'verdict');
-    // A red from the rules shows at once. Anything else waits for the model,
-    // up to two seconds, so the first screen the person sees is the answer
-    // and not a verdict that changes under their thumb.
-    let shown = v.level === 'red';
-    if (shown) show('red'); else setChecking(true);
-    const reveal = (lv: FusedVerdict['level']) => {
-      if (shown) return;
+    setChecking(true);
+    setScreen('checking');
+    const startedAt = Date.now();
+    let final: FusedVerdict = v;
+    let shown = false;
+    const reveal = () => {
+      if (shown || activeCheck.current !== rec.id) return;
       shown = true;
       setChecking(false);
-      if (activeCheck.current === rec.id) show(lv);
+      setVerdict(final);
+      setScreen(final.level === 'red' ? 'scam' : final.level === 'amber' ? 'amber' : 'green');
     };
-    const timer = setTimeout(() => reveal(v.level), 2200);
+    // A text the person already corrected is never misjudged twice.
+    const remembered = Feedback.remembered(raw).then((label) => {
+      if (!label) return;
+      final = label === 'scam'
+        ? { ...final, level: 'red', reason: 'You told Loop Me this one is a scam.', safeStep: 'Don’t reply. Delete the message.', confidence: 'very', fused: true }
+        : { ...final, level: 'green', reason: 'You told Loop Me this one is fine.', safeStep: 'Nothing to do.', confidence: 'very', fused: true };
+      updateCheck(rec.id, { level: final.level, reason: final.reason }).then(refreshHist);
+    }).catch(() => {});
     // A flagged check goes to the caretaker on its own, over the family link.
     if (v.level !== 'green' && s) void Family.publish(rec, s, false);
-    // Real on-device AI second opinion fuses in when it resolves. The guard
-    // keeps a slow result from an OLDER check off a newer check's screen.
-    upgrade(raw, v, detOpts).then((fused) => {
-      clearTimeout(timer);
-      if (!fused.fused) { reveal(v.level); return; }
-      updateCheck(rec.id, { level: fused.level, reason: fused.reason }).then(refreshHist);
-      if (fused.level !== 'green' && v.level === 'green' && s) void Family.publish({ ...rec, level: fused.level, reason: fused.reason }, s, false);
-      if (activeCheck.current !== rec.id) { shown = true; setChecking(false); return; }
-      recentTags.current = fused.tags;
-      setVerdict(fused);
-      reveal(fused.level);
-    }).catch(() => { clearTimeout(timer); reveal(v.level); });
+    // The on-device model's second opinion, capped so the screen never stalls.
+    const model = Promise.race([
+      upgrade(raw, v, detOpts).then((fused) => {
+        if (!fused.fused) return;
+        if (!final.fused) final = fused;
+        updateCheck(rec.id, { level: fused.level, reason: fused.reason }).then(refreshHist);
+        if (fused.level !== 'green' && v.level === 'green' && s) void Family.publish({ ...rec, level: fused.level, reason: fused.reason }, s, false);
+        recentTags.current = fused.tags;
+      }).catch(() => {}),
+      new Promise<void>(r => setTimeout(r, 2600)),
+    ]);
+    Promise.all([remembered, model]).then(() => {
+      const wait = Math.max(0, CHECK_MS - (Date.now() - startedAt));
+      setTimeout(reveal, wait);
+    });
   }, [flash, refreshHist]);
+
+  // An earlier check, on the screen it got the first time.
+  const openRecord = useCallback((id: string) => {
+    const rec = histRef.current.find(r => r.id === id);
+    if (!rec) return;
+    activeCheck.current = rec.id;
+    const v: FusedVerdict = {
+      level: rec.level, reason: rec.reason, safeStep: rec.safeStep || '', signals: rec.signals || [], matches: [], tags: rec.tags,
+      confidence: 'fairly', codeWordMoment: false, score: rec.score, disguised: false, aiTier: 'none', fused: false,
+    };
+    setMsg(rec.excerpt); setVerdict(v); setRecordId(rec.id); setNote(null);
+    setScreen(rec.level === 'red' ? 'scam' : rec.level === 'amber' ? 'amber' : 'green');
+  }, []);
 
   // Elder side. The check lands on the caretaker's phone as a full-screen
   // alert over the family link. There is no text-message version.
@@ -418,7 +447,7 @@ export default function App() {
     // No link yet: nothing is texted. The invite is the only text Loop Me
     // ever sends, and it goes from the People screen.
     flash('Send someone the invite first. After that, nothing is ever texted.');
-    go('people');
+    go('family');
   }, [flash, go, refreshHist]);
 
   // Caretaker side. A note always travels over the family link; there is no
@@ -488,6 +517,7 @@ export default function App() {
     // 'Check unknown texts for me' (Settings) gates the unknown-sender path.
     // A check the person asked for by hand always runs.
     if (where === 'alert' && text) { if (settingsRef.current.autoCheck !== false) check(text, 'an unknown number'); return; }
+    if (where === 'check' && queryParams?.photo) { setPendingPhoto(true); go('home'); return; }
     if (where === 'check' && text) { check(text); return; }
     // The widget, Control Center and the Action button open the app with no
     // text: read what was copied here, where the person can see it happen.
@@ -497,7 +527,7 @@ export default function App() {
         if (t) check(t); else flash('Copy a message first, then tap again.');
       }).catch(() => flash('Copy a message first, then tap again.'));
     }
-  }, [check, flash]);
+  }, [check, flash, go]);
 
   // The URL the app was COLD-LAUNCHED with must be handled exactly once;
   // getInitialURL() keeps returning it for the life of the process.
@@ -525,11 +555,14 @@ export default function App() {
   const careMode = settings.role === 'caretaker';
   const watchName = settings.watching?.name?.split(' ')[0] || settings.careName.split(' ')[0] || 'Family';
   const alertRec = alertId ? hist.find(r => r.id === alertId) : undefined;
-  const darkBar = screen === 'alert' || screen === 'call' || screen === 'familyAlert' || screen === 'note' || screen === 'listen';
-  const barColor = screen === 'alert' ? T.red
+  // White status bar on Home (green header) and on every takeover; black elsewhere.
+  const darkBar = ['home', 'scam', 'amber', 'green', 'practice', 'familyAlert', 'note', 'listen'].includes(screen);
+  const barColor = screen === 'scam' ? T.red
+    : screen === 'amber' ? T.amber
     : screen === 'familyAlert' ? (alertRec?.level === 'amber' ? T.amber : T.red)
-    : screen === 'note' || screen === 'listen' ? T.green
-    : T.callDark;
+    : screen === 'practice' ? T.practice
+    : T.green;
+  const C = palette(!!settings.darkMode);
 
   const ctx: Ctx = {
     settings, update, screen, go, flash, check,
@@ -539,8 +572,10 @@ export default function App() {
     openFamilyAlert: (id) => { setAlertId(id); setScreen('familyAlert'); },
     closeFamilyAlert: () => { if (alertId) updateCheck(alertId, { seen: true }).then(refreshHist); setAlertId(null); setScreen('ward'); },
     noteOpen,
-    closeNote: () => { setNoteOpen(null); setScreen(verdict ? 'verdict' : 'home'); },
-    loopIn, sendNoteTo, refreshFamily, unlinkFamily, blockNumber, correct, tallies, pulse, checking,
+    closeNote: () => { setNoteOpen(null); setScreen('home'); },
+    loopIn, sendNoteTo, refreshFamily, unlinkFamily, blockNumber, correct, tallies, pulse, checking, openRecord,
+    C: palette(!!settings.darkMode),
+    pendingPhoto, clearPendingPhoto: () => setPendingPhoto(false),
   };
 
   const goTab = (t: TabId) => go(t as ScreenId);
@@ -550,8 +585,9 @@ export default function App() {
   if (screen === 'intro') return <IntroScreen ctx={ctx} />;
 
   return (
-    <SafeAreaView style={[st.root, darkBar && { backgroundColor: barColor }]}>
-      <StatusBar barStyle={darkBar ? 'light-content' : 'dark-content'} />
+    <SafeAreaProvider>
+    <SafeAreaView edges={['top']} style={[st.root, { backgroundColor: darkBar ? barColor : C.ground }]}>
+      <StatusBar barStyle={darkBar || C.dark ? 'light-content' : 'dark-content'} />
       <View style={st.body}>
         <ScreenGuard screen={screen} onReset={() => setScreen('home')}>
         {screen === 'ob1' && <Ob1 ctx={ctx} />}
@@ -563,28 +599,34 @@ export default function App() {
         {screen === 'watchWait' && <WatchWait ctx={ctx} />}
         {screen === 'watchedBy' && <WatchedBy ctx={ctx} />}
         {screen === 'home' && <HomeScreen ctx={ctx} />}
-        {screen === 'verdict' && <VerdictScreen ctx={ctx} />}
-        {screen === 'alert' && <AlertScreen ctx={ctx} />}
+        {screen === 'checking' && <CheckingScreen ctx={ctx} />}
+        {(screen === 'scam' || screen === 'amber' || screen === 'green') && <TakeoverScreen ctx={ctx} />}
+        {screen === 'detail' && <DetailScreen ctx={ctx} />}
+        {screen === 'callcheck' && <CallCheckScreen ctx={ctx} />}
         {screen === 'history' && <HistoryScreen ctx={ctx} />}
-        {screen === 'people' && <PeopleScreen ctx={ctx} />}
-        {screen === 'panic' && <PanicScreen ctx={ctx} />}
+        {screen === 'family' && <FamilyScreen ctx={ctx} />}
+        {screen === 'ask' && <AskScreen ctx={ctx} />}
+        {screen === 'maria' && <MariaScreen ctx={ctx} />}
         {screen === 'settings' && <SettingsScreen ctx={ctx} />}
+        {screen === 'setup' && <SetupScreen ctx={ctx} />}
         {screen === 'learn' && <LearnScreen ctx={ctx} />}
-        {screen === 'care' && <CareScreen ctx={ctx} />}
-        {screen === 'more' && <MoreScreen ctx={ctx} />}
-        {screen === 'call' && <CallScreen ctx={ctx} />}
+        {screen === 'practice' && <PracticeScreen ctx={ctx} />}
+        {screen === 'caregiver' && <CaregiverScreen ctx={ctx} />}
+        {screen === 'scammed' && <ScammedScreen ctx={ctx} />}
+        {(screen === 'blocked' || screen === 'safe') && <ListsScreen ctx={ctx} />}
+        {screen === 'drawerInfo' && <DrawerInfoScreen ctx={ctx} />}
         {screen === 'ward' && <WardScreen ctx={ctx} />}
-        {screen === 'wardItem' && <WardItemScreen ctx={ctx} />}
+        {screen === 'wardItem' && <MariaScreen ctx={ctx} />}
         {screen === 'familyAlert' && <FamilyAlertScreen ctx={ctx} />}
         {screen === 'note' && <NoteScreen ctx={ctx} />}
-        {screen === 'switches' && <SwitchesScreen ctx={ctx} />}
         </ScreenGuard>
         {TAB_SCREENS.includes(screen) && (
-          <TabBar careMode={careMode} watchName={watchName} screen={screen} go={goTab} />
+          <TabBar C={C} careMode={careMode} watchName={watchName} screen={screen} go={goTab} />
         )}
         <Toast text={toast} />
       </View>
     </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 

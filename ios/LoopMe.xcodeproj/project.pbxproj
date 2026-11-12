@@ -29,6 +29,7 @@
 		2BB01F7EF2684036CAFA3955 /* CoreModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49312EEB42FDF8F28BCEFC21 /* CoreModel.swift */; };
 		2DB0372AC0C8F8789A355254 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389B4380A6D0BE5521D3E969 /* Engine.swift */; };
 		2DB0382E52179861D722081C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8053B7FC48E47DD52593E09F /* Assets.xcassets */; };
+		348E5B0B3FBF497C77E76C64 /* loopme-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 9190332B13D0484345A5F164 /* loopme-icon.png */; };
 		36F5DEEC29A2F0AF7DF541CB /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F6485172735D415D209CC3 /* ExpoModulesProvider.swift */; };
 		39B363F38E5085852ACA2610 /* Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8EDDE520E38DDFCAF7795B /* Features.swift */; };
 		39E63B7C4EA07B55DFE2807F /* Redact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E5E20DE30DBF5658A97F933 /* Redact.swift */; };
@@ -221,6 +222,7 @@
 		8A8ED0B366ABBFBCD7F6948A /* ShareViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		8E5E20DE30DBF5658A97F933 /* Redact.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Redact.swift; sourceTree = "<group>"; };
 		8F8510B5AC47DFE60E38D3E8 /* Pods-LoopMe.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LoopMe.release.xcconfig"; path = "Target Support Files/Pods-LoopMe/Pods-LoopMe.release.xcconfig"; sourceTree = "<group>"; };
+		9190332B13D0484345A5F164 /* loopme-icon.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; path = "loopme-icon.png"; sourceTree = "<group>"; };
 		945077E77B5E2962B39434D8 /* Normalize.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Normalize.swift; sourceTree = "<group>"; };
 		9A54E6BC69289D3C1B1B113B /* LoopMeWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoopMeWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A4D265154FE44392D71A81F4 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Vision.framework; sourceTree = DEVELOPER_DIR; };
@@ -374,6 +376,7 @@
 			children = (
 				07FABF292FF3560D3714FFB3 /* MessagesViewController.swift */,
 				8053B7FC48E47DD52593E09F /* Assets.xcassets */,
+				9190332B13D0484345A5F164 /* loopme-icon.png */,
 			);
 			name = MessagesCheck;
 			path = MessagesCheck;
@@ -788,6 +791,7 @@
 			files = (
 				A75276FC27EF97C9F46C58F6 /* engine.json in Resources */,
 				2DB0382E52179861D722081C /* Assets.xcassets in Resources */,
+				348E5B0B3FBF497C77E76C64 /* loopme-icon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

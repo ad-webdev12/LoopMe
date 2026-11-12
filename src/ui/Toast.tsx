@@ -1,23 +1,18 @@
-// Toast: #171717 on white shadow, 13.5/1.4 semibold, v2in .2s, sits above the
-// tab bar (bottom 104). Dismissed by the app after 2200ms.
+// Toast at the top: rgba(28,28,30,.94), radius 16, 16/500 white, in 200ms,
+// stays 2.4s. Confirms one-off actions (call, block, save PDF).
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
-import { KFIn } from './kf';
-import { F } from '../theme';
+import { Swap } from './base';
+import { T, font } from '../theme';
 
 export default function Toast({ text }: { text: string }) {
   if (!text) return null;
   return (
-    <KFIn duration={200} playKey={text} style={st.wrap}>
-      <Text style={st.text} allowFontScaling>{text}</Text>
-    </KFIn>
+    <Swap playKey={text} ms={200} style={st.wrap}>
+      <Text style={[font(16, '500', 1.35), { color: '#fff', textAlign: 'center' }]} allowFontScaling>{text}</Text>
+    </Swap>
   );
 }
 const st = StyleSheet.create({
-  wrap: {
-    position: 'absolute', left: 18, right: 18, bottom: 104,
-    backgroundColor: '#171717', paddingHorizontal: 15, paddingVertical: 13, zIndex: 30,
-    shadowColor: '#d6d6d1', shadowOpacity: 1, shadowRadius: 18, shadowOffset: { width: 0, height: 6 },
-  },
-  text: { color: '#fff', fontSize: 15.5, lineHeight: 21.8, fontFamily: F.semibold },
+  wrap: { position: 'absolute', left: 20, right: 20, top: 6, zIndex: 30, backgroundColor: T.toast, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 },
 });

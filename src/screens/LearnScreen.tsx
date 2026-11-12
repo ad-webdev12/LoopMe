@@ -1,82 +1,73 @@
-// Learn the tricks. Source lines 340-345. Five numbered tricks with the
-// "What to do:" line coloured by tone.
-import React from 'react';
+// Five tricks worth knowing. Tap one to see what to do; the answer box fades
+// up. A green banner leads to the practice call; one button reads the open
+// trick aloud.
+import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { ChevronLeft, Phone, ChevronRight } from 'lucide-react-native';
-import { T, F } from '../theme';
-import { KFIn } from '../ui/kf';
-import { readAloud } from '../lib/speech';
+import * as Speech from 'expo-speech';
+import { Phone, ChevronRight, Volume2 } from 'lucide-react-native';
+import { T, font } from '../theme';
+import { Screen, BackLink, ScreenTitle, Lead, Swap } from '../ui/base';
 import type { Ctx } from '../App';
 
-const TRICKS = [
-  { title: 'The gift card demand', body: 'Someone says you owe money and must pay with gift cards.', doThis: 'hang up. No real company or agency takes gift cards. Ever.', tone: 'red' },
-  { title: 'The delivery fee', body: 'A text says a small fee will release your package.', doThis: 'ignore the link and check the order on the carrier’s own site.', tone: 'amber' },
-  { title: 'The family emergency', body: 'A panicked message from “your grandchild”, sworn to secrecy.', doThis: 'hang up and ring that person on their usual number.', tone: 'red' },
-  { title: 'The bank alert', body: 'A frightening “your account is locked” message with a link.', doThis: 'call the number printed on the back of your card.', tone: 'amber' },
-  { title: 'The code request', body: 'Someone asks you to read out a code that was just texted to you.', doThis: 'never read it out. That code is the key to your account.', tone: 'red' },
-] as const;
+const TIPS = [
+  { n: 1, red: true, title: 'The gift card demand', body: 'Someone says you owe money and must pay with gift cards.', answer: 'Hang up. No real company or agency takes gift cards. Ever.' },
+  { n: 2, red: false, title: 'The delivery fee', body: 'A text says a small fee will release your package.', answer: 'Ignore the link. Check the order on the carrier’s own website or app.' },
+  { n: 3, red: true, title: 'The family emergency', body: 'A panicked message from “your grandchild”, sworn to secrecy.', answer: 'Hang up and ring them on their usual number. Ask for your family’s secret word.' },
+  { n: 4, red: true, title: 'The bank’s “fraud team”', body: 'A caller says your account is at risk and you must move your money.', answer: 'Your bank will never ask you to move money to a “safe account”. Hang up and call the number on your card.' },
+  { n: 5, red: false, title: 'The computer pop-up', body: 'A loud warning says your computer has a virus and gives a number to call.', answer: 'Apple and Microsoft never put a phone number on screen. Close it. Never let a stranger onto your computer.' },
+];
 
 export default function LearnScreen({ ctx }: { ctx: Ctx }) {
+  const { C } = ctx;
+  const [open, setOpen] = useState<number | null>(null);
+  const read = () => {
+    const t = TIPS.find(x => x.n === open);
+    if (!t) { ctx.flash('Tap a trick first.'); return; }
+    Speech.speak(t.title + '. ' + t.body + ' ' + t.answer, { rate: 0.9 });
+  };
   return (
-    <KFIn duration={260} style={{ flex: 1 }} playKey="learn">
-    <ScrollView style={st.root} showsVerticalScrollIndicator={false}>
-      <View style={st.topRow}>
-        <Pressable style={st.back} onPress={() => ctx.go('more')} accessibilityRole="button">
-          <ChevronLeft size={18} color={T.ink} strokeWidth={2.2} />
-          <Text style={st.backText} allowFontScaling>Back</Text>
+    <Screen C={C} playKey="learn">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+        <BackLink label="Settings" onPress={() => ctx.go('settings')} />
+        <ScreenTitle C={C}>Five tricks worth knowing</ScreenTitle>
+        <Lead C={C} top={8}>Tap one to see what to do.</Lead>
+        <Pressable onPress={() => ctx.go('practice')} style={({ pressed }) => [st.banner, pressed && { opacity: 0.8 }]} accessibilityRole="button">
+          <Phone size={22} color="#fff" strokeWidth={2} />
+          <View style={{ flex: 1 }}>
+            <Text style={[font(17, '600'), { color: '#fff' }]} allowFontScaling>Practice a scam call</Text>
+            <Text style={[font(15, '400'), { color: '#fff', marginTop: 1 }]} allowFontScaling>A rehearsal. Nobody really calls.</Text>
+          </View>
+          <ChevronRight size={18} color="#fff" strokeWidth={2.2} />
         </Pressable>
-      </View>
-      <View style={{ paddingHorizontal: 24, paddingBottom: 14 }}>
-        <Text style={st.title} allowFontScaling>Five tricks worth knowing</Text>
-        <Text style={st.sub} allowFontScaling>Tap one to hear it read out.</Text>
-      </View>
-      <Pressable style={st.practice} onPress={() => ctx.go('call')} accessibilityRole="button">
-        <View style={st.practiceIcon}><Phone size={18} color={T.green} strokeWidth={2.2} /></View>
-        <View style={{ flex: 1 }}>
-          <Text style={st.practiceTitle} allowFontScaling>Practice a scam call</Text>
-          <Text style={st.practiceBody} allowFontScaling>A rehearsal. Nobody really calls.</Text>
-        </View>
-        <ChevronRight size={17} color={T.green} strokeWidth={2.2} />
-      </Pressable>
-      <View style={st.card}>
-        {TRICKS.map((t, i) => {
-          const edge = t.tone === 'red' ? T.red : T.amber;
-          return (
-            <Pressable key={i} style={[st.row, i === TRICKS.length - 1 && { borderBottomWidth: 0 }]}
-              onPress={() => readAloud(t.title + '. ' + t.body + ' What to do: ' + t.doThis)} accessibilityRole="button">
-              <Text style={[st.num, { color: edge }]} allowFontScaling>{i + 1}</Text>
+        <View style={[st.list, { backgroundColor: C.card }]}>
+          {TIPS.map((t, i) => (
+            <Pressable key={t.n} onPress={() => setOpen(open === t.n ? null : t.n)} style={[st.row, i < TIPS.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep }]} accessibilityRole="button" accessibilityState={{ expanded: open === t.n }}>
+              <Text style={[font(17, '700'), { color: t.red ? T.red : T.amber }]} allowFontScaling>{t.n}</Text>
               <View style={{ flex: 1 }}>
-                <Text style={st.rowTitle} allowFontScaling>{t.title}</Text>
-                <Text style={st.rowBody} allowFontScaling>{t.body}</Text>
-                <Text style={st.doThis} allowFontScaling>{t.doThis}</Text>
+                <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>{t.title}</Text>
+                <Text style={[font(15, '400', 1.4), { color: C.ink2, marginTop: 2 }]} allowFontScaling>{t.body}</Text>
+                {open === t.n && (
+                  <Swap playKey={t.n} ms={200} style={[st.answer, { backgroundColor: t.red ? C.redTint : C.amberTint }]}>
+                    <Text style={[font(16, '600', 1.4), { color: t.red ? T.redInk : T.amberInk }]} allowFontScaling>{t.answer}</Text>
+                  </Swap>
+                )}
               </View>
             </Pressable>
-          );
-        })}
-      </View>
-      <View style={{ height: 104 }} />
-    </ScrollView>
-    </KFIn>
+          ))}
+        </View>
+        <Pressable onPress={read} style={({ pressed }) => [st.read, { backgroundColor: C.card }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
+          <Volume2 size={18} color={T.green} strokeWidth={2} />
+          <Text style={[font(16, '600'), { color: T.green }]} allowFontScaling>Read the open one to me</Text>
+        </Pressable>
+      </ScrollView>
+    </Screen>
   );
 }
 
 const st = StyleSheet.create({
-  root: { flex: 1, backgroundColor: T.ground },
-  topRow: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 10 },
-  back: { height: 44, flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start' },
-  backText: { fontSize: 16, fontFamily: F.semibold, color: T.ink },
-  title: { fontSize: 34, fontFamily: F.display, letterSpacing: -0.9, color: T.ink, lineHeight: 38 },
-  sub: { fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 22.5, marginTop: 6 },
-  practice: { marginHorizontal: 24, marginBottom: 6, flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, borderTopWidth: 1, borderTopColor: T.hairline },
-  practiceIcon: { width: 24, alignItems: 'center', justifyContent: 'center' },
-  practiceTitle: { fontSize: 16.5, fontFamily: F.bold, color: T.greenInk },
-  practiceBody: { fontSize: 14.5, fontFamily: F.body, color: T.greenInk2, lineHeight: 20, marginTop: 2 },
-  card: {
-    marginHorizontal: 24, borderTopWidth: 1, borderTopColor: T.hairline,
-  },
-  row: { flexDirection: 'row', gap: 13, paddingHorizontal: 0, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: T.hairline },
-  num: { fontSize: 16, fontFamily: F.bold, width: 15, paddingTop: 1 },
-  rowTitle: { fontSize: 17.5, fontFamily: F.bold, color: T.ink },
-  rowBody: { fontSize: 15.5, fontFamily: F.body, color: T.sub, lineHeight: 22.5, marginTop: 4 },
-  doThis: { fontSize: 16.5, fontFamily: F.semibold, color: T.ink, lineHeight: 24, marginTop: 8 },
+  banner: { marginHorizontal: 16, marginTop: 16, backgroundColor: T.green, borderRadius: 16, paddingVertical: 14, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  list: { marginHorizontal: 16, marginTop: 12, borderRadius: 16, paddingHorizontal: 16 },
+  row: { flexDirection: 'row', gap: 12, paddingVertical: 14 },
+  answer: { marginTop: 10, padding: 12, borderRadius: 12 },
+  read: { marginHorizontal: 16, marginTop: 14, height: 50, borderRadius: 25, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
 });

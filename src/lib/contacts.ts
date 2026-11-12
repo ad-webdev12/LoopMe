@@ -75,7 +75,9 @@ export async function pickTrustedPerson(): Promise<PickResult> {
   if (!name) {
     return { ok: false, reason: 'That contact has no name saved. Give them a name in Contacts first.' };
   }
-  return { ok: true, person: { name, phone } };
+  // Their Contacts photo, when there is one. Shown wherever the person appears.
+  const photo = (picked.image as { uri?: string } | undefined)?.uri || (picked.rawImage as { uri?: string } | undefined)?.uri;
+  return { ok: true, person: photo ? { name, phone, photo } : { name, phone } };
 }
 
 /** Same phone, ignoring spaces, dashes, brackets and a leading country code. */

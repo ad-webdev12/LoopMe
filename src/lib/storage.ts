@@ -2,7 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type Role = 'elder' | 'caretaker';
 
-export interface TrustedPerson { name: string; phone: string; }
+export interface TrustedPerson {
+  name: string;
+  phone: string;
+  photo?: string;      // Contacts photo URI, when they have one
+  relation?: string;   // Daughter, Son, ... chosen when added; never guessed
+}
 
 export interface Settings {
   role: Role | null;             // null → first-run welcome
@@ -19,6 +24,7 @@ export interface Settings {
   careRel: string;               // Mother / Father / Other
   autoCheck: boolean;            // "Check unknown texts for me"
   improve: boolean;              // send corrected texts (redacted) to help the detector; off by default
+  darkMode: boolean;             // off by default; real tokens, never an inversion
   introSeen: boolean;
   // The family link over iCloud. Mirrored from the native side at launch so
   // screens can read it synchronously.
@@ -36,7 +42,7 @@ const DEFAULTS: Settings = {
   alerts: true, readAloud: false,
   allowlist: [], trusted: [], watching: null,
   codeWordSet: false, codeWord: '', panicCompletedAt: null,
-  pairCode: '', watchedBy: null, careName: '', careRel: 'Mother', autoCheck: true, improve: false, introSeen: false,
+  pairCode: '', watchedBy: null, careName: '', careRel: 'Mother', autoCheck: true, improve: false, darkMode: false, introSeen: false,
   familyLinked: false, familyRole: null, familyInvited: false, blocked: [], installedAt: 0,
 };
 

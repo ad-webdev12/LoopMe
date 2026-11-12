@@ -53,7 +53,7 @@ Everything below is real data — nothing is pre-filled.
 **Around the loop**
 9. History tab — real stats, 7-day chart, day groups. Check the same scam
    text 3 times to see the repeat-sender warning.
-10. People tab — your real person, one-tap call, the exact opening line of
+10. Family tab — your real person, one-tap call, the exact opening line of
     the real SMS this app sends.
 11. More → Learn the tricks (5 cards), Settings (alerts, auto-check,
     safe senders, replay intro), "I think I've been scammed" (5 calm steps —
@@ -189,7 +189,7 @@ with the three reply buttons. Open Loop Me on the watch: the last alerts and
 
 **Invite without a text (two phones in one room)**
 
-Phone A: People › Nobody yet › "Show a code to scan". Phone B: open the Camera,
+Phone A: Family › Choose someone › "Show a code". Phone B: open the Camera,
 point it at phone A, tap the link. Or "AirDrop it" and accept on B. Either way
 B lands on "You are looking after Margaret" with no text message sent.
 

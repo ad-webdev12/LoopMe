@@ -74,6 +74,8 @@ The family link is new. Link one person you trust and a scam text on your phone 
 
 Loop Me now works while it is closed: a text filter for numbers you do not know (Settings › Messages › Unknown & Junk), a call directory that labels scam callers (Settings › Phone › Call Blocking), and a share sheet that checks anything from any app.
 
+A new look, built with a designer: grouped cards on iOS grey, one clear action per screen, full-screen red, amber and green verdicts with the message shown as a card and the suspect phrases underlined, a floating tab bar (Check · History · Family · Settings), your family's real Contacts photos, a Checking screen that shows the work, Was it a phone call?, a five-step I think I've been scammed, the family secret word behind Face ID, and dark mode.
+
 Who is calling: on iOS 18, every unknown call is looked up as it rings, privately (the number never leaves the phone), and a reported scam caller is named before you answer. Listen mode: hold the phone near a landline, a speakerphone or a voicemail and watch the words turn red as a con unfolds. Took a screenshot of a text? Loop Me offers to check it, no copying. If you look after someone: call them from the alert and the text stays on your lock screen while you read it together, and the same alert reaches your Apple Watch with one button to ring them. The invite can now be a code the other phone's camera scans, or AirDrop.
 
 Loop Me inside Messages: copy a text, tap Loop Me in the + list, tap Paste. The answer appears right there, and so do the buttons that matter: tell the person who looks out for you, hear it read aloud, say it was wrong. A Home Screen and Lock Screen widget, a Control Center button and the Action button open Loop Me on whatever you last copied.
@@ -165,7 +167,7 @@ signing adds them when you archive, but check the developer portal if signing co
 **CloudKit schema must be deployed to Production before release.** Development works
 on its own, but App Store builds use the Production environment, which starts empty:
 
-1. Run the app from Xcode on a real phone signed in to iCloud, open More › Watched over by,
+1. Run the app from Xcode on a real phone signed in to iCloud, open Family › Choose someone and send the invite,
    and send one invite, then paste any text and tap Check. That creates the `Check`, `Note`
    `Pulse` and `Ping` record types in Development, and `Sample` in the Public database (switch on
    Help improve Loop Me in Settings and tap "No, it is a scam" once on a verdict). All three must show under Record Types before
@@ -177,7 +179,7 @@ Without step 2 the family link silently fails on App Store builds.
 
 **App Review notes** (paste into the Notes field):
 
-> Loop Me checks messages for scams on the device. The family link (More › Watched over by)
+> Loop Me checks messages for scams on the device. The family link (Family › Choose someone and send the invite)
 > shares flagged checks between two phones through the user's own iCloud, with no server
 > of ours. To test it you need two devices signed in to different iCloud accounts: on one,
 > send the invite; on the other, tap the link in the text. The text filter and call

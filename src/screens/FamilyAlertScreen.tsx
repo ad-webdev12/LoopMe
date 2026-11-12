@@ -1,86 +1,58 @@
-// Caretaker, the moment something is flagged on the other phone. One red
-// field: whose phone, what happened, the text. Two answers. Everything else
-// is a text link.
+// The caretaker's phone, the moment something is flagged on the other one.
+// A red or amber takeover: whose phone, what happened, the text. Two
+// answers, then call-and-read-together and a note.
 import React, { useEffect } from 'react';
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import { T, F } from '../theme';
-import { KFFade, KFRise } from '../ui/kf';
-import { timeLabel } from '../lib/clock';
+import { Linking, Text, View } from 'react-native';
+import { T, font } from '../theme';
+import { Takeover, Pill, TextBtn, Avatar } from '../ui/base';
+import { firstName, whenLabel } from '../ui/pieces';
 import { quickNote } from '../lib/family';
 import { startCallActivity } from '../../modules/scam-ai';
 import type { Ctx } from '../App';
 
 export default function FamilyAlertScreen({ ctx }: { ctx: Ctx }) {
   const rec = ctx.hist.find(h => h.id === ctx.alertId);
-  useEffect(() => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {}); }, [ctx.alertId]);
   useEffect(() => { if (!rec) ctx.closeFamilyAlert(); }, [rec]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!rec) return null;
-
-  const name = ctx.settings.watching?.name?.split(' ')[0] || rec.from?.split(' ')[0] || 'They';
+  const s = ctx.settings;
+  const name = firstName(s.watching?.name) || firstName(rec.from) || 'They';
   const red = rec.level !== 'amber';
   const field = red ? T.red : T.amber;
-  const when = new Date(rec.at);
-  const whenLabel = (when.toDateString() === new Date().toDateString() ? 'today, ' : '') + timeLabel(when);
-  const phone = ctx.settings.watching?.phone;
-  const headline = rec.askedFamily ? name + ' asked you about a text.' : red ? 'A scam text reached ' + name + '.' : 'A text on ' + name + '’s phone looks off.';
+  const phone = s.watching?.phone;
+  const headline = rec.askedFamily ? name + ' asked you about a text.' : red ? name + ' got a scam text.' : 'A text on ' + name + '’s phone looks off.';
 
   const reply = async (verdict: 'scam' | 'safe' | 'call') => {
     await ctx.sendNoteTo(rec.id, quickNote(verdict), verdict);
     if (verdict === 'call' && phone) {
-      // The text stays on the lock screen and in the Dynamic Island for the
-      // length of the call, so both of them can read it together.
-      startCallActivity(name, rec.excerpt, red ? 'red' : 'amber', red ? 'Tell them: do not reply, do not tap, delete it.' : 'Read it together. If they were asked for money or a code, it is a scam.');
+      startCallActivity(name, rec.excerpt, red ? 'red' : 'amber', red ? 'Tell them: don’t reply, don’t tap, delete it.' : 'Read it together. If they were asked for money or a code, it’s a scam.');
       Linking.openURL('tel:' + phone.replace(/[^\d+]/g, '')).catch(() => {});
     }
     ctx.closeFamilyAlert();
   };
 
   return (
-    <KFFade duration={200} style={[st.root, { backgroundColor: field }]} playKey={rec.id}>
-      <View style={st.field}>
-        <KFRise duration={550} delay={100} playKey={rec.id}>
-          <Text style={st.eyebrow} allowFontScaling>{name.toUpperCase()}’S PHONE  ·  {whenLabel}</Text>
-          <Text style={st.display} allowFontScaling>{headline}</Text>
-        </KFRise>
-        <KFRise duration={550} delay={260} playKey={rec.id}>
-          <Text style={st.quote} allowFontScaling numberOfLines={4}>“{rec.excerpt}”</Text>
-          <Text style={st.sub} allowFontScaling>{rec.sender ? 'From ' + rec.sender + '. ' : ''}{name} has been told: {rec.reason}</Text>
-        </KFRise>
-      </View>
-
-      <View style={st.bottom}>
-        <Pressable style={st.primary} onPress={() => reply('scam')} accessibilityRole="button">
-          <Text style={[st.primaryText, { color: field }]} allowFontScaling>Tell {name} it is a scam</Text>
-        </Pressable>
-        <Pressable style={st.secondary} onPress={() => reply('safe')} accessibilityRole="button">
-          <Text style={st.secondaryText} allowFontScaling>That one is fine</Text>
-        </Pressable>
-        <View style={st.links}>
-          <Pressable onPress={() => reply('call')} accessibilityRole="button"><Text style={st.link} allowFontScaling>{phone ? 'Call ' + name + ', read it together' : 'Say you will call'}</Text></Pressable>
-          <Text style={st.linkDot}>·</Text>
-          <Pressable onPress={() => ctx.openWard(rec.id)} accessibilityRole="button"><Text style={st.link} allowFontScaling>Write a note</Text></Pressable>
-          <Text style={st.linkDot}>·</Text>
-          <Pressable onPress={ctx.closeFamilyAlert} accessibilityRole="button"><Text style={st.link} allowFontScaling>Later</Text></Pressable>
+    <Takeover color={field} haptic={red ? 'error' : 'warning'} playKey={rec.id}>
+      <View style={{ flex: 1, paddingTop: 70, paddingHorizontal: 22, paddingBottom: 30 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Avatar name={s.watching?.name || name} photo={s.watching?.photo} size={30} onPhoto />
+          <Text style={[font(15, '600'), { color: 'rgba(255,255,255,.85)' }]} allowFontScaling>{name}’s phone · {whenLabel(rec.at)}</Text>
+        </View>
+        <Text style={[font(44, '800', 1.02, -1), { color: '#fff', marginTop: 18 }]} allowFontScaling>{headline}</Text>
+        <View style={{ marginTop: 20, backgroundColor: '#fff', borderRadius: 20, paddingTop: 14, paddingHorizontal: 16, paddingBottom: 16, shadowColor: red ? 'rgba(80,10,0,1)' : 'rgba(60,30,0,1)', shadowOpacity: 0.25, shadowRadius: 30, shadowOffset: { width: 0, height: 12 } }}>
+          <Text style={[font(13, '400'), { color: '#6c6c70' }]} allowFontScaling>{rec.sender || 'Unknown number'}</Text>
+          <Text style={[font(16.5, '400', 1.4), { color: '#000', marginTop: 8 }]} allowFontScaling numberOfLines={6}>{rec.excerpt}</Text>
+        </View>
+        <Text style={[font(16, '400', 1.4), { color: '#fff', marginTop: 14 }]} allowFontScaling>{name} has been told: {rec.reason}</Text>
+        <View style={{ marginTop: 'auto', paddingTop: 20, gap: 10 }}>
+          <Pill label={'Tell ' + name + ' it’s a scam'} bg="#fff" color={field} onPress={() => reply('scam')} />
+          <Pill label="That one’s fine" bg="rgba(255,255,255,.2)" onPress={() => reply('safe')} />
+          <View style={{ flexDirection: 'row', marginTop: 2 }}>
+            <TextBtn label={phone ? 'Call ' + name + ', read it together' : 'Say you’ll call'} onPress={() => reply('call')} style={{ flex: 1 }} />
+            <TextBtn label="Write a note" onPress={() => ctx.openWard(rec.id)} style={{ flex: 1 }} />
+          </View>
+          <TextBtn label="Later" onPress={ctx.closeFamilyAlert} />
         </View>
       </View>
-    </KFFade>
+    </Takeover>
   );
 }
-
-const st = StyleSheet.create({
-  root: { flex: 1 },
-  field: { flex: 1, justifyContent: 'center', paddingHorizontal: 26, paddingBottom: 16 },
-  eyebrow: { fontSize: 13, fontFamily: F.bold, letterSpacing: 1.6, color: 'rgba(255,255,255,.8)', marginBottom: 14 },
-  display: { fontSize: 38, fontFamily: F.display, letterSpacing: -1.1, color: '#fff', lineHeight: 41 },
-  quote: { fontSize: 20, fontFamily: F.medium, color: '#fff', lineHeight: 29, marginTop: 22 },
-  sub: { fontSize: 15.5, fontFamily: F.body, color: 'rgba(255,255,255,.85)', lineHeight: 22, marginTop: 14 },
-  bottom: { paddingHorizontal: 26, paddingBottom: 36, gap: 10 },
-  primary: { height: 64, borderRadius: 16, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
-  primaryText: { fontSize: 19, fontFamily: F.bold },
-  secondary: { height: 56, borderRadius: 16, borderWidth: 1.5, borderColor: 'rgba(255,255,255,.6)', alignItems: 'center', justifyContent: 'center' },
-  secondaryText: { fontSize: 17, fontFamily: F.semibold, color: '#fff' },
-  links: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, paddingTop: 10 },
-  link: { fontSize: 16, fontFamily: F.semibold, color: '#fff' },
-  linkDot: { color: 'rgba(255,255,255,.6)', fontSize: 16 },
-});
