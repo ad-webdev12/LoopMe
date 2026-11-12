@@ -198,7 +198,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = LoopMe/Info.plist; sourceTree = "<group>"; };
 		25B6B2818200D3D2F554CF34 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = DEVELOPER_DIR; };
 		264F377F32143F7867000D84 /* MessagesCheck.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MessagesCheck.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		2DD78DC50CE9ACB4842E9A7C /* ScamFilter.mlmodel */ = {isa = PBXFileReference; includeInIndex = 1; path = ScamFilter.mlmodel; sourceTree = "<group>"; };
+		2DD78DC50CE9ACB4842E9A7C /* ScamFilter.mlmodel */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.mlmodel; path = ScamFilter.mlmodel; sourceTree = "<group>"; };
 		342A00FB96CE89695B5C68A2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		35F6485172735D415D209CC3 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-LoopMe/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		3880F1449DE7286E50DBC971 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -215,7 +215,7 @@
 		6C26B90D014DFB78C17A71F2 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/AVFoundation.framework; sourceTree = DEVELOPER_DIR; };
 		6EAB95A3D3A419B7BDF41BAF /* libPods-LoopMe.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-LoopMe.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7372FE9448BD42F5FBA205D3 /* CallerID.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.extensionkit-extension"; includeInIndex = 0; path = CallerID.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		7425BA7C6F3DEEAC8357EDA8 /* engine.json */ = {isa = PBXFileReference; includeInIndex = 1; path = engine.json; sourceTree = "<group>"; };
+		7425BA7C6F3DEEAC8357EDA8 /* engine.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; path = engine.json; sourceTree = "<group>"; };
 		8053B7FC48E47DD52593E09F /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		843F3674735390B0569A8130 /* SharedStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SharedStore.swift; path = "../../modules/scam-ai/ios/SharedStore.swift"; sourceTree = "<group>"; };
 		8464F0A783C38B6FF77038A0 /* ShareCheck.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareCheck.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -228,7 +228,7 @@
 		A4D265154FE44392D71A81F4 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Vision.framework; sourceTree = DEVELOPER_DIR; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = LoopMe/SplashScreen.storyboard; sourceTree = "<group>"; };
 		AF4EE409F876664A8A05F080 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/WidgetKit.framework; sourceTree = DEVELOPER_DIR; };
-		B76AA3FEB71AB627E6DE44E9 /* ScamText.mlmodel */ = {isa = PBXFileReference; includeInIndex = 1; path = ScamText.mlmodel; sourceTree = "<group>"; };
+		B76AA3FEB71AB627E6DE44E9 /* ScamText.mlmodel */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.mlmodel; path = ScamText.mlmodel; sourceTree = "<group>"; };
 		B797DD6CA6B87E34E708590B /* CallDirectoryHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CallDirectoryHandler.swift; sourceTree = "<group>"; };
 		B7F121CD2BAC36E5DF5B7C1D /* LoopMeWatchApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LoopMeWatchApp.swift; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
@@ -329,7 +329,6 @@
 			children = (
 				C5FCA30486BE39E181066EAE /* CheckWidget.swift */,
 			);
-			name = CheckWidget;
 			path = CheckWidget;
 			sourceTree = "<group>";
 		};
@@ -367,7 +366,6 @@
 				0C63369D9224D15C2D439A89 /* ExtensionCloud.swift */,
 				098B2FF7C61A85DA7F0C6E5D /* CallActivityAttributes.swift */,
 			);
-			name = Shared;
 			path = Shared;
 			sourceTree = "<group>";
 		};
@@ -378,7 +376,6 @@
 				8053B7FC48E47DD52593E09F /* Assets.xcassets */,
 				9190332B13D0484345A5F164 /* loopme-icon.png */,
 			);
-			name = MessagesCheck;
 			path = MessagesCheck;
 			sourceTree = "<group>";
 		};
@@ -387,7 +384,6 @@
 			children = (
 				597E9DA98ACB2784A3827D3D /* CallerID.swift */,
 			);
-			name = CallerID;
 			path = CallerID;
 			sourceTree = "<group>";
 		};
@@ -459,7 +455,6 @@
 				49312EEB42FDF8F28BCEFC21 /* CoreModel.swift */,
 				2DD78DC50CE9ACB4842E9A7C /* ScamFilter.mlmodel */,
 			);
-			name = Engine;
 			path = Engine;
 			sourceTree = "<group>";
 		};
@@ -468,7 +463,6 @@
 			children = (
 				C2D8443C8A7DA49123C9B847 /* MessageFilterExtension.swift */,
 			);
-			name = TextFilter;
 			path = TextFilter;
 			sourceTree = "<group>";
 		};
@@ -521,7 +515,6 @@
 			children = (
 				B7F121CD2BAC36E5DF5B7C1D /* LoopMeWatchApp.swift */,
 			);
-			name = LoopMeWatch;
 			path = LoopMeWatch;
 			sourceTree = "<group>";
 		};
@@ -546,7 +539,6 @@
 			children = (
 				B797DD6CA6B87E34E708590B /* CallDirectoryHandler.swift */,
 			);
-			name = CallDirectory;
 			path = CallDirectory;
 			sourceTree = "<group>";
 		};
@@ -555,7 +547,6 @@
 			children = (
 				8A8ED0B366ABBFBCD7F6948A /* ShareViewController.swift */,
 			);
-			name = ShareCheck;
 			path = ShareCheck;
 			sourceTree = "<group>";
 		};
