@@ -26,6 +26,11 @@ export const CALL_FRAMES: Frame[] = [
   { page: 'Call Blocking & Identification', rows: [{ label: 'Allow these apps to block calls and provide caller ID', header: true }, { label: 'Loop Me', on: true, hit: true }] },
 ];
 export const CALL_CAPTIONS = ['Settings, then Apps', 'Phone', 'Call Blocking & Identification', 'Switch Loop Me on'];
+// Live Caller ID Lookup (the "Who is calling" card) needs the lookup service
+// in server/callerid hosted and onboarded with Apple. Until then the switch
+// would exist in iOS Settings but every lookup would fail, so the card stays
+// hidden. Flip this when lookup.loopmescamsafety.app is live.
+export const CALLER_ID_LIVE = false;
 export const TEXT_STEPS = ['Open Settings', 'Scroll down, tap Apps', 'Tap Messages', 'Tap Unknown & Spam', 'Under SMS Filtering, tap Loop Me'];
 export const CALL_STEPS = ['Open Settings', 'Scroll down, tap Apps', 'Tap Phone', 'Tap Call Blocking & Identification', 'Switch Loop Me on'];
 const LOOKUP_STEPS = ['Tap the button below', 'Under Call Identification, switch Loop Me on'];
@@ -34,7 +39,7 @@ export default function SetupScreen({ ctx }: { ctx: Ctx }) {
   const { C, settings: s } = ctx;
   const [calls, setCalls] = useState<'enabled' | 'disabled' | 'unknown'>('unknown');
   const [lookup, setLookup] = useState<CallerIdStatus>('unavailable');
-  const refresh = () => { callDirectoryStatus().then(setCalls).catch(() => {}); callerIdStatus().then(setLookup).catch(() => {}); };
+  const refresh = () => { callDirectoryStatus().then(setCalls).catch(() => {}); if (CALLER_ID_LIVE) callerIdStatus().then(setLookup).catch(() => {}); };
   useEffect(() => {
     refresh();
     const sub = AppState.addEventListener('change', st => { if (st === 'active') refresh(); });
