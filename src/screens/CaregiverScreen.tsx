@@ -3,7 +3,7 @@
 // and tapping a row takes you to where it is done.
 import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
-import { HandHeart, ArrowRight } from 'lucide-react-native';
+import { ArrowRight } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { Screen, BackLink, ScreenTitle, Lead, Pill, CheckCircle } from '../ui/base';
 import { callDirectoryStatus } from '../../modules/scam-ai';
@@ -17,10 +17,10 @@ export default function CaregiverScreen({ ctx }: { ctx: Ctx }) {
   useEffect(() => { callDirectoryStatus().then(setCalls).catch(() => {}); }, []);
   const perms = ctx.tallies.filtered > 0 && calls === 'enabled';
   const items = [
-    { t: 'Add a trusted person', b: 'The person they reach in one tap when something looks wrong.', on: s.trusted.length > 0, go: () => ctx.go('family') },
-    { t: 'Link your own phone', b: 'Send yourself the invite. Flagged texts then show up on your phone.', on: s.familyLinked, go: () => ctx.go('watchedBy') },
-    { t: 'Turn on scam protection', b: 'Allow both iPhone permissions on their phone.', on: perms, go: () => ctx.go('setup') },
-    { t: 'Set the family secret word', b: 'One word only your family knows. A cloned voice won’t know it.', on: s.codeWordSet, go: () => setWordOpen(true) },
+    { t: 'Add a person to call', b: 'Reached in one tap from any scam warning.', on: s.trusted.length > 0, go: () => ctx.go('family') },
+    { t: s.careName ? 'Link your own phone' : 'Send someone the invite', b: s.careName ? 'Send yourself the invite. Flagged texts then show up on your phone.' : 'They hear about each scam on their own phone.', on: s.familyLinked, go: () => ctx.go('family') },
+    { t: 'Turn on scam protection', b: 'Two switches in iPhone Settings.', on: perms, go: () => ctx.go('setup') },
+    { t: 'Set the family secret word', b: 'One word only your family knows.', on: s.codeWordSet, go: () => setWordOpen(true) },
   ];
   const done = items.filter(i => i.on).length;
   const saveWord = () => {
@@ -38,13 +38,9 @@ export default function CaregiverScreen({ ctx }: { ctx: Ctx }) {
   return (
     <Screen C={C} playKey="caregiver">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-        <BackLink onPress={() => ctx.go(s.role === 'caretaker' ? 'settings' : 'family')} />
-        <View style={[st.badge, { backgroundColor: C.amberTint }]}>
-          <HandHeart size={16} color={T.amberInk} strokeWidth={2.2} />
-          <Text style={[font(14, '600'), { color: T.amberInk }]} allowFontScaling>Setting up for someone else</Text>
-        </View>
-        <ScreenTitle C={C} top={12}>Set up for them</ScreenTitle>
-        <Lead C={C} top={8}>Four things, then hand the phone back.</Lead>
+        <BackLink onPress={() => ctx.go('settings')} />
+        <ScreenTitle C={C} top={12}>Finish setting up</ScreenTitle>
+        <Lead C={C} top={8}>Each line fills in on its own once it is done.</Lead>
         <View style={[st.list, { backgroundColor: C.card }]}>
           {items.map((it, i) => (
             <Pressable key={it.t} onPress={it.go} style={({ pressed }) => [st.row, i < items.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep }, pressed && { opacity: 0.6 }]} accessibilityRole="button" accessibilityState={{ checked: it.on }}>
@@ -58,8 +54,8 @@ export default function CaregiverScreen({ ctx }: { ctx: Ctx }) {
         </View>
         <Text style={[font(15, '600'), { color: T.green, paddingHorizontal: 20, paddingTop: 14 }]} allowFontScaling>{done} of 4 done</Text>
         <View style={{ marginHorizontal: 16, marginTop: 12, gap: 10 }}>
-          <Pill label="Hand the phone back" trailing={<ArrowRight size={18} color="#fff" strokeWidth={2.2} />} onPress={() => { ctx.go('home'); ctx.flash('All set. Hand the phone back.'); }} />
-          <Pill label="Send myself a copy of these settings" height={54} bg={C.card} color={C.ink} onPress={copy} />
+          <Pill label={s.careName ? 'Hand the phone back' : 'Done'} trailing={<ArrowRight size={18} color="#fff" strokeWidth={2.2} />} onPress={() => { ctx.go('home'); if (s.careName) ctx.flash('All set. Hand the phone back.'); }} />
+          {!!s.careName && <Pill label="Send myself a copy of these settings" height={54} bg={C.card} color={C.ink} onPress={copy} />}
         </View>
       </ScrollView>
 

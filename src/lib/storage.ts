@@ -7,6 +7,8 @@ export interface TrustedPerson {
   phone: string;
   photo?: string;      // Contacts photo URI, when they have one
   relation?: string;   // Daughter, Son, ... chosen when added; never guessed
+  contactId?: string;  // so the photo can be refreshed from Contacts later
+  invited?: boolean;   // the family link invite was sent to this person
 }
 
 export interface Settings {
@@ -31,6 +33,8 @@ export interface Settings {
   familyLinked: boolean;
   familyRole: 'owner' | 'caretaker' | null;
   familyInvited: boolean;        // owner sent an invite nobody has tapped yet
+  linkedNames: string[];         // owner side: everyone who accepted, as iCloud names them
+  protectionLater: boolean;      // "Do this later" on the permissions step of setup
   blocked: string[];             // numbers the person chose to block (call directory)
   installedAt: number;           // for "looking out for you since"
 }
@@ -43,7 +47,7 @@ const DEFAULTS: Settings = {
   allowlist: [], trusted: [], watching: null,
   codeWordSet: false, codeWord: '', panicCompletedAt: null,
   pairCode: '', watchedBy: null, careName: '', careRel: 'Mother', autoCheck: true, improve: false, darkMode: false, introSeen: false,
-  familyLinked: false, familyRole: null, familyInvited: false, blocked: [], installedAt: 0,
+  familyLinked: false, familyRole: null, familyInvited: false, linkedNames: [], protectionLater: false, blocked: [], installedAt: 0,
 };
 
 export async function loadSettings(): Promise<Settings> {

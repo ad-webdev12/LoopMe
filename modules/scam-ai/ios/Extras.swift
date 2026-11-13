@@ -18,7 +18,7 @@ import WatchConnectivity
 
 final class ContinuousListener: NSObject, @unchecked Sendable {
   static let shared = ContinuousListener()
-  private let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
+  private let recognizer = SFSpeechRecognizer(locale: Locale.current) ?? SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
   private let audioEngine = AVAudioEngine()
   private var task: SFSpeechRecognitionTask?
   private var request: SFSpeechAudioBufferRecognitionRequest?
@@ -47,7 +47,7 @@ final class ContinuousListener: NSObject, @unchecked Sendable {
     audioEngine.inputNode.removeTap(onBus: 0)
     let req = SFSpeechAudioBufferRecognitionRequest()
     req.shouldReportPartialResults = true
-    req.requiresOnDeviceRecognition = true
+    req.requiresOnDeviceRecognition = true   // speech never leaves the phone
     req.taskHint = .dictation
     request = req
     do {

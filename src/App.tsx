@@ -24,7 +24,7 @@ import { callDirectoryReload, sharedTallies } from '../modules/scam-ai';
 import TabBar, { TabId } from './ui/TabBar';
 import Toast from './ui/Toast';
 import IntroScreen from './screens/IntroScreen';
-import { Ob1, Ob2, Ob3, Ob4 } from './screens/SetupScreens';
+import { Ob1, Ob2, Ob3, Ob4, Ob5, Ob6 } from './screens/SetupScreens';
 import { WatchSetup, WatchWait, WatchedBy } from './screens/PairScreens';
 import HomeScreen from './screens/HomeScreen';
 import CheckingScreen from './screens/CheckingScreen';
@@ -46,7 +46,6 @@ import DrawerInfoScreen from './screens/DrawerInfoScreen';
 import WardScreen from './screens/WardScreen';
 import FamilyAlertScreen from './screens/FamilyAlertScreen';
 import NoteScreen from './screens/NoteScreen';
-import ListenScreen from './screens/ListenScreen';
 
 export type ScreenId =
   | 'intro' | 'ob1' | 'ob2' | 'ob3' | 'ob4'
@@ -54,7 +53,7 @@ export type ScreenId =
   | 'home' | 'checking' | 'scam' | 'amber' | 'green' | 'detail' | 'callcheck'
   | 'history' | 'family' | 'ask' | 'maria'
   | 'settings' | 'setup' | 'learn' | 'practice' | 'caregiver' | 'scammed' | 'blocked' | 'safe' | 'drawerInfo'
-  | 'ward' | 'wardItem' | 'familyAlert' | 'note' | 'listen';
+  | 'ward' | 'wardItem' | 'familyAlert' | 'note' | 'ob5' | 'ob6';
 
 export interface Ctx {
   settings: Settings;
@@ -98,12 +97,14 @@ export interface Ctx {
   blockNumber: (phone: string) => Promise<void>;
   /** "Was this right?" The person's answer is remembered on this phone. */
   correct: (recId: string, label: 'scam' | 'fine') => Promise<void>;
+  /** "No, this is a scam" on a green verdict: remember it, then show the scam screen with its steps. */
+  markScam: (recId: string) => Promise<void>;
   tallies: { filtered: number; junk: number; shared: number; lastFilteredAt: number };
 }
 
 // The floating bar shows on the four tabs only; pushed screens have Back.
 const TAB_SCREENS: ScreenId[] = ['home', 'history', 'family', 'settings', 'ward'];
-const ALL_SCREENS: ScreenId[] = ['home', 'checking', 'scam', 'amber', 'green', 'detail', 'callcheck', 'history', 'family', 'ask', 'maria', 'settings', 'setup', 'learn', 'practice', 'caregiver', 'scammed', 'blocked', 'safe', 'drawerInfo', 'ward', 'listen', 'watchedBy', 'watch', 'intro', 'ob1', 'ob2', 'ob3', 'ob4'];
+const ALL_SCREENS: ScreenId[] = ['home', 'checking', 'scam', 'amber', 'green', 'detail', 'callcheck', 'history', 'family', 'ask', 'maria', 'settings', 'setup', 'learn', 'practice', 'caregiver', 'scammed', 'blocked', 'safe', 'drawerInfo', 'ward', 'watchedBy', 'watch', 'intro', 'ob1', 'ob2', 'ob3', 'ob4', 'ob5', 'ob6'];
 
 LogBox.ignoreLogs(['SafeAreaView has been deprecated']);
 
@@ -223,6 +224,7 @@ export default function App() {
       familyLinked: status.linked,
       familyRole: role,
       familyInvited: !!status.invited,
+      linkedNames: status.role === 'owner' ? (status.names || (status.linked && status.name ? [status.name] : [])) : s.linkedNames,
       role: status.role === 'caretaker' ? 'caretaker' : s.role,
       watchedBy: status.role === 'owner' && status.linked ? (status.name || s.watchedBy) : status.role === 'owner' ? null : s.watchedBy,
       watching: status.role === 'caretaker' && status.name
@@ -485,6 +487,18 @@ export default function App() {
     );
   }, [update, go, flash]);
 
+  const markScam = useCallback(async (recId: string) => {
+    const s = settingsRef.current;
+    if (!s) return;
+    await Feedback.correct(recId, 'scam', s, activeCheck.current === recId ? msg : undefined);
+    refreshHist();
+    const rec = histRef.current.find(r => r.id === recId);
+    if (rec?.sender) Family.pushConfig(s, await listChecks());
+    if (rec) void Family.publish({ ...rec, level: 'red', reason: 'You marked this as a scam.' }, s, false);
+    setVerdict(v => v ? { ...v, level: 'red', reason: 'You marked this as a scam.', signals: [], safeStep: 'Don’t reply. Delete the message.', confidence: 'very' } : v);
+    setScreen('scam');
+  }, [msg, refreshHist]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const correct = useCallback(async (recId: string, label: 'scam' | 'fine') => {
     const s = settingsRef.current;
     if (!s) return;
@@ -556,7 +570,7 @@ export default function App() {
   const watchName = settings.watching?.name?.split(' ')[0] || settings.careName.split(' ')[0] || 'Family';
   const alertRec = alertId ? hist.find(r => r.id === alertId) : undefined;
   // White status bar on Home (green header) and on every takeover; black elsewhere.
-  const darkBar = ['home', 'scam', 'amber', 'green', 'practice', 'familyAlert', 'note', 'listen'].includes(screen);
+  const darkBar = ['home', 'scam', 'amber', 'green', 'practice', 'familyAlert', 'note'].includes(screen);
   const barColor = screen === 'scam' ? T.red
     : screen === 'amber' ? T.amber
     : screen === 'familyAlert' ? (alertRec?.level === 'amber' ? T.amber : T.red)
@@ -573,7 +587,7 @@ export default function App() {
     closeFamilyAlert: () => { if (alertId) updateCheck(alertId, { seen: true }).then(refreshHist); setAlertId(null); setScreen('ward'); },
     noteOpen,
     closeNote: () => { setNoteOpen(null); setScreen('home'); },
-    loopIn, sendNoteTo, refreshFamily, unlinkFamily, blockNumber, correct, tallies, pulse, checking, openRecord,
+    loopIn, sendNoteTo, refreshFamily, unlinkFamily, blockNumber, correct, markScam, tallies, pulse, checking, openRecord,
     C: palette(!!settings.darkMode),
     pendingPhoto, clearPendingPhoto: () => setPendingPhoto(false),
   };
@@ -594,8 +608,9 @@ export default function App() {
         {screen === 'ob2' && <Ob2 ctx={ctx} />}
         {screen === 'ob3' && <Ob3 ctx={ctx} />}
         {screen === 'ob4' && <Ob4 ctx={ctx} />}
+        {screen === 'ob5' && <Ob5 ctx={ctx} />}
+        {screen === 'ob6' && <Ob6 ctx={ctx} />}
         {screen === 'watch' && <WatchSetup ctx={ctx} />}
-        {screen === 'listen' && <ListenScreen ctx={ctx} />}
         {screen === 'watchWait' && <WatchWait ctx={ctx} />}
         {screen === 'watchedBy' && <WatchedBy ctx={ctx} />}
         {screen === 'home' && <HomeScreen ctx={ctx} />}

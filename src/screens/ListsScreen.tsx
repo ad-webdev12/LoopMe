@@ -43,7 +43,7 @@ export default function ListsScreen({ ctx }: { ctx: Ctx }) {
         <View style={[st.addRow, { backgroundColor: C.card }]}>
           <TextInput value={value} onChangeText={setValue} placeholder={blocked ? 'Number to block' : 'Name or number'} placeholderTextColor={C.meta} keyboardType={blocked ? 'phone-pad' : 'default'} returnKeyType="done" onSubmitEditing={add}
             style={[font(17, '400'), { color: C.ink, flex: 1, height: 44 }]} />
-          <Pressable onPress={add} style={({ pressed }) => [st.plus, { backgroundColor: C.greenTint }, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel="Add"><Plus size={18} color={T.green} strokeWidth={2.2} /></Pressable>
+          <Pressable onPress={add} style={({ pressed }) => [st.plus, { backgroundColor: C.greenTint }, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel="Add"><Plus size={18} color={C.accent} strokeWidth={2.2} /></Pressable>
         </View>
         {items.length === 0 ? (
           <Note C={C} top={18}>{blocked ? 'Nothing blocked yet. Block a number from a scam’s screen, or type one above.' : 'Nobody yet. When Loop Me gets one wrong, “No, it’s really them” adds them here.'}</Note>

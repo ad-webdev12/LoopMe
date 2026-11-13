@@ -23,7 +23,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
   return (
     <Screen C={C} playKey="ward">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
-        <LargeTitle C={C} right={<Pressable onPress={() => ctx.go('watch')} accessibilityRole="button" style={{ marginBottom: 5 }}><Text style={[font(17, '400'), { color: T.green }]} allowFontScaling>Link</Text></Pressable>}>{name}</LargeTitle>
+        <LargeTitle C={C} right={<Pressable onPress={() => ctx.go('watch')} accessibilityRole="button" style={{ marginBottom: 5 }}><Text style={[font(17, '400'), { color: C.accent }]} allowFontScaling>Link</Text></Pressable>}>{name}</LargeTitle>
 
         <Card C={C} style={{ marginHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 14 }}>
           <Avatar name={s.watching?.name || name} photo={s.watching?.photo} size={56} />
@@ -35,7 +35,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
             </View>
           </View>
           <Pressable onPress={tel} style={({ pressed }) => [st.call, { backgroundColor: C.greenTint }, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel={'Call ' + name}>
-            <Phone size={18} color={T.green} strokeWidth={2} />
+            <Phone size={18} color={C.accent} strokeWidth={2} />
           </Pressable>
         </Card>
 
@@ -81,7 +81,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
                   </View>
                   {r.blocked ? <Tag label="Blocked" bg={C.greenFine} color={T.greenDeep} /> : (
                     <Pressable onPress={() => { const rec = events.find(h => h.sender === r.sender); if (rec) void ctx.sendNoteTo(rec.id, 'I blocked that number for you.', 'block'); ctx.flash('Blocked on ' + name + '’s phone.'); }} accessibilityRole="button">
-                      <Text style={[font(15, '600'), { color: T.redText }]} allowFontScaling>Block on {name}’s phone</Text>
+                      <Text style={[font(15, '600'), { color: C.redText }]} allowFontScaling>Block on {name}’s phone</Text>
                     </Pressable>
                   )}
                 </View>
@@ -98,7 +98,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
                 <View key={String(label)} style={[{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 }, i < arr.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep }]}>
                   <PulseDot size={10} color={on ? T.green : T.amber} still />
                   <Text style={[font(17, '400'), { color: C.ink, flex: 1 }]} allowFontScaling>{label}</Text>
-                  <Text style={[font(15, '500'), { color: on ? T.green : T.amberInk }]} allowFontScaling>{on ? 'On' : 'Off'}</Text>
+                  <Text style={[font(15, '500'), { color: on ? T.green : C.amberText }]} allowFontScaling>{on ? 'On' : 'Off'}</Text>
                 </View>
               ))}
             </Card>
@@ -122,7 +122,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
         )}
         {!linked && (
           <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
-            <Pill label="How the link works" bg={C.card} color={T.green} onPress={() => ctx.go('watch')} />
+            <Pill label="How the link works" bg={C.card} color={C.accent} onPress={() => ctx.go('watch')} />
           </View>
         )}
       </ScrollView>

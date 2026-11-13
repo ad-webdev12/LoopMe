@@ -35,7 +35,7 @@ export default function LearnScreen({ ctx }: { ctx: Ctx }) {
           <Phone size={22} color="#fff" strokeWidth={2} />
           <View style={{ flex: 1 }}>
             <Text style={[font(17, '600'), { color: '#fff' }]} allowFontScaling>Practice a scam call</Text>
-            <Text style={[font(15, '400'), { color: '#fff', marginTop: 1 }]} allowFontScaling>A rehearsal. Nobody really calls.</Text>
+            <Text style={[font(15, '400'), { color: '#fff', marginTop: 1 }]} allowFontScaling>A pretend call, so you know the pattern</Text>
           </View>
           <ChevronRight size={18} color="#fff" strokeWidth={2.2} />
         </Pressable>
@@ -48,7 +48,7 @@ export default function LearnScreen({ ctx }: { ctx: Ctx }) {
                 <Text style={[font(15, '400', 1.4), { color: C.ink2, marginTop: 2 }]} allowFontScaling>{t.body}</Text>
                 {open === t.n && (
                   <Swap playKey={t.n} ms={200} style={[st.answer, { backgroundColor: t.red ? C.redTint : C.amberTint }]}>
-                    <Text style={[font(16, '600', 1.4), { color: t.red ? T.redInk : T.amberInk }]} allowFontScaling>{t.answer}</Text>
+                    <Text style={[font(16, '600', 1.4), { color: t.red ? T.redInk : C.amberText }]} allowFontScaling>{t.answer}</Text>
                   </Swap>
                 )}
               </View>
@@ -56,8 +56,8 @@ export default function LearnScreen({ ctx }: { ctx: Ctx }) {
           ))}
         </View>
         <Pressable onPress={read} style={({ pressed }) => [st.read, { backgroundColor: C.card }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
-          <Volume2 size={18} color={T.green} strokeWidth={2} />
-          <Text style={[font(16, '600'), { color: T.green }]} allowFontScaling>Read the open one to me</Text>
+          <Volume2 size={18} color={C.accent} strokeWidth={2} />
+          <Text style={[font(16, '600'), { color: C.accent }]} allowFontScaling>Read the open one to me</Text>
         </Pressable>
       </ScrollView>
     </Screen>

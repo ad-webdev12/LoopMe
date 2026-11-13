@@ -56,10 +56,10 @@ export default function DetailScreen({ ctx }: { ctx: Ctx }) {
         <SectionHeader C={C}>The message</SectionHeader>
         <View style={[st.group, { backgroundColor: C.card, paddingVertical: 14 }]}>
           <Highlighted text={ctx.msg} matches={level === 'green' ? [] : (v?.matches || [])} color={C.ink} size={16.5} lh={1.42}
-            mark={level === 'amber' ? T.amberInk : T.redInk} underline={level === 'amber' ? T.amber : T.red} />
+            mark={level === 'amber' ? C.amberText : T.redInk} underline={level === 'amber' ? T.amber : T.red} />
           <Pressable onPress={read} style={({ pressed }) => [st.readBtn, { backgroundColor: C.greenTint }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
-            <Volume2 size={18} color={T.green} strokeWidth={2} />
-            <Text style={[font(15, '600'), { color: T.green }]} allowFontScaling>Read it to me</Text>
+            <Volume2 size={18} color={C.accent} strokeWidth={2} />
+            <Text style={[font(15, '600'), { color: C.accent }]} allowFontScaling>Read it to me</Text>
           </Pressable>
         </View>
 

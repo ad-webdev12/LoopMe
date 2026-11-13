@@ -246,7 +246,7 @@ enum AudioSession {
 
 final class SpeechListener: NSObject, @unchecked Sendable {
   static let shared = SpeechListener()
-  private let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
+  private let recognizer = SFSpeechRecognizer(locale: Locale.current) ?? SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
   private var task: SFSpeechRecognitionTask?
   private let audioEngine = AVAudioEngine()
   private var finish: ((String) -> Void)?
@@ -274,7 +274,7 @@ final class SpeechListener: NSObject, @unchecked Sendable {
         // The app promises speech never leaves the phone, so on-device
         // recognition is required, not preferred. Phones without the local
         // asset get the graceful "could not hear" path instead of an upload.
-        request.requiresOnDeviceRecognition = true
+        request.requiresOnDeviceRecognition = true   // speech never leaves the phone
         do {
           let session = AVAudioSession.sharedInstance()
           try session.setCategory(.record, mode: .measurement, options: .duckOthers)

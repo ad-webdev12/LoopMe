@@ -371,7 +371,16 @@ export function detect(message: string, opts: DetectorOptions = {}): Verdict {
       : 'Do not reply and do not send anything. Delete the message.';
   } else if (level === 'amber') {
     reason = signals[0] || 'Something’s off here.';
-    safeStep = 'Do not tap anything yet. Contact the company yourself on a number you already trust.';
+    const has = (...t: string[]) => t.some(x => tags.includes(x));
+    safeStep = has('bank-alert', 'account-locked', 'unusual-signin', 'otp-request', 'safe-account', 'detail-harvest', 'verify', 'payment')
+      ? 'Don’t use anything in the message. Ring your bank on the number on the back of your card and ask.'
+      : has('delivery-fee', 'package-fee', 'toll', 'subscription', 'renewal-pressure', 'service-cutoff', 'refund')
+      ? 'Don’t tap the link. Open the company’s own app or website and look there.'
+      : has('family-emergency', 'wrong-number', 'borrow-ask', 'borrow-repay', 'money-ask')
+      ? 'Ring them on the number you already have for them before you do anything.'
+      : has('callback', 'stay-on-line', 'tech-support', 'warranty', 'claims-bait')
+      ? 'Don’t call the number in the message. Find the real one yourself.'
+      : 'Don’t tap or reply yet. Check with them on a number you already have.';
   } else {
     reason = signals[0] || '';
     safeStep = 'Nothing to do now. If it later asks for money, a code or a password, treat it as a scam.';

@@ -8,14 +8,16 @@ import type { CheckRecord } from '../lib/history';
 
 /** The person who hears about scams: the linked caretaker, with their photo when we have it. */
 export function loopPerson(s: Settings): (TrustedPerson & { linked: boolean }) | null {
-  const linkedName = s.familyLinked && s.familyRole === 'owner' ? s.watchedBy : null;
-  if (linkedName) {
-    const first = linkedName.split(' ')[0].toLowerCase();
-    const match = s.trusted.find(t => t.name.toLowerCase().startsWith(first));
-    return { name: match?.name || linkedName, phone: match?.phone || '', photo: match?.photo, relation: match?.relation, linked: true };
+  const main = s.trusted[0];
+  if (!main) {
+    // Linked over iCloud but not saved as a person here (older installs).
+    const linkedName = s.familyLinked && s.familyRole === 'owner' ? s.watchedBy : null;
+    return linkedName ? { name: linkedName, phone: '', linked: true } : null;
   }
-  if (s.trusted[0]) return { ...s.trusted[0], linked: false };
-  return null;
+  const names = s.familyLinked && s.familyRole === 'owner' ? (s.linkedNames.length ? s.linkedNames : (s.watchedBy ? [s.watchedBy] : [])) : [];
+  const first = main.name.split(' ')[0].toLowerCase();
+  const linked = names.some(n => n.toLowerCase().startsWith(first) || first.startsWith(n.split(' ')[0].toLowerCase()));
+  return { ...main, linked };
 }
 
 export const firstName = (name?: string | null) => (name || '').trim().split(/\s+/)[0] || '';

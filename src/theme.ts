@@ -44,6 +44,8 @@ export interface Palette {
   sep: string; sep2: string; segTrack: string; chevron: string; pressed: string;
   greenTint: string; greenFine: string; redTint: string; amberTint: string;
   bubble: string; switchOff: string; dark: boolean;
+  /** Text colors that stay readable on tinted cards in both modes. */
+  accent: string; amberText: string; redText: string;
 }
 
 export const LIGHT: Palette = {
@@ -51,6 +53,7 @@ export const LIGHT: Palette = {
   sep: '#c6c6c8', sep2: '#e5e5ea', segTrack: 'rgba(118,118,128,.12)', chevron: '#c4c4c7', pressed: '#e5e5ea',
   greenTint: '#eef4f1', greenFine: '#d7e8e0', redTint: '#fdeeea', amberTint: '#fbf0dd',
   bubble: '#e9e9eb', switchOff: '#e9e9ea', dark: false,
+  accent: '#0d6b57', amberText: '#7a4e0d', redText: '#c0280f',
 };
 
 // Dark mode with real tokens (never a colour inversion). Takeovers and the
@@ -60,6 +63,7 @@ export const DARK: Palette = {
   sep: '#38383a', sep2: '#2c2c2e', segTrack: 'rgba(118,118,128,.24)', chevron: '#48484a', pressed: '#2c2c2e',
   greenTint: 'rgba(13,107,87,.18)', greenFine: 'rgba(13,107,87,.28)', redTint: 'rgba(236,48,19,.18)', amberTint: 'rgba(184,120,26,.18)',
   bubble: '#2c2c2e', switchOff: '#39393d', dark: true,
+  accent: '#5ec9a4', amberText: '#f0b35a', redText: '#ff6b52',
 };
 
 export const T = {

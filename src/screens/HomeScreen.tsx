@@ -6,11 +6,11 @@ import { Animated, AppState, Image, Modal, Pressable, ScrollView, StyleSheet, Te
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ArrowRight, Camera, Mic, Keyboard, PhoneIncoming, LifeBuoy, Ear } from 'lucide-react-native';
+import { ArrowRight, Camera, Mic, Keyboard, PhoneIncoming, LifeBuoy } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { APP_ICON, Avatar, PulseDot, Screen, usePulse } from '../ui/base';
 import { loopPerson, firstName } from '../ui/pieces';
-import { recognizeText, listenOnce, stopListening, callDirectoryStatus, latestScreenshot } from '../../modules/scam-ai';
+import { recognizeText, startListening, stopListeningLive, addSpeechListener, callDirectoryStatus, latestScreenshot } from '../../modules/scam-ai';
 import type { Ctx } from '../App';
 
 const HEADLINES = ['Not sure about a message?', 'Check if a message is a scam', 'Got a text that worries you?', 'Is this message real?'];
@@ -21,6 +21,8 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
   const [typing, setTyping] = useState(false);
   const [typed, setTyped] = useState('');
   const [listening, setListening] = useState(false);
+  const [heard, setHeard] = useState('');
+  const [heardFinal, setHeardFinal] = useState('');
   const [calls, setCalls] = useState<'enabled' | 'disabled' | 'unknown'>('unknown');
   const [shot, setShot] = useState<{ uri: string; at: number } | null>(null);
   const careMode = s.role === 'caretaker';
@@ -80,13 +82,23 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
       if (found) ctx.check(found); else ctx.flash('No words found in that picture. Try a clearer one.');
     } catch { ctx.flash('Could not read that picture. Paste the text instead.'); }
   };
+  // Say it: a sheet that shows the words as they are heard, then one tap to
+  // check them. Nothing is recorded and speech stays on the phone.
+  useEffect(() => {
+    const sub = addSpeechListener(e => {
+      if (e.final) setHeardFinal(prev => (prev + ' ' + e.text).trim());
+      else setHeard(e.text);
+    });
+    return () => { sub.remove(); stopListeningLive(); };
+  }, []);
   const sayIt = async () => {
-    if (listening) { stopListening(); setListening(false); return; }
+    setHeard(''); setHeardFinal('');
     setListening(true);
-    const heard = (await listenOnce()).trim();
-    setListening(false);
-    if (heard) ctx.check(heard); else ctx.flash('We could not hear that. Try again, or type it.');
+    const ok = await startListening();
+    if (!ok) { setListening(false); ctx.flash('Loop Me needs the microphone and speech permission. Allow both in Settings, or type it instead.'); }
   };
+  const stopSaying = () => { stopListeningLive(); setListening(false); };
+  const spoken = (heardFinal + ' ' + heard).trim();
   const checkShot = async () => {
     if (!shot) return;
     const uri = shot.uri;
@@ -98,7 +110,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
     } catch { ctx.flash('Could not read that screenshot.'); }
   };
 
-  const warnBg = usePulse(T.redTint, T.redPulse);
+  const warnBg = usePulse(C.redTint, C.dark ? 'rgba(236,48,19,.3)' : T.redPulse);
   useEffect(() => { if (ctx.pendingPhoto) { ctx.clearPendingPhoto(); void photo(); } }, [ctx.pendingPhoto]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
@@ -140,7 +152,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
           </Pressable>
           <View style={{ flexDirection: 'row', marginTop: 8 }}>
             <Alt Icon={Camera} label="Take a photo" onPress={photo} />
-            <Alt Icon={Mic} label={listening ? 'Listening' : 'Say it'} onPress={sayIt} />
+            <Alt Icon={Mic} label="Say it" onPress={sayIt} />
             <Alt Icon={Keyboard} label="Type it" onPress={() => setTyping(true)} />
           </View>
         </View>
@@ -148,7 +160,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
         <View style={{ paddingTop: 14, paddingHorizontal: 16, gap: 10 }}>
           {!careMode && (permsDone ? (
             <View style={[st.status, { backgroundColor: C.card }]}>
-              <PulseDot color={T.green} still />
+              <PulseDot color={C.accent} still />
               <Text style={[font(16, '600', 1.3), { color: C.ink, flex: 1 }]} allowFontScaling>
                 Scam texts and calls are blocked.{stoppedWeek > 0 ? ' ' + stoppedWeek + ' stopped this week.' : ''}
               </Text>
@@ -158,8 +170,8 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
               <Animated.View style={[st.status, { backgroundColor: warnBg }]}>
                 <PulseDot />
                 <View style={{ flex: 1, minWidth: 0 }}>
-                  <Text style={[font(16, '600', 1.3), { color: T.redInk }]} allowFontScaling>Scam texts and calls aren’t blocked yet</Text>
-                  <Text style={[font(14.5, '400', 1.35), { color: T.redInk, marginTop: 2 }]} allowFontScaling>Allow {filterOn || callsOn ? '1 iPhone permission' : '2 iPhone permissions'} to block them</Text>
+                  <Text style={[font(16, '600', 1.3), { color: C.dark ? '#fff' : T.redInk }]} allowFontScaling>Scam texts and calls aren’t blocked yet</Text>
+                  <Text style={[font(14.5, '400', 1.35), { color: C.dark ? '#fff' : T.redInk, marginTop: 2 }]} allowFontScaling>Allow {filterOn || callsOn ? '1 iPhone permission' : '2 iPhone permissions'} to block them</Text>
                 </View>
                 <View style={st.allow}><Text style={[font(15, '600'), { color: '#fff' }]} allowFontScaling>Allow</Text></View>
               </Animated.View>
@@ -167,30 +179,37 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
           ))}
           <View style={{ flexDirection: 'row', gap: 10 }}>
             <Pressable onPress={() => ctx.go('callcheck')} style={({ pressed }) => [st.tile, { backgroundColor: C.card }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
-              <PhoneIncoming size={22} color={T.green} strokeWidth={2} />
+              <PhoneIncoming size={22} color={C.accent} strokeWidth={2} />
               <Text style={[font(16, '600', 1.25), { color: C.ink, marginTop: 10 }]} allowFontScaling>It was a phone call</Text>
             </Pressable>
             <Pressable onPress={() => ctx.go('scammed')} style={({ pressed }) => [st.tile, { backgroundColor: C.card }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
               <LifeBuoy size={22} color={T.red} strokeWidth={2} />
-              <Text style={[font(16, '600', 1.25), { color: T.redText, marginTop: 10 }]} allowFontScaling>I think I’ve been scammed</Text>
+              <Text style={[font(16, '600', 1.25), { color: C.redText, marginTop: 10 }]} allowFontScaling>I think I’ve been scammed</Text>
             </Pressable>
           </View>
-          <Pressable onPress={() => ctx.go('listen')} style={({ pressed }) => [st.tile, { backgroundColor: C.card, flexDirection: 'row', alignItems: 'center', gap: 12 }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
-            <Ear size={22} color={T.green} strokeWidth={2} />
-            <View style={{ flex: 1 }}>
-              <Text style={[font(16, '600', 1.25), { color: C.ink }]} allowFontScaling>Listen to a call or a voicemail</Text>
-              <Text style={[font(15, '400'), { color: C.ink2, marginTop: 2 }]} allowFontScaling>Hold the phone near the voice.</Text>
-            </View>
-          </Pressable>
         </View>
       </ScrollView>
 
+      <Modal visible={listening} animationType="slide" presentationStyle="pageSheet" onRequestClose={stopSaying}>
+        <View style={{ flex: 1, backgroundColor: C.ground, padding: 20 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Pressable onPress={stopSaying} accessibilityRole="button"><Text style={[font(17, '400'), { color: C.accent }]} allowFontScaling>Cancel</Text></Pressable>
+            <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Say the message</Text>
+            <Pressable onPress={() => { stopSaying(); if (spoken) ctx.check(spoken); }} accessibilityRole="button"><Text style={[font(17, '600'), { color: spoken ? T.green : C.meta }]} allowFontScaling>Check</Text></Pressable>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 24 }}>
+            <PulseDot color={T.red} size={12} />
+            <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Listening</Text>
+          </View>
+          <Text style={[font(24, '500', 1.35), { color: spoken ? C.ink : C.meta, marginTop: 16 }]} allowFontScaling>{spoken || 'Read the message out loud, then tap Check.'}</Text>
+        </View>
+      </Modal>
       <Modal visible={typing} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setTyping(false)}>
         <View style={{ flex: 1, backgroundColor: C.ground, padding: 20 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Pressable onPress={() => setTyping(false)} accessibilityRole="button"><Text style={[font(17, '400'), { color: T.green }]} allowFontScaling>Cancel</Text></Pressable>
+            <Pressable onPress={() => setTyping(false)} accessibilityRole="button"><Text style={[font(17, '400'), { color: C.accent }]} allowFontScaling>Cancel</Text></Pressable>
             <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Type the message</Text>
-            <Pressable onPress={() => { setTyping(false); if (typed.trim()) ctx.check(typed.trim()); }} accessibilityRole="button"><Text style={[font(17, '600'), { color: T.green }]} allowFontScaling>Check</Text></Pressable>
+            <Pressable onPress={() => { setTyping(false); if (typed.trim()) ctx.check(typed.trim()); }} accessibilityRole="button"><Text style={[font(17, '600'), { color: C.accent }]} allowFontScaling>Check</Text></Pressable>
           </View>
           <TextInput value={typed} onChangeText={setTyped} multiline autoFocus placeholder="Type or paste the text here" placeholderTextColor={C.meta}
             style={[font(18, '400', 1.4), { color: C.ink, backgroundColor: C.card, borderRadius: 16, padding: 16, marginTop: 16, minHeight: 180, textAlignVertical: 'top' }]} />
@@ -211,11 +230,11 @@ function Alt({ Icon, label, onPress }: { Icon: typeof Camera; label: string; onP
 
 const st = StyleSheet.create({
   header: { backgroundColor: T.green, paddingTop: 0, paddingHorizontal: 20, paddingBottom: 22, borderBottomLeftRadius: 22, borderBottomRightRadius: 22 },
-  appIcon: { width: 46, height: 46, borderRadius: 12, borderWidth: 1.5, borderColor: 'rgba(255,255,255,.25)' },
+  appIcon: { width: 60, height: 60, borderRadius: 15, borderWidth: 1.5, borderColor: 'rgba(255,255,255,.25)' },
   pill: { marginLeft: 'auto', height: 40, borderRadius: 20, backgroundColor: '#fff', flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 5, paddingRight: 12, flexShrink: 1 },
   clipBubble: { backgroundColor: '#fff', borderTopLeftRadius: 16, borderTopRightRadius: 16, borderBottomRightRadius: 16, borderBottomLeftRadius: 5, paddingTop: 10, paddingHorizontal: 14, paddingBottom: 11, maxWidth: 300, alignSelf: 'flex-start' },
   shotRow: { marginTop: 14, flexDirection: 'row', alignItems: 'center', gap: 8 },
-  primary: { height: 62, borderRadius: 16, backgroundColor: '#fff', marginTop: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 22, paddingRight: 8 },
+  primary: { height: 72, borderRadius: 18, backgroundColor: '#fff', marginTop: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 22, paddingRight: 8 },
   arrowBox: { width: 46, height: 46, borderRadius: 11, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center' },
   status: { borderRadius: 14, paddingVertical: 14, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
   allow: { height: 36, paddingHorizontal: 14, borderRadius: 10, backgroundColor: T.red, alignItems: 'center', justifyContent: 'center' },

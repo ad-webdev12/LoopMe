@@ -93,6 +93,17 @@ final class CloudLink: @unchecked Sendable {
 
   /// "available" | "noAccount" | "restricted" | "unknown"
   func accountState() async -> String {
+    // Right after launch iOS can answer "temporarily unavailable" for a
+    // second or two while the account loads. Ask again before giving up,
+    // otherwise a signed-in phone is told it is not signed in.
+    for attempt in 0..<4 {
+      let st = await accountStateOnce()
+      if st != "unknown" { return st }
+      if attempt < 3 { try? await Task.sleep(nanoseconds: 500_000_000) }
+    }
+    return "unknown"
+  }
+  private func accountStateOnce() async -> String {
     do {
       switch try await container.accountStatus() {
       case .available:        return "available"
@@ -157,10 +168,11 @@ final class CloudLink: @unchecked Sendable {
       return ["linked": false, "role": "none", "name": NSNull(), "account": "available"]
     }
     let joined = share.participants.filter { $0.role != .owner && $0.acceptanceStatus == .accepted }
+    let names = joined.compactMap { CloudLink.displayName($0.userIdentity) }
     if let p = joined.first {
       let name = CloudLink.displayName(p.userIdentity) ?? store.caretakerName ?? "your caretaker"
       store.caretakerName = name
-      return ["linked": true, "role": "owner", "name": name, "account": "available"]
+      return ["linked": true, "role": "owner", "name": name, "names": names, "count": joined.count, "account": "available"]
     }
     return ["linked": false, "role": "owner", "name": NSNull(), "invited": true, "account": "available"]
   }

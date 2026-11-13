@@ -12,6 +12,7 @@ import { Screen, BackLink, ScreenTitle, Lead, Note, Pill, Avatar, Card, SectionH
 import { loopPerson, firstName } from '../ui/pieces';
 import { sendSms, inviteText } from '../lib/familyLink';
 import * as Family from '../lib/family';
+import { inviteLink } from '../lib/invite';
 import { cloudAccountState, qrPng } from '../../modules/scam-ai';
 import { pickTrustedPerson } from '../lib/contacts';
 import { ensureNotificationPermission } from '../lib/notify';
@@ -35,11 +36,10 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
   }, [s.familyInvited, linked, ctx]);
 
   const inviteUrl = async (): Promise<string | null> => {
-    const url = await Family.invite(s.myName || s.careName);
-    if (!url) { ctx.flash('Sign in to iCloud first: Settings › your name.'); return null; }
-    await ensureNotificationPermission();
+    const r = await inviteLink(s);
+    if (!r.ok) { ctx.flash(r.error); if (r.noAccount) setAccount('noAccount'); return null; }
     ctx.update({ ...s, familyInvited: true });
-    return url;
+    return r.url;
   };
   const sendInvite = async () => {
     setBusy(true);
@@ -48,7 +48,7 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
       if (!url) return;
       const res = await pickTrustedPerson();
       const to = res.ok ? res.person : null;
-      if (to && !s.trusted.some(t => t.phone === to.phone)) ctx.update({ ...s, familyInvited: true, trusted: [to, ...s.trusted].slice(0, 3) });
+      if (to) ctx.update({ ...s, familyInvited: true, trusted: s.trusted.some(t => t.phone === to.phone) ? s.trusted.map(t => t.phone === to.phone ? { ...t, invited: true } : t) : [{ ...to, invited: true }, ...s.trusted].slice(0, 3) });
       await sendSms(to?.phone || null, inviteText(s.myName || s.careName, url));
     } finally { setBusy(false); }
   };
@@ -74,7 +74,7 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
             </Card>
             <Note C={C}>Runs on your own iCloud. Nobody in the middle.</Note>
             <View style={{ paddingHorizontal: 16, paddingTop: 22 }}>
-              <Pill label={'Stop ' + who + ' hearing from this phone'} height={54} bg={C.card} color={T.redText} onPress={ctx.unlinkFamily} />
+              <Pill label={'Stop ' + who + ' hearing from this phone'} height={54} bg={C.card} color={C.redText} onPress={ctx.unlinkFamily} />
             </View>
           </>
         ) : (
@@ -83,7 +83,7 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
             <Lead C={C}>They get one text with a link. Tapping it joins their phone to this one. After that, nothing is ever texted.</Lead>
             {s.familyInvited && (
               <Card C={C} style={{ marginHorizontal: 16, marginTop: 16, flexDirection: 'row', alignItems: 'center', gap: 12 }} radius={16}>
-                <ActivityIndicator color={T.green} />
+                <ActivityIndicator color={C.accent} />
                 <View style={{ flex: 1 }}>
                   <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Waiting for them to tap the link</Text>
                   <Text style={[font(15, '400'), { color: C.ink2, marginTop: 2 }]} allowFontScaling>This fills in on its own when they do.</Text>
@@ -100,7 +100,7 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
               <Card C={C} style={{ marginHorizontal: 16, marginTop: 16, backgroundColor: C.redTint }} radius={16}>
                 <Text style={[font(17, '600'), { color: T.redInk }]} allowFontScaling>This phone is not signed in to iCloud</Text>
                 <Text style={[font(15, '400', 1.4), { color: T.redInk, marginTop: 4 }]} allowFontScaling>Sign in to iCloud under Settings › your name, then come back.</Text>
-                <Pressable onPress={() => Linking.openSettings()} accessibilityRole="button"><Text style={[font(15, '600'), { color: T.redText, marginTop: 10 }]} allowFontScaling>Open iPhone Settings ›</Text></Pressable>
+                <Pressable onPress={() => Linking.openSettings()} accessibilityRole="button"><Text style={[font(15, '600'), { color: C.redText, marginTop: 10 }]} allowFontScaling>Open iPhone Settings ›</Text></Pressable>
               </Card>
             ) : (
               <Note C={C}>Runs on your own iCloud. Stop it here any time.</Note>
@@ -114,8 +114,8 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
             <View style={{ paddingHorizontal: 16, paddingTop: 20, gap: 10 }}>
               <Pill label={s.familyInvited ? 'Send the invite again' : 'Choose someone and send the invite'} disabled={busy} onPress={sendInvite} icon={busy ? <ActivityIndicator color="#fff" /> : <Send size={19} color="#fff" strokeWidth={2.2} />} />
               <View style={{ flexDirection: 'row', gap: 8 }}>
-                <Pill label="Show a code" height={50} bg={C.card} color={T.green} style={{ flex: 1 }} disabled={busy} onPress={showCode} icon={<QrCode size={18} color={T.green} strokeWidth={2} />} />
-                <Pill label="AirDrop it" height={50} bg={C.card} color={T.green} style={{ flex: 1 }} disabled={busy} onPress={airdrop} icon={<Share2 size={18} color={T.green} strokeWidth={2} />} />
+                <Pill label="Show a code" height={50} bg={C.card} color={C.accent} style={{ flex: 1 }} disabled={busy} onPress={showCode} icon={<QrCode size={18} color={C.accent} strokeWidth={2} />} />
+                <Pill label="AirDrop it" height={50} bg={C.card} color={C.accent} style={{ flex: 1 }} disabled={busy} onPress={airdrop} icon={<Share2 size={18} color={C.accent} strokeWidth={2} />} />
               </View>
             </View>
           </>
@@ -128,7 +128,7 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
 function Row({ C, yes, text, last }: { C: Ctx['C']; yes: boolean; text: string; last?: boolean }) {
   return (
     <View style={[{ flexDirection: 'row', gap: 12, paddingVertical: 12, alignItems: 'flex-start' }, !last && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep }]}>
-      {yes ? <Check size={18} color={T.green} strokeWidth={2.4} style={{ marginTop: 2 }} /> : <X size={18} color={T.red} strokeWidth={2.4} style={{ marginTop: 2 }} />}
+      {yes ? <Check size={18} color={C.accent} strokeWidth={2.4} style={{ marginTop: 2 }} /> : <X size={18} color={T.red} strokeWidth={2.4} style={{ marginTop: 2 }} />}
       <Text style={[font(16, '400', 1.4), { color: C.ink, flex: 1 }]} allowFontScaling>{text}</Text>
     </View>
   );
@@ -156,7 +156,7 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
             <Card C={C} style={{ marginHorizontal: 16, marginTop: 16, paddingVertical: 4 }} radius={16}>
               {['On the protected phone, open Loop Me', 'Family › Choose someone and send the invite › pick you', 'A text arrives here. Tap the link in it'].map((t, i) => (
                 <View key={t} style={[{ flexDirection: 'row', gap: 14, paddingVertical: 12, alignItems: 'center' }, i < 2 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep }]}>
-                  <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: C.greenTint, alignItems: 'center', justifyContent: 'center' }}><Text style={[font(14, '700'), { color: T.green }]} allowFontScaling>{i + 1}</Text></View>
+                  <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: C.greenTint, alignItems: 'center', justifyContent: 'center' }}><Text style={[font(14, '700'), { color: C.accent }]} allowFontScaling>{i + 1}</Text></View>
                   <Text style={[font(16, '400', 1.4), { color: C.ink, flex: 1 }]} allowFontScaling>{t}</Text>
                 </View>
               ))}
@@ -180,7 +180,7 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
             </View>
             <Card C={C} style={{ marginHorizontal: 16, marginTop: 20, flexDirection: 'row', alignItems: 'center', gap: 12 }} radius={16} onPress={hasPhone ? undefined : addPhone}>
               <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: C.greenTint, alignItems: 'center', justifyContent: 'center' }}>
-                {hasPhone ? <Phone size={18} color={T.green} strokeWidth={2.2} /> : <UserPlus size={18} color={T.green} strokeWidth={2.2} />}
+                {hasPhone ? <Phone size={18} color={C.accent} strokeWidth={2.2} /> : <UserPlus size={18} color={C.accent} strokeWidth={2.2} />}
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>{hasPhone ? s.watching?.name : 'Add ' + watchName + '’s number'}</Text>
@@ -189,7 +189,7 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
             </Card>
             <View style={{ paddingHorizontal: 16, paddingTop: 22, gap: 10 }}>
               <Pill label={'Open ' + watchName + '’s screen'} onPress={() => ctx.go('ward')} />
-              <Pill label="Stop looking after this phone" height={54} bg={C.card} color={T.redText} onPress={ctx.unlinkFamily} />
+              <Pill label="Stop looking after this phone" height={54} bg={C.card} color={C.redText} onPress={ctx.unlinkFamily} />
             </View>
           </>
         )}
@@ -203,7 +203,7 @@ export function WatchWait({ ctx }: { ctx: Ctx }) {
   return (
     <Screen C={C} playKey="wait">
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
-        <ActivityIndicator color={T.green} size="large" />
+        <ActivityIndicator color={C.accent} size="large" />
         <Text style={[font(24, '700'), { color: C.ink, marginTop: 20 }]} allowFontScaling>Joining their phone</Text>
         <Text style={[font(16, '400', 1.45), { color: C.ink2, marginTop: 8, textAlign: 'center' }]} allowFontScaling>Confirming the link. This takes a moment.</Text>
         <Pill label="Back" height={50} bg={C.card} color={C.ink} style={{ marginTop: 28, alignSelf: 'stretch' }} onPress={() => ctx.go('home')} />

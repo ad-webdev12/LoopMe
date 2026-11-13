@@ -85,7 +85,7 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
   return (
     <Screen C={C} playKey="history">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
-        <LargeTitle C={C} right={<Pressable onPress={exportPdf} accessibilityRole="button" style={{ marginBottom: 5 }}><Text style={[font(17, '400'), { color: T.green }]} allowFontScaling>Export</Text></Pressable>}>History</LargeTitle>
+        <LargeTitle C={C} right={<Pressable onPress={exportPdf} accessibilityRole="button" style={{ marginBottom: 5 }}><Text style={[font(17, '400'), { color: C.accent }]} allowFontScaling>Export</Text></Pressable>}>History</LargeTitle>
         <Segmented C={C} options={['Week', 'Month', 'All']} value={range} onChange={setRange} />
 
         <View style={[st.summary, { backgroundColor: C.card }]}>

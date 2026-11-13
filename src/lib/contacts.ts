@@ -75,13 +75,41 @@ export async function pickTrustedPerson(): Promise<PickResult> {
   if (!name) {
     return { ok: false, reason: 'That contact has no name saved. Give them a name in Contacts first.' };
   }
-  // Their Contacts photo, when there is one. Shown wherever the person appears.
-  const photo = (picked.image as { uri?: string } | undefined)?.uri || (picked.rawImage as { uri?: string } | undefined)?.uri;
-  return { ok: true, person: photo ? { name, phone, photo } : { name, phone } };
+  // Their Contacts photo. The picker often returns the contact without its
+  // image, so fetch the full record by id when we are allowed to.
+  let photo = (picked.image as { uri?: string } | undefined)?.uri || (picked.rawImage as { uri?: string } | undefined)?.uri;
+  const id = (picked as { id?: string }).id;
+  if (!photo && id) photo = await photoFor(id);
+  const person: TrustedPerson = { name, phone, ...(photo ? { photo } : {}), ...(id ? { contactId: id } : {}) };
+  return { ok: true, person };
 }
 
 /** Same phone, ignoring spaces, dashes, brackets and a leading country code. */
 export function samePhone(a: string, b: string): boolean {
   const d = (s: string) => s.replace(/\D/g, '').replace(/^1(?=\d{10}$)/, '');
   return d(a) === d(b) && d(a).length > 0;
+}
+
+/** The current Contacts photo for one contact id, or undefined. Never prompts. */
+export async function photoFor(contactId: string): Promise<string | undefined> {
+  try {
+    const { granted } = await Contacts.getPermissionsAsync();
+    if (!granted) return undefined;
+    const c = await Contacts.getContactByIdAsync(contactId, [Contacts.Fields.Image, Contacts.Fields.ImageAvailable]);
+    const uri = (c?.image as { uri?: string } | undefined)?.uri || (c?.rawImage as { uri?: string } | undefined)?.uri;
+    return uri || undefined;
+  } catch { return undefined; }
+}
+
+/** Re-read every trusted person's photo from Contacts. Returns the list only if something changed. */
+export async function refreshPhotos(list: TrustedPerson[]): Promise<TrustedPerson[] | null> {
+  let changed = false;
+  const out: TrustedPerson[] = [];
+  for (const p of list) {
+    if (!p.contactId) { out.push(p); continue; }
+    const photo = await photoFor(p.contactId);
+    if ((photo || undefined) !== (p.photo || undefined)) { changed = true; out.push({ ...p, ...(photo ? { photo } : { photo: undefined }) }); }
+    else out.push(p);
+  }
+  return changed ? out : null;
 }

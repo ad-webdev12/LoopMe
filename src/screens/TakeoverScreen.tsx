@@ -5,6 +5,7 @@
 import React, { useEffect } from 'react';
 import * as Speech from 'expo-speech';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { Phone, Send } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { T, font } from '../theme';
 import { Takeover, Pill, TextBtn, Avatar } from '../ui/base';
@@ -69,7 +70,7 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
         {level === 'amber' && (
           <>
             <Text style={[font(17, '600', 1.4), { color: '#fff', marginTop: 18 }]} allowFontScaling>What to do</Text>
-            <Text style={[font(16, '400', 1.45), { color: '#fff', marginTop: 4 }]} allowFontScaling>{v?.safeStep || 'Call the number on the back of your card. If it’s really them, they’ll tell you there.'}</Text>
+            <Text style={[font(16, '400', 1.45), { color: '#fff', marginTop: 4 }]} allowFontScaling>{v?.safeStep || 'Don’t tap or reply yet. Check with them on a number you already have.'}</Text>
           </>
         )}
         {level === 'green' && !!v?.reason && (
@@ -102,9 +103,13 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
           )}
           {level === 'amber' && (
             <>
-              <Pill label="Call the number on your card" bg="#fff" color={T.amberInk} onPress={() => Linking.openURL('tel:').catch(() => ctx.flash('Turn your card over and dial the number on the back.'))} />
-              <Pill label={who ? 'Ask ' + who : 'Ask someone'} bg="rgba(255,255,255,.22)" onPress={ask} />
-              <TextBtn label="Close" onPress={() => ctx.go('history')} />
+              {person?.linked ? <Pill label={'Ask ' + who} bg="#fff" color={T.amberInk} onPress={ask} icon={<Send size={18} color={T.amberInk} strokeWidth={2.2} />} /> : null}
+              {!!trusted && <Pill label={'Call ' + firstName(trusted.name)} bg={person?.linked ? 'rgba(255,255,255,.22)' : '#fff'} color={person?.linked ? '#fff' : T.amberInk} onPress={() => call(trusted.phone)} icon={<Phone size={18} color={person?.linked ? '#fff' : T.amberInk} strokeWidth={2.2} />} />}
+              {!person?.linked && !trusted && <Pill label="Show me more" bg="#fff" color={T.amberInk} onPress={() => ctx.go('detail')} />}
+              <View style={{ flexDirection: 'row', marginTop: 2 }}>
+                <TextBtn label="Show me more" onPress={() => ctx.go('detail')} style={{ flex: 1 }} />
+                <TextBtn label="Leave it" onPress={() => ctx.go('home')} style={{ flex: 1 }} />
+              </View>
             </>
           )}
           {level === 'green' && (
@@ -112,7 +117,7 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
               <Pill label="Done" bg="#fff" color={T.greenDeep} onPress={() => { Haptics.selectionAsync().catch(() => {}); ctx.go('home'); }} />
               <Pill label={who ? 'Ask ' + who + ' anyway' : 'Ask someone anyway'} bg="rgba(255,255,255,.2)" onPress={ask} />
               {!!rec && (
-                <Pressable onPress={() => ctx.correct(rec.id, 'scam').then(() => ctx.flash('Noted. Loop Me will remember.'))} accessibilityRole="button" style={{ height: 46, alignItems: 'center', justifyContent: 'center' }}>
+                <Pressable onPress={() => ctx.markScam(rec.id)} accessibilityRole="button" style={{ height: 46, alignItems: 'center', justifyContent: 'center' }}>
                   <Text style={[font(16, '600'), { color: '#fff' }]} allowFontScaling>No, this is a scam</Text>
                 </Pressable>
               )}

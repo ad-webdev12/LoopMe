@@ -381,8 +381,8 @@ final class MessagesViewController: MSMessagesAppViewController {
     col.setCustomSpacing(10, after: col.arrangedSubviews.last!)
     col.addArrangedSubview(label(v.reason + " " + v.safeStep, 17, .medium, .white, lines: 3))
     col.addArrangedSubview(spacer())
-    let first = button("Call the number on your card", bg: .white, fg: amberInk, icon: "phone.fill", action: #selector(dial))
-    let second = who != nil ? button("Ask " + who!, bg: UIColor.white.withAlphaComponent(0.2), fg: .white, action: #selector(askTapped)) : button("Done", bg: UIColor.white.withAlphaComponent(0.2), fg: .white, action: #selector(reset))
+    let first = who != nil ? button("Ask " + who!, bg: .white, fg: amberInk, icon: "paperplane.fill", action: #selector(askTapped)) : button("See it in Loop Me", bg: .white, fg: amberInk, action: #selector(openApp))
+    let second = button("Done", bg: UIColor.white.withAlphaComponent(0.2), fg: .white, action: #selector(reset))
     col.addArrangedSubview(rowOf([first, second]))
   }
 
@@ -442,7 +442,6 @@ final class MessagesViewController: MSMessagesAppViewController {
   @objc private func checkTapped() { check() }
   @objc private func whyTapped() { render(.why) }
   @objc private func backToScam() { render(.scam) }
-  @objc private func dial() { if let u = URL(string: "tel:") { extensionContext?.open(u, completionHandler: nil) } }
   @objc private func callWho() {
     let digits = SharedStore.defaults.string(forKey: "family.caretakerPhone") ?? ""
     if !digits.isEmpty, let u = URL(string: "tel:" + digits) { extensionContext?.open(u, completionHandler: nil) } else { openApp() }

@@ -1,7 +1,7 @@
 // Setup, three or four short screens on the app's own primitives.
 // Ob1 which phone · Ob2 whose phone (caregiver) · Ob3 what stays here ·
 // Ob4 the one person to tell. The contacts picker and the invite are real.
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as Contacts from 'expo-contacts';
 import { ArrowRight, Check, Plus, Send, Smartphone, Users } from 'lucide-react-native';
@@ -9,7 +9,11 @@ import * as Family from '../lib/family';
 import { sendSms, inviteText } from '../lib/familyLink';
 import { ensureNotificationPermission } from '../lib/notify';
 import { T, font } from '../theme';
-import { Screen, ScreenTitle, Lead, Card, Row, Group, Pill, Avatar, Segmented, Note } from '../ui/base';
+import { Screen, ScreenTitle, Lead, Card, Row, Group, Pill, Segmented, Note, TextBtn } from '../ui/base';
+import { PermCard, TEXT_STEPS, CALL_STEPS, TEXT_FRAMES, TEXT_CAPTIONS, CALL_FRAMES, CALL_CAPTIONS } from './SetupScreen';
+import { callDirectoryStatus } from '../../modules/scam-ai';
+import { AppState, Linking } from 'react-native';
+import { MessageCircle, Phone } from 'lucide-react-native';
 import { pickTrustedPerson, samePhone } from '../lib/contacts';
 import type { Ctx } from '../App';
 
@@ -37,7 +41,7 @@ export function Ob1({ ctx }: { ctx: Ctx }) {
   const { C } = ctx;
   return (
     <Screen C={C} playKey="ob1">
-      <Steps ctx={ctx} i={1} of={3} />
+      <Steps ctx={ctx} i={1} of={5} />
       <ScreenTitle C={C} top={18}>Which phone is this?</ScreenTitle>
       <Lead C={C}>Loop Me works in pairs. One phone is protected. One phone hears about it.</Lead>
       <Group C={C} style={{ marginHorizontal: 16, marginTop: 22 }}>
@@ -59,13 +63,21 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
   const [name, setName] = useState(ctx.settings.careName);
   const [rel, setRel] = useState(ctx.settings.careRel || 'Mother');
   const [whose, setWhose] = useState<'mine' | 'theirs'>(ctx.settings.careName ? 'theirs' : 'mine');
+  const [me, setMe] = useState(ctx.settings.myName);
   return (
     <Screen C={C} playKey="ob2">
-      <Steps ctx={ctx} i={2} of={whose === 'theirs' ? 4 : 3} />
+      <Steps ctx={ctx} i={2} of={whose === 'theirs' ? 6 : 5} />
       <ScreenTitle C={C} top={18}>Whose phone is it?</ScreenTitle>
-      <View style={{ paddingHorizontal: 16, marginTop: 22 }}>
+      <View style={{ marginTop: 22 }}>
         <Segmented C={C} options={['Mine', 'Someone I look after']} value={whose === 'mine' ? 'Mine' : 'Someone I look after'} onChange={v => setWhose(v === 'Mine' ? 'mine' : 'theirs')} />
       </View>
+      {whose === 'mine' && (
+        <Card C={C} style={{ marginHorizontal: 16, marginTop: 16 }} radius={16}>
+          <Text style={[font(15, '600'), { color: C.ink, marginBottom: 8 }]} allowFontScaling>Your first name</Text>
+          <TextInput style={[st.input, { backgroundColor: C.ground, color: C.ink }]} value={me} onChangeText={setMe} placeholder="First name" placeholderTextColor={C.ink2} accessibilityLabel="Your first name" />
+          <Note C={C} top={10} style={{ paddingHorizontal: 0 }}>So the person you choose next knows who the alerts are about.</Note>
+        </Card>
+      )}
       {whose === 'theirs' && (
         <Card C={C} style={{ marginHorizontal: 16, marginTop: 16, gap: 16 }} radius={16}>
           <View>
@@ -80,7 +92,7 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
         </Card>
       )}
       <Bottom label="Continue" onPress={() => {
-        if (whose === 'mine') { ctx.update({ ...ctx.settings, careName: '' }); ctx.go('ob3'); return; }
+        if (whose === 'mine') { ctx.update({ ...ctx.settings, careName: '', myName: me.trim() }); ctx.go('ob3'); return; }
         if (!name.trim()) { ctx.flash('Add their first name so alerts can use it.'); return; }
         ctx.update({ ...ctx.settings, careName: name.trim(), careRel: rel }); ctx.go('ob3');
       }} />
@@ -99,7 +111,7 @@ export function Ob3({ ctx }: { ctx: Ctx }) {
   ];
   return (
     <Screen C={C} playKey="ob3">
-      <Steps ctx={ctx} i={care ? 3 : 2} of={care ? 4 : 3} />
+      <Steps ctx={ctx} i={3} of={care ? 6 : 5} />
       <ScreenTitle C={C} top={18}>Nothing leaves this phone.</ScreenTitle>
       <Group C={C} style={{ marginHorizontal: 16, marginTop: 22 }}>
         <View style={{ paddingLeft: 16 }}>
@@ -144,9 +156,9 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
   };
   return (
     <Screen C={C} playKey="ob4">
-      <Steps ctx={ctx} i={care ? 4 : 3} of={care ? 4 : 3} />
+      <Steps ctx={ctx} i={4} of={care ? 6 : 5} />
       <ScreenTitle C={C} top={18}>Who should hear when a scam lands?</ScreenTitle>
-      <Lead C={C}>They get one text with a link. Tapping it joins their phone to this one.</Lead>
+      <Lead C={C}>{care ? 'Add yourself, then send the invite to your own number. Flagged texts will show up on your phone.' : 'They get one text with a link. Tapping it joins their phone to this one.'}</Lead>
       <Group C={C} style={{ marginHorizontal: 16, marginTop: 22 }}>
         <View style={{ paddingLeft: 16 }}>
           {first && (
@@ -164,10 +176,74 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
             icon={sent ? <Check size={18} color={T.green} strokeWidth={2.4} /> : <Send size={18} color="#fff" strokeWidth={2.2} />} />
         </View>
       )}
-      <Bottom label="Start checking" onPress={() => { ctx.update({ ...ctx.settings, introSeen: true, role: 'elder' }); ctx.go('home'); }} />
+      <Bottom label="Continue" onPress={() => ctx.go('ob5')} />
     </Screen>
   );
 }
+
+// ---------------- Ob5: turn on scam protection, with a way to come back later ----------------
+export function Ob5({ ctx }: { ctx: Ctx }) {
+  const { C } = ctx;
+  const care = !!ctx.settings.careName;
+  const [calls, setCalls] = useState<'enabled' | 'disabled' | 'unknown'>('unknown');
+  const refresh = () => { callDirectoryStatus().then(setCalls).catch(() => {}); };
+  useEffect(() => {
+    refresh();
+    const sub = AppState.addEventListener('change', st => { if (st === 'active') refresh(); });
+    return () => sub.remove();
+  }, []);
+  const textsOn = ctx.tallies.filtered > 0;
+  const callsOn = calls === 'enabled';
+  const done = textsOn && callsOn;
+  const finish = (later: boolean) => {
+    if (care) { ctx.update({ ...ctx.settings, protectionLater: later }); ctx.go('ob6'); return; }
+    ctx.update({ ...ctx.settings, introSeen: true, role: 'elder', protectionLater: later });
+    ctx.go('home');
+  };
+  return (
+    <Screen C={C} playKey="ob5">
+      <Steps ctx={ctx} i={5} of={care ? 6 : 5} />
+      <ScreenTitle C={C} top={18}>Turn on scam protection</ScreenTitle>
+      <Lead C={C}>Two switches in iPhone Settings. Apple only lets you flip them yourself. Here is where they are.</Lead>
+      <PermCard C={C} Icon={MessageCircle} title="Unknown texts" on={textsOn} steps={TEXT_STEPS} frames={TEXT_FRAMES} captions={TEXT_CAPTIONS} onOpen={() => Linking.openSettings()} first />
+      <PermCard C={C} Icon={Phone} title="Scam callers" on={callsOn} steps={CALL_STEPS} frames={CALL_FRAMES} captions={CALL_CAPTIONS} onOpen={() => Linking.openSettings()} />
+      <View style={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 34, gap: 6 }}>
+        <Pill label={done ? 'Continue' : 'Do this later'} bg={done ? T.green : C.card} color={done ? '#fff' : T.green} onPress={() => finish(!done)} trailing={done ? <ArrowRight size={18} color="#fff" strokeWidth={2.2} /> : undefined} />
+        {!done && <TextBtn label="Remind me from the Home screen" color={C.ink} onPress={() => finish(true)} />}
+      </View>
+    </Screen>
+  );
+}
+
+// ---------------- Ob6: the family secret word (setting up for someone else) ----------------
+export function Ob6({ ctx }: { ctx: Ctx }) {
+  const { C, settings: s } = ctx;
+  const [word, setWord] = useState(s.codeWord || '');
+  const finish = (save: boolean) => {
+    const w = word.trim();
+    if (save && w.length < 3) { ctx.flash('Pick a word of three letters or more.'); return; }
+    ctx.update({ ...s, introSeen: true, role: 'elder', ...(save ? { codeWord: w, codeWordSet: true } : {}) });
+    ctx.go('home');
+    ctx.flash('All set. Hand the phone back.');
+  };
+  return (
+    <Screen C={C} playKey="ob6">
+      <Steps ctx={ctx} i={6} of={6} />
+      <ScreenTitle C={C} top={18}>Pick a family secret word</ScreenTitle>
+      <Lead C={C}>If a caller sounds like family and asks for money, {s.careName ? firstNameOf(s.careName) + ' asks' : 'they ask'} for the word. A cloned voice won’t know it.</Lead>
+      <Card C={C} style={{ marginHorizontal: 16, marginTop: 22 }} radius={16}>
+        <TextInput value={word} onChangeText={setWord} autoCapitalize="words" autoCorrect={false} placeholder="One word" placeholderTextColor={C.ink2}
+          style={[font(22, '600'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, padding: 14 }]} accessibilityLabel="Secret word" />
+        <Note C={C} top={10} style={{ paddingHorizontal: 0 }}>Stays on this phone, behind Face ID in Settings.</Note>
+      </Card>
+      <View style={{ marginTop: 'auto', paddingHorizontal: 16, paddingBottom: 34, gap: 6 }}>
+        <Pill label="Save and hand the phone back" onPress={() => finish(true)} trailing={<ArrowRight size={18} color="#fff" strokeWidth={2.2} />} />
+        <TextBtn label="Skip for now" color={C.ink} onPress={() => finish(false)} />
+      </View>
+    </Screen>
+  );
+}
+const firstNameOf = (n: string) => (n || '').split(' ')[0] || 'they';
 
 const st = StyleSheet.create({
   input: { height: 50, borderRadius: 12, paddingHorizontal: 14, fontSize: 17 },

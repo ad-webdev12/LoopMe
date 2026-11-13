@@ -36,6 +36,8 @@ export interface LinkStatus {
   role: 'owner' | 'caretaker' | 'none';
   name: string | null;   // the other person's name, once linked
   invited?: boolean;     // owner sent an invite nobody has tapped yet
+  names?: string[];      // owner side: everyone who accepted, as iCloud shows them
+  count?: number;
   account?: CloudAccountState;
 }
 
@@ -199,6 +201,19 @@ export async function cloudAccountState(): Promise<CloudAccountState> {
 export async function cloudCreateInvite(myName: string): Promise<string | null> {
   if (!native) return null;
   try { return (await native.cloudCreateInvite(myName)) || null; } catch { return null; }
+}
+
+/** Same as cloudCreateInvite, but says why when it cannot. */
+export async function cloudCreateInviteOrError(myName: string): Promise<{ url: string } | { error: string; noAccount: boolean }> {
+  if (!native) return { error: 'iCloud is not available in this build.', noAccount: false };
+  try {
+    const url = await native.cloudCreateInvite(myName);
+    return url ? { url } : { error: 'iCloud did not return a link. Try again in a moment.', noAccount: false };
+  } catch (e) {
+    const msg = String((e as { message?: string })?.message || e || '');
+    const noAccount = /not signed in|noAccount|no account/i.test(msg);
+    return { error: noAccount ? 'This phone is not signed in to iCloud. Settings, your name at the top.' : 'iCloud said: ' + msg.replace(/^.*?: /, '').slice(0, 160), noAccount };
+  }
 }
 
 export async function cloudLinkStatus(): Promise<LinkStatus> {
