@@ -49,7 +49,7 @@ const DEFAULTS: Settings = {
   allowlist: [], trusted: [], watching: null,
   codeWordSet: false, codeWord: '', panicCompletedAt: null,
   pairCode: '', watchedBy: null, careName: '', careRel: 'Mother', autoCheck: true, improve: false, darkMode: false, introSeen: false,
-  familyLinked: false, familyRole: null, familyInvited: false, linkedNames: [], protectionLater: false, bankPhone: '', afterCallAsk: true, blocked: [], installedAt: 0,
+  familyLinked: false, familyRole: null, familyInvited: false, linkedNames: [], protectionLater: false, bankPhone: '', afterCallAsk: false, blocked: [], installedAt: 0,
 };
 
 export async function loadSettings(): Promise<Settings> {

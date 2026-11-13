@@ -373,7 +373,7 @@ export default function App() {
     if (!settings) return;
     const sub = addCallEndedListener(({ incoming, seconds }) => {
       const s = settingsRef.current;
-      if (!s || s.afterCallAsk === false || !incoming || s.role === 'caretaker') return;
+      if (!s || !s.afterCallAsk || !incoming || s.role === 'caretaker') return;
       if (seconds < 8 || AppState.currentState === 'active' || Date.now() - lastCallNudge.current < 90 * 60 * 1000) return;
       lastCallNudge.current = Date.now();
       void notifyNow('Was that call a scam?', 'If they asked for money, a code, or to keep it secret, check it now.', { kind: 'call' }, 'LOOPME_CALL');
