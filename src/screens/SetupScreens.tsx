@@ -195,7 +195,9 @@ export function Ob5({ ctx }: { ctx: Ctx }) {
   const textsOn = ctx.tallies.filtered > 0;
   const callsOn = calls === 'enabled';
   const done = textsOn && callsOn;
-  const finish = (later: boolean) => {
+  const finish = async (later: boolean) => {
+    // Full-screen warnings and the after-call nudge need this. Asked once, here.
+    await ensureNotificationPermission().catch(() => {});
     if (care) { ctx.update({ ...ctx.settings, protectionLater: later }); ctx.go('ob6'); return; }
     ctx.update({ ...ctx.settings, introSeen: true, role: 'elder', protectionLater: later });
     ctx.go('home');

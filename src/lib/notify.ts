@@ -49,6 +49,10 @@ export async function registerFamilyCategories() {
       { identifier: 'safe', buttonTitle: 'Looks fine', options: { opensAppToForeground: false } },
       { identifier: 'call', buttonTitle: 'Call them', options: { opensAppToForeground: true } },
     ]);
+    await Notifications.setNotificationCategoryAsync('LOOPME_CALL', [
+      { identifier: 'check', buttonTitle: 'Check it', options: { opensAppToForeground: true } },
+      { identifier: 'fine', buttonTitle: 'It was fine', options: { opensAppToForeground: false } },
+    ]);
     await Notifications.setNotificationCategoryAsync('LOOPME_NOTE', [
       { identifier: 'call', buttonTitle: 'Call them back', options: { opensAppToForeground: true } },
     ]);
@@ -56,10 +60,10 @@ export async function registerFamilyCategories() {
 }
 
 /** A local notification right now, for things the app notices while it is open. */
-export async function notifyNow(title: string, body: string, data?: Record<string, unknown>) {
+export async function notifyNow(title: string, body: string, data?: Record<string, unknown>, categoryIdentifier?: string) {
   if (!(await ensureNotificationPermission())) return;
   try {
-    await Notifications.scheduleNotificationAsync({ content: { title, body, data, interruptionLevel: 'timeSensitive' }, trigger: null });
+    await Notifications.scheduleNotificationAsync({ content: { title, body, data, categoryIdentifier, interruptionLevel: 'timeSensitive' }, trigger: null });
   } catch {}
 }
 

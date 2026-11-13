@@ -211,3 +211,7 @@ caretaker's side. Everything else works on a single device.
 6. Review is typically 24–48h. You'll get email at each step.
 
 **Reality check:** submitting is the fast part; Apple's review time is the variable. Have the developer account active and this kit pasted in, and you can submit the same day the account activates.
+
+## Before the next App Store update
+
+- Live Caller ID Lookup: host `server/callerid` at `lookup.loopmescamsafety.app` and `issuer.loopmescamsafety.app` (HTTPS), add the DNS TXT record, and submit Apple's Identity & Trust onboarding form in the CloudKit console. The "Who is calling" card in Turn on scam protection appears on its own once the service answers. Until then the feature is invisible to users.
