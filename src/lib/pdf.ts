@@ -2,6 +2,7 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import type { CheckRecord } from './history';
+import { redactPrivate } from './redact';
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -11,7 +12,7 @@ export async function exportHistoryPdf(hist: CheckRecord[], who: string): Promis
   const ref = 'LM-' + Date.now().toString(36).toUpperCase();
   const rows = hist.map(h => {
     const mark = h.level === 'red' ? '<span class="mark red">Scam</span>' : h.level === 'amber' ? '<span class="mark amber">Be careful</span>' : '<span class="mark green">Fine</span>';
-    return `<tr><td class="dim">${esc(new Date(h.at).toLocaleString())}</td><td>${esc(h.sender || (h.source === 'filter' ? 'Unknown number' : 'Pasted into Loop Me'))}</td><td>${mark}</td><td>${esc(h.excerpt)}<div class="why">${esc(h.reason || '')}</div></td></tr>`;
+    return `<tr><td class="dim">${esc(new Date(h.at).toLocaleString())}</td><td>${esc(h.sender || (h.source === 'filter' ? 'Unknown number' : 'Pasted into Loop Me'))}</td><td>${mark}</td><td>${esc(redactPrivate(h.excerpt))}<div class="why">${esc(h.reason || '')}</div></td></tr>`;
   }).join('');
   const html = `<!doctype html><html><head><meta charset="utf-8">
     <style>

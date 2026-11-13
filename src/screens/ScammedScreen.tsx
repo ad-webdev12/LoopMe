@@ -2,7 +2,7 @@
 // place. Each step's button does the real thing: dial, save the PDF, loop
 // in the person who looks out for them.
 import React, { useState } from 'react';
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as Speech from 'expo-speech';
 import { X, ArrowRight, Phone, FileDown, Volume2 } from 'lucide-react-native';
 import { T, font } from '../theme';
@@ -30,7 +30,16 @@ export default function ScammedScreen({ ctx }: { ctx: Ctx }) {
   const last = i === STEPS.length - 1;
   const step = STEPS[i];
 
-  const callBank = () => Linking.openURL('tel:').catch(() => ctx.flash('Turn your card over and dial the number on the back.'));
+  const [bankOpen, setBankOpen] = useState(false);
+  const [bank, setBank] = useState(s.bankPhone || '');
+  const callBank = () => { if (s.bankPhone) Linking.openURL('tel:' + s.bankPhone.replace(/[^\d+]/g, '')).catch(() => {}); else setBankOpen(true); };
+  const saveBank = () => {
+    const d = bank.replace(/[^\d+]/g, '');
+    if (d.replace(/\D/g, '').length < 7) { ctx.flash('Type the whole number from the back of your card.'); return; }
+    ctx.update({ ...s, bankPhone: d });
+    setBankOpen(false);
+    Linking.openURL('tel:' + d).catch(() => {});
+  };
   const savePdf = async () => {
     const r = await exportHistoryPdf(ctx.hist.filter(h => h.source !== 'family'), s.myName);
     ctx.flash(r === 'failed' ? 'Could not make the PDF just now.' : 'Your history is ready to share.');
@@ -85,6 +94,17 @@ export default function ScammedScreen({ ctx }: { ctx: Ctx }) {
           {i > 0 && <Pill label="Previous step" height={52} bg={C.card} color={C.ink} style={{ flex: 1 }} onPress={() => setI(i - 1)} />}
         </View>
       </View>
+      <Modal visible={bankOpen} transparent animationType="fade" onRequestClose={() => setBankOpen(false)}>
+        <Pressable style={st.dim} onPress={() => setBankOpen(false)}>
+          <Pressable style={[st.sheet, { backgroundColor: C.card }]} onPress={() => {}}>
+            <Text style={[font(20, '700'), { color: C.ink }]} allowFontScaling>Your bank’s number</Text>
+            <Text style={[font(15, '400', 1.4), { color: C.ink2, marginTop: 6 }]} allowFontScaling>Turn your card over. The number is printed on the back. Loop Me keeps it so next time is one tap.</Text>
+            <TextInput value={bank} onChangeText={setBank} autoFocus keyboardType="phone-pad" placeholder="Number on the back of the card" placeholderTextColor={C.meta} returnKeyType="done" onSubmitEditing={saveBank}
+              style={[font(22, '600'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, padding: 14, marginTop: 14 }]} />
+            <Pill label="Call now" style={{ marginTop: 14 }} onPress={saveBank} icon={<Phone size={18} color="#fff" strokeWidth={2} />} />
+          </Pressable>
+        </Pressable>
+      </Modal>
     </Screen>
   );
 }
@@ -99,5 +119,7 @@ function Inline({ C, label, icon, onPress }: { C: Ctx['C']; label: string; icon:
 }
 
 const st = StyleSheet.create({
+  dim: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', justifyContent: 'flex-end' },
+  sheet: { borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, paddingBottom: 40 },
   inline: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 18, height: 48, paddingHorizontal: 20, borderRadius: 24 },
 });

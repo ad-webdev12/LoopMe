@@ -4,7 +4,7 @@
 // tabs in 450ms cubic-bezier(.3,.9,.25,1); its label fades in with a 120ms
 // delay. Inactive tabs are grey icons only, sharing the remaining width.
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Animated, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { ScanText, Clock, Users, Settings, LucideIcon } from 'lucide-react-native';
 import { T, font, Palette } from '../theme';

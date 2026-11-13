@@ -1,7 +1,7 @@
 // Check (Home). Green header with the loop pill, the date, the rotating
 // headline, the clipboard as a bubble, one big button and three ways in.
 // Below: the protection status, then two tiles. Every value from the handoff.
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Animated, AppState, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
@@ -95,7 +95,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
     setHeard(''); setHeardFinal('');
     setListening(true);
     const ok = await startListening();
-    if (!ok) { setListening(false); ctx.flash('Loop Me needs the microphone and speech permission. Allow both in Settings, or type it instead.'); }
+    if (!ok) { setListening(false); ctx.flash('Could not start listening. Check the microphone permission for Loop Me in Settings, or type it instead.'); }
   };
   const stopSaying = () => { stopListeningLive(); setListening(false); };
   const spoken = (heardFinal + ' ' + heard).trim();
@@ -230,7 +230,7 @@ function Alt({ Icon, label, onPress }: { Icon: typeof Camera; label: string; onP
 
 const st = StyleSheet.create({
   header: { backgroundColor: T.green, paddingTop: 0, paddingHorizontal: 20, paddingBottom: 22, borderBottomLeftRadius: 22, borderBottomRightRadius: 22 },
-  appIcon: { width: 60, height: 60, borderRadius: 15, borderWidth: 1.5, borderColor: 'rgba(255,255,255,.25)' },
+  appIcon: { width: 54, height: 54, borderRadius: 14, borderWidth: 1.5, borderColor: 'rgba(255,255,255,.25)' },
   pill: { marginLeft: 'auto', height: 40, borderRadius: 20, backgroundColor: '#fff', flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 5, paddingRight: 12, flexShrink: 1 },
   clipBubble: { backgroundColor: '#fff', borderTopLeftRadius: 16, borderTopRightRadius: 16, borderBottomRightRadius: 16, borderBottomLeftRadius: 5, paddingTop: 10, paddingHorizontal: 14, paddingBottom: 11, maxWidth: 300, alignSelf: 'flex-start' },
   shotRow: { marginTop: 14, flexDirection: 'row', alignItems: 'center', gap: 8 },

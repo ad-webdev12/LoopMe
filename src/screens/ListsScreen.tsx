@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { X, Plus } from 'lucide-react-native';
-import { T, font } from '../theme';
+import { font } from '../theme';
 import { Screen, BackLink, ScreenTitle, Lead, Note } from '../ui/base';
 import { callDirectoryReload } from '../../modules/scam-ai';
 import type { Ctx } from '../App';

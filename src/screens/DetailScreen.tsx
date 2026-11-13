@@ -3,7 +3,7 @@
 import React from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Speech from 'expo-speech';
-import { Flag, Ban, Volume2 } from 'lucide-react-native';
+import { Volume2 } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { Screen, BackLink, SectionHeader, Row, Avatar } from '../ui/base';
 import { Highlighted, loopPerson, firstName, whenLabel } from '../ui/pieces';
@@ -70,7 +70,7 @@ export default function DetailScreen({ ctx }: { ctx: Ctx }) {
               <Pressable onPress={() => { ctx.correct(rec.id, level === 'green' ? 'fine' : 'scam').then(() => ctx.flash('Thanks. Loop Me will remember.')); }} style={({ pressed }) => [st.yn, { backgroundColor: C.card }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
                 <Text style={[font(16, '600'), { color: C.ink }]} allowFontScaling>{level === 'green' ? 'Yes, it’s fine' : 'Yes, a scam'}</Text>
               </Pressable>
-              <Pressable onPress={() => { ctx.correct(rec.id, level === 'green' ? 'scam' : 'fine').then(() => ctx.flash('Noted. It won’t be flagged again.')); }} style={({ pressed }) => [st.yn, { backgroundColor: C.card }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
+              <Pressable onPress={() => { if (level === 'green') void ctx.markScam(rec.id); else ctx.correct(rec.id, 'fine').then(() => ctx.flash('Noted. It won’t be flagged again.')); }} style={({ pressed }) => [st.yn, { backgroundColor: C.card }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
                 <Text style={[font(16, '600'), { color: C.ink }]} allowFontScaling>{level === 'green' ? 'No, it’s a scam' : 'No, it’s really them'}</Text>
               </Pressable>
             </View>

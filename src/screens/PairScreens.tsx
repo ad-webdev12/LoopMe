@@ -11,11 +11,9 @@ import { T, font } from '../theme';
 import { Screen, BackLink, ScreenTitle, Lead, Note, Pill, Avatar, Card, SectionHeader, CheckCircle } from '../ui/base';
 import { loopPerson, firstName } from '../ui/pieces';
 import { sendSms, inviteText } from '../lib/familyLink';
-import * as Family from '../lib/family';
 import { inviteLink } from '../lib/invite';
 import { cloudAccountState, qrPng } from '../../modules/scam-ai';
 import { pickTrustedPerson } from '../lib/contacts';
-import { ensureNotificationPermission } from '../lib/notify';
 import type { Ctx } from '../App';
 
 // ---------------- Protected phone: who hears about it ----------------

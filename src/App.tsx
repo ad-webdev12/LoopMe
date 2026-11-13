@@ -19,7 +19,7 @@ import { loadSettings, saveSettings, isPostPanic, Settings } from './lib/storage
 import { addCheck, listChecks, newRecord, updateCheck, CheckRecord } from './lib/history';
 import * as Family from './lib/family';
 import * as Feedback from './lib/feedback';
-import { registerFamilyCategories, ensureNotificationPermission, cancelReminders, scheduleWeekly } from './lib/notify';
+import { registerFamilyCategories, ensureNotificationPermission, scheduleWeekly } from './lib/notify';
 import { callDirectoryReload, sharedTallies } from '../modules/scam-ai';
 import TabBar, { TabId } from './ui/TabBar';
 import Toast from './ui/Toast';
@@ -97,6 +97,8 @@ export interface Ctx {
   blockNumber: (phone: string) => Promise<void>;
   /** "Was this right?" The person's answer is remembered on this phone. */
   correct: (recId: string, label: 'scam' | 'fine') => Promise<void>;
+  /** Back to the tab this screen was opened from. */
+  back: () => void;
   /** "No, this is a scam" on a green verdict: remember it, then show the scam screen with its steps. */
   markScam: (recId: string) => Promise<void>;
   tallies: { filtered: number; junk: number; shared: number; lastFilteredAt: number };
@@ -173,9 +175,13 @@ export default function App() {
     setScreen(prev => {
       const a = TAB_ORDER.indexOf(prev), b = TAB_ORDER.indexOf(s);
       setNavDir(a >= 0 && b >= 0 ? (b > a ? 1 : b < a ? -1 : 0) : 1);
+      if (prev !== s && TAB_ORDER.includes(prev)) lastTab.current = prev;
       return s;
     });
   }, []);
+  // The tab a pushed screen was opened from, so Back lands where the person came from.
+  const lastTab = useRef<ScreenId>('home');
+  const back = useCallback(() => go(lastTab.current), [go]);
 
   // Owner side, on the caretaker's say-so: block without a toast, the
   // full-screen note tells the person in the caretaker's own words.
@@ -587,7 +593,7 @@ export default function App() {
     closeFamilyAlert: () => { if (alertId) updateCheck(alertId, { seen: true }).then(refreshHist); setAlertId(null); setScreen('ward'); },
     noteOpen,
     closeNote: () => { setNoteOpen(null); setScreen('home'); },
-    loopIn, sendNoteTo, refreshFamily, unlinkFamily, blockNumber, correct, markScam, tallies, pulse, checking, openRecord,
+    loopIn, sendNoteTo, refreshFamily, unlinkFamily, blockNumber, correct, markScam, back, tallies, pulse, checking, openRecord,
     C: palette(!!settings.darkMode),
     pendingPhoto, clearPendingPhoto: () => setPendingPhoto(false),
   };

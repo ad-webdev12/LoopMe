@@ -3,7 +3,7 @@
 // extension that ships in the Messages app.
 import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Lock, ClipboardPaste, ImageIcon } from 'lucide-react-native';
+import { ClipboardPaste, ImageIcon } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { Screen, BackLink, ScreenTitle, Lead, Note, APP_ICON } from '../ui/base';
 import type { Ctx } from '../App';

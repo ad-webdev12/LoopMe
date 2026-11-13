@@ -3,9 +3,9 @@
 // 900/1300/1700 ms, three checklist ticks at 700/1400/2100 ms. The rules and
 // the model run underneath (App.check); this screen only shows the time.
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Image, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { Check, Lock } from 'lucide-react-native';
+import { Check } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { APP_ICON, Screen, motionOff } from '../ui/base';
 import { Bubble, Highlighted, senderLabel, whenLabel } from '../ui/pieces';

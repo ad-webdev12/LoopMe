@@ -2,7 +2,7 @@
 // outgoing bubble; "Delivered", typing dots while we wait, then their real
 // reply as an incoming bubble. Only this message is shared.
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { Send } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { Screen, BackLink, Avatar, Pill, Swap, motionOff } from '../ui/base';

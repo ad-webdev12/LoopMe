@@ -209,7 +209,6 @@ export function Ob5({ ctx }: { ctx: Ctx }) {
       <PermCard C={C} Icon={Phone} title="Scam callers" on={callsOn} steps={CALL_STEPS} frames={CALL_FRAMES} captions={CALL_CAPTIONS} onOpen={() => Linking.openSettings()} />
       <View style={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 34, gap: 6 }}>
         <Pill label={done ? 'Continue' : 'Do this later'} bg={done ? T.green : C.card} color={done ? '#fff' : T.green} onPress={() => finish(!done)} trailing={done ? <ArrowRight size={18} color="#fff" strokeWidth={2.2} /> : undefined} />
-        {!done && <TextBtn label="Remind me from the Home screen" color={C.ink} onPress={() => finish(true)} />}
       </View>
     </Screen>
   );
