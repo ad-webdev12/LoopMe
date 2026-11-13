@@ -27,10 +27,22 @@ export const CALL_FRAMES: Frame[] = [
 ];
 export const CALL_CAPTIONS = ['Settings, then Apps', 'Phone', 'Call Blocking & Identification', 'Switch Loop Me on'];
 // Live Caller ID Lookup (the "Who is calling" card) needs the lookup service
-// in server/callerid hosted and onboarded with Apple. Until then the switch
-// would exist in iOS Settings but every lookup would fail, so the card stays
-// hidden. Flip this when lookup.loopmescamsafety.app is live.
-export const CALLER_ID_LIVE = false;
+// in server/callerid hosted and onboarded with Apple. The card shows only when
+// this iPhone supports the feature AND the service answers, so it appears on
+// its own the day the server goes live and never offers a dead switch.
+const LOOKUP_URL = 'https://lookup.loopmescamsafety.app/.well-known/private-token-issuer-directory';
+let lookupLiveCache: boolean | null = null;
+export async function lookupServiceLive(): Promise<boolean> {
+  if (lookupLiveCache != null) return lookupLiveCache;
+  try {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 4000);
+    const r = await fetch(LOOKUP_URL, { method: 'GET', signal: ctl.signal });
+    clearTimeout(t);
+    lookupLiveCache = r.ok;
+  } catch { lookupLiveCache = false; }
+  return lookupLiveCache;
+}
 export const TEXT_STEPS = ['Open Settings', 'Scroll down, tap Apps', 'Tap Messages', 'Tap Unknown & Spam', 'Under SMS Filtering, tap Loop Me'];
 export const CALL_STEPS = ['Open Settings', 'Scroll down, tap Apps', 'Tap Phone', 'Tap Call Blocking & Identification', 'Switch Loop Me on'];
 const LOOKUP_STEPS = ['Tap the button below', 'Under Call Identification, switch Loop Me on'];
@@ -39,7 +51,7 @@ export default function SetupScreen({ ctx }: { ctx: Ctx }) {
   const { C, settings: s } = ctx;
   const [calls, setCalls] = useState<'enabled' | 'disabled' | 'unknown'>('unknown');
   const [lookup, setLookup] = useState<CallerIdStatus>('unavailable');
-  const refresh = () => { callDirectoryStatus().then(setCalls).catch(() => {}); if (CALLER_ID_LIVE) callerIdStatus().then(setLookup).catch(() => {}); };
+  const refresh = () => { callDirectoryStatus().then(setCalls).catch(() => {}); lookupServiceLive().then(live => { if (live) callerIdStatus().then(setLookup).catch(() => {}); }); };
   useEffect(() => {
     refresh();
     const sub = AppState.addEventListener('change', st => { if (st === 'active') refresh(); });
