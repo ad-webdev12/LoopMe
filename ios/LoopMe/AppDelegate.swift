@@ -24,6 +24,8 @@ public class AppDelegate: ExpoAppDelegate {
 
 #if os(iOS) || os(tvOS)
     window = UIWindow(frame: UIScreen.main.bounds)
+    // Same green as the launch screen, so there is no white flash before the first frame.
+    window?.backgroundColor = UIColor(red: 0.051, green: 0.42, blue: 0.341, alpha: 1)
     factory.startReactNative(
       withModuleName: "main",
       in: window,
@@ -65,6 +67,13 @@ class ReactNativeDelegate: ExpoReactNativeFactoryDelegate {
   override func sourceURL(for bridge: RCTBridge) -> URL? {
     // needed to return the correct URL for expo-dev-client.
     bridge.bundleURL ?? bundleURL()
+  }
+
+  // The React root view is white until the first frame. Paint it the launch
+  // green so the hand-off from the launch screen is invisible.
+  override func customize(_ rootView: RCTRootView) {
+    super.customize(rootView)
+    rootView.backgroundColor = UIColor(red: 0.051, green: 0.42, blue: 0.341, alpha: 1)
   }
 
   override func bundleURL() -> URL? {
