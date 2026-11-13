@@ -36,7 +36,6 @@ export interface Settings {
   linkedNames: string[];         // owner side: everyone who accepted, as iCloud names them
   protectionLater: boolean;      // "Do this later" on the permissions step of setup
   bankPhone: string;             // the number on the back of their card, typed once
-  afterCallAsk: boolean;         // a notification after an incoming call ends: was that a scam?
   blocked: string[];             // numbers the person chose to block (call directory)
   installedAt: number;           // for "looking out for you since"
 }
@@ -49,7 +48,7 @@ const DEFAULTS: Settings = {
   allowlist: [], trusted: [], watching: null,
   codeWordSet: false, codeWord: '', panicCompletedAt: null,
   pairCode: '', watchedBy: null, careName: '', careRel: 'Mother', autoCheck: true, improve: false, darkMode: false, introSeen: false,
-  familyLinked: false, familyRole: null, familyInvited: false, linkedNames: [], protectionLater: false, bankPhone: '', afterCallAsk: false, blocked: [], installedAt: 0,
+  familyLinked: false, familyRole: null, familyInvited: false, linkedNames: [], protectionLater: false, bankPhone: '', blocked: [], installedAt: 0,
 };
 
 export async function loadSettings(): Promise<Settings> {

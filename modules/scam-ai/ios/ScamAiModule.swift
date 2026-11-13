@@ -64,7 +64,7 @@ public class ScamAiModule: Module {
     }
 
     // ---- Listen mode: a running transcript, on-device, as events --------
-    Events("cloudEvent", "speech", "callEnded")
+    Events("cloudEvent", "speech")
     AsyncFunction("startListening") { () -> Bool in
       ContinuousListener.shared.onText = { [weak self] text, final in
         self?.sendEvent("speech", ["text": text, "final": final])
@@ -110,11 +110,7 @@ public class ScamAiModule: Module {
     }
 
     // ---- Family link over CloudKit -------------------------------------
-    OnStartObserving {
-      CloudBus.shared.attach { [weak self] e in self?.sendEvent("cloudEvent", e) }
-      CallWatcher.shared.onEnd = { [weak self] incoming, seconds in self?.sendEvent("callEnded", ["incoming": incoming, "seconds": seconds]) }
-      CallWatcher.shared.start()
-    }
+    OnStartObserving { CloudBus.shared.attach { [weak self] e in self?.sendEvent("cloudEvent", e) } }
     OnStopObserving { CloudBus.shared.detach() }
 
     // "available" | "noAccount" | "restricted" | "unknown"

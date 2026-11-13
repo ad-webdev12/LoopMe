@@ -67,12 +67,11 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
         <Group C={C} style={{ marginTop: 20 }}>
           <Row C={C} chip={Bell} chipColor={T.red} title="Full-screen warning" pad={9} right={<IOSSwitch C={C} on={s.alerts !== false} onChange={v => { set({ alerts: v }); if (v) void ensureNotificationPermission(); }} />} />
           <Row C={C} chip={MessageCircle} chipColor={T.green} title="Check unknown texts" pad={9} right={<IOSSwitch C={C} on={s.autoCheck !== false} onChange={v => set({ autoCheck: v })} />} />
-          <Row C={C} chip={Phone} chipColor={T.green} title="Ask after a call" pad={9} right={<IOSSwitch C={C} on={!!s.afterCallAsk} onChange={v => { set({ afterCallAsk: v }); if (v) void ensureNotificationPermission(); }} />} />
           <Row C={C} chip={Volume2} chipColor={T.iosGrey} title="Read answers aloud" pad={9} right={<IOSSwitch C={C} on={!!s.readAloud} onChange={v => set({ readAloud: v })} />} />
           <Row C={C} chip={Sparkles} chipColor={T.amber} title="Help improve Loop Me" pad={9} right={<IOSSwitch C={C} on={!!s.improve} onChange={v => set({ improve: v })} />} />
           <Row C={C} chip={Moon} chipColor="#1c1c1e" title="Dark mode" pad={9} last right={<IOSSwitch C={C} on={!!s.darkMode} onChange={v => set({ darkMode: v })} />} />
         </Group>
-        <Note C={C} top={10}>Scam texts from numbers you don’t know go straight to Junk. Ask after a call sends one notification when any call ends, since iOS never tells an app who called.{s.improve ? ' When you correct an answer, the text is sent to Loop Me with numbers and names blanked, to train the next version.' : ''}</Note>
+        <Note C={C} top={10}>Scam texts from numbers you don’t know go straight to Junk.{s.improve ? ' When you correct an answer, the text is sent to Loop Me with numbers and names blanked, to train the next version.' : ''}</Note>
 
         <View style={st.secret}>
           <Text style={[font(15, '600'), { color: '#fff' }]} allowFontScaling>Your family’s secret word</Text>

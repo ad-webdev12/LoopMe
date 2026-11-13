@@ -10,7 +10,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
 import * as Clipboard from 'expo-clipboard';
-import { endCallActivity, watchPush, addCallEndedListener } from '../modules/scam-ai';
+import { endCallActivity, watchPush } from '../modules/scam-ai';
 import * as Haptics from 'expo-haptics';
 import { T, Palette } from './theme';
 import { palette, setNavDir } from './ui/base';
@@ -19,7 +19,8 @@ import { loadSettings, saveSettings, isPostPanic, Settings } from './lib/storage
 import { addCheck, listChecks, newRecord, updateCheck, CheckRecord } from './lib/history';
 import * as Family from './lib/family';
 import * as Feedback from './lib/feedback';
-import { registerFamilyCategories, ensureNotificationPermission, scheduleWeekly, notifyNow } from './lib/notify';
+import * as SplashScreen from 'expo-splash-screen';
+import { registerFamilyCategories, ensureNotificationPermission, scheduleWeekly } from './lib/notify';
 import { callDirectoryReload, sharedTallies } from '../modules/scam-ai';
 import TabBar, { TabId } from './ui/TabBar';
 import Toast from './ui/Toast';
@@ -125,6 +126,11 @@ function sixDigits(): string {
   for (let i = 0; i < 6; i++) out += Math.floor(Math.random() * 10);
   return out;
 }
+
+// The launch screen stays up until the first screen has drawn, so the icon
+// never blinks out and back.
+SplashScreen.preventAutoHideAsync().catch(() => {});
+SplashScreen.setOptions({ duration: 220, fade: true });
 
 export default function App() {
   const [settings, setSettings] = useState<Settings | null>(null);
@@ -349,8 +355,6 @@ export default function App() {
         refreshHist();
         setAlertId(data.id);
         setScreen('familyAlert');
-      } else if (data.kind === 'call') {
-        if (r.actionIdentifier !== 'fine') go('callcheck');
       } else if (data.kind === 'note') {
         await Family.fold();
         refreshHist();
@@ -364,22 +368,6 @@ export default function App() {
     const sub = Notifications.addNotificationResponseReceivedListener((r) => { void handle(r); });
     return () => sub.remove();
   }, [settings != null, refreshHist]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // After an incoming call ends while the app is in the background: one
-  // notification asking whether it was a scam. iOS never says who called,
-  // so this is a nudge, not a verdict. At most one every ninety minutes.
-  const lastCallNudge = useRef(0);
-  useEffect(() => {
-    if (!settings) return;
-    const sub = addCallEndedListener(({ incoming, seconds }) => {
-      const s = settingsRef.current;
-      if (!s || !s.afterCallAsk || !incoming || s.role === 'caretaker') return;
-      if (seconds < 8 || AppState.currentState === 'active' || Date.now() - lastCallNudge.current < 90 * 60 * 1000) return;
-      lastCallNudge.current = Date.now();
-      void notifyNow('Was that call a scam?', 'If they asked for money, a code, or to keep it secret, check it now.', { kind: 'call' }, 'LOOPME_CALL');
-    });
-    return () => sub.remove();
-  }, [settings != null]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const activeCheck = useRef('');
   // The Checking screen plays for 2.8 seconds while the rules and the model
@@ -588,7 +576,8 @@ export default function App() {
     watchPush({ name: settings.watching?.name?.split(' ')[0] || '', phone: settings.watching?.phone || '', linked: settings.familyLinked, alerts });
   }, [hist, settings?.role, settings?.watching?.name, settings?.watching?.phone, settings?.familyLinked]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!settings) return <View style={st.root} />;
+  useEffect(() => { if (settings) SplashScreen.hideAsync().catch(() => {}); }, [settings != null]); // eslint-disable-line react-hooks/exhaustive-deps
+  if (!settings) return <View style={[st.root, { backgroundColor: T.green }]} />;
 
   const careMode = settings.role === 'caretaker';
   const watchName = settings.watching?.name?.split(' ')[0] || settings.careName.split(' ')[0] || 'Family';

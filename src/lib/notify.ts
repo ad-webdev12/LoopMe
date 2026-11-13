@@ -49,10 +49,6 @@ export async function registerFamilyCategories() {
       { identifier: 'safe', buttonTitle: 'Looks fine', options: { opensAppToForeground: false } },
       { identifier: 'call', buttonTitle: 'Call them', options: { opensAppToForeground: true } },
     ]);
-    await Notifications.setNotificationCategoryAsync('LOOPME_CALL', [
-      { identifier: 'check', buttonTitle: 'Check it', options: { opensAppToForeground: true } },
-      { identifier: 'fine', buttonTitle: 'It was fine', options: { opensAppToForeground: false } },
-    ]);
     await Notifications.setNotificationCategoryAsync('LOOPME_NOTE', [
       { identifier: 'call', buttonTitle: 'Call them back', options: { opensAppToForeground: true } },
     ]);

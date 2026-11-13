@@ -1,5 +1,4 @@
 import Foundation
-import CallKit
 import UIKit
 import Photos
 import Speech
@@ -234,30 +233,3 @@ final class WatchBridge: NSObject, WCSessionDelegate {
 }
 
 
-// MARK: - Calls ending
-// iOS tells an app when a call starts and ends, never who it was. That is
-// enough to ask "was that one a scam?" the moment a call finishes, which is
-// when a person is most likely to act on it.
-final class CallWatcher: NSObject, CXCallObserverDelegate {
-  static let shared = CallWatcher()
-  private let observer = CXCallObserver()
-  private var started: [UUID: (Date, Bool)] = [:]
-  var onEnd: ((Bool, Double) -> Void)?
-  private var running = false
-
-  func start() {
-    guard !running else { return }
-    running = true
-    observer.setDelegate(self, queue: .main)
-  }
-
-  func callObserver(_ callObserver: CXCallObserver, callChanged call: CXCall) {
-    if call.hasConnected, started[call.uuid] == nil { started[call.uuid] = (Date(), !call.isOutgoing) }
-    if call.hasEnded {
-      let incoming = started[call.uuid]?.1 ?? !call.isOutgoing
-      let seconds = started[call.uuid].map { Date().timeIntervalSince($0.0) } ?? 0
-      started[call.uuid] = nil
-      onEnd?(incoming, seconds)
-    }
-  }
-}

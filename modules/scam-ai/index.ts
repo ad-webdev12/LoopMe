@@ -142,7 +142,6 @@ const native = requireOptionalNativeModule<{
   callDirectoryStatus(): Promise<'enabled' | 'disabled' | 'unknown'>;
   addListener(event: 'cloudEvent', cb: (e: CloudEvent) => void): { remove: () => void };
   addListener(event: 'speech', cb: (e: { text: string; final: boolean }) => void): { remove: () => void };
-  addListener(event: 'callEnded', cb: (e: { incoming: boolean; seconds: number }) => void): { remove: () => void };
 }>('ScamAi');
 
 export const isNativeAiLinked = () => native != null;
@@ -326,12 +325,6 @@ export function stopListeningLive(): void { try { native?.stopListeningLive(); }
 export function addSpeechListener(fn: (e: { text: string; final: boolean }) => void): { remove: () => void } {
   if (!native) return { remove: () => {} };
   try { return native.addListener('speech', fn); } catch { return { remove: () => {} }; }
-}
-
-/** A phone call on this iPhone just ended. iOS never says who it was. */
-export function addCallEndedListener(fn: (e: { incoming: boolean; seconds: number }) => void): { remove: () => void } {
-  if (!native) return { remove: () => {} };
-  try { return native.addListener('callEnded', fn); } catch { return { remove: () => {} }; }
 }
 
 /** The newest screenshot taken after `sinceMs`, as a temp file, or null. */
