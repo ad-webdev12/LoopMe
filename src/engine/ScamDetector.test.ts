@@ -93,6 +93,7 @@ const SCAMS: Case[] = [
   ['Amazon: your order for $1,299.99 has shipped. If this wasn\u2019t you call 888-555-0142 immediately.','callback'],
   ['Hello dear, I am a widow with $4.5 million and I need your help transferring it.','advance-fee'],
   ['I am a widower dying of cancer and wish to donate my $2 million estate to you.','advance-fee'],
+  ['Hello. Dad here lol. Please send the 400 dollars.','family-emergency'],
   //: the job-offer text that the drawer called okay while the app said careful.
   ['Hi! This is Camila from the recruiting team at Amazon. We came across your profile and feel you would be a fantastic match for our part-time remote position. Earnings: $250-$500 per day. If you\u2019re interested, please reach out via text to 7023078239 for more details.','job-offer'],
   ['We are hiring! Work from home 1-2 hours a day and earn $300-$800 daily. Message us on WhatsApp +1 702 307 8239 to start.','job-offer'],

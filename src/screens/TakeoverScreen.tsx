@@ -105,11 +105,17 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
             <>
               {person?.linked ? <Pill label={'Ask ' + who} bg="#fff" color={T.amberInk} onPress={ask} icon={<Send size={18} color={T.amberInk} strokeWidth={2.2} />} /> : null}
               {!!trusted && <Pill label={'Call ' + firstName(trusted.name)} bg={person?.linked ? 'rgba(255,255,255,.22)' : '#fff'} color={person?.linked ? '#fff' : T.amberInk} onPress={() => call(trusted.phone)} icon={<Phone size={18} color={person?.linked ? '#fff' : T.amberInk} strokeWidth={2.2} />} />}
-              {!person?.linked && !trusted && <Pill label="Show me more" bg="#fff" color={T.amberInk} onPress={() => ctx.go('detail')} />}
-              <View style={{ flexDirection: 'row', marginTop: 2 }}>
-                <TextBtn label="Show me more" onPress={() => ctx.go('detail')} style={{ flex: 1 }} />
-                <TextBtn label="Leave it" onPress={() => ctx.go('home')} style={{ flex: 1 }} />
-              </View>
+              {!person?.linked && !trusted ? (
+                <>
+                  <Pill label="Show me more" bg="#fff" color={T.amberInk} onPress={() => ctx.go('detail')} />
+                  <Pill label="Leave it" bg="rgba(255,255,255,.22)" onPress={() => ctx.go('home')} />
+                </>
+              ) : (
+                <View style={{ flexDirection: 'row', marginTop: 2 }}>
+                  <TextBtn label="Show me more" onPress={() => ctx.go('detail')} style={{ flex: 1 }} />
+                  <TextBtn label="Leave it" onPress={() => ctx.go('home')} style={{ flex: 1 }} />
+                </View>
+              )}
             </>
           )}
           {level === 'green' && (

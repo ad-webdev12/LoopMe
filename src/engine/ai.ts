@@ -86,7 +86,7 @@ function instantVerdict(message: string, opts?: DetectorOptions): FusedVerdict {
     reason: v.level === 'green' ? 'This does not match a named trick, but it reads like a scam.' : v.reason,
     safeStep: level === 'red'
       ? 'Do not reply and do not send anything. Delete the message.'
-      : 'Do not tap anything yet. Contact the company yourself on a number you already trust.',
+      : 'Don’t tap or reply yet. Check with them on a number you already have.',
     signals: v.signals.includes(note) ? v.signals : [...v.signals, note],
     confidence: p >= 0.9 ? 'fairly' : 'unsure',
     aiTier: 'builtin',
@@ -144,7 +144,7 @@ export async function upgrade(message: string, rule: Verdict, opts?: DetectorOpt
     reason: rule.level === 'green' ? (answered === 'foundation' && ai.reason ? ai.reason : 'This does not match a named trick, but it reads like a scam.') : rule.reason,
     safeStep: level === 'red'
       ? 'Do not reply and do not send anything. Delete the message.'
-      : 'Do not tap anything yet. Contact the company yourself on a number you already trust.',
+      : 'Don’t tap or reply yet. Check with them on a number you already have.',
     signals: rule.signals.includes(note) ? rule.signals : [...rule.signals, note],
     confidence: p >= 0.9 ? 'fairly' : 'unsure',
     ai,

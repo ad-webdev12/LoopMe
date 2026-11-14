@@ -10,6 +10,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
 import * as Clipboard from 'expo-clipboard';
+import { ContactPickerHost } from './ui/ContactPicker';
 import { endCallActivity, watchPush } from '../modules/scam-ai';
 import * as Haptics from 'expo-haptics';
 import { T, Palette } from './theme';
@@ -652,6 +653,7 @@ export default function App() {
           <TabBar C={C} careMode={careMode} watchName={watchName} screen={screen} go={goTab} />
         )}
         <Toast text={toast} />
+        <ContactPickerHost C={C} />
       </View>
     </SafeAreaView>
     </SafeAreaProvider>

@@ -171,7 +171,7 @@ enum Engine {
     out.level = level
     out.safeStep = level == .red
       ? "Do not reply and do not send anything. Delete the message."
-      : "Do not tap anything yet. Contact the company yourself on a number you already trust."
+      : "Don’t tap or reply yet. Check with them on a number you already have."
     if !out.signals.contains(note) { out.signals.append(note) }
     out.confidence = p >= 0.9 ? .fairly : .unsure
     return out
