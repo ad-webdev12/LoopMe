@@ -32,7 +32,7 @@ export default function AskScreen({ ctx }: { ctx: Ctx }) {
   };
 
   return (
-    <Screen C={C} playKey="ask">
+    <Screen C={C} playKey="ask" scroll>
       <BackLink onPress={() => ctx.go(rec ? (rec.level === 'red' ? 'scam' : rec.level === 'amber' ? 'amber' : 'green') : 'family')} />
       <View style={{ paddingHorizontal: 20, paddingTop: 8, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <Avatar name={person?.name || '?'} photo={person?.photo} size={48} />

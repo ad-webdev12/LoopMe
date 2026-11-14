@@ -50,7 +50,7 @@ export default function CheckingScreen({ ctx }: { ctx: Ctx }) {
   });
 
   return (
-    <Screen C={C} playKey="checking" style={{ paddingHorizontal: 16 }}>
+    <Screen C={C} playKey="checking" scroll style={{ paddingHorizontal: 16 }}>
       <View style={{ alignItems: 'center', paddingTop: 34 }}>
         <View style={{ width: 124, height: 124, alignItems: 'center', justifyContent: 'center', marginTop: -14 }}>
           {!off && <Animated.View style={rippleStyle(r1)} />}

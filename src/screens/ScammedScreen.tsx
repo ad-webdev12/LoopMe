@@ -58,7 +58,7 @@ export default function ScammedScreen({ ctx }: { ctx: Ctx }) {
   const read = () => Speech.speak(step.t + ' ' + step.b, { rate: 0.9 });
 
   return (
-    <Screen C={C} playKey="scammed">
+    <Screen C={C} playKey="scammed" scroll>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 8, paddingLeft: 14, paddingRight: 16 }}>
         <Pressable onPress={() => ctx.go('home')} style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: 4 }, pressed && { opacity: 0.6 }]} accessibilityRole="button">
           <X size={20} color={T.green} strokeWidth={2} />

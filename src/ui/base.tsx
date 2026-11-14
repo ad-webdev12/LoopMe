@@ -1,7 +1,7 @@
 // Shared pieces of the redesigned screens: exact sizes from the handoff.
 // Every screen is built from these so the whole app moves together.
 import React, { useEffect, useRef } from 'react';
-import { AccessibilityInfo, Animated, Easing, Image, ImageStyle, Pressable, StyleSheet, Text, View, ViewStyle, StyleProp, TextStyle } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Image, ImageStyle, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle, StyleProp, TextStyle } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { ChevronLeft, ChevronRight, Check, X, LucideIcon } from 'lucide-react-native';
 import { T, font, Palette, LIGHT, DARK, MOTION } from '../theme';
@@ -25,7 +25,13 @@ const bez = (b: readonly [number, number, number, number]) => Easing.bezier(b[0]
 
 // ---- screen wrappers --------------------------------------------------------
 /** Pushed / tab screen: opacity 0→1, x 16→0, 340ms cubic-bezier(.2,.8,.2,1). */
-export function Screen({ C, children, style, playKey }: { C: Palette; children: React.ReactNode; style?: StyleProp<ViewStyle>; playKey?: unknown }) {
+/**
+ * A screen. Pass `scroll` for any screen whose content is laid out top to
+ * bottom (setup steps, forms, guides): the body then scrolls whenever it is
+ * taller than the phone, including at large text sizes, and a child with
+ * marginTop: 'auto' still sits at the bottom when it is not.
+ */
+export function Screen({ C, children, style, playKey, scroll }: { C: Palette; children: React.ReactNode; style?: StyleProp<ViewStyle>; playKey?: unknown; scroll?: boolean }) {
   const v = useRef(new Animated.Value(0)).current;
   const dir = useRef(navDir).current;
   useEffect(() => {
@@ -36,7 +42,11 @@ export function Screen({ C, children, style, playKey }: { C: Palette; children: 
   const sc = reduceMotion ? 1 : v.interpolate({ inputRange: [0, 1], outputRange: [0.985, 1] });
   return (
     <Animated.View style={[{ flex: 1, backgroundColor: C.ground, opacity: v, transform: [{ translateX: tx }, { scale: sc }] }, style]}>
-      {children}
+      {scroll ? (
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
+          {children}
+        </ScrollView>
+      ) : children}
     </Animated.View>
   );
 }

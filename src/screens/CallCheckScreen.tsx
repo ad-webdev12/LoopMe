@@ -52,7 +52,7 @@ export default function CallCheckScreen({ ctx }: { ctx: Ctx }) {
   };
 
   return (
-    <Screen C={C} playKey="callcheck">
+    <Screen C={C} playKey="callcheck" scroll>
       <BackLink onPress={() => ctx.go('home')} />
       <ScreenTitle C={C} top={8}>Was it a phone call?</ScreenTitle>
       <Lead C={C}>No app can listen to your calls. But scam calls follow a pattern, and three questions usually give it away.</Lead>

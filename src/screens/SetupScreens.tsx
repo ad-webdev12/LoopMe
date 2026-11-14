@@ -40,7 +40,7 @@ function Bottom({ label, onPress }: { label: string; onPress: () => void }) {
 export function Ob1({ ctx }: { ctx: Ctx }) {
   const { C } = ctx;
   return (
-    <Screen C={C} playKey="ob1">
+    <Screen C={C} playKey="ob1" scroll>
       <Steps ctx={ctx} i={1} of={5} />
       <ScreenTitle C={C} top={18}>Which phone is this?</ScreenTitle>
       <Lead C={C}>Loop Me works in pairs. One phone is protected. One phone hears about it.</Lead>
@@ -65,7 +65,7 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
   const [whose, setWhose] = useState<'mine' | 'theirs'>(ctx.settings.careName ? 'theirs' : 'mine');
   const [me, setMe] = useState(ctx.settings.myName);
   return (
-    <Screen C={C} playKey="ob2">
+    <Screen C={C} playKey="ob2" scroll>
       <Steps ctx={ctx} i={2} of={whose === 'theirs' ? 6 : 5} />
       <ScreenTitle C={C} top={18}>Whose phone is it?</ScreenTitle>
       <View style={{ marginTop: 22 }}>
@@ -110,7 +110,7 @@ export function Ob3({ ctx }: { ctx: Ctx }) {
     'A message leaves only when you choose to ask someone about it.',
   ];
   return (
-    <Screen C={C} playKey="ob3">
+    <Screen C={C} playKey="ob3" scroll>
       <Steps ctx={ctx} i={3} of={care ? 6 : 5} />
       <ScreenTitle C={C} top={18}>Nothing leaves this phone.</ScreenTitle>
       <Group C={C} style={{ marginHorizontal: 16, marginTop: 22 }}>
@@ -155,7 +155,7 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
     } catch { ctx.flash('Your contacts could not be opened. Try again in a moment.'); }
   };
   return (
-    <Screen C={C} playKey="ob4">
+    <Screen C={C} playKey="ob4" scroll>
       <Steps ctx={ctx} i={4} of={care ? 6 : 5} />
       <ScreenTitle C={C} top={18}>Who should hear when a scam lands?</ScreenTitle>
       <Lead C={C}>{care ? 'Add yourself, then send the invite to your own number. Flagged texts will show up on your phone.' : 'They get one text with a link. Tapping it joins their phone to this one.'}</Lead>
@@ -203,7 +203,7 @@ export function Ob5({ ctx }: { ctx: Ctx }) {
     ctx.go('home');
   };
   return (
-    <Screen C={C} playKey="ob5">
+    <Screen C={C} playKey="ob5" scroll>
       <Steps ctx={ctx} i={5} of={care ? 6 : 5} />
       <ScreenTitle C={C} top={18}>Turn on scam protection</ScreenTitle>
       <Lead C={C}>Two switches in iPhone Settings. Apple only lets you flip them yourself. Here is where they are.</Lead>
@@ -228,7 +228,7 @@ export function Ob6({ ctx }: { ctx: Ctx }) {
     ctx.flash('All set. Hand the phone back.');
   };
   return (
-    <Screen C={C} playKey="ob6">
+    <Screen C={C} playKey="ob6" scroll>
       <Steps ctx={ctx} i={6} of={6} />
       <ScreenTitle C={C} top={18}>Pick a family secret word</ScreenTitle>
       <Lead C={C}>If a caller sounds like family and asks for money, {s.careName ? firstNameOf(s.careName) + ' asks' : 'they ask'} for the word. A cloned voice won’t know it.</Lead>
