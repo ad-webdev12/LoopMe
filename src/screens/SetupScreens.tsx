@@ -185,8 +185,6 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
 export function Ob5({ ctx }: { ctx: Ctx }) {
   const { C } = ctx;
   const care = !!ctx.settings.careName;
-  // "I've used this before" lands here with introSeen already set: one step, then Home.
-  const returning = ctx.settings.introSeen;
   const [calls, setCalls] = useState<'enabled' | 'disabled' | 'unknown'>('unknown');
   const refresh = () => { callDirectoryStatus().then(setCalls).catch(() => {}); };
   useEffect(() => {
@@ -200,15 +198,15 @@ export function Ob5({ ctx }: { ctx: Ctx }) {
   const finish = async (later: boolean) => {
     // Full-screen warnings and the after-call nudge need this. Asked once, here.
     await ensureNotificationPermission().catch(() => {});
-    if (care && !returning) { ctx.update({ ...ctx.settings, protectionLater: later }); ctx.go('ob6'); return; }
-    ctx.update({ ...ctx.settings, introSeen: true, role: ctx.settings.role || 'elder', protectionLater: later });
+    if (care) { ctx.update({ ...ctx.settings, protectionLater: later }); ctx.go('ob6'); return; }
+    ctx.update({ ...ctx.settings, introSeen: true, role: 'elder', protectionLater: later });
     ctx.go('home');
   };
   return (
     <Screen C={C} playKey="ob5">
-      {!returning && <Steps ctx={ctx} i={5} of={care ? 6 : 5} />}
-      <ScreenTitle C={C} top={18}>{returning ? 'Welcome back' : 'Turn on scam protection'}</ScreenTitle>
-      <Lead C={C}>{returning ? 'A new install starts with both protection switches off. Here is where they are in iPhone Settings.' : 'Two switches in iPhone Settings. Apple only lets you flip them yourself. Here is where they are.'}</Lead>
+      <Steps ctx={ctx} i={5} of={care ? 6 : 5} />
+      <ScreenTitle C={C} top={18}>Turn on scam protection</ScreenTitle>
+      <Lead C={C}>Two switches in iPhone Settings. Apple only lets you flip them yourself. Here is where they are.</Lead>
       <PermCard C={C} Icon={MessageCircle} title="Unknown texts" on={textsOn} steps={TEXT_STEPS} frames={TEXT_FRAMES} captions={TEXT_CAPTIONS} onOpen={() => Linking.openSettings()} first />
       <PermCard C={C} Icon={Phone} title="Scam callers" on={callsOn} steps={CALL_STEPS} frames={CALL_FRAMES} captions={CALL_CAPTIONS} onOpen={() => Linking.openSettings()} />
       <View style={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 34, gap: 6 }}>

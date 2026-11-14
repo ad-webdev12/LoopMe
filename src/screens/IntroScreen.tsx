@@ -43,13 +43,6 @@ export default function IntroScreen({ ctx }: { ctx: Ctx }) {
   const fieldColor = field.interpolate({ inputRange: [0, 1], outputRange: [T.green, '#ec3013'] });
   const pick = (i: number) => { clearInterval(timer.current); setBeat(i); };
   const start = () => { clearInterval(timer.current); ctx.go('ob1'); };
-  const skip = () => {
-    clearInterval(timer.current);
-    // Returning person: skip names and the secret word, but still make sure the
-    // two Settings switches are on. Ob5 sees introSeen already true and shortens.
-    ctx.update({ ...ctx.settings, introSeen: true, role: ctx.settings.role || 'elder' });
-    ctx.go('ob5');
-  };
 
   const beatBg = ['#ec3013', '#ffffff', '#ffffff'][beat];
   return (
@@ -207,9 +200,6 @@ export default function IntroScreen({ ctx }: { ctx: Ctx }) {
           <Text style={[st.ctaText, { color: beat === 0 ? '#ec3013' : '#0d4a3b' }]} allowFontScaling>Get started</Text>
           <ArrowRight size={20} color={beat === 0 ? '#ec3013' : '#0d4a3b'} strokeWidth={2.2} />
         </Pressable>
-        <Pressable style={st.skip} onPress={skip} accessibilityRole="button">
-          <Text style={[st.skipText, { color: '#fff' }]} allowFontScaling>I’ve used this before</Text>
-        </Pressable>
       </View>
       )}
     </View>
@@ -278,6 +268,4 @@ const st = StyleSheet.create({
   dot: { height: 4, flex: 1 },
   cta: { height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18 },
   ctaText: { fontSize: 16.5, fontWeight: '700' },
-  skip: { height: 44, alignItems: 'center', justifyContent: 'center' },
-  skipText: { fontSize: 13.5, fontWeight: '600' },
 });
