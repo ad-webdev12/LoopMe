@@ -1,30 +1,32 @@
-// Animated intro: the app icon glides in from the launch screen's centre to
-// the top left, then three beats auto-advance every 4200ms, every child at
-// explicit absolute offsets inside the frame.
+// Animated intro, from the "Loop Me intro" design: three beats, each on its
+// own soft stage colour (peach, mint, butter) that fades into the next. The
+// scene sits on the colour, the words sit on a white sheet below. The app
+// icon glides in from the launch screen's centre to the header on beat 0.
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions, Easing, Image, Pressable, SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
-import { ArrowRight } from 'lucide-react-native';
+import { Animated, Dimensions, Easing, Image, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { ArrowRight, Phone, TriangleAlert, User } from 'lucide-react-native';
 import { T } from '../theme';
 import { APP_ICON, motionOff } from '../ui/base';
-import { KFFade, KFRise, KFBub, KFPop, KFScan, KFWipe, KFLink, bez } from '../ui/kf';
+import { KFFade, KFPop, KFRise, bez } from '../ui/kf';
 import type { Ctx } from '../App';
 
-const SF = undefined; // system font = SF on iOS
+const STAGE = ['#ffe6da', '#d5ede2', '#fbefcf'];
+const ACCENT = ['#c23a17', '#0d6b57', '#8a5a00'];
+const BEAT_MS = [5000, 5500, 6000];
+const { width: W, height: H } = Dimensions.get('window');
+const SHEET_TOP = H - 350;      // the white sheet, 494 on the 844 design frame
 
 export default function IntroScreen({ ctx }: { ctx: Ctx }) {
   const [beat, setBeat] = useState(0);
-  const timer = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
-  const H = Dimensions.get('window').height;
-  const W = Dimensions.get('window').width;
+  const [round, setRound] = useState(0);   // bumps when the loop returns to beat 0, so it replays
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const still = motionOff();
 
   // The launch screen leaves the icon in the middle of the screen at BIG.
-  // It glides to where the first beat wants it, and the beat starts once
-  // it has landed. The field turns from launch green to the beat's red.
-  const BIG = 96, SMALL = 66, LEFT = 26, TOP = 111;
-  const still = motionOff();
+  // It glides to the header, and the first beat starts once it has landed.
+  const BIG = 96, SMALL = 42, LEFT = 20, TOP = 66;
   const move = useRef(new Animated.Value(still ? 1 : 0)).current;
-  const field = useRef(new Animated.Value(still ? 1 : 0)).current;
   const [landed, setLanded] = useState(still);
   useEffect(() => {
     if (!still) {
@@ -32,240 +34,333 @@ export default function IntroScreen({ ctx }: { ctx: Ctx }) {
         Animated.delay(350),
         Animated.timing(move, { toValue: 1, duration: 640, easing: Easing.bezier(0.2, 0.9, 0.2, 1), useNativeDriver: true }),
       ]).start(() => setLanded(true));
-      Animated.timing(field, { toValue: 1, duration: 500, delay: 450, useNativeDriver: false }).start();
     }
-    const start = setTimeout(() => { timer.current = setInterval(() => setBeat(b => (b + 1) % 3), 4200); }, still ? 0 : 1100);
-    return () => { clearTimeout(start); clearInterval(timer.current); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Stage colour: launch green until the icon lands, then the beat's colour.
+  const stage = useRef(new Animated.Value(0)).current;
+  const [stageFrom, setStageFrom] = useState<string>(T.green);
+  const [stageTo, setStageTo] = useState<string>(STAGE[0]);
+  useEffect(() => {
+    if (!landed) return;
+    setStageFrom(stageTo); setStageTo(STAGE[beat]);
+    stage.setValue(0);
+    Animated.timing(stage, { toValue: 1, duration: 700, easing: bez(0.25, 0.1, 0.25, 1), useNativeDriver: false }).start();
+  }, [beat, landed]); // eslint-disable-line react-hooks/exhaustive-deps
+  const stageColor = stage.interpolate({ inputRange: [0, 1], outputRange: [stageFrom, stageTo] });
+
+  // Beats auto-advance 5 / 5.5 / 6 seconds; tapping a bar jumps.
+  const schedule = (b: number) => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      const n = (b + 1) % 3;
+      if (n === 0) setRound(r => r + 1);
+      setBeat(n); schedule(n);
+    }, BEAT_MS[b]);
+  };
+  useEffect(() => { if (landed) schedule(beat); return () => clearTimeout(timer.current); }, [landed]); // eslint-disable-line react-hooks/exhaustive-deps
+  const pick = (i: number) => { setBeat(i); schedule(i); };
+  const start = () => { clearTimeout(timer.current); ctx.go('ob1'); };
+
   const dx = move.interpolate({ inputRange: [0, 1], outputRange: [0, LEFT + SMALL / 2 - W / 2] });
   const dy = move.interpolate({ inputRange: [0, 1], outputRange: [0, TOP + SMALL / 2 - H / 2] });
   const sc = move.interpolate({ inputRange: [0, 1], outputRange: [1, SMALL / BIG] });
-  const fieldColor = field.interpolate({ inputRange: [0, 1], outputRange: [T.green, '#ec3013'] });
-  const pick = (i: number) => { clearInterval(timer.current); setBeat(i); };
-  const start = () => { clearInterval(timer.current); ctx.go('ob1'); };
+  const key = beat + ':' + round;
+  const accent = ACCENT[beat];
 
-  const beatBg = ['#ec3013', '#ffffff', '#ffffff'][beat];
   return (
-    <Animated.View style={{ flex: 1, backgroundColor: beat === 0 ? fieldColor : beatBg }}>
-    {/* Beats 1-2: the green field runs to the very bottom edge of the phone,
-        so the home-indicator inset is filled green, never red or white. */}
-    {beat !== 0 && <View style={st.bottomFill} pointerEvents="none" />}
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
-    <StatusBar barStyle={beat === 0 ? 'light-content' : 'dark-content'} />
-    <View style={st.root}>
-      {/* ---------------- Beat 0. Is this message safe? ---------------- */}
-      {beat === 0 && landed && (
-        <View style={StyleSheet.absoluteFill}>
-          <KFFade duration={600} delay={550} playKey={beat} style={st.b0card}>
-            <View style={{ padding: 13, paddingHorizontal: 14 }}>
-              <Text style={st.smsSender} allowFontScaling>+1 (628) 555-0117</Text>
-              <View style={st.smsBubbleTail}>
-                <Text style={st.smsText} allowFontScaling>Grandma, I need help. Please don’t tell anyone.</Text>
-              </View>
-            </View>
-            <KFScan playKey={beat} delay={900} style={st.scanBand} />
+    <Animated.View style={{ flex: 1, backgroundColor: stageColor }}>
+      <StatusBar barStyle="dark-content" />
+      {landed && (
+        <>
+          {/* Header wordmark, next to where the icon lands. */}
+          <KFFade duration={300} playKey="hdr" style={[st.abs, { left: LEFT + SMALL + 10, top: TOP, height: SMALL, justifyContent: 'center' }]}>
+            <Text style={st.wordmark} allowFontScaling={false}>Loop Me</Text>
           </KFFade>
-          <KFFade duration={600} delay={1100} playKey={beat} style={st.b0caption}>
-            <View style={st.b0square} />
-            <Text style={st.b0captionText} allowFontScaling>READING IT ON THIS PHONE</Text>
-          </KFFade>
-          <View style={st.b0shieldWrap}>
-            <View style={{ width: 66, height: 66 }} />
-            <View style={{ marginTop: 180 }}>
-              <View style={st.mask}><KFRise duration={700} delay={250} playKey={beat} easing={bez(0.2, 0.9, 0.2, 1)}>
-                <Text style={st.b0display} allowFontScaling>Is this</Text>
-              </KFRise></View>
-              <View style={st.mask}><KFRise duration={700} delay={420} playKey={beat} easing={bez(0.2, 0.9, 0.2, 1)}>
-                <Text style={[st.b0display, { lineHeight: 38.8 }]} allowFontScaling>message safe?</Text>
-              </KFRise></View>
-              <KFRise duration={700} delay={620} playKey={beat}>
-                <Text style={st.b0sub} allowFontScaling>Ask us before you tap anything.</Text>
+
+          {beat === 0 && <Beat0 k={key} />}
+          {beat === 1 && <Beat1 k={key} />}
+          {beat === 2 && <Beat2 k={key} />}
+
+          {/* The white sheet with the words. */}
+          <View style={[st.abs, { left: 0, right: 0, top: SHEET_TOP, bottom: 0, backgroundColor: '#fff', borderTopLeftRadius: 32, borderTopRightRadius: 32 }]} />
+          <View style={[st.abs, { left: 24, right: 24, top: SHEET_TOP + 36, alignItems: 'center' }]}>
+            <View style={{ overflow: 'hidden' }}>
+              <KFRise duration={600} delay={100} playKey={key} easing={bez(0.2, 0.9, 0.2, 1)}>
+                <Text style={st.headline} allowFontScaling>
+                  {beat === 0 ? 'Got a text that ' : beat === 1 ? 'Bring family ' : 'Scams come in '}
+                  <Text style={{ color: accent }}>{beat === 0 ? 'feels off?' : beat === 1 ? 'into your loop.' : 'every day.'}</Text>
+                </Text>
               </KFRise>
             </View>
-          </View>
-        </View>
-      )}
-
-      {/* ---------------- Beat 1. One plain answer ---------------- */}
-      {beat === 1 && (
-        <View style={StyleSheet.absoluteFill}>
-          <KFWipe duration={800} height={H - 378} playKey={beat} easing={bez(0.2, 0.9, 0.2, 1)}
-            style={[st.wipeField, { top: 378 }]} />
-          <View style={{ paddingTop: 40, paddingHorizontal: 26 }}>
-            <KFFade duration={500} playKey={beat} style={{ alignItems: 'center' }}>
-              <Text style={st.smsMetaBold} allowFontScaling>Text Message · SMS</Text>
-              <Text style={st.smsMeta} allowFontScaling>Today 9:41</Text>
-            </KFFade>
-            <View style={{ marginTop: 18, alignItems: 'flex-start', gap: 3 }}>
-              <Text style={[st.smsSender, { marginLeft: 8, marginBottom: 2 }]} allowFontScaling>+1 (415) 555-0198</Text>
-              <KFBub duration={500} delay={150} playKey={beat} easing={bez(0.2, 1.2, 0.3, 1)} style={[st.smsBubble, { maxWidth: 250 }]}>
-                <Text style={st.smsText} allowFontScaling>
-                  USPS: your parcel is on hold. A $1.95 fee is due. Confirm here:{' '}
-                  <Text style={st.smsLink}>usps-redeliver-fee.co/8Kd21</Text>
-                </Text>
-              </KFBub>
-              <KFBub duration={500} delay={380} playKey={beat} easing={bez(0.2, 1.2, 0.3, 1)} style={[st.smsBubbleTail, { maxWidth: 236 }]}>
-                <Text style={st.smsText} allowFontScaling>Send me the 6 digit code you just received.</Text>
-              </KFBub>
-              <KFBub duration={450} delay={800} playKey={beat} easing={bez(0.2, 1.1, 0.3, 1)} style={st.flagStrip}>
-                <Svg width={17} height={17} viewBox="0 0 24 24" fill="none">
-                  <Path d="M12 3l9 16H3z" stroke="#fff" strokeWidth={2.3} strokeLinecap="round" />
-                  <Path d="M12 9v4M12 16h.01" stroke="#fff" strokeWidth={2.3} strokeLinecap="round" />
-                </Svg>
-                <Text style={st.flagText} allowFontScaling>Flagged as a scam</Text>
-              </KFBub>
-            </View>
-          </View>
-          <View style={[st.abs, { top: 392, left: 26, right: 26 }]}>
-            <View style={st.mask}><KFRise duration={650} delay={550} playKey={beat}>
-              <Text style={st.wipeHeadline} allowFontScaling>One plain answer.{'\n'}One thing to do.</Text>
-            </KFRise></View>
-            <KFRise duration={650} delay={720} playKey={beat}>
-              <Text style={st.wipeSub} allowFontScaling>What it is, and what to do.</Text>
+            <KFRise duration={600} delay={250} playKey={key}>
+              <Text style={st.sub} allowFontScaling>
+                {beat === 0 ? 'Copy it into Loop Me before you reply or tap a link.'
+                  : beat === 1 ? 'If a scam reaches you, someone you trust hears about it on their phone.'
+                  : 'Not sure about one? Paste it into Loop Me and get a straight answer in seconds.'}
+              </Text>
             </KFRise>
           </View>
-        </View>
+
+          {/* Progress bars and the button. */}
+          <View style={[st.abs, { left: 24, right: 24, bottom: 40 }]}>
+            <View style={{ flexDirection: 'row', gap: 6, marginBottom: 16 }}>
+              {[0, 1, 2].map(i => (
+                <Pressable key={i} hitSlop={10} style={{ flex: 1, height: 5, borderRadius: 3, backgroundColor: accent, opacity: i === beat ? 1 : 0.25 }}
+                  onPress={() => pick(i)} accessibilityRole="button" accessibilityLabel={'Screen ' + (i + 1) + ' of 3'} />
+              ))}
+            </View>
+            <Pressable style={({ pressed }) => [st.cta, pressed && { transform: [{ scale: 0.98 }] }]} onPress={start} accessibilityRole="button">
+              <Text style={st.ctaText} allowFontScaling>Get started</Text>
+              <ArrowRight size={20} color="#fff" strokeWidth={2.4} />
+            </Pressable>
+          </View>
+        </>
       )}
 
-      {/* ---------------- Beat 2. One tap and someone knows ---------------- */}
-      {beat === 2 && (
-        <View style={StyleSheet.absoluteFill}>
-          <KFWipe duration={800} height={H - 434} playKey={beat} easing={bez(0.2, 0.9, 0.2, 1)}
-            style={[st.wipeField, { top: 434 }]} />
-          <View style={{ paddingTop: 26, paddingHorizontal: 22 }}>
-            <View style={st.pairRow}>
-              <KFPop duration={550} delay={100} playKey={beat} easing={bez(0.2, 1.25, 0.3, 1)} style={st.personCol}>
-                <View style={st.phoneCard}>
-                  <View style={[st.pAvatar, { backgroundColor: T.greenTint }]}><Text style={[st.pAvatarText, { color: T.green }]}>R</Text></View>
-                  <View style={[st.pLine, { width: '100%' }]} />
-                  <View style={[st.pLine, { width: '74%', alignSelf: 'flex-start' }]} />
-                  <View style={[st.pLine, { width: '58%', alignSelf: 'flex-end', backgroundColor: T.green, marginTop: 'auto' }]} />
-                </View>
-                <Text style={st.pName} allowFontScaling>Ruth, 78</Text>
-                <Text style={st.pMeta} allowFontScaling>Uses Loop Me</Text>
-              </KFPop>
-              <View style={st.linkRow}>
-                <KFLink duration={500} delay={500} width={22} playKey={beat} style={st.linkBar} />
-                <KFPop duration={500} delay={750} playKey={beat} easing={bez(0.2, 1.3, 0.3, 1)} style={st.linkShield}>
-                  <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-                    <Path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#fff" strokeWidth={2.2} strokeLinecap="round" />
-                  </Svg>
-                </KFPop>
-                <KFLink duration={500} delay={500} width={22} playKey={beat} style={st.linkBar} />
-              </View>
-              <KFPop duration={550} delay={950} playKey={beat} easing={bez(0.2, 1.25, 0.3, 1)} style={st.personCol}>
-                <View style={st.phoneCard}>
-                  <View style={[st.pAvatar, { backgroundColor: T.green }]}><Text style={[st.pAvatarText, { color: '#fff' }]}>M</Text></View>
-                  <View style={[st.pLine, { width: '100%', backgroundColor: T.greenSoft2 }]} />
-                  <View style={[st.pLine, { width: '66%', alignSelf: 'flex-start', backgroundColor: T.greenSoft2 }]} />
-                  <View style={[st.pLine, { width: '52%', alignSelf: 'flex-end', marginTop: 'auto' }]} />
-                </View>
-                <Text style={st.pName} allowFontScaling>Maria, 46</Text>
-                <Text style={st.pMeta} allowFontScaling>Her daughter</Text>
-              </KFPop>
-            </View>
-            <View style={{ marginTop: 20, gap: 3 }}>
-              <KFBub duration={500} delay={300} playKey={beat} easing={bez(0.2, 1.2, 0.3, 1)} style={st.outBubble}>
-                <Text style={st.outText} allowFontScaling>Loop Me stopped a text about a parcel fee. I did not tap anything.</Text>
-              </KFBub>
-              <KFFade duration={400} delay={900} playKey={beat} style={{ alignSelf: 'flex-end' }}>
-                <Text style={st.delivered} allowFontScaling>Delivered 9:42</Text>
-              </KFFade>
-              <KFBub duration={500} delay={1050} playKey={beat} easing={bez(0.2, 1.2, 0.3, 1)} style={[st.smsBubbleTail, { maxWidth: 246, marginTop: 9 }]}>
-                <Text style={st.smsText} allowFontScaling>Good, that one is fake. I will call you in five minutes.</Text>
-              </KFBub>
-            </View>
-          </View>
-          <View style={[st.abs, { top: 456, left: 22, right: 22 }]}>
-            <View style={st.mask}><KFRise duration={650} delay={1200} playKey={beat}>
-              <Text style={st.wipeHeadline} allowFontScaling>One tap and{'\n'}someone knows.</Text>
-            </KFRise></View>
-            <KFRise duration={650} delay={1350} playKey={beat}>
-              <Text style={st.wipeSub} allowFontScaling>On their phone the moment it happens.</Text>
-            </KFRise>
-          </View>
-        </View>
-      )}
-
-      {/* dots + CTA. Source: dots white/white-42 on every beat; the button is
-          always white, its label #ec3013 on beat 0 and #0d4a3b after. */}
-      {(beat !== 0 || landed) && (
-      <View style={st.ctaWrap}>
-        <View style={st.dots}>
-          {[0, 1, 2].map(i => (
-            <Pressable key={i} style={[st.dot, { backgroundColor: i === beat ? '#fff' : 'rgba(255,255,255,.42)' }]} onPress={() => pick(i)} accessibilityRole="button" accessibilityLabel={'Beat ' + (i + 1)} />
-          ))}
-        </View>
-        <Pressable style={[st.cta, { backgroundColor: '#fff' }]} onPress={start} accessibilityRole="button">
-          <Text style={[st.ctaText, { color: beat === 0 ? '#ec3013' : '#0d4a3b' }]} allowFontScaling>Get started</Text>
-          <ArrowRight size={20} color={beat === 0 ? '#ec3013' : '#0d4a3b'} strokeWidth={2.2} />
-        </Pressable>
-      </View>
-      )}
-    </View>
-    </SafeAreaView>
-    {/* The icon, gliding in from the launch screen on the first beat. */}
-    {beat === 0 && (
-      <Animated.View pointerEvents="none" style={{ position: 'absolute', left: (W - BIG) / 2, top: (H - BIG) / 2, width: BIG, height: BIG, transform: [{ translateX: dx }, { translateY: dy }, { scale: sc }] }}>
+      {/* The icon: glides in from the launch screen, then stays in the header. */}
+      <Animated.View pointerEvents="none" style={[st.abs, { left: (W - BIG) / 2, top: (H - BIG) / 2, width: BIG, height: BIG, transform: [{ translateX: dx }, { translateY: dy }, { scale: sc }] }]}>
         <Image source={APP_ICON} style={{ width: BIG, height: BIG, borderRadius: BIG * 0.2237 }} />
       </Animated.View>
-    )}
+    </Animated.View>
+  );
+}
+
+/* ---------------- Beat 0: a text that feels off ---------------- */
+function Beat0({ k }: { k: string }) {
+  const [cardH, setCardH] = useState(220);
+  return (
+    <KFRise duration={550} delay={150} playKey={k} style={[st.abs, { left: 16, right: 16, top: 150 }]}>
+      <View style={st.card} onLayout={e => setCardH(e.nativeEvent.layout.height)}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9, marginHorizontal: 2, marginBottom: 10 }}>
+          <View style={st.avatar}><User size={18} color="#8e8e93" strokeWidth={2.2} /></View>
+          <View style={{ flex: 1 }}>
+            <Text style={st.sender} allowFontScaling={false}>+1 (628) 555-0117</Text>
+            <Text style={st.meta} allowFontScaling={false}>Not in your contacts</Text>
+          </View>
+          <Text style={st.meta} allowFontScaling={false}>9:41</Text>
+        </View>
+        <View style={st.bubble}>
+          <Text style={st.bubbleText} allowFontScaling={false}>
+            Grandma, it’s me. I lost my phone. Can you <Hl k={k} delay={1500}>send $400 today</Hl>? <Hl k={k} delay={1850}>Don’t tell anyone</Hl>.
+          </Text>
+        </View>
+        <Band k={k} travel={cardH + 48} />
+        <KFPop duration={450} delay={2300} playKey={k} easing={bez(0.2, 1.25, 0.3, 1)} style={st.verdictRow}>
+          <View style={st.scamChip}><TriangleAlert size={14} color="#fff" strokeWidth={2.4} /><Text style={st.scamChipText} allowFontScaling={false}>Scam</Text></View>
+          <Text style={st.verdictText} allowFontScaling={false}>Stop. Don’t reply.</Text>
+        </KFPop>
+      </View>
+    </KFRise>
+  );
+}
+
+/** The words that turn red as they are read. */
+function Hl({ k, delay, children }: { k: string; delay: number; children: string }) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    v.setValue(motionOff() ? 1 : 0);
+    if (motionOff()) return;
+    const a = Animated.timing(v, { toValue: 1, duration: 350, delay, useNativeDriver: false });
+    a.start();
+    return () => a.stop();
+  }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <Animated.Text style={{ color: v.interpolate({ inputRange: [0, 1], outputRange: ['#000000', '#8c1f0c'] }), backgroundColor: v.interpolate({ inputRange: [0, 1], outputRange: ['rgba(236,48,19,0)', 'rgba(236,48,19,.14)'] }), borderRadius: 4 }}>
+      {children}
+    </Animated.Text>
+  );
+}
+
+/** The reading band that sweeps down the card once. */
+function Band({ k, travel }: { k: string; travel: number }) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    v.setValue(0);
+    if (motionOff()) return;
+    const a = Animated.timing(v, { toValue: 1, duration: 1200, delay: 450, easing: bez(0.45, 0, 0.55, 1), useNativeDriver: true });
+    a.start();
+    return () => a.stop();
+  }, [k, travel]); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <Animated.View pointerEvents="none" style={[st.abs, { left: 0, right: 0, top: -48, height: 48, transform: [{ translateY: v.interpolate({ inputRange: [0, 1], outputRange: [0, travel] }) }] }]}>
+      <LinearGradient colors={['rgba(13,107,87,0)', 'rgba(13,107,87,.16)']} style={{ flex: 1, borderBottomWidth: 2.5, borderBottomColor: T.green }} />
+    </Animated.View>
+  );
+}
+
+/* ---------------- Beat 1: your phone, their phone ---------------- */
+function Beat1({ k }: { k: string }) {
+  return (
+    <View style={[st.abs, { left: 16, right: 16, top: 140, flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-start' }]}>
+      <KFPop duration={550} delay={100} playKey={k} easing={bez(0.2, 1.25, 0.3, 1)} style={{ alignItems: 'center', gap: 10 }}>
+        <View style={st.phone}>
+          <View style={st.notch} />
+          <View style={st.miniBubble}><Text style={st.miniText} allowFontScaling={false}>USPS: your parcel is on hold. A $1.95 fee is due.</Text></View>
+          <KFPop duration={400} delay={1000} playKey={k} easing={bez(0.2, 1.25, 0.3, 1)} style={st.miniFlag}>
+            <TriangleAlert size={11} color="#fff" strokeWidth={2.6} />
+            <Text style={st.miniFlagText} allowFontScaling={false} numberOfLines={1}>Flagged as a scam</Text>
+          </KFPop>
+          <KFFade duration={300} delay={1300} playKey={k}>
+            <Text style={[st.meta, { fontSize: 10, fontWeight: '500', marginTop: 8 }]} allowFontScaling={false}>You didn’t reply.</Text>
+          </KFFade>
+        </View>
+        <View style={st.who}><View style={[st.whoDot, { borderColor: T.red }]} /><Text style={st.whoText} allowFontScaling={false}>You</Text></View>
+      </KFPop>
+
+      <View style={{ width: 58, height: 20, marginTop: 110 }}>
+        <Line k={k} />
+        <Dot k={k} />
+      </View>
+
+      <KFPop duration={550} delay={600} playKey={k} easing={bez(0.2, 1.25, 0.3, 1)} style={{ alignItems: 'center', gap: 10 }}>
+        <View style={st.phone}>
+          <View style={st.notch} />
+          <Text style={st.clock} allowFontScaling={false}>9:42</Text>
+          <Drop k={k} delay={2000} style={st.notif}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+              <Image source={APP_ICON} style={{ width: 14, height: 14, borderRadius: 4 }} />
+              <Text style={{ fontSize: 9.5, fontWeight: '600', color: '#000' }} allowFontScaling={false}>Loop Me</Text>
+              <Text style={{ marginLeft: 'auto', fontSize: 9, color: '#6c6c70' }} allowFontScaling={false}>now</Text>
+            </View>
+            <Text style={{ fontSize: 10.5, lineHeight: 13.6, fontWeight: '500', color: '#000', marginTop: 4 }} allowFontScaling={false}>Mom got a scam text. She didn’t reply.</Text>
+          </Drop>
+          <KFFade duration={300} delay={2800} playKey={k} style={st.callBtn}>
+            <Phone size={10} color="#fff" strokeWidth={2.6} />
+            <Text style={{ fontSize: 10.5, fontWeight: '700', color: '#fff' }} allowFontScaling={false}>Call Mom</Text>
+          </KFFade>
+        </View>
+        <View style={st.who}><View style={[st.whoDot, { borderColor: T.green }]} /><Text style={st.whoText} allowFontScaling={false}>Your family</Text></View>
+      </KFPop>
+    </View>
+  );
+}
+
+/** The line between the two phones, drawn left to right. */
+function Line({ k }: { k: string }) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    v.setValue(motionOff() ? 1 : 0);
+    if (motionOff()) return;
+    const a = Animated.timing(v, { toValue: 1, duration: 500, delay: 400, easing: bez(0.25, 0.1, 0.25, 1), useNativeDriver: true });
+    a.start();
+    return () => a.stop();
+  }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
+  return <Animated.View style={[st.abs, { left: 2, right: 2, top: 9, height: 3, borderRadius: 2, backgroundColor: T.green, transform: [{ translateX: v.interpolate({ inputRange: [0, 1], outputRange: [-27, 0] }) }, { scaleX: v.interpolate({ inputRange: [0, 1], outputRange: [0.0001, 1] }) }] }]} />;
+}
+
+/** The pulse that travels along it, over and over. */
+function Dot({ k }: { k: string }) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    v.setValue(0);
+    if (motionOff()) return;
+    const loop = Animated.loop(Animated.timing(v, { toValue: 1, duration: 1600, delay: 1400, easing: bez(0.45, 0, 0.55, 1), useNativeDriver: true }));
+    loop.start();
+    return () => loop.stop();
+  }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <Animated.View style={[st.abs, { left: 0, top: 4, width: 13, height: 13, opacity: v.interpolate({ inputRange: [0, 0.15, 0.85, 1], outputRange: [0, 1, 1, 0] }), transform: [{ translateX: v.interpolate({ inputRange: [0, 1], outputRange: [0, 50] }) }] }]}>
+      <View style={st.dotHalo} /><View style={st.dotCore} />
+    </Animated.View>
+  );
+}
+
+/** rDrop: opacity 0, translateY -14, scale .96 → settled. */
+function Drop({ k, delay, style, children }: { k: string; delay: number; style?: object; children: React.ReactNode }) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    v.setValue(motionOff() ? 1 : 0);
+    if (motionOff()) return;
+    const a = Animated.timing(v, { toValue: 1, duration: 500, delay, easing: bez(0.2, 1.25, 0.3, 1), useNativeDriver: true });
+    a.start();
+    return () => a.stop();
+  }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <Animated.View style={[style, { opacity: v, transform: [{ translateY: v.interpolate({ inputRange: [0, 1], outputRange: [-14, 0] }) }, { scale: v.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1] }) }] }]}>
+      {children}
+    </Animated.View>
+  );
+}
+
+/* ---------------- Beat 2: scams come in every day ---------------- */
+function Beat2({ k }: { k: string }) {
+  return (
+    <View style={[st.abs, { left: 16, right: 16, top: 130, height: 330, overflow: 'hidden' }]}>
+      <Drift k={k} offset={0} side="left" text="USPS: your parcel is on hold. A $1.95 fee is due." stamp="SCAM" color={T.red} />
+      <Drift k={k} offset={1 / 3} side="right" text="Grandma, I need help. Please don’t tell anyone." stamp="SCAM" color={T.red} />
+      <Drift k={k} offset={2 / 3} side="left" text="Walgreens: your prescription is ready to pick up." stamp="OKAY" color={T.green} />
+      <LinearGradient pointerEvents="none" colors={['#fbefcf', 'rgba(251,239,207,0)']} style={[st.abs, { left: 0, right: 0, top: 0, height: 60 }]} />
+      <LinearGradient pointerEvents="none" colors={['rgba(251,239,207,0)', '#fbefcf']} style={[st.abs, { left: 0, right: 0, bottom: 0, height: 60 }]} />
+    </View>
+  );
+}
+
+/** A bubble drifting up through the window on a 6s loop, stamped halfway. */
+function Drift({ k, offset, side, text, stamp, color }: { k: string; offset: number; side: 'left' | 'right'; text: string; stamp: string; color: string }) {
+  const v = useRef(new Animated.Value(offset)).current;
+  useEffect(() => {
+    if (motionOff()) { v.setValue(0.5); return; }
+    v.setValue(offset);
+    let loop: Animated.CompositeAnimation | undefined;
+    const first = Animated.timing(v, { toValue: 1, duration: (1 - offset) * 6000, easing: Easing.linear, useNativeDriver: true });
+    first.start(({ finished }) => {
+      if (!finished) return;
+      v.setValue(0);
+      loop = Animated.loop(Animated.timing(v, { toValue: 1, duration: 6000, easing: Easing.linear, useNativeDriver: true }));
+      loop.start();
+    });
+    return () => { first.stop(); loop?.stop(); };
+  }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <Animated.View style={[st.abs, { top: 135, width: 250, [side]: 12, opacity: v.interpolate({ inputRange: [0, 0.1, 0.9, 1], outputRange: [0, 1, 1, 0] }), transform: [{ translateY: v.interpolate({ inputRange: [0, 1], outputRange: [190, -190] }) }] }]}>
+      <View style={st.driftBubble}><Text style={st.driftText} allowFontScaling={false}>{text}</Text></View>
+      <Animated.View style={[st.stamp, { backgroundColor: color, opacity: v.interpolate({ inputRange: [0, 0.46, 0.5, 1], outputRange: [0, 0, 1, 1] }), transform: [
+        { scale: v.interpolate({ inputRange: [0, 0.46, 0.5, 0.52, 1], outputRange: [2.2, 2.2, 0.95, 1, 1] }) },
+        { rotate: v.interpolate({ inputRange: [0, 0.46, 0.5, 1], outputRange: ['-14deg', '-14deg', '-7deg', '-7deg'] }) },
+      ] }]}>
+        <Text style={st.stampText} allowFontScaling={false}>{stamp}</Text>
+      </Animated.View>
     </Animated.View>
   );
 }
 
 const st = StyleSheet.create({
-  root: { flex: 1 },
-  bottomFill: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 140, backgroundColor: T.green },
   abs: { position: 'absolute' },
-  mask: { overflow: 'hidden' },
+  wordmark: { fontSize: 18, fontWeight: '800', color: '#000' },
+  headline: { fontSize: 32, lineHeight: 34, fontWeight: '800', letterSpacing: -1, color: '#000', textAlign: 'center' },
+  sub: { fontSize: 17, lineHeight: 24.5, color: '#3c3c43', marginTop: 10, textAlign: 'center' },
+  cta: { height: 56, borderRadius: 16, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20 },
+  ctaText: { fontSize: 17, fontWeight: '700', color: '#fff' },
 
-  b0card: { position: 'absolute', left: 26, right: 26, top: 148, height: 108, backgroundColor: '#fff', overflow: 'hidden' },
-  smsSender: { fontFamily: SF, fontSize: 11, color: T.iosSecondary, marginBottom: 5, marginLeft: 6 },
-  smsBubble: { backgroundColor: T.imsgBubble, borderRadius: 19, paddingHorizontal: 13, paddingTop: 8, paddingBottom: 9 },
-  smsBubbleTail: { backgroundColor: T.imsgBubble, borderRadius: 19, borderBottomLeftRadius: 6, paddingHorizontal: 13, paddingTop: 8, paddingBottom: 9, maxWidth: 236, alignSelf: 'flex-start' },
-  smsText: { fontFamily: SF, fontSize: 15.5, lineHeight: 20.15, color: '#000' },
-  smsLink: { color: T.imsgLink, textDecorationLine: 'underline' },
-  smsMetaBold: { fontFamily: SF, fontSize: 11, fontWeight: '600', color: T.iosSecondary },
-  smsMeta: { fontFamily: SF, fontSize: 11, color: T.iosSecondary, marginTop: 1 },
-  scanBand: { position: 'absolute', left: 0, right: 0, top: 0, height: 44, backgroundColor: 'rgba(236,48,19,.10)', borderBottomWidth: 3, borderBottomColor: '#ec3013' },
+  card: { backgroundColor: '#fff', borderRadius: 24, padding: 16, overflow: 'hidden', shadowColor: '#963214', shadowOpacity: 0.14, shadowRadius: 20, shadowOffset: { width: 0, height: 18 } },
+  avatar: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#e9e9eb', alignItems: 'center', justifyContent: 'center' },
+  sender: { fontSize: 14.5, fontWeight: '600', color: '#000' },
+  meta: { fontSize: 12, color: '#6c6c70' },
+  bubble: { backgroundColor: '#e9e9eb', borderRadius: 18, borderBottomLeftRadius: 6, paddingHorizontal: 14, paddingTop: 10, paddingBottom: 11 },
+  bubbleText: { fontSize: 17, lineHeight: 23.5, color: '#000' },
+  verdictRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 14, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 14, backgroundColor: '#fdece6' },
+  scamChip: { height: 30, paddingHorizontal: 12, borderRadius: 9, backgroundColor: T.red, flexDirection: 'row', alignItems: 'center', gap: 6 },
+  scamChipText: { fontSize: 14, fontWeight: '700', color: '#fff' },
+  verdictText: { fontSize: 17, fontWeight: '700', color: '#8c1f0c' },
 
-  b0caption: { position: 'absolute', left: 26, top: 266, flexDirection: 'row', alignItems: 'center', gap: 8 },
-  b0square: { width: 7, height: 7, backgroundColor: '#fff' },
-  b0captionText: { fontSize: 11, fontWeight: '700', letterSpacing: 1.76, color: '#fff' },
-  b0shieldWrap: { paddingTop: 52, paddingHorizontal: 26 },
-  b0display: { fontSize: 38, fontWeight: '800', letterSpacing: -1.14, color: '#fff', lineHeight: 38 },
-  b0sub: { fontSize: 17, fontWeight: '600', color: 'rgba(255,255,255,.9)', lineHeight: 24.6, marginTop: 16 },
+  phone: { width: 136, height: 240, borderWidth: 2.5, borderColor: '#1b1b1b', borderRadius: 28, backgroundColor: '#fff', paddingTop: 24, paddingHorizontal: 9, paddingBottom: 10, overflow: 'hidden', shadowColor: '#0d4a3b', shadowOpacity: 0.18, shadowRadius: 18, shadowOffset: { width: 0, height: 18 } },
+  notch: { position: 'absolute', top: 7, left: 46, width: 40, height: 9, borderRadius: 5, backgroundColor: '#1b1b1b' },
+  miniBubble: { backgroundColor: '#e9e9eb', borderRadius: 12, borderBottomLeftRadius: 4, paddingVertical: 6, paddingHorizontal: 8 },
+  miniText: { fontSize: 11, lineHeight: 14.3, color: '#000' },
+  miniFlag: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 8, backgroundColor: T.red, paddingVertical: 6, paddingHorizontal: 6, borderRadius: 6 },
+  miniFlagText: { fontSize: 9, fontWeight: '700', color: '#fff', flexShrink: 1, letterSpacing: -0.1 },
+  clock: { fontSize: 24, fontWeight: '600', color: '#000', textAlign: 'center', marginTop: 4 },
+  notif: { marginTop: 12, backgroundColor: 'rgba(242,242,247,.96)', borderRadius: 12, paddingVertical: 7, paddingHorizontal: 8, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: 4 } },
+  callBtn: { marginTop: 7, height: 26, borderRadius: 13, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 },
+  who: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 34, paddingLeft: 4, paddingRight: 12, borderRadius: 17, backgroundColor: '#fff' },
+  whoDot: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, backgroundColor: '#e3e3e8' },
+  whoText: { fontSize: 14.5, fontWeight: '700', color: '#000' },
+  dotHalo: { position: 'absolute', left: -5, top: -5, width: 23, height: 23, borderRadius: 12, backgroundColor: 'rgba(13,107,87,.2)' },
+  dotCore: { width: 13, height: 13, borderRadius: 7, backgroundColor: '#fff', borderWidth: 3, borderColor: T.green },
 
-  wipeField: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: T.green },
-  wipeHeadline: { fontSize: 30, fontWeight: '800', letterSpacing: -0.78, color: '#fff', lineHeight: 31.8 },
-  wipeSub: { fontSize: 15.5, fontWeight: '600', color: '#fff', lineHeight: 23.25, marginTop: 14 },
-  flagStrip: { alignSelf: 'stretch', marginTop: 14, backgroundColor: '#ec3013', paddingHorizontal: 14, paddingVertical: 11, flexDirection: 'row', alignItems: 'center', gap: 9 },
-  flagText: { fontSize: 14, fontWeight: '700', color: '#fff' },
-
-  pairRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center' },
-  personCol: { alignItems: 'center', gap: 9 },
-  phoneCard: {
-    width: 86, height: 120, borderWidth: 1.5, borderColor: T.fieldBorder, borderRadius: 15, backgroundColor: '#fff',
-    paddingVertical: 9, paddingHorizontal: 8, alignItems: 'center', gap: 7,
-    shadowColor: '#171717', shadowOpacity: 0.07, shadowRadius: 3, shadowOffset: { width: 0, height: 1 },
-  },
-  pAvatar: { width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
-  pAvatarText: { fontFamily: SF, fontSize: 11, fontWeight: '600' },
-  pLine: { height: 8, borderRadius: 4, backgroundColor: T.imsgBubble },
-  pName: { fontSize: 12, fontWeight: '600', color: T.ink, textAlign: 'center' },
-  pMeta: { fontSize: 11, fontWeight: '400', color: T.sub, marginTop: -6, textAlign: 'center' },
-  linkRow: { flexDirection: 'row', alignItems: 'center', marginTop: 48 },
-  linkBar: { width: 22, height: 2, backgroundColor: T.green },
-  linkShield: { width: 26, height: 26, borderRadius: 13, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center' },
-
-  outBubble: { alignSelf: 'flex-end', maxWidth: 252, backgroundColor: T.green, borderRadius: 19, borderBottomRightRadius: 6, paddingHorizontal: 14, paddingTop: 9, paddingBottom: 10 },
-  outText: { fontFamily: SF, fontSize: 15.5, lineHeight: 20.5, color: '#fff' },
-  delivered: { fontFamily: SF, fontSize: 10.5, color: T.iosSecondary, marginTop: 2, marginRight: 4 },
-
-  ctaWrap: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 26, paddingBottom: 30, zIndex: 3 },
-  dots: { flexDirection: 'row', gap: 6, marginBottom: 16 },
-  dot: { height: 4, flex: 1 },
-  cta: { height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18 },
-  ctaText: { fontSize: 16.5, fontWeight: '700' },
+  driftBubble: { backgroundColor: '#fff', borderRadius: 18, borderBottomLeftRadius: 6, paddingVertical: 10, paddingLeft: 13, paddingRight: 86, shadowColor: '#8a5a00', shadowOpacity: 0.12, shadowRadius: 10, shadowOffset: { width: 0, height: 8 } },
+  driftText: { fontSize: 15, lineHeight: 20, color: '#000' },
+  stamp: { position: 'absolute', right: 6, top: '50%', marginTop: -14, height: 28, paddingHorizontal: 9, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  stampText: { fontSize: 12.5, fontWeight: '800', letterSpacing: 0.8, color: '#fff' },
 });
