@@ -41,13 +41,19 @@ final class CoreModel {
     return try? NLModel(contentsOf: cached)
   }
 
-  /// Probability that the text is a scam, 0 to 1.
+  /// Probability that the text is a scam, 0 to 1. Both models are asked and
+  /// the higher answer wins: each may only ever raise the alarm, and they
+  /// miss different things (the BERT model slept through a job scam the
+  /// bag-of-words model caught at 0.9).
   func probability(_ text: String) -> Double {
+    var p = 0.0
     if model.predictedLabel(for: text) != nil {
-      return model.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0
+      p = model.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0
     }
-    guard let fb = fallback, fb.predictedLabel(for: text) != nil else { return 0 }
-    return fb.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0
+    if let fb = fallback, fb.predictedLabel(for: text) != nil {
+      p = max(p, fb.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0)
+    }
+    return p
   }
 }
 
@@ -59,13 +65,9 @@ extension Engine {
     guard let model = model, !v.tags.contains("allowlist"), v.level != .red else { return v }
     let text = Normalize.run(message.trimmingCharacters(in: .whitespacesAndNewlines)).text
     if text.isEmpty { return v }
-    let p = model.probability(text)
-    // The portable model raised it and the strong model disagrees: rules only.
-    if v.fused && p < 0.3 {
-      let pure = detect(message, opts)
-      if pure.level == .green { return pure }
-    }
-    return fuse(v, p: p, threshold: model.threshold)
+    // No model ever lowers a level. The same text must get the same answer
+    // in the drawer, the share sheet, the text filter and the app.
+    return fuse(v, p: model.probability(text), threshold: model.threshold)
   }
 
   static func fuse(_ v: Verdict, p: Double, threshold: Double) -> Verdict {

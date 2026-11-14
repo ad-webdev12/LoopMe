@@ -127,6 +127,11 @@ const RULES: Rule[] = [
   { re: /(?:release|process|transfer|receive|claim)[^.]{0,50}(?:the )?funds?[^.]{0,40}(?:fee|charge|payment|deposit|retainer)|(?:arrangement|processing|administration|release|handling|legal|transfer) fee[^.]{0,50}(?:up ?front|in advance|first|before|required|payable)|(?:small|nominal|one[- ]off) (?:fee|charge|payment)[^.]{0,50}(?:release|process|claim|receive|unlock)/i, w: 48, tag: 'advance-fee', plain: 'It wants a fee before money can reach you.' },
   // Data or account deleted / closed unless you act through a supplied link.
   { re: /(?:storage|mailbox|account|photos?|files?|data)[^.]{0,60}(?:full|expired?|will be deleted|deleted in|removed in)[^.]{0,60}(?:unless|upgrade|renew|verify|secure form|link)|(?:re-?register|re-?enter|re-?confirm|update)[^.]{0,40}(?:your )?(?:card|payment|bank|billing) details[^.]{0,50}(?:link|below|form|portal|keep your account)/i, w: 40, tag: 'verify', plain: 'It wants card or account details through its link, or something gets closed.' },
+  // Job offers out of the blue: a "recruiting team" that found your profile,
+  // a part-time remote role, and a number to text. Classic task-scam opener.
+  { re: /(?:recruit(?:ing|er|ment)|hiring|talent|hr) (?:team|manager|department|specialist|agency)\b|came across your (?:profile|resume|cv|details)|(?:part-?time|remote|work[- ]from[- ]home|online) (?:position|job|role|opportunity|work)\b[^.]{0,80}(?:per day|daily|flexible|hours|minutes)|(?:reach out|contact|text|message) (?:us |me )?(?:via|on|at|through|by) (?:text|sms|whatsapp|telegram)\b/i, w: 30, tag: 'job-offer', plain: 'A job offer out of nowhere, with a number to text.' },
+  // Big pay for almost no work. Three-figure sums per day or hour.
+  { re: /(?:\$|£|€)\s?\d{3,}[\d,]*(?:\s?(?:-|to)\s?(?:\$|£|€)?\d[\d,]*)?\s?(?:per|a|\/|each|every) ?(?:day|hour)\b|(?:earn|make|salary|income)[^.]{0,30}(?:\$|£|€)\s?\d{3,}[\d,]*[^.]{0,20}\b(?:a day|per day|daily|an hour|per hour)\b/i, w: 25, tag: 'pay-bait', plain: 'It promises hundreds a day for an hour or two of work.' },
   // Cold-call claims/compensation bait.
   { re: /(?:accident|injury) (?:you had|that was ?n'?t your fault|claim)|(?:mis-?sold|missold)[^.]{0,40}(?:insurance|policy|pension|ppi)|compensation (?:owed|due|you are entitled)/i, w: 32, tag: 'claims-bait', plain: 'It brings up an accident or compensation you never asked about.' },
   // Reserve-a-deposit pressure.
@@ -380,6 +385,8 @@ export function detect(message: string, opts: DetectorOptions = {}): Verdict {
       ? 'Ring them on the number you already have for them before you do anything.'
       : has('callback', 'stay-on-line', 'tech-support', 'warranty', 'claims-bait')
       ? 'Don’t call the number in the message. Find the real one yourself.'
+      : has('job-offer', 'pay-bait')
+      ? 'Don’t reply or text the number. Real employers don’t hire by text message.'
       : 'Don’t tap or reply yet. Check with them on a number you already have.';
   } else {
     reason = signals[0] || '';

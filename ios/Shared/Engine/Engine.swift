@@ -112,7 +112,7 @@ enum Engine {
     switch level {
     case .red:
       reason = twoStage
-        ? "This is the trick: a fake alert, then a “fraud agent.” Your bank will never move your money to a “safe account.”"
+        ? "A fake alert, then a “fraud agent” who wants your money moved."
         : (signals.first ?? "This is a scam.")
       if twoStage || tags.contains("safe-account") { safeStep = "Hang up. Call the number on the back of your bank card. No other number." }
       else if hasBadLink { safeStep = "Do not tap the link. Delete the message." }
@@ -122,9 +122,23 @@ enum Engine {
       else { safeStep = "Do not reply and do not send anything. Delete the message." }
     case .amber:
       reason = signals.first ?? "Something’s off here."
-      safeStep = "Do not tap anything yet. Contact the company yourself on a number you already trust."
+      // Mirrors ScamDetector.ts exactly; checked by scripts/check-engine.sh.
+      let has: ([String]) -> Bool = { list in list.contains { tags.contains($0) } }
+      if has(["bank-alert", "account-locked", "unusual-signin", "otp-request", "safe-account", "detail-harvest", "verify", "payment"]) {
+        safeStep = "Don’t use anything in the message. Ring your bank on the number on the back of your card and ask."
+      } else if has(["delivery-fee", "package-fee", "toll", "subscription", "renewal-pressure", "service-cutoff", "refund"]) {
+        safeStep = "Don’t tap the link. Open the company’s own app or website and look there."
+      } else if has(["family-emergency", "wrong-number", "borrow-ask", "borrow-repay", "money-ask"]) {
+        safeStep = "Ring them on the number you already have for them before you do anything."
+      } else if has(["callback", "stay-on-line", "tech-support", "warranty", "claims-bait"]) {
+        safeStep = "Don’t call the number in the message. Find the real one yourself."
+      } else if has(["job-offer", "pay-bait"]) {
+        safeStep = "Don’t reply or text the number. Real employers don’t hire by text message."
+      } else {
+        safeStep = "Don’t tap or reply yet. Check with them on a number you already have."
+      }
     case .green:
-      reason = "Nothing in this message matches a known scam trick."
+      reason = signals.first ?? ""
       safeStep = "Nothing to do now. If it later asks for money, a code or a password, treat it as a scam."
     }
 

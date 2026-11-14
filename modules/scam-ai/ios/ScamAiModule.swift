@@ -485,11 +485,14 @@ final class ScamClassifier {
   }
 
   func classify(_ text: String) -> String? {
+    // Both models answer and the higher wins, exactly as in the extensions
+    // (CoreModel.probability). Each may only raise the alarm.
     var scamProb: Double?
     if let m = strong, m.predictedLabel(for: text) != nil {
       scamProb = m.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0
-    } else if let m = small, m.predictedLabel(for: text) != nil {
-      scamProb = m.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0
+    }
+    if let m = small, m.predictedLabel(for: text) != nil {
+      scamProb = max(scamProb ?? 0, m.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0)
     }
     guard let p = scamProb else { return nil }
     // The JS side applies the 0.8 threshold; the label here only drives wording.

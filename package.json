@@ -7,7 +7,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "test": "node scripts/check-screens.mjs && node scripts/test-engine.mjs && node --experimental-strip-types --no-warnings scripts/test-fusion.mjs",
+    "test": "node scripts/check-screens.mjs && node scripts/test-engine.mjs && sh scripts/check-engine.sh && node --experimental-strip-types --no-warnings scripts/test-fusion.mjs",
     "test:engine": "node scripts/test-engine.mjs",
     "test:fusion": "node --experimental-strip-types --no-warnings scripts/test-fusion.mjs",
     "train": "node --experimental-strip-types --no-warnings scripts/train-classifier.mjs",

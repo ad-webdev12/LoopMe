@@ -214,7 +214,7 @@ export async function cloudCreateInviteOrError(myName: string): Promise<{ url: s
   } catch (e) {
     const msg = String((e as { message?: string })?.message || e || '');
     const noAccount = /not signed in|noAccount|no account/i.test(msg);
-    return { error: noAccount ? 'This phone is not signed in to iCloud. Settings, your name at the top.' : 'iCloud said: ' + msg.replace(/^.*?: /, '').slice(0, 160), noAccount };
+    return { error: noAccount ? 'This phone is not signed in to iCloud. Settings, your name at the top.' : msg.replace(/^.*?Error: /, '').slice(0, 400), noAccount };
   }
 }
 

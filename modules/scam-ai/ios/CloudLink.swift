@@ -133,8 +133,11 @@ final class CloudLink: @unchecked Sendable {
     }
     let db = try container.privateCloudDatabase
 
+    // The zone. A failure here is the usual root cause (iCloud switched off
+    // for Loop Me, no iCloud Drive, quota, network), so it is named, not hidden.
     let zone = CKRecordZone(zoneID: ownZoneID)
-    _ = try? await db.modifyRecordZones(saving: [zone], deleting: [])
+    do { _ = try await db.modifyRecordZones(saving: [zone], deleting: []) }
+    catch { throw CloudLinkError.failed("iCloud would not make the family folder. " + CloudLink.describe(error)) }
 
     // One share per zone. Reuse the existing one so a second invite does not
     // orphan the caretaker who already accepted the first.
@@ -150,14 +153,59 @@ final class CloudLink: @unchecked Sendable {
     // secret that travels once, to one person, and the owner can revoke it.
     share.publicPermission = .readWrite
 
-    let saved = try await db.modifyRecords(saving: [share], deleting: [])
-    for (_, result) in saved.saveResults {
-      if case .success(let rec) = result, let s = rec as? CKShare, let url = s.url {
-        store.ownerName = myName
-        return url.absoluteString
+    var why = ""
+    do {
+      let saved = try await db.modifyRecords(saving: [share], deleting: [])
+      for (_, result) in saved.saveResults {
+        switch result {
+        case .success(let rec):
+          if let s = rec as? CKShare, let url = s.url { store.ownerName = myName; return url.absoluteString }
+          why = "iCloud saved the link but gave back no address"
+        case .failure(let e):
+          why = CloudLink.describe(e)
+        }
       }
+      if why.isEmpty { why = "iCloud answered without saving anything" }
+    } catch {
+      why = CloudLink.describe(error)
     }
-    throw CloudLinkError.failed("Could not create the family link")
+    throw CloudLinkError.failed("iCloud would not make the family link. " + why)
+  }
+
+  /// A CloudKit error in words a person can act on, with the code kept so
+  /// support can look it up. Partial failures name the first inner error.
+  static func describe(_ e: Error) -> String {
+    let ns = e as NSError
+    guard ns.domain == CKError.errorDomain, let code = CKError.Code(rawValue: ns.code) else { return ns.localizedDescription }
+    let names: [CKError.Code: String] = [
+      .internalError: "internalError", .partialFailure: "partialFailure", .networkUnavailable: "networkUnavailable",
+      .networkFailure: "networkFailure", .badContainer: "badContainer", .serviceUnavailable: "serviceUnavailable",
+      .requestRateLimited: "requestRateLimited", .notAuthenticated: "notAuthenticated", .permissionFailure: "permissionFailure",
+      .unknownItem: "unknownItem", .invalidArguments: "invalidArguments", .serverRecordChanged: "serverRecordChanged",
+      .serverRejectedRequest: "serverRejectedRequest", .zoneNotFound: "zoneNotFound", .limitExceeded: "limitExceeded",
+      .userDeletedZone: "userDeletedZone", .quotaExceeded: "quotaExceeded", .zoneBusy: "zoneBusy",
+      .accountTemporarilyUnavailable: "accountTemporarilyUnavailable", .managedAccountRestricted: "managedAccountRestricted",
+    ]
+    var parts: [String] = []
+    switch code {
+    case .notAuthenticated, .permissionFailure:
+      parts.append("iCloud is switched off for Loop Me. In Settings, tap your name, then iCloud, then Apps, and turn Loop Me on.")
+    case .networkUnavailable, .networkFailure, .serviceUnavailable, .requestRateLimited, .zoneBusy:
+      parts.append("iCloud could not be reached. Check the connection and try again in a minute.")
+    case .quotaExceeded:
+      parts.append("iCloud storage is full on this account.")
+    case .managedAccountRestricted:
+      parts.append("This Apple account is managed and does not allow sharing.")
+    case .badContainer, .invalidArguments, .serverRejectedRequest:
+      parts.append("iCloud refused the request. Please send this message to support.")
+    default: break
+    }
+    parts.append("[\(names[code] ?? "code \(ns.code)")] " + ns.localizedDescription)
+    if let inner = (ns.userInfo[CKPartialErrorsByItemIDKey] as? [AnyHashable: NSError])?.values.first {
+      parts.append("inner: " + inner.localizedDescription)
+    }
+    if let reason = ns.userInfo[NSLocalizedFailureReasonErrorKey] as? String { parts.append(reason) }
+    return parts.joined(separator: " ")
   }
 
   /// Owner side: who has accepted. `linked` once a caretaker is in.
