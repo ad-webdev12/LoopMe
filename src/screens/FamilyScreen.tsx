@@ -4,7 +4,7 @@
 // person for everything else: invite, make them the main person, update the
 // photo from Contacts, change the relationship, remove.
 import React, { useEffect, useState } from 'react';
-import { Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Phone, MessageCircle, Send, Plus, Smartphone, ChevronRight, ArrowRight, Star, RefreshCw, Trash2 } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { Screen, LargeTitle, Avatar, Note, Pill } from '../ui/base';
@@ -62,8 +62,9 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
     setBusy(true);
     try {
       const r = await sendInviteTo(s, p);
-      if (!r.ok) { ctx.flash(r.error); return; }
+      if (!r.ok) { Alert.alert('The invite could not be made', r.error); return; }
       ctx.update(markInvited(s, p));
+      ctx.flash('Invite ready. Messages has it addressed to ' + firstName(p.name) + '.');
       setOpen(null);
     } finally { setBusy(false); }
   };
