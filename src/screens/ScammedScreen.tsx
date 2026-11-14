@@ -2,7 +2,7 @@
 // place. Each step's button does the real thing: dial, save the PDF, loop
 // in the person who looks out for them.
 import React, { useState } from 'react';
-import { Linking, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Linking, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as Speech from 'expo-speech';
 import { X, ArrowRight, Phone, FileDown, Volume2 } from 'lucide-react-native';
 import { T, font } from '../theme';
@@ -96,6 +96,7 @@ export default function ScammedScreen({ ctx }: { ctx: Ctx }) {
       </View>
       <Modal visible={bankOpen} transparent animationType="fade" onRequestClose={() => setBankOpen(false)}>
         <Pressable style={st.dim} onPress={() => setBankOpen(false)}>
+          <KeyboardAvoidingView behavior="padding">
           <Pressable style={[st.sheet, { backgroundColor: C.card }]} onPress={() => {}}>
             <Text style={[font(20, '700'), { color: C.ink }]} allowFontScaling>Your bank’s number</Text>
             <Text style={[font(15, '400', 1.4), { color: C.ink2, marginTop: 6 }]} allowFontScaling>Turn your card over. The number is printed on the back. Loop Me keeps it so next time is one tap.</Text>
@@ -103,6 +104,7 @@ export default function ScammedScreen({ ctx }: { ctx: Ctx }) {
               style={[font(22, '600'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, padding: 14, marginTop: 14 }]} />
             <Pill label="Call now" style={{ marginTop: 14 }} onPress={saveBank} icon={<Phone size={18} color="#fff" strokeWidth={2} />} />
           </Pressable>
+          </KeyboardAvoidingView>
         </Pressable>
       </Modal>
     </Screen>

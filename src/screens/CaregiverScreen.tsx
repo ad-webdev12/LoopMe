@@ -2,7 +2,7 @@
 // true state (a trusted person, the link, the permissions, the secret word)
 // and tapping a row takes you to where it is done.
 import React, { useEffect, useState } from 'react';
-import { Modal, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { ArrowRight } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { Screen, BackLink, ScreenTitle, Lead, Pill, CheckCircle } from '../ui/base';
@@ -61,6 +61,7 @@ export default function CaregiverScreen({ ctx }: { ctx: Ctx }) {
 
       <Modal visible={wordOpen} transparent animationType="fade" onRequestClose={() => setWordOpen(false)}>
         <Pressable style={st.dim} onPress={() => setWordOpen(false)}>
+          <KeyboardAvoidingView behavior="padding">
           <Pressable style={[st.sheet, { backgroundColor: C.card }]} onPress={() => {}}>
             <Text style={[font(20, '700'), { color: C.ink }]} allowFontScaling>The family secret word</Text>
             <Text style={[font(15, '400', 1.4), { color: C.ink2, marginTop: 6 }]} allowFontScaling>Something only your family knows. It stays on this phone, behind Face ID.</Text>
@@ -68,6 +69,7 @@ export default function CaregiverScreen({ ctx }: { ctx: Ctx }) {
               style={[font(22, '600'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, padding: 14, marginTop: 14 }]} />
             <Pill label="Save it" style={{ marginTop: 14 }} onPress={saveWord} />
           </Pressable>
+          </KeyboardAvoidingView>
         </Pressable>
       </Modal>
     </Screen>
