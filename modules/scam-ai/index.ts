@@ -1,4 +1,6 @@
-import { requireOptionalNativeModule } from 'expo';
+import { requireOptionalNativeModule, requireNativeView } from 'expo';
+import type * as React from 'react';
+import type { ViewProps } from 'react-native';
 
 // 'builtin' is the portable logistic-regression model in src/engine/model.ts.
 // It needs no native module and no particular iOS version, so it is the tier
@@ -353,3 +355,13 @@ export async function callerIdOpenSettings(): Promise<boolean> {
 }
 
 export function watchPush(payload: Record<string, unknown>): void { try { native?.watchPush(payload); } catch {} }
+
+/** Apple's paste button (iOS 16+). The tap is the permission, so no "Allow Paste" alert. null where unavailable. */
+export type PasteControlProps = ViewProps & { onPaste: (e: { nativeEvent: { text: string } }) => void };
+let pasteView: React.ComponentType<PasteControlProps> | null | undefined;
+export function PasteControl(): React.ComponentType<PasteControlProps> | null {
+  if (pasteView === undefined) {
+    try { pasteView = native ? requireNativeView<PasteControlProps>('ScamAi') : null; } catch { pasteView = null; }
+  }
+  return pasteView ?? null;
+}

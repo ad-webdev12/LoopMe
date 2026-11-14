@@ -45,8 +45,10 @@ export default function IntroScreen({ ctx }: { ctx: Ctx }) {
   const start = () => { clearInterval(timer.current); ctx.go('ob1'); };
   const skip = () => {
     clearInterval(timer.current);
+    // Returning person: skip names and the secret word, but still make sure the
+    // two Settings switches are on. Ob5 sees introSeen already true and shortens.
     ctx.update({ ...ctx.settings, introSeen: true, role: ctx.settings.role || 'elder' });
-    ctx.go('home');
+    ctx.go('ob5');
   };
 
   const beatBg = ['#ec3013', '#ffffff', '#ffffff'][beat];

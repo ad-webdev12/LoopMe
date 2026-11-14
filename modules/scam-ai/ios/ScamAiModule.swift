@@ -22,6 +22,12 @@ public class ScamAiModule: Module {
   public func definition() -> ModuleDefinition {
     Name("ScamAi")
 
+    // Apple's own paste button. Reading the clipboard through it never shows
+    // the "Allow Paste" alert, because the tap itself is the permission.
+    View(PasteControlView.self) {
+      Events("onPaste")
+    }
+
     // Which real AI tier is available on THIS phone, right now.
     // -> "foundation" | "coreml" | "none"
     // The bundled classifier answers in about 30 ms with a calibrated
@@ -502,3 +508,43 @@ final class ScamClassifier {
 }
 
 import CoreML
+
+
+/// Wraps UIPasteControl. iOS enables it only while the clipboard holds text,
+/// and hands the text over without the system alert. Looks like the app's
+/// big white Check button: white, deep green label, large corners.
+final class PasteControlView: ExpoView {
+  let onPaste = EventDispatcher()
+  private var control: UIControl?
+
+  required init(appContext: AppContext? = nil) {
+    super.init(appContext: appContext)
+    pasteConfiguration = UIPasteConfiguration(forAccepting: NSString.self)
+    if #available(iOS 16.0, *) {
+      let cfg = UIPasteControl.Configuration()
+      cfg.displayMode = .iconAndLabel
+      cfg.cornerStyle = .large
+      cfg.baseBackgroundColor = .white
+      cfg.baseForegroundColor = UIColor(red: 0x0d / 255, green: 0x4a / 255, blue: 0x3b / 255, alpha: 1)
+      let c = UIPasteControl(configuration: cfg)
+      c.target = self
+      addSubview(c)
+      control = c
+    }
+  }
+
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    control?.frame = bounds
+  }
+
+  override func paste(itemProviders: [NSItemProvider]) {
+    for p in itemProviders where p.canLoadObject(ofClass: NSString.self) {
+      p.loadObject(ofClass: NSString.self) { [weak self] obj, _ in
+        guard let text = (obj as? NSString).map(String.init), !text.isEmpty else { return }
+        DispatchQueue.main.async { self?.onPaste(["text": text]) }
+      }
+      return
+    }
+  }
+}

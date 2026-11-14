@@ -10,7 +10,7 @@ import { ArrowRight, Camera, Mic, Keyboard, PhoneIncoming, LifeBuoy } from 'luci
 import { T, font } from '../theme';
 import { APP_ICON, Avatar, PulseDot, Screen, usePulse } from '../ui/base';
 import { loopPerson, firstName } from '../ui/pieces';
-import { recognizeText, startListening, stopListeningLive, addSpeechListener, callDirectoryStatus, latestScreenshot } from '../../modules/scam-ai';
+import { PasteControl, recognizeText, startListening, stopListeningLive, addSpeechListener, callDirectoryStatus, latestScreenshot } from '../../modules/scam-ai';
 import type { Ctx } from '../App';
 
 const HEADLINES = ['Not sure about a message?', 'Check if a message is a scam', 'Got a text that worries you?', 'Is this message real?'];
@@ -33,6 +33,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
   // hasStringAsync never shows the system paste alert; the text itself is
   // read only when they tap Check, so the alert comes from their own tap.
   const [hasClip, setHasClip] = useState(false);
+  const Paste = PasteControl();
   const readClip = async () => {
     try { setHasClip(await Clipboard.hasStringAsync()); } catch { setHasClip(false); }
   };
@@ -138,7 +139,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
               </View>
             </>
           ) : hasClip ? (
-            <Text style={[font(14, '600'), { color: '#fff', marginTop: 20, marginLeft: 6 }]} allowFontScaling>You copied something. Tap below to check it.</Text>
+            <Text style={[font(14, '600'), { color: '#fff', marginTop: 20, marginLeft: 6 }]} allowFontScaling>You copied something. Tap Paste to check it.</Text>
           ) : null}
           {!!shot && (
             <Pressable onPress={checkShot} style={({ pressed }) => [st.shotRow, pressed && { opacity: 0.7 }]} accessibilityRole="button">
@@ -146,10 +147,15 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
               <ArrowRight size={16} color="#fff" strokeWidth={2.2} />
             </Pressable>
           )}
+          {Paste && hasClip && !clip ? (
+            // Apple's paste button: the tap is the permission, so no alert.
+            <Paste style={st.primary} onPaste={e => { const t = (e.nativeEvent.text || '').trim(); if (t.length > 3) { setClip(t); ctx.check(t); } }} />
+          ) : (
           <Pressable onPress={checkClip} style={({ pressed }) => [st.primary, pressed && { transform: [{ scale: 0.98 }] }]} accessibilityRole="button">
-            <Text style={[font(19, '700'), { color: T.greenDeep }]} allowFontScaling>{clip || hasClip ? 'Check this message' : 'Check a message'}</Text>
+            <Text style={[font(19, '700'), { color: T.greenDeep }]} allowFontScaling>{clip ? 'Check this message' : 'Check a message'}</Text>
             <View style={st.arrowBox}><ArrowRight size={20} color="#fff" strokeWidth={2.4} /></View>
           </Pressable>
+          )}
           <View style={{ flexDirection: 'row', marginTop: 8 }}>
             <Alt Icon={Camera} label="Take a photo" onPress={photo} />
             <Alt Icon={Mic} label="Say it" onPress={sayIt} />
