@@ -37,7 +37,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>7</string>
+	<string>8</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSMinimumSystemVersion</key>
@@ -55,16 +55,16 @@
 	<string>Loop Me uses the camera only when you choose to photograph a message to check. The photo is read on this phone and never uploaded.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Loop Me can add a trusted family member from your contacts, so you can reach them in one tap. Your contacts stay on your phone.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Loop Me uses the microphone only when you tap ‘Speak it’ to say a message out loud. Nothing is uploaded.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Face ID keeps your family’s secret word hidden until you ask to see it.</string>
-	<key>NSSupportsLiveActivities</key>
-	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Loop Me uses the microphone only when you tap ‘Speak it’ to say a message out loud. Nothing is uploaded.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Loop Me opens your photos only when you choose a screenshot to check. It is read on this phone and never uploaded.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Loop Me turns your speech into text on this phone when you tap ‘Speak it’, so the message can be checked. Nothing is uploaded.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UIBackgroundModes</key>
