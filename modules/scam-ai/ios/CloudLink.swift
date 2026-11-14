@@ -122,7 +122,15 @@ final class CloudLink: @unchecked Sendable {
 
   /// Create (or reuse) the shared zone and return a share URL to text once.
   func createInvite(myName: String) async throws -> String {
-    guard await accountState() == "available" else { throw CloudLinkError.noAccount }
+    // Say exactly what is wrong. "Not signed in" was shown for every state,
+    // including iCloud simply not answering yet, which is what a signed-in
+    // phone saw in the first minute after launch.
+    switch await accountState() {
+    case "available": break
+    case "noAccount": throw CloudLinkError.noAccount
+    case "restricted": throw CloudLinkError.failed("iCloud is restricted on this phone, usually by Screen Time or a work profile")
+    default: throw CloudLinkError.failed("iCloud did not answer. Check Settings, your name at the top, then iCloud, and that Loop Me is switched on there. Then try again.")
+    }
     let db = try container.privateCloudDatabase
 
     let zone = CKRecordZone(zoneID: ownZoneID)

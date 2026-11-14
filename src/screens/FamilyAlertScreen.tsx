@@ -2,7 +2,7 @@
 // A red or amber takeover: whose phone, what happened, the text. Two
 // answers, then call-and-read-together and a note.
 import React, { useEffect } from 'react';
-import { Linking, Text, View } from 'react-native';
+import { Linking, Text, View, ScrollView } from 'react-native';
 import { T, font } from '../theme';
 import { Takeover, Pill, TextBtn, Avatar } from '../ui/base';
 import { firstName, whenLabel } from '../ui/pieces';
@@ -32,7 +32,7 @@ export default function FamilyAlertScreen({ ctx }: { ctx: Ctx }) {
 
   return (
     <Takeover color={field} haptic={red ? 'error' : 'warning'} playKey={rec.id}>
-      <View style={{ flex: 1, paddingTop: 70, paddingHorizontal: 22, paddingBottom: 30 }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1, paddingTop: 70, paddingHorizontal: 22, paddingBottom: 30 }} showsVerticalScrollIndicator={false} bounces={false}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Avatar name={s.watching?.name || name} photo={s.watching?.photo} size={30} onPhoto />
           <Text style={[font(15, '600'), { color: '#fff' }]} allowFontScaling>{name}’s phone · {whenLabel(rec.at)}</Text>
@@ -52,7 +52,7 @@ export default function FamilyAlertScreen({ ctx }: { ctx: Ctx }) {
           </View>
           <TextBtn label="Later" onPress={ctx.closeFamilyAlert} />
         </View>
-      </View>
+      </ScrollView>
     </Takeover>
   );
 }

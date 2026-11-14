@@ -8,10 +8,10 @@ let bad = [];
 for (const f of readdirSync(dir)) {
   if (!f.endsWith('.tsx')) continue;
   const s = readFileSync(new URL(f, dir), 'utf8');
-  const screens = [...s.matchAll(/<Screen\b[^>]*>/g)].map(m => m[0]);
+  const screens = [...s.matchAll(/<(Screen|Takeover)\b[^>]*>/g)].map(m => m[0]);
   if (!screens.length) continue;
   if (/ScrollView|FlatList|SectionList/.test(s)) continue;
-  for (const tag of screens) if (!/\bscroll\b/.test(tag)) bad.push(f + ': ' + tag.slice(0, 60));
+  for (const tag of screens) if (!/\bscroll\b/.test(tag) && !/^<Takeover/.test(tag)) bad.push(f + ': ' + tag.slice(0, 60));
 }
 if (bad.length) { console.error('Screens that cannot scroll:\n  ' + bad.join('\n  ')); process.exit(1); }
 console.log('screens: all can scroll');

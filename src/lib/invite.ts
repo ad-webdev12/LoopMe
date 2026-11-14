@@ -11,7 +11,9 @@ export type InviteResult = { ok: true; url: string } | { ok: false; error: strin
 
 /** The share link, or the real reason there is none. */
 export async function inviteLink(s: Settings): Promise<InviteResult> {
-  const r = await cloudCreateInviteOrError(s.myName || s.careName || 'Family');
+  // Never hang the button: if iCloud has not answered in 12 seconds, say so.
+  const slow = new Promise<{ error: string; noAccount: boolean }>(res => setTimeout(() => res({ error: 'iCloud did not answer. Check your connection and try again.', noAccount: false }), 12000));
+  const r = await Promise.race([cloudCreateInviteOrError(s.myName || s.careName || 'Family'), slow]);
   if ('url' in r) { await cloudSubscribe(); await ensureNotificationPermission(); return { ok: true, url: r.url }; }
   return { ok: false, error: r.error, noAccount: r.noAccount };
 }

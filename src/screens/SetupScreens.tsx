@@ -2,11 +2,10 @@
 // Ob1 which phone · Ob2 whose phone (caregiver) · Ob3 what stays here ·
 // Ob4 the one person to tell. The contacts picker and the invite are real.
 import React, { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as Contacts from 'expo-contacts';
 import { ArrowRight, Check, Plus, Send, Smartphone, Users } from 'lucide-react-native';
-import * as Family from '../lib/family';
-import { sendSms, inviteText } from '../lib/familyLink';
+import { sendInviteTo, markInvited } from '../lib/invite';
 import { ensureNotificationPermission } from '../lib/notify';
 import { T, font } from '../theme';
 import { Screen, ScreenTitle, Lead, Card, Row, Group, Pill, Segmented, Note, TextBtn } from '../ui/base';
@@ -135,12 +134,10 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
     if (!first) return;
     setSending(true);
     try {
-      const url = await Family.invite(ctx.settings.myName || ctx.settings.careName);
-      if (!url) { ctx.flash('iCloud is not signed in on this phone. You can send the invite later from Family.'); return; }
-      await ensureNotificationPermission();
-      ctx.update({ ...ctx.settings, familyInvited: true });
+      const r = await sendInviteTo(ctx.settings, first);
+      if (!r.ok) { Alert.alert('The invite could not be made', r.error + '\n\nYou can also send it later from Family.'); return; }
+      ctx.update(markInvited(ctx.settings, first));
       setSent(true);
-      await sendSms(first.phone, inviteText(ctx.settings.myName || ctx.settings.careName, url));
     } finally { setSending(false); }
   };
   const addFromContacts = async () => {

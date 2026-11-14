@@ -1,7 +1,7 @@
 // The protected phone, when the person who looks out for them answers: a
 // green takeover with their words, exactly as they tapped them.
 import React, { useEffect } from 'react';
-import { Linking, Text, View } from 'react-native';
+import { Linking, Text, View, ScrollView } from 'react-native';
 import { T, font } from '../theme';
 import { Takeover, Pill, Avatar } from '../ui/base';
 import { loopPerson, firstName } from '../ui/pieces';
@@ -23,7 +23,7 @@ export default function NoteScreen({ ctx }: { ctx: Ctx }) {
 
   return (
     <Takeover color={color} haptic="success" playKey={n.checkId + n.text}>
-      <View style={{ flex: 1, paddingTop: 70, paddingHorizontal: 22, paddingBottom: 30 }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1, paddingTop: 70, paddingHorizontal: 22, paddingBottom: 30 }} showsVerticalScrollIndicator={false} bounces={false}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           {person && <Avatar name={person.name} photo={person.photo} size={30} onPhoto />}
           <Text style={[font(15, '600'), { color: '#fff' }]} allowFontScaling>From {first}, just now</Text>
@@ -36,7 +36,7 @@ export default function NoteScreen({ ctx }: { ctx: Ctx }) {
           <Pill label="Okay" bg="#fff" color={color === T.red ? T.red : T.greenDeep} onPress={ctx.closeNote} />
           {!!phone && <Pill label={'Call ' + first} bg="rgba(255,255,255,.2)" onPress={() => Linking.openURL('tel:' + phone.replace(/[^\d+]/g, '')).catch(() => {})} />}
         </View>
-      </View>
+      </ScrollView>
     </Takeover>
   );
 }

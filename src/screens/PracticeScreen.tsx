@@ -2,7 +2,7 @@
 // screen, three states: intro, the call (timer, the caller's line, three
 // answers), the result.
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { Phone, PhoneOff, TriangleAlert } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { Takeover, Pill, Swap } from '../ui/base';
@@ -22,7 +22,7 @@ export default function PracticeScreen({ ctx }: { ctx: Ctx }) {
 
   return (
     <Takeover color={T.practice} haptic={null} playKey="practice">
-      <View style={{ flex: 1, paddingTop: 70, paddingHorizontal: 24 }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1, paddingTop: 70, paddingHorizontal: 24 }} showsVerticalScrollIndicator={false} bounces={false}>
         <Text style={[font(17, '400'), { color: '#fff', textAlign: 'center' }]} allowFontScaling>Practice call</Text>
         <Text style={[font(32, '500'), { color: white, textAlign: 'center', marginTop: 6 }]} allowFontScaling>Unknown caller</Text>
         <View style={st.badge}>
@@ -79,7 +79,7 @@ export default function PracticeScreen({ ctx }: { ctx: Ctx }) {
             </View>
           </>
         )}
-      </View>
+      </ScrollView>
     </Takeover>
   );
 }
