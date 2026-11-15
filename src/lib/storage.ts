@@ -26,7 +26,6 @@ export interface Settings {
   careRel: string;               // Mother / Father / Other
   autoCheck: boolean;            // "Check unknown texts for me"
   improve: boolean;              // send corrected texts (redacted) to help the detector; off by default
-  improveAsked?: boolean;        // the one-time offer after the first correction has been shown
   darkMode: boolean;             // off by default; real tokens, never an inversion
   introSeen: boolean;
   // The family link over iCloud. Mirrored from the native side at launch so
