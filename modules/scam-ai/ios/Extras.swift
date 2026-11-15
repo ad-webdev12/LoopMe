@@ -18,25 +18,40 @@ import WatchConnectivity
 
 final class ContinuousListener: NSObject, @unchecked Sendable {
   static let shared = ContinuousListener()
-  private let recognizer = SFSpeechRecognizer(locale: Locale.current) ?? SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
+  // Speech stays on the phone, so the recognizer must support on-device
+  // recognition. The phone's own language first; English if that language
+  // cannot run on device; nil if neither can, and start() says why.
+  private let recognizer: SFSpeechRecognizer? = {
+    let candidates = [SFSpeechRecognizer(locale: Locale.current), SFSpeechRecognizer(locale: Locale(identifier: "en-US"))]
+    return candidates.compactMap { $0 }.first { $0.supportsOnDeviceRecognition } ?? candidates.compactMap { $0 }.first
+  }()
   private let audioEngine = AVAudioEngine()
   private var task: SFSpeechRecognitionTask?
   private var request: SFSpeechAudioBufferRecognitionRequest?
   private var restartTimer: Timer?
   var onText: ((String, Bool) -> Void)?
+  /// A plain sentence for the person when listening cannot start or stops on its own.
+  var onError: ((String) -> Void)?
   private(set) var running = false
+  private(set) var lastError = ""
 
-  /// Returns false when permission was refused or the phone cannot listen.
+  /// Returns false when permission was refused or the phone cannot listen; `lastError` says why.
   func start() async -> Bool {
-    let speechOK = await withCheckedContinuation { (c: CheckedContinuation<Bool, Never>) in
-      SFSpeechRecognizer.requestAuthorization { c.resume(returning: $0 == .authorized) }
+    lastError = ""
+    let speechStatus = await withCheckedContinuation { (c: CheckedContinuation<SFSpeechRecognizerAuthorizationStatus, Never>) in
+      SFSpeechRecognizer.requestAuthorization { c.resume(returning: $0) }
     }
-    guard speechOK else { return false }
+    guard speechStatus == .authorized else { lastError = "Speech recognition is turned off for Loop Me. Turn it on in Settings, Privacy & Security, Speech Recognition."; return false }
     let micOK = await withCheckedContinuation { (c: CheckedContinuation<Bool, Never>) in
       AVAudioSession.sharedInstance().requestRecordPermission { c.resume(returning: $0) }
     }
-    guard micOK, let recognizer = recognizer, recognizer.isAvailable else { return false }
-    return await MainActor.run { beginSegment() }
+    guard micOK else { lastError = "The microphone is turned off for Loop Me. Turn it on in Settings, Privacy & Security, Microphone."; return false }
+    guard let recognizer = recognizer else { lastError = "This phone cannot turn speech into text."; return false }
+    guard recognizer.supportsOnDeviceRecognition else { lastError = "This phone cannot turn speech into text without sending it away, so Say it stays off. Type the message instead."; return false }
+    guard recognizer.isAvailable else { lastError = "Speech recognition is busy or still downloading its language. Try again in a minute."; return false }
+    let ok = await MainActor.run { beginSegment() }
+    if !ok && lastError.isEmpty { lastError = "The microphone could not start. Close other apps using it and try again." }
+    return ok
   }
 
   // One recognition request runs at most a minute; a new one starts in its
@@ -52,24 +67,50 @@ final class ContinuousListener: NSObject, @unchecked Sendable {
     request = req
     do {
       let session = AVAudioSession.sharedInstance()
-      try session.setCategory(.record, mode: .measurement, options: .duckOthers)
+      // playAndRecord, not record: record alone is refused on some phones
+      // while another app holds audio, and it silences the earpiece route.
+      try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker, .allowBluetooth])
       try session.setActive(true, options: .notifyOthersOnDeactivation)
       let input = audioEngine.inputNode
-      let format = input.outputFormat(forBus: 0)
-      guard format.sampleRate > 0, format.channelCount > 0 else { return false }
+      var format = input.outputFormat(forBus: 0)
+      // Right after the microphone permission is granted the input route can
+      // take a moment to come up and reports 0 Hz. Give it a few tries.
+      var tries = 0
+      while (format.sampleRate == 0 || format.channelCount == 0) && tries < 5 {
+        tries += 1
+        try? session.setActive(false)
+        Thread.sleep(forTimeInterval: 0.2)
+        try session.setActive(true, options: .notifyOthersOnDeactivation)
+        format = audioEngine.inputNode.outputFormat(forBus: 0)
+      }
+      guard format.sampleRate > 0, format.channelCount > 0 else {
+        lastError = "No microphone input is available right now. If headphones or a car are connected, disconnect them and try again."
+        return false
+      }
       input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in self?.request?.append(buffer) }
       audioEngine.prepare()
       try audioEngine.start()
-    } catch { return false }
+    } catch {
+      lastError = "The microphone could not start: " + error.localizedDescription
+      return false
+    }
     running = true
     task = recognizer?.recognitionTask(with: req) { [weak self] result, error in
       DispatchQueue.main.async {
         guard let self = self, self.running else { return }
         if let r = result { self.onText?(r.bestTranscription.formattedString, r.isFinal) }
-        if error != nil || (result?.isFinal ?? false) {
-          // Roll straight into the next segment.
-          if self.running { _ = self.beginSegment() }
+        if let e = error as NSError? {
+          // Silence and the one-minute limit are normal: start the next
+          // segment. Anything else used to restart forever with a blank
+          // sheet; now it stops and says so.
+          let benign = e.domain == "kAFAssistantErrorDomain" && [203, 216, 1110, 1107].contains(e.code)
+          if benign || (result?.isFinal ?? false) { _ = self.beginSegment(); return }
+          self.stop()
+          self.lastError = "Listening stopped: " + e.localizedDescription
+          self.onError?(self.lastError)
+          return
         }
+        if result?.isFinal ?? false { _ = self.beginSegment() }
       }
     }
     restartTimer?.invalidate()

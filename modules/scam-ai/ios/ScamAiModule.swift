@@ -75,8 +75,13 @@ public class ScamAiModule: Module {
       ContinuousListener.shared.onText = { [weak self] text, final in
         self?.sendEvent("speech", ["text": text, "final": final])
       }
+      ContinuousListener.shared.onError = { [weak self] why in
+        self?.sendEvent("speech", ["text": "", "final": true, "error": why])
+      }
       return await ContinuousListener.shared.start()
     }
+    /// Why the last startListening() returned false, in plain words.
+    Function("listeningError") { () -> String in ContinuousListener.shared.lastError }
     Function("stopListeningLive") { () in
       ContinuousListener.shared.stop()
     }

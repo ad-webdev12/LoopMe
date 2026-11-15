@@ -131,6 +131,7 @@ const native = requireOptionalNativeModule<{
   sharedDrainCorrections(): { text: string; label: 'scam' | 'fine' }[];
   startListening(): Promise<boolean>;
   stopListeningLive(): void;
+  listeningError(): string;
   latestScreenshot(sinceMs: number): Promise<{ uri: string; at: number; id: string } | null>;
   qrPng(text: string): string | null;
   startCallActivity(name: string, excerpt: string, level: string, advice: string): boolean;
@@ -143,7 +144,7 @@ const native = requireOptionalNativeModule<{
   callDirectoryReload(): Promise<string>;
   callDirectoryStatus(): Promise<'enabled' | 'disabled' | 'unknown'>;
   addListener(event: 'cloudEvent', cb: (e: CloudEvent) => void): { remove: () => void };
-  addListener(event: 'speech', cb: (e: { text: string; final: boolean }) => void): { remove: () => void };
+  addListener(event: 'speech', cb: (e: { text: string; final: boolean; error?: string }) => void): { remove: () => void };
 }>('ScamAi');
 
 export const isNativeAiLinked = () => native != null;
@@ -324,7 +325,9 @@ export async function startListening(): Promise<boolean> {
   try { return await native.startListening(); } catch { return false; }
 }
 export function stopListeningLive(): void { try { native?.stopListeningLive(); } catch {} }
-export function addSpeechListener(fn: (e: { text: string; final: boolean }) => void): { remove: () => void } {
+/** Why listening could not start, in plain words. Empty when it did. */
+export function listeningError(): string { try { return native?.listeningError() || ''; } catch { return ''; } }
+export function addSpeechListener(fn: (e: { text: string; final: boolean; error?: string }) => void): { remove: () => void } {
   if (!native) return { remove: () => {} };
   try { return native.addListener('speech', fn); } catch { return { remove: () => {} }; }
 }

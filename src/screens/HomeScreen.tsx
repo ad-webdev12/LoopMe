@@ -10,7 +10,7 @@ import { ArrowRight, Camera, Mic, Keyboard, PhoneIncoming, LifeBuoy } from 'luci
 import { T, font } from '../theme';
 import { APP_ICON, Avatar, PulseDot, Screen, usePulse } from '../ui/base';
 import { loopPerson, firstName } from '../ui/pieces';
-import { PasteControl, recognizeText, startListening, stopListeningLive, addSpeechListener, callDirectoryStatus, latestScreenshot } from '../../modules/scam-ai';
+import { PasteControl, recognizeText, startListening, stopListeningLive, listeningError, addSpeechListener, callDirectoryStatus, latestScreenshot } from '../../modules/scam-ai';
 import type { Ctx } from '../App';
 
 const HEADLINES = ['Not sure about a message?', 'Check if a message is a scam', 'Got a text that worries you?', 'Is this message real?'];
@@ -87,6 +87,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
   // check them. Nothing is recorded and speech stays on the phone.
   useEffect(() => {
     const sub = addSpeechListener(e => {
+      if (e.error) { setListening(false); ctx.flash(e.error); return; }
       if (e.final) setHeardFinal(prev => (prev + ' ' + e.text).trim());
       else setHeard(e.text);
     });
@@ -94,9 +95,9 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
   }, []);
   const sayIt = async () => {
     setHeard(''); setHeardFinal('');
-    setListening(true);
     const ok = await startListening();
-    if (!ok) { setListening(false); ctx.flash('Could not start listening. Check the microphone permission for Loop Me in Settings, or type it instead.'); }
+    if (ok) setListening(true);
+    else { setListening(false); ctx.flash(listeningError() || 'Could not start listening. Check the microphone permission for Loop Me in Settings, or type it instead.'); }
   };
   const stopSaying = () => { stopListeningLive(); setListening(false); };
   const spoken = (heardFinal + ' ' + heard).trim();
