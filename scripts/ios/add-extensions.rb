@@ -172,7 +172,8 @@ if ENV['LOOPME_CALLERID'] == '1' && !project.targets.any? { |t| t.name == 'Calle
 end
 
 # Apple Watch app (watchOS 10, single target), embedded in the iPhone app.
-unless project.targets.any? { |t| t.name == 'LoopMeWatch' }
+# The watch app stays out until it has store screenshots (set LOOPME_WATCH=1 to add it back).
+if ENV['LOOPME_WATCH'] == '1' && !project.targets.any? { |t| t.name == 'LoopMeWatch' }
   target = project.new_target(:application, 'LoopMeWatch', :watchos, '10.0')
   group = group_for(project, 'LoopMeWatch', 'LoopMeWatch')
   target.add_file_references(Dir[File.join(ROOT, 'ios', 'LoopMeWatch', '*.swift')].map { |f| group.new_file(f) })
