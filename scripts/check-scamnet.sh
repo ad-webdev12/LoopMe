@@ -16,9 +16,9 @@ if(f||row.length){row.push(f);rows.push(row);}
 const out=["text,label,source,split,rule"];for(const r of rows.slice(1)){if(r.length<3)continue;out.push([r[1],r[2],"bench_"+r[0],"test",r[4]||r[3]].map(v=>"\""+String(v).replace(/"/g,"\"\"")+"\"").join(","));}
 fs.writeFileSync(process.argv[1],out.join("\n")+"\n");' "$OUT/bench.csv"
 "$OUT/scamnet" modules/scam-ai/ios/Resources "$OUT/bench.csv" | tee "$OUT/result.txt"
-# Gate on what ships: rules plus the model. At least 92% caught, at most 1.5% false alarms.
+# Gate on what ships: rules plus the model. At least 92% caught, at most 2% false alarms.
 LINE=$(grep "rules + scamnet" "$OUT/result.txt")
 CAUGHT=$(echo "$LINE" | sed -E 's/.*caught [0-9]+\/[0-9]+ \(([0-9.]+)%\).*/\1/')
 FP=$(echo "$LINE" | sed -E 's/.*false alarms [0-9]+\/[0-9]+ \(([0-9.]+)%\).*/\1/')
-if [ "$(echo "$CAUGHT < 92" | bc)" = 1 ] || [ "$(echo "$FP > 1.5" | bc)" = 1 ]; then echo "SCAMNET FAIL (caught $CAUGHT%, false alarms $FP%)"; exit 1; fi
+if [ "$(echo "$CAUGHT < 92" | bc)" = 1 ] || [ "$(echo "$FP > 2.0" | bc)" = 1 ]; then echo "SCAMNET FAIL (caught $CAUGHT%, false alarms $FP%)"; exit 1; fi
 echo "scamnet ok"

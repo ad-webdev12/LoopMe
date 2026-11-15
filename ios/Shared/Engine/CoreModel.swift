@@ -20,15 +20,14 @@ final class CoreModel {
 }
 
 extension Engine {
-  /// The full verdict the extensions use: rules, the portable model, then the
-  /// Core ML model on top, with the same raise-only policy as instant().
+  /// The full verdict the extensions use: rules first, then ScamNet on top.
   static func check(_ message: String, _ opts: DetectorOptions = DetectorOptions(), model: CoreModel?) -> Verdict {
     let v = instant(message, opts)
     guard let model = model, !v.tags.contains("allowlist"), v.level != .red, modelMayJudge(message) else { return v }
     let text = Normalize.run(message.trimmingCharacters(in: .whitespacesAndNewlines)).text
     if text.isEmpty { return v }
-    // No model ever lowers a level. The same text must get the same answer
-    // in the drawer, the share sheet, the text filter and the app.
+    // ScamNet may only raise a level, never lower one. See ai.ts upgrade()
+    // for why the amber-clear idea was measured and dropped.
     return fuse(v, p: model.probability(text), threshold: model.threshold)
   }
 

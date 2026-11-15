@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.loopmescamsafety.app",
-      "buildNumber": "14",
+      "buildNumber": "15",
       "requireFullScreen": true,
       "privacyManifests": {
         "NSPrivacyCollectedDataTypes": [],

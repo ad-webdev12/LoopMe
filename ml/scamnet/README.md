@@ -31,11 +31,43 @@ test split, a random 15% of UCI and Mishra-Soni, and every Loop Me bench set.
 writes `ScamNet.mlmodel` + `ScamNet.vocab.txt` and checks Core ML against PyTorch.
 Python 3.11, torch 2.5.1, transformers 4.46.3, coremltools 8.3 for the conversion.
 
-## Results on the held-out test set (threshold 0.8, as shipped)
+## Second training run (15 Nov 2026, the model that ships)
+
+The first model only ever saw text messages as "normal" and flagged more than
+half of ordinary emails, forum posts and call transcripts. Ten further public
+sets were split in half by text hash; one half joined training, the other half
+is the test below. Training rows: 47,479. Nothing in the test halves was trained on.
+
+| held-out set (Hugging Face) | rows | caught | false alarms |
+|---|---|---|---|
+| sidzzz07/scamshield-dataset (English SMS) | 7,178 | 95.1% | 4.6% |
+| Shade63/scam-classification-multiclass (Indian bank/telecom) | 3,918 | 100% | 6.1% (rules; model alone 0.07%) |
+| mshenoda/spam-messages (SMS, email, forum mix) | 2,577 | 89.7% | 4.4% |
+| anmolshrivastav/scam-ham-india | 1,091 | 96.3% | 2.6% |
+| bolewara/hinglish-scam-text-dataset | 461 | 94.2% | 1.1% |
+| flowxai/scamguardbench (built to confuse) | 184 | 97.5% | 25.2% (rules) |
+| Deysi/spam-detection-dataset (forum posts) | 1,374 | 99.1% | 3.5% |
+| ealvaradob/phishing-dataset (emails) | 1,825 | 94.8% | 20.4% (rules; model alone 0.9%) |
+| BothBosu/scam-dialogue (call transcripts) | 154 | 100% | 29.7% (rules; model alone 0%) |
+| thehamkercat/telegram-spam-ham (emails) | 1,504 | 93.4% | 4.6% |
+| **all ten, 20,266 rows, rules + ScamNet as shipped** | 20,266 | **96.1%** | **6.4%** |
+| all ten, ScamNet alone | 20,266 | 95.9% | 2.4% |
+| UCI held-out (never trained) | 744 | 97.3% | 0.6% |
+| Loop Me benches, rules + ScamNet | 772 | 93.5% | 1.8% |
+
+Where the combined false-alarm rate is well above the model's own, the rules
+are firing on long emails and transcripts ("verify", links, money words). Letting
+ScamNet clear a rule amber when under 0.1 was measured and rejected: it cut
+false alarms to 3.2% but cleared 31 of 432 bench scams, almost all non-English
+or quiet elder cons. Rules stay in charge of those.
+
+## First training run (14 Nov 2026), kept for the record
+
+ (threshold 0.8, as shipped)
 
 | | caught | false alarms |
 |---|---|---|
-| all 4,563 held-out rows | 94.3% | 1.24% |
+| all 4,563 held-out rows (first run) | 94.3% | 1.24% |
 | UCI (real texts, never trained on) | 106/110 = 96.4% | 12/634 = 1.9% |
 | Mishra-Soni smishing | 72/72 | 5/569 = 0.9% |
 | IMC 2025 scams | 2,318/2,418 = 95.9% | n/a (no ham) |

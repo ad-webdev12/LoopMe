@@ -32,4 +32,4 @@ for r in rows {
 let ms = Date().timeIntervalSince(t0) / Double(rows.count) * 1000
 print(String(format: "swift coreml @0.8: caught %d/%d (%.1f%%) false alarms %d/%d (%.2f%%)  %.1f ms/msg", tp, tp + fn, Double(tp) / Double(tp + fn) * 100, fp, fp + tn, Double(fp) / Double(fp + tn) * 100, ms))
 if rows.first?.count ?? 0 >= 5 { print(String(format: "rules + scamnet @0.8: caught %d/%d (%.1f%%) false alarms %d/%d (%.2f%%)", ctp, tp + fn, Double(ctp) / Double(tp + fn) * 100, cfp, fp + tn, Double(cfp) / Double(fp + tn) * 100)) }
-try! out.write(toFile: dir.appendingPathComponent("swift_scores.csv").path, atomically: true, encoding: .utf8)
+try! out.write(toFile: URL(fileURLWithPath: csv).deletingLastPathComponent().appendingPathComponent("swift_scores.csv").path, atomically: true, encoding: .utf8)

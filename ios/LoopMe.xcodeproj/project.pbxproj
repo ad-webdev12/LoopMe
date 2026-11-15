@@ -34,7 +34,6 @@
 		36F5DEEC29A2F0AF7DF541CB /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F6485172735D415D209CC3 /* ExpoModulesProvider.swift */; };
 		39B363F38E5085852ACA2610 /* Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8EDDE520E38DDFCAF7795B /* Features.swift */; };
 		39E63B7C4EA07B55DFE2807F /* Redact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E5E20DE30DBF5658A97F933 /* Redact.swift */; };
-		3D150DCC2C83672BAE9D7106 /* IdentityLookup.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F287993CA910A0BA96FC21A1 /* IdentityLookup.framework */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		45A288453C6A5FD53C3789F5 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5491F0CE324E1554B41E5EA2 /* CloudKit.framework */; };
 		4AEB60AE0802914E84CBD35B /* Redact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E5E20DE30DBF5658A97F933 /* Redact.swift */; };
@@ -96,7 +95,6 @@
 		F4B955399F287E5B817C14B5 /* Links.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B562C1AAA3540A9060ACC35 /* Links.swift */; };
 		F52EF9B463ADC459D3A020E3 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8ED0B366ABBFBCD7F6948A /* ShareViewController.swift */; };
 		F8A5A7ED0392327C43C63071 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3880F1449DE7286E50DBC971 /* Foundation.framework */; };
-		FADF3950677213B607F75B94 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3880F1449DE7286E50DBC971 /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -873,7 +871,6 @@
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-cxxreact/React-cxxreact_privacy.bundle",
 				"${PODS_ROOT}/../../modules/scam-ai/ios/Resources/ScamNet.mlmodel",
 				"${PODS_ROOT}/../../modules/scam-ai/ios/Resources/ScamNet.vocab.txt",
-				"${PODS_ROOT}/../../modules/scam-ai/ios/Resources/swift_scores.csv",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
@@ -888,7 +885,6 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-cxxreact_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ScamNet.mlmodel",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ScamNet.vocab.txt",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/swift_scores.csv",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1045,7 +1041,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = CheckWidget/CheckWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1076,7 +1072,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = MessagesCheck/MessagesCheck.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1106,7 +1102,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = LoopMe/LoopMe.entitlements;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1143,7 +1139,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = LoopMe/LoopMe.entitlements;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				INFOPLIST_FILE = LoopMe/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -1174,7 +1170,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = MessagesCheck/MessagesCheck.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1204,7 +1200,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = CallDirectory/CallDirectory.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1234,7 +1230,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = TextFilter/TextFilter.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1263,7 +1259,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = ShareCheck/ShareCheck.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1293,7 +1289,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = TextFilter/TextFilter.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1323,7 +1319,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -1471,7 +1467,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -1500,7 +1496,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = ShareCheck/ShareCheck.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1529,7 +1525,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = CheckWidget/CheckWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1558,7 +1554,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = CallDirectory/CallDirectory.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;

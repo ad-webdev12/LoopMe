@@ -94,9 +94,11 @@ export async function upgrade(message: string, rule: Verdict, opts?: DetectorOpt
   const ai = await classify(message);
   if (!ai) return { ...rule, aiTier: tier, fused: false };
 
-  // No model ever lowers a level, not even one raised by the smaller model.
-  // The one time this was allowed, the drawer said "Looks okay" to a job
-  // scam the app itself had flagged. The answer must be the same everywhere.
+  // ScamNet may only raise a level, never lower one. Tried letting it clear a
+  // rule amber when under 0.1 (15 Nov 2026): on ten public sets false alarms
+  // fell from 6.4% to 3.2%, but it also cleared 31 of 432 bench scams, nearly
+  // all non-English or the quiet elder cons this app exists for ("Mum's had a
+  // fall, can you send something"). Rules stay in charge of those.
 
   // Apple Intelligence returns a label with a looser probability; the Core ML
   // classifier returns a calibrated probability. Normalize to one number.
