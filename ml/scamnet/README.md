@@ -31,6 +31,28 @@ test split, a random 15% of UCI and Mishra-Soni, and every Loop Me bench set.
 writes `ScamNet.mlmodel` + `ScamNet.vocab.txt` and checks Core ML against PyTorch.
 Python 3.11, torch 2.5.1, transformers 4.46.3, coremltools 8.3 for the conversion.
 
+## Third training run (15 Nov 2026, ships in build 17)
+
+Half of the English rows from the twenty sets below joined training (23,027
+rows, gandharvbakshi left out for its contradictory labels). The other halves,
+24,236 English rows, were never trained on. Rules now raise their amber and red
+lines on long text (from 40 words, up to 4x).
+
+| group (held-out English halves) | rows | caught | false alarms |
+|---|---|---|---|
+| text messages and calls, 8 sets | 9,813 | 96.1% | 5.8% (model alone 1.5%) |
+| real SMS and MMS (notd5a) | 2,817 | 91.1% | 2.4% |
+| scam alert SMS and calls (tanu011235) | 1,872 | 97.7% | 1.4% |
+| phone scam transcripts (menaattia) | 1,965 | 99.5% | 1.2% |
+| UK confusables (sift) | 402 | 97.6% | 34.2% (rules on real prize and bank texts) |
+| emails, 6 sets | 9,787 | 95.6% | 3.5% |
+| job ads, 3 sets | 2,337 | 50.0% | 3.0% |
+| comments, 2 sets | 3,168 | 79.5% | 1.8% |
+| all 19 English sets | 24,236 | 93.5% | 4.9% |
+
+These halves come from the same sources as the new training rows, so they are
+easier than the fully unseen run below. Both are kept.
+
 ## Twenty unseen public sets (15 Nov 2026, nothing here was ever trained or tested on before)
 
 50,280 rows after removing every text that appeared in training or earlier tests.
