@@ -8,12 +8,14 @@ import { ArrowRight, Check, Plus, Send, Smartphone, Users } from 'lucide-react-n
 import { sendInviteTo, markInvited } from '../lib/invite';
 import { ensureNotificationPermission } from '../lib/notify';
 import { T, font } from '../theme';
-import { Screen, ScreenTitle, Lead, Card, Row, Group, Pill, Segmented, Note, TextBtn } from '../ui/base';
+import { Screen, ScreenTitle, Lead, Card, Row, Group, Pill, Segmented, Note, TextBtn, Avatar } from '../ui/base';
 import { PermCard, TEXT_STEPS, CALL_STEPS, TEXT_FRAMES, TEXT_CAPTIONS, CALL_FRAMES, CALL_CAPTIONS } from './SetupScreen';
 import { callDirectoryStatus } from '../../modules/scam-ai';
 import { AppState, Linking } from 'react-native';
 import { MessageCircle, Phone } from 'lucide-react-native';
 import { pickTrustedPerson, samePhone } from '../lib/contacts';
+import { RelationSheet } from '../ui/RelationSheet';
+import type { TrustedPerson } from '../lib/storage';
 import type { Ctx } from '../App';
 
 function Steps({ ctx, i, of }: { ctx: Ctx; i: number; of: number }) {
@@ -128,7 +130,9 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
   const care = !!ctx.settings.careName;
   const first = ctx.settings.trusted[0];
   const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(ctx.settings.familyInvited);
+  const [justSent, setJustSent] = useState<string | null>(null);
+  const sent = !!first && (first.invited === true || justSent === first.phone);
+  const [pending, setPending] = useState<TrustedPerson | null>(null);
   const firstName = first ? first.name.split(' ')[0] : '';
   const sendLink = async () => {
     if (!first) return;
@@ -137,7 +141,7 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
       const r = await sendInviteTo(ctx.settings, first);
       if (!r.ok) { Alert.alert('The invite could not be made', r.error + '\n\nYou can also send it later from Family.'); return; }
       ctx.update(markInvited(ctx.settings, first));
-      setSent(true);
+      setJustSent(first.phone);
     } finally { setSending(false); }
   };
   const addFromContacts = async () => {
@@ -146,9 +150,7 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
       if (!granted) { ctx.flash('Opens your contacts to pick one person.'); return; }
       const res = await pickTrustedPerson();
       if (!res.ok) { if (res.reason) ctx.flash(res.reason); return; }
-      const rest = ctx.settings.trusted.filter(x => !samePhone(x.phone, res.person.phone));
-      ctx.update({ ...ctx.settings, trusted: [res.person, ...rest].slice(0, 3) });
-      ctx.flash(res.person.name.split(' ')[0] + ' is saved.');
+      setPending(res.person);
     } catch { ctx.flash('Your contacts could not be opened. Try again in a moment.'); }
   };
   return (
@@ -159,7 +161,14 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
       <Group C={C} style={{ marginHorizontal: 16, marginTop: 22 }}>
         <View style={{ paddingLeft: 16 }}>
           {first && (
-            <Row C={C} title={firstName} sub={first.phone} titleWeight="600" right={<Check size={19} color={T.green} strokeWidth={2.4} />} />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingRight: 16, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep }}>
+              <Avatar name={first.name} photo={first.photo} size={44} />
+              <View style={{ flex: 1 }}>
+                <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling numberOfLines={1}>{firstName}</Text>
+                <Text style={[font(15, '400'), { color: C.ink2, marginTop: 1 }]} allowFontScaling numberOfLines={1}>{[first.relation, first.phone].filter(Boolean).join(' · ')}</Text>
+              </View>
+              <Check size={19} color={T.green} strokeWidth={2.4} />
+            </View>
           )}
           <Pressable onPress={addFromContacts} accessibilityRole="button" style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingRight: 16 }, pressed && { opacity: 0.6 }]}>
             <View style={[st.plus, { borderColor: T.green }]}><Plus size={16} color={T.green} strokeWidth={2} /></View>
@@ -174,6 +183,13 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
         </View>
       )}
       <Bottom label="Continue" onPress={() => ctx.go('ob5')} />
+      <RelationSheet C={C} name={pending?.name || null} onClose={() => setPending(null)} onPick={relation => {
+        if (!pending) return;
+        const rest = ctx.settings.trusted.filter(x => !samePhone(x.phone, pending.phone));
+        ctx.update({ ...ctx.settings, trusted: [{ ...pending, relation }, ...rest].slice(0, 3) });
+        setPending(null);
+        ctx.flash(pending.name.split(' ')[0] + ' is saved.');
+      }} />
     </Screen>
   );
 }

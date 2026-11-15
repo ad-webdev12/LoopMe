@@ -76,9 +76,11 @@ export async function photoFor(contactId: string): Promise<string | undefined> {
   try {
     const { granted } = await Contacts.getPermissionsAsync();
     if (!granted) return undefined;
-    const c = await Contacts.getContactByIdAsync(contactId, [Contacts.Fields.Image, Contacts.Fields.ImageAvailable]);
-    const uri = (c?.image as { uri?: string } | undefined)?.uri || (c?.rawImage as { uri?: string } | undefined)?.uri;
-    return uri || undefined;
+    // Ask for the thumbnail as base64 too: the file path expo writes lives in
+    // the app's cache, which moves on every update and can be purged by iOS.
+    const c = await Contacts.getContactByIdAsync(contactId, [Contacts.Fields.Image, Contacts.Fields.ImageAvailable, 'imageBase64' as Contacts.FieldType]);
+    const img = c?.image as { uri?: string; base64?: string } | undefined;
+    return img?.base64 || img?.uri || undefined;
   } catch { return undefined; }
 }
 

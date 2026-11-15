@@ -51,7 +51,8 @@ export function ContactPickerHost({ C }: { C: Palette }) {
           const seen = new Set<string>();
           setAll((r.data || []).filter(c => {
             if (!nameOf(c) || !phoneOf(c)) return false;
-            const k = nameOf(c).toLowerCase() + '|' + phoneOf(c).replace(/\D/g, '').replace(/^1(?=\d{10}$)/, '');
+            // Same number and same first name is the same person, however the card is spelled.
+            const k = nameOf(c).toLowerCase().replace(/\s+/g, ' ').split(' ')[0] + '|' + phoneOf(c).replace(/\D/g, '').replace(/^1(?=\d{10}$)/, '');
             if (seen.has(k)) return false;
             seen.add(k); return true;
           }));
@@ -85,7 +86,7 @@ export function ContactPickerHost({ C }: { C: Palette }) {
             <X size={20} color={C.ink} strokeWidth={2.2} />
           </Pressable>
         </View>
-        <TextInput value={q} onChangeText={setQ} placeholder="Search by name or number" placeholderTextColor={C.ink2} autoCorrect={false} clearButtonMode="while-editing" returnKeyType="search"
+        <TextInput value={q} onChangeText={setQ} placeholder="Search by name or number" placeholderTextColor={C.ink2} autoCorrect={false} clearButtonMode="while-editing" returnKeyType="search" autoFocus
           style={[font(17, '400'), st.search, { color: C.ink, backgroundColor: C.card }]} accessibilityLabel="Search contacts" />
         <FlatList
           data={rows}

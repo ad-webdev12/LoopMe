@@ -2,6 +2,7 @@
 // outgoing bubble; "Delivered", typing dots while we wait, then their real
 // reply as an incoming bubble. Only this message is shared.
 import React, { useEffect, useRef, useState } from 'react';
+import { objectOf, willOf } from '../lib/relations';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { Send } from 'lucide-react-native';
 import { T, font } from '../theme';
@@ -18,7 +19,7 @@ export default function AskScreen({ ctx }: { ctx: Ctx }) {
   const rec = ctx.hist.find(h => h.id === ctx.recordId);
   const [sent, setSent] = useState(!!rec?.askedFamily);
   const reply = (rec?.notes || []).filter(n => !n.mine).slice(-1)[0];
-  const her = person?.relation === 'Daughter' || person?.relation === 'Sister' ? 'her' : person?.relation === 'Son' || person?.relation === 'Brother' ? 'him' : 'them';
+  const her = objectOf(person?.relation);
   const quote = (ctx.msg || rec?.excerpt || '').trim();
 
   const send = async () => {
@@ -38,7 +39,7 @@ export default function AskScreen({ ctx }: { ctx: Ctx }) {
         <Avatar name={person?.name || '?'} photo={person?.photo} size={48} />
         <View>
           <Text style={[font(26, '700'), { color: C.ink }]} allowFontScaling>Ask {who}</Text>
-          <Text style={[font(15, '400'), { color: C.ink2, marginTop: 2 }]} allowFontScaling>{sent ? 'Sent to ' + her + ' phone' : (person?.relation === 'Daughter' ? 'She’ll' : person?.relation === 'Son' ? 'He’ll' : 'They’ll') + ' get it on their phone right away'}</Text>
+          <Text style={[font(15, '400'), { color: C.ink2, marginTop: 2 }]} allowFontScaling>{sent ? 'Sent to ' + her + ' phone' : willOf(person?.relation) + ' get it on their phone right away'}</Text>
         </View>
       </View>
 

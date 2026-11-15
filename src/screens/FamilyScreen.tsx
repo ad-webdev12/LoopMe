@@ -9,12 +9,13 @@ import { Phone, MessageCircle, Send, Plus, Smartphone, ChevronRight, ArrowRight,
 import { T, font } from '../theme';
 import { Screen, LargeTitle, Avatar, Note, Pill } from '../ui/base';
 import { loopPerson, firstName } from '../ui/pieces';
+import { RELATIONS, objectOf } from '../lib/relations';
+import { RelationSheet } from '../ui/RelationSheet';
 import { pickTrustedPerson, samePhone, refreshPhotos, photoFor } from '../lib/contacts';
 import { sendInviteTo, markInvited, isLinked } from '../lib/invite';
 import type { TrustedPerson } from '../lib/storage';
 import type { Ctx } from '../App';
 
-const RELATIONS = ['Daughter', 'Son', 'Partner', 'Sister', 'Brother', 'Friend', 'Carer', 'Other'];
 
 export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
   const { C, settings: s } = ctx;
@@ -70,7 +71,7 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
   };
   const linkedOf = (p: TrustedPerson) => isLinked(s, p);
   const statusOf = (p: TrustedPerson) => linkedOf(p) ? 'Hears about every scam' : p.invited ? 'Invite sent. Waiting for a tap.' : 'Can be called. Not linked yet.';
-  const pronoun = (p?: TrustedPerson | null) => p?.relation === 'Daughter' || p?.relation === 'Sister' ? 'her' : p?.relation === 'Son' || p?.relation === 'Brother' ? 'him' : 'them';
+  const pronoun = (p?: TrustedPerson | null) => objectOf(p?.relation);
 
   return (
     <Screen C={C} playKey="family">
@@ -140,20 +141,7 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
         )}
       </ScrollView>
 
-      <Modal visible={!!pending} transparent animationType="fade" onRequestClose={() => setPending(null)}>
-        <Pressable style={st.dim} onPress={() => setPending(null)}>
-          <Pressable style={[st.sheet, { backgroundColor: C.card }]} onPress={() => {}}>
-            <Text style={[font(20, '700'), { color: C.ink }]} allowFontScaling>{pending ? firstName(pending.name) + ' is your' : ''}</Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
-              {RELATIONS.map(r => (
-                <Pressable key={r} onPress={() => saveWithRelation(r)} style={({ pressed }) => [st.rel, { backgroundColor: C.greenTint }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
-                  <Text style={[font(15, '600'), { color: C.dark ? C.accent : T.greenDeep }]} allowFontScaling>{r}</Text>
-                </Pressable>
-              ))}
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
+      <RelationSheet C={C} name={pending?.name || null} onPick={saveWithRelation} onClose={() => setPending(null)} />
 
       <Modal visible={!!open} transparent animationType="fade" onRequestClose={() => setOpen(null)}>
         <Pressable style={st.dim} onPress={() => setOpen(null)}>

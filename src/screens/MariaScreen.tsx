@@ -4,6 +4,7 @@
 // (opened from History or the Family tab) with one-tap replies that land
 // full screen on the protected phone.
 import React from 'react';
+import { possessiveOf } from '../lib/relations';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Phone } from 'lucide-react-native';
 import { T, font } from '../theme';
@@ -28,7 +29,7 @@ export default function MariaScreen({ ctx }: { ctx: Ctx }) {
   const phone = careMode ? s.watching?.phone : '';
 
   const reply = async (verdict: 'scam' | 'call' | 'safe') => {
-    if (!careMode || !rec) { ctx.flash('This is what ' + who + ' sees. The buttons work on ' + (person?.relation === 'Daughter' ? 'her' : person?.relation === 'Son' ? 'his' : 'their') + ' phone.'); return; }
+    if (!careMode || !rec) { ctx.flash('This is what ' + who + ' sees. The buttons work on ' + possessiveOf(person?.relation) + ' phone.'); return; }
     await ctx.sendNoteTo(rec.id, quickNote(verdict), verdict);
     ctx.flash('Sent. It shows full screen on ' + callName + '’s phone.');
     if (verdict === 'call' && phone) Linking.openURL('tel:' + phone.replace(/[^\d+]/g, '')).catch(() => {});
@@ -50,7 +51,7 @@ export default function MariaScreen({ ctx }: { ctx: Ctx }) {
           <Avatar name={ownerName || '?'} photo={s.watching?.photo} size={52} />
           <View>
             <Text style={[font(26, '700'), { color: C.ink }]} allowFontScaling>{careMode ? ownerFirst : (firstName(ownerName) || 'Your phone')}</Text>
-            <Text style={[font(15, '400'), { color: C.ink2, marginTop: 2 }]} allowFontScaling>{careMode ? (ownerName || 'The phone you look after') : 'What ' + who + ' sees on ' + (person?.relation === 'Daughter' ? 'her' : person?.relation === 'Son' ? 'his' : 'their') + ' phone'}</Text>
+            <Text style={[font(15, '400'), { color: C.ink2, marginTop: 2 }]} allowFontScaling>{careMode ? (ownerName || 'The phone you look after') : 'What ' + who + ' sees on ' + possessiveOf(person?.relation) + ' phone'}</Text>
           </View>
         </View>
 
