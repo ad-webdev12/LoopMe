@@ -11,6 +11,7 @@
 // Nothing leaves the device. If no AI tier is present, the rule verdict stands.
 
 import { detect, Verdict, DetectorOptions } from './ScamDetector';
+import { modelMayJudge } from './guard';
 import { normalizeText } from './normalize';
 import { modelProbability, SCAM_THRESHOLD } from './model';
 import { availableTier, classify, AiTier, AiJudgement } from '../../modules/scam-ai';
@@ -65,6 +66,8 @@ function instantVerdict(message: string, opts?: DetectorOptions): FusedVerdict {
 
   // An allowlisted sender is the person's own explicit decision; nothing overrides it.
   if (v.tags.includes('allowlist')) return { ...v, aiTier: 'none', fused: false };
+  // Fragments (an email address, a name, a short note) get no model raise.
+  if (!modelMayJudge(message)) return { ...v, aiTier: 'none', fused: false };
 
   let p = 0;
   try { p = modelProbability(normalizeText((message || '').trim()).text); } catch { return { ...v, aiTier: 'none', fused: false }; }
@@ -106,11 +109,18 @@ function instantVerdict(message: string, opts?: DetectorOptions): FusedVerdict {
  * downgrade of a real scam could cost someone their savings.
  */
 export const COREML_THRESHOLD = 0.8;
+export { modelMayJudge } from './guard';
+
 
 export async function upgrade(message: string, rule: Verdict, opts?: DetectorOptions): Promise<FusedVerdict> {
   const tier = await getAiTier();
   if (tier === 'none') return { ...rule, aiTier: 'none', fused: false };
   if (rule.tags.includes('allowlist') || rule.level === 'red') return { ...rule, aiTier: tier, fused: false };
+
+  // A bare email address, a name, "ok see you at 5": there is nothing in
+  // there for a scam to be made of, and the classifiers were never trained on
+  // fragments. They only get a say when the text could carry a pitch.
+  if (!modelMayJudge(message)) return { ...rule, aiTier: tier, fused: false };
 
   const ai = await classify(message);
   if (!ai) return { ...rule, aiTier: tier, fused: false };

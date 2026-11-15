@@ -148,11 +148,20 @@ enum Engine {
     return v
   }
 
+  /// Long enough to hold a pitch, or carrying a link, a phone number or money.
+  /// A bare email address or a short note gets no model raise. Mirrors ai.ts.
+  static func modelMayJudge(_ message: String) -> Bool {
+    let words = message.split(whereSeparator: { $0.isWhitespace || $0.isNewline }).count
+    if words >= 6 { return true }
+    return message.range(of: #"https?://|www\.|\$\s?\d|\d{3}[-.\s]\d{4}"#, options: [.regularExpression, .caseInsensitive]) != nil
+  }
+
   /// Rules plus the learned model, fused the way ai.ts instant() fuses them.
   /// The model may only ever raise the alarm, never lower it.
   static func instant(_ message: String, _ opts: DetectorOptions = DetectorOptions()) -> Verdict {
     var v = detect(message, opts)
     if v.tags.contains("allowlist") { return v }
+    if !modelMayJudge(message) { return v }
     let t = EngineTables.shared
     let normalized = Normalize.run(message.trimmingCharacters(in: .whitespacesAndNewlines)).text
     let p = Model.probability(normalized)

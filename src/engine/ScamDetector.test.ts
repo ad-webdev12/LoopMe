@@ -1,5 +1,6 @@
 // 120-message labeled test suite. Prints precision/recall/FP-rate. FAILS if FP-rate > 5%.
 import { detect } from './ScamDetector';
+import { modelMayJudge } from './guard';
 
 type Case = [string, string]; // [message, category]
 const SCAMS: Case[] = [
@@ -217,4 +218,12 @@ if (misses.length) { console.log('\nMISSED SCAMS:'); misses.forEach(x=>console.l
 if (falses.length) { console.log('\nFALSE POSITIVES:'); falses.forEach(x=>console.log('  '+x)); }
 const pass = recall >= 0.95 && precisionOk && maxMs < 200 && twoStage.level==='red' && codeword.codeWordMoment && postPanic.level==='red' && allow.level==='green' && apostropheStable;
 console.log(pass ? '\nALL PASS' : '\nFAIL');
+// The model only gets a say when the text could carry a pitch.
+for (const frag of ['Advithrao6@gmail.com', 'ok see you at 5', 'Neil', 'thanks love you']) {
+  if (modelMayJudge(frag)) { console.error('model should stay quiet on: ' + frag); process.exit(1); }
+}
+for (const full of ['Your package is held, pay the fee at http://bit.ly/x', 'Dad here send $400 now', 'Hi this is your bank, we noticed unusual activity on your account today']) {
+  if (!modelMayJudge(full)) { console.error('model should be allowed on: ' + full); process.exit(1); }
+}
+console.log('model guard ok');
 process.exit(pass ? 0 : 1);

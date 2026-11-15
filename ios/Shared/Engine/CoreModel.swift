@@ -62,7 +62,7 @@ extension Engine {
   /// Core ML model on top, with the same raise-only policy as instant().
   static func check(_ message: String, _ opts: DetectorOptions = DetectorOptions(), model: CoreModel?) -> Verdict {
     let v = instant(message, opts)
-    guard let model = model, !v.tags.contains("allowlist"), v.level != .red else { return v }
+    guard let model = model, !v.tags.contains("allowlist"), v.level != .red, modelMayJudge(message) else { return v }
     let text = Normalize.run(message.trimmingCharacters(in: .whitespacesAndNewlines)).text
     if text.isEmpty { return v }
     // No model ever lowers a level. The same text must get the same answer
