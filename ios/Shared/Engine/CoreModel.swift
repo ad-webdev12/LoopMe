@@ -2,59 +2,21 @@ import Foundation
 import CoreML
 import NaturalLanguage
 
-// The learned second opinion for the extensions. Two Create ML text
-// classifiers ship with the app, trained by ml/train.swift on the same data:
-//   ScamText   BERT transfer learning, about 70 MB at inference. The app and
-//              the share sheet use it.
-//   ScamFilter maximum entropy bag of words, under 1 MB. The text filter
-//              uses it because that extension runs under a tight memory cap.
-// Either may only raise the alarm. Neither can talk a rule hit down.
+// The learned second opinion for the extensions: ScamNet, the one
+// fine-tuned transformer the app ships (modules/scam-ai/ios/ScamNetRunner.swift).
+// It may only raise the alarm. It cannot talk a rule hit down.
 final class CoreModel {
-  private let model: NLModel
-  // ScamText needs Apple's contextual-embedding assets, which a phone may not
-  // have yet; it then answers nil. ScamFilter steps in for that text.
-  private let fallback: NLModel?
+  private let net: ScamNetRunner
   let threshold: Double
+  private init(net: ScamNetRunner, threshold: Double) { self.net = net; self.threshold = threshold }
 
-  private init(model: NLModel, fallback: NLModel?, threshold: Double) { self.model = model; self.fallback = fallback; self.threshold = threshold }
-
-  static func named(_ name: String, threshold: Double, bundle: Bundle = .main) -> CoreModel? {
-    guard let m = load(name, bundle) else { return nil }
-    let fb = name == "ScamText" ? load("ScamFilter", bundle) : nil
-    return CoreModel(model: m, fallback: fb, threshold: threshold)
+  static func named(_ name: String = "ScamNet", threshold: Double, bundle: Bundle = .main) -> CoreModel? {
+    guard let n = ScamNetRunner.load(bundle: bundle) else { return nil }
+    return CoreModel(net: n, threshold: threshold)
   }
 
-  /// Loads `name.mlmodelc` (compiled by Xcode) or, failing that, compiles
-  /// `name.mlmodel` once and keeps the result in Caches.
-  private static func load(_ name: String, _ bundle: Bundle) -> NLModel? {
-    if let url = bundle.url(forResource: name, withExtension: "mlmodelc"), let m = try? NLModel(contentsOf: url) { return m }
-    guard let raw = bundle.url(forResource: name, withExtension: "mlmodel") else { return nil }
-    let fm = FileManager.default
-    let stamp = (try? fm.attributesOfItem(atPath: raw.path)[.modificationDate] as? Date)?.timeIntervalSince1970 ?? 0
-    let cacheDir = fm.urls(for: .cachesDirectory, in: .userDomainMask).first ?? fm.temporaryDirectory
-    let cached = cacheDir.appendingPathComponent("\(name)-\(Int(stamp)).mlmodelc")
-    if !fm.fileExists(atPath: cached.path) {
-      guard let tmp = try? MLModel.compileModel(at: raw) else { return nil }
-      try? fm.removeItem(at: cached)
-      guard (try? fm.moveItem(at: tmp, to: cached)) != nil else { return nil }
-    }
-    return try? NLModel(contentsOf: cached)
-  }
-
-  /// Probability that the text is a scam, 0 to 1. Both models are asked and
-  /// the higher answer wins: each may only ever raise the alarm, and they
-  /// miss different things (the BERT model slept through a job scam the
-  /// bag-of-words model caught at 0.9).
-  func probability(_ text: String) -> Double {
-    var p = 0.0
-    if model.predictedLabel(for: text) != nil {
-      p = model.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0
-    }
-    if let fb = fallback, fb.predictedLabel(for: text) != nil {
-      p = max(p, fb.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0)
-    }
-    return p
-  }
+  /// Probability that the text is a scam, 0 to 1. 0 when Core ML is unavailable.
+  func probability(_ text: String) -> Double { net.probability(text) ?? 0 }
 }
 
 extension Engine {

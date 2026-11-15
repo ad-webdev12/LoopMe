@@ -156,33 +156,8 @@ enum Engine {
     return message.range(of: #"https?://|www\.|\$\s?\d|\d{3}[-.\s]\d{4}"#, options: [.regularExpression, .caseInsensitive]) != nil
   }
 
-  /// Rules plus the learned model, fused the way ai.ts instant() fuses them.
-  /// The model may only ever raise the alarm, never lower it.
+  /// Rules only, same as ai.ts instant(). ScamNet (CoreModel) votes on top.
   static func instant(_ message: String, _ opts: DetectorOptions = DetectorOptions()) -> Verdict {
-    var v = detect(message, opts)
-    if v.tags.contains("allowlist") { return v }
-    if !modelMayJudge(message) { return v }
-    let t = EngineTables.shared
-    let normalized = Normalize.run(message.trimmingCharacters(in: .whitespacesAndNewlines)).text
-    let p = Model.probability(normalized)
-    v.probability = p
-    if p < t.threshold { return v }
-
-    let level: Level = v.level == .red ? .red
-      : (v.level == .amber && p >= 0.9) ? .red
-      : .amber
-    if level == v.level { return v }
-
-    let note = "The on-device model recognizes the shape of this message as a scam, even though it does not match a specific known trick."
-    var out = v
-    out.fused = true
-    if v.level == .green { out.reason = "This does not match a named trick, but it reads like a scam." }
-    out.level = level
-    out.safeStep = level == .red
-      ? "Do not reply and do not send anything. Delete the message."
-      : "Don’t tap or reply yet. Check with them on a number you already have."
-    if !out.signals.contains(note) { out.signals.append(note) }
-    out.confidence = p >= 0.9 ? .fairly : .unsure
-    return out
+    return detect(message, opts)
   }
 }

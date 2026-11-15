@@ -13,7 +13,7 @@ import FoundationModels
 // On-device scam intelligence. Two real ML tiers, both fully offline:
 //   Tier 1: Apple Foundation Models (iOS 26+, Apple Intelligence): an on-device
 //            LLM that reads the message and returns a structured judgement.
-//   Tier 2: a bundled Core ML text classifier (NaturalLanguage NLModel), for
+//   Tier 2: ScamNet, the bundled fine-tuned transformer (Core ML), for
 //            phones without Apple Intelligence.
 // The JS layer keeps a deterministic safety-net underneath both. Nothing is
 // sent off the device; there is no network path in this module at all.
@@ -444,57 +444,15 @@ enum ScamAI {
   }
 }
 
-// Bundled Core ML text classifiers.
-//
-// ScamText is the strong one (Create ML BERT transfer learning). It leans on
-// Apple's contextual-embedding assets, which iOS downloads per language and
-// which can be missing on a fresh phone or a simulator; without them the
-// model answers nil. So the assets are requested at launch, and ScamFilter,
-// the small maxent model the text filter uses, answers whenever ScamText
-// cannot. Both are compiled once and cached, keyed by the file's date.
+// ScamNet, the one fine-tuned transformer the app ships. See ScamNetRunner.swift.
 final class ScamClassifier {
   static let shared = ScamClassifier()
-  private var strong: NLModel?
-  private var small: NLModel?
-  var isLoaded: Bool { strong != nil || small != nil }
-
-  private init() {
-    strong = ScamClassifier.load("ScamText")
-    small = ScamClassifier.load("ScamFilter")
-    if #available(iOS 17.0, *) {
-      for lang in [NLLanguage.english, .spanish, .french, .portuguese, .german, .italian, .dutch, .hindi, .indonesian] {
-        guard let emb = NLContextualEmbedding(language: lang), !emb.hasAvailableAssets else { continue }
-        emb.requestAssets { _, _ in }
-      }
-    }
-  }
-
-  private static func load(_ name: String) -> NLModel? {
-    if let url = Bundle.main.url(forResource: name, withExtension: "mlmodelc"), let m = try? NLModel(contentsOf: url) { return m }
-    guard let raw = Bundle.main.url(forResource: name, withExtension: "mlmodel") else { return nil }
-    let fm = FileManager.default
-    let stamp = (try? fm.attributesOfItem(atPath: raw.path)[.modificationDate] as? Date)?.timeIntervalSince1970 ?? 0
-    let cacheDir = fm.urls(for: .cachesDirectory, in: .userDomainMask).first ?? fm.temporaryDirectory
-    let cached = cacheDir.appendingPathComponent("\(name)-\(Int(stamp)).mlmodelc")
-    if !fm.fileExists(atPath: cached.path) {
-      guard let tmp = try? MLModel.compileModel(at: raw) else { return nil }
-      try? fm.removeItem(at: cached)
-      guard (try? fm.moveItem(at: tmp, to: cached)) != nil else { return nil }
-    }
-    return try? NLModel(contentsOf: cached)
-  }
+  private let net: ScamNetRunner?
+  var isLoaded: Bool { net != nil }
+  private init() { net = ScamNetRunner.load() }
 
   func classify(_ text: String) -> String? {
-    // Both models answer and the higher wins, exactly as in the extensions
-    // (CoreModel.probability). Each may only raise the alarm.
-    var scamProb: Double?
-    if let m = strong, m.predictedLabel(for: text) != nil {
-      scamProb = m.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0
-    }
-    if let m = small, m.predictedLabel(for: text) != nil {
-      scamProb = max(scamProb ?? 0, m.predictedLabelHypotheses(for: text, maximumCount: 2)["scam"] ?? 0)
-    }
-    guard let p = scamProb else { return nil }
+    guard let p = net?.probability(text) else { return nil }
     // The JS side applies the 0.8 threshold; the label here only drives wording.
     let isScam = p >= 0.8
     let reason = isScam

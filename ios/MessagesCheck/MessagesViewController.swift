@@ -13,7 +13,7 @@ import AVFoundation
 // this process; a "Tell" goes to the caretaker over the family link from
 // here (ios/Shared/ExtensionCloud.swift). Nothing is sent into the chat.
 final class MessagesViewController: MSMessagesAppViewController {
-  static let model = CoreModel.named("ScamText", threshold: 0.8)
+  static let model = CoreModel.named("ScamNet", threshold: 0.8)
 
   private enum State { case idle, ready, checking, scam, why, careful, safe, asking }
   private var state: State = .idle

@@ -20,6 +20,7 @@
 		16CCB0C3F5596EAA97278DA3 /* EngineTables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00E8730011997697DCFBAF71 /* EngineTables.swift */; };
 		1D8C1B862CD935D42C1A6AFC /* Links.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B562C1AAA3540A9060ACC35 /* Links.swift */; };
 		20A70092BEE5A2CB175EB574 /* engine.json in Resources */ = {isa = PBXBuildFile; fileRef = 7425BA7C6F3DEEAC8357EDA8 /* engine.json */; };
+		24446C5699C10A3B31CE52B9 /* ScamNet.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = ED88A199A80A9E228D8B362D /* ScamNet.mlmodel */; };
 		2505D1E2294CEE7976317129 /* Links.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B562C1AAA3540A9060ACC35 /* Links.swift */; };
 		25B5D62982B9B56F82597E3A /* CallerID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597E9DA98ACB2784A3827D3D /* CallerID.swift */; };
 		25E9D7CA906BAB17D58754F4 /* Normalize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 945077E77B5E2962B39434D8 /* Normalize.swift */; };
@@ -29,6 +30,7 @@
 		2BB01F7EF2684036CAFA3955 /* CoreModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49312EEB42FDF8F28BCEFC21 /* CoreModel.swift */; };
 		2DB0372AC0C8F8789A355254 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389B4380A6D0BE5521D3E969 /* Engine.swift */; };
 		2DB0382E52179861D722081C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8053B7FC48E47DD52593E09F /* Assets.xcassets */; };
+		3035BAA84B5AF49DF7ABD8F1 /* ScamNet.vocab.txt in Resources */ = {isa = PBXBuildFile; fileRef = 3B351B586AEDE4E48EC9E645 /* ScamNet.vocab.txt */; };
 		348E5B0B3FBF497C77E76C64 /* loopme-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 9190332B13D0484345A5F164 /* loopme-icon.png */; };
 		36F5DEEC29A2F0AF7DF541CB /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F6485172735D415D209CC3 /* ExpoModulesProvider.swift */; };
 		39B363F38E5085852ACA2610 /* Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8EDDE520E38DDFCAF7795B /* Features.swift */; };
@@ -38,25 +40,25 @@
 		45A288453C6A5FD53C3789F5 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5491F0CE324E1554B41E5EA2 /* CloudKit.framework */; };
 		4AEB60AE0802914E84CBD35B /* Redact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E5E20DE30DBF5658A97F933 /* Redact.swift */; };
 		4D116B87D01D06B207F93C9C /* CoreModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49312EEB42FDF8F28BCEFC21 /* CoreModel.swift */; };
-		4E9621969F662760A3C2C6E6 /* ScamFilter.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 2DD78DC50CE9ACB4842E9A7C /* ScamFilter.mlmodel */; };
 		52D5D4417BB83C41051B891C /* Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8EDDE520E38DDFCAF7795B /* Features.swift */; };
+		55AE689DD6D44B3874CAE01A /* ScamNetRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A57A8E33F6BFD89AFAC63B /* ScamNetRunner.swift */; };
 		57EAA29A0BB8476182E5D7D8 /* Messages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF812AAE84E6F6EDE774E6BE /* Messages.framework */; };
+		5AE1EDC91FA9E0BCAC89B5F9 /* ScamNet.vocab.txt in Resources */ = {isa = PBXBuildFile; fileRef = 3B351B586AEDE4E48EC9E645 /* ScamNet.vocab.txt */; };
 		5D0BB09EFB0555F927407C23 /* LoopMeWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7F121CD2BAC36E5DF5B7C1D /* LoopMeWatchApp.swift */; };
 		5FFE864ACB26EBC91345C2A0 /* engine.json in Resources */ = {isa = PBXBuildFile; fileRef = 7425BA7C6F3DEEAC8357EDA8 /* engine.json */; };
-		634D856FD92C4B8FEAC7440A /* ScamFilter.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 2DD78DC50CE9ACB4842E9A7C /* ScamFilter.mlmodel */; };
 		6515549980DA10932E89B689 /* CoreModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49312EEB42FDF8F28BCEFC21 /* CoreModel.swift */; };
 		6872FAB67A33002B57F6B0EA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 342A00FB96CE89695B5C68A2 /* Foundation.framework */; };
 		68C5DC205265B688AC9F0327 /* Links.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B562C1AAA3540A9060ACC35 /* Links.swift */; };
-		68FCBF5A8683A5CB84D0987F /* ScamFilter.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 2DD78DC50CE9ACB4842E9A7C /* ScamFilter.mlmodel */; };
 		6BC1FB859D2A450AD9DC73FF /* EngineTables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00E8730011997697DCFBAF71 /* EngineTables.swift */; };
 		6C228B9E6006065741A1137A /* libPods-LoopMe.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EAB95A3D3A419B7BDF41BAF /* libPods-LoopMe.a */; };
 		6FC74F49356DA91A89988A43 /* Redact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E5E20DE30DBF5658A97F933 /* Redact.swift */; };
 		7085657BCFB49F21A935DFB5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3880F1449DE7286E50DBC971 /* Foundation.framework */; };
 		720E19F2E723D18CCEF60EEA /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389B4380A6D0BE5521D3E969 /* Engine.swift */; };
 		77405A4AD6D685573D327FCC /* CallActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 098B2FF7C61A85DA7F0C6E5D /* CallActivityAttributes.swift */; };
+		77C8E6D724B4F63D4CE95A9D /* ScamNetRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A57A8E33F6BFD89AFAC63B /* ScamNetRunner.swift */; };
+		7B9676BAEFDC140187293F3E /* ScamNet.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = ED88A199A80A9E228D8B362D /* ScamNet.mlmodel */; };
 		7DEE84D04979E71681823124 /* engine.json in Resources */ = {isa = PBXBuildFile; fileRef = 7425BA7C6F3DEEAC8357EDA8 /* engine.json */; };
 		867254FA458ECFD023329377 /* CallerID.appex in Embed ExtensionKit Extensions */ = {isa = PBXBuildFile; fileRef = 7372FE9448BD42F5FBA205D3 /* CallerID.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		876C68FB4DF275560B2D11B7 /* ScamText.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = B76AA3FEB71AB627E6DE44E9 /* ScamText.mlmodel */; };
 		8848BE495E18922275F1367D /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4D265154FE44392D71A81F4 /* Vision.framework */; };
 		89EC9347CA84CAF3D98D26E6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3880F1449DE7286E50DBC971 /* Foundation.framework */; };
 		8A8D7101F7871A22A5B0FFF6 /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BC43A396AA9E9FBFDDF6130 /* AppIntents.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -67,11 +69,11 @@
 		A158B87C3D17F82B0EC91227 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC01462043E0C48AD8DB3922 /* SwiftUI.framework */; };
 		A162B6201CD5FF6DC05DB226 /* Normalize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 945077E77B5E2962B39434D8 /* Normalize.swift */; };
 		A317AEB29EE8A4299FCE612B /* CallKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D04B69602AE0096904881CE /* CallKit.framework */; };
-		A5286901C25156D4ED133459 /* ScamText.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = B76AA3FEB71AB627E6DE44E9 /* ScamText.mlmodel */; };
 		A75276FC27EF97C9F46C58F6 /* engine.json in Resources */ = {isa = PBXBuildFile; fileRef = 7425BA7C6F3DEEAC8357EDA8 /* engine.json */; };
 		A8C82D08746870F55127BD84 /* TextFilter.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E225C34A5A7CA6D1A7AA0BC9 /* TextFilter.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B1403F4F326A4FA4ABC6703B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 644635D9F1E34418844BF8A0 /* PrivacyInfo.xcprivacy */; };
 		B27B01E5DDF5C34B982E4157 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 644635D9F1E34418844BF8A0 /* PrivacyInfo.xcprivacy */; };
+		B8C75BC3D151548D0884D96A /* ScamNetRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A57A8E33F6BFD89AFAC63B /* ScamNetRunner.swift */; };
 		B9B402692B25BC52AC5AD7CD /* IdentityLookup.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F287993CA910A0BA96FC21A1 /* IdentityLookup.framework */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		C2537CAFF147A3EE134E529A /* Redact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E5E20DE30DBF5658A97F933 /* Redact.swift */; };
@@ -80,11 +82,14 @@
 		CBE85C02725FDA23E0DE71DE /* MessagesCheck.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 264F377F32143F7867000D84 /* MessagesCheck.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CE2404669CC8F146AA4B9590 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389B4380A6D0BE5521D3E969 /* Engine.swift */; };
 		D1C3CBFE239100B72C1A1EBB /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389B4380A6D0BE5521D3E969 /* Engine.swift */; };
+		D2BCEF18824C5E549CEB3259 /* ScamNetRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A57A8E33F6BFD89AFAC63B /* ScamNetRunner.swift */; };
 		D4BEE7D722AC6261D08D5FFD /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25B6B2818200D3D2F554CF34 /* UniformTypeIdentifiers.framework */; };
 		D8292F7107EA8C98B7C9420F /* ShareCheck.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8464F0A783C38B6FF77038A0 /* ShareCheck.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DB2A33D871C525401F8BF798 /* ScamNet.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = ED88A199A80A9E228D8B362D /* ScamNet.mlmodel */; };
 		DE0B95E66911A4CE77CDB728 /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FABF292FF3560D3714FFB3 /* MessagesViewController.swift */; };
 		E15ACF1CF3D5C03CC2D21A46 /* Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8EDDE520E38DDFCAF7795B /* Features.swift */; };
 		E24B5E34C2766B616553884D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3880F1449DE7286E50DBC971 /* Foundation.framework */; };
+		E4264EB3B438C76FA6F6F019 /* ScamNet.vocab.txt in Resources */ = {isa = PBXBuildFile; fileRef = 3B351B586AEDE4E48EC9E645 /* ScamNet.vocab.txt */; };
 		E7F3F04BAA2D86260740787B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 98258F38DBFCE92106CC73A9 /* Assets.xcassets */; };
 		E8D4CDAF16449FE4C232C498 /* CheckIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B8301F0B448431EB1AFB68 /* CheckIntent.swift */; };
 		EC6D56B1A3CF7D110D406197 /* EngineTables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00E8730011997697DCFBAF71 /* EngineTables.swift */; };
@@ -199,16 +204,17 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = LoopMe/Info.plist; sourceTree = "<group>"; };
 		25B6B2818200D3D2F554CF34 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = DEVELOPER_DIR; };
 		264F377F32143F7867000D84 /* MessagesCheck.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MessagesCheck.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		2DD78DC50CE9ACB4842E9A7C /* ScamFilter.mlmodel */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.mlmodel; path = ScamFilter.mlmodel; sourceTree = "<group>"; };
 		342A00FB96CE89695B5C68A2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		35F6485172735D415D209CC3 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-LoopMe/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		3880F1449DE7286E50DBC971 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		389B4380A6D0BE5521D3E969 /* Engine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Engine.swift; sourceTree = "<group>"; };
+		3B351B586AEDE4E48EC9E645 /* ScamNet.vocab.txt */ = {isa = PBXFileReference; includeInIndex = 1; path = ScamNet.vocab.txt; sourceTree = "<group>"; };
 		42115E1BD3B71773905047FB /* CheckWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CheckWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		49312EEB42FDF8F28BCEFC21 /* CoreModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoreModel.swift; sourceTree = "<group>"; };
 		498CB0075CA0E9FEEAA5ED39 /* Pods-LoopMe.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LoopMe.debug.xcconfig"; path = "Target Support Files/Pods-LoopMe/Pods-LoopMe.debug.xcconfig"; sourceTree = "<group>"; };
 		4B562C1AAA3540A9060ACC35 /* Links.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Links.swift; sourceTree = "<group>"; };
 		4D04B69602AE0096904881CE /* CallKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CallKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/CallKit.framework; sourceTree = DEVELOPER_DIR; };
+		50A57A8E33F6BFD89AFAC63B /* ScamNetRunner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScamNetRunner.swift; path = ../ScamNetRunner.swift; sourceTree = "<group>"; };
 		5491F0CE324E1554B41E5EA2 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/CloudKit.framework; sourceTree = DEVELOPER_DIR; };
 		597E9DA98ACB2784A3827D3D /* CallerID.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CallerID.swift; sourceTree = "<group>"; };
 		5BC43A396AA9E9FBFDDF6130 /* AppIntents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/AppIntents.framework; sourceTree = DEVELOPER_DIR; };
@@ -230,7 +236,6 @@
 		A4D265154FE44392D71A81F4 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Vision.framework; sourceTree = DEVELOPER_DIR; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = LoopMe/SplashScreen.storyboard; sourceTree = "<group>"; };
 		AF4EE409F876664A8A05F080 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/WidgetKit.framework; sourceTree = DEVELOPER_DIR; };
-		B76AA3FEB71AB627E6DE44E9 /* ScamText.mlmodel */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.mlmodel; path = ScamText.mlmodel; sourceTree = "<group>"; };
 		B797DD6CA6B87E34E708590B /* CallDirectoryHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CallDirectoryHandler.swift; sourceTree = "<group>"; };
 		B7F121CD2BAC36E5DF5B7C1D /* LoopMeWatchApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LoopMeWatchApp.swift; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
@@ -242,6 +247,7 @@
 		D9B8301F0B448431EB1AFB68 /* CheckIntent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CheckIntent.swift; path = LoopMe/CheckIntent.swift; sourceTree = "<group>"; };
 		E225C34A5A7CA6D1A7AA0BC9 /* TextFilter.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TextFilter.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		ED88A199A80A9E228D8B362D /* ScamNet.mlmodel */ = {isa = PBXFileReference; includeInIndex = 1; path = ScamNet.mlmodel; sourceTree = "<group>"; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = LoopMe/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* LoopMe-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "LoopMe-Bridging-Header.h"; path = "LoopMe/LoopMe-Bridging-Header.h"; sourceTree = "<group>"; };
 		F287993CA910A0BA96FC21A1 /* IdentityLookup.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IdentityLookup.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/IdentityLookup.framework; sourceTree = DEVELOPER_DIR; };
@@ -392,7 +398,9 @@
 		77C4068D250B0B03037E23AE /* scam-ai */ = {
 			isa = PBXGroup;
 			children = (
-				B76AA3FEB71AB627E6DE44E9 /* ScamText.mlmodel */,
+				ED88A199A80A9E228D8B362D /* ScamNet.mlmodel */,
+				3B351B586AEDE4E48EC9E645 /* ScamNet.vocab.txt */,
+				50A57A8E33F6BFD89AFAC63B /* ScamNetRunner.swift */,
 			);
 			name = "scam-ai";
 			path = "../modules/scam-ai/ios/Resources";
@@ -455,7 +463,6 @@
 				8E5E20DE30DBF5658A97F933 /* Redact.swift */,
 				7425BA7C6F3DEEAC8357EDA8 /* engine.json */,
 				49312EEB42FDF8F28BCEFC21 /* CoreModel.swift */,
-				2DD78DC50CE9ACB4842E9A7C /* ScamFilter.mlmodel */,
 			);
 			path = Engine;
 			sourceTree = "<group>";
@@ -787,6 +794,7 @@
 				A75276FC27EF97C9F46C58F6 /* engine.json in Resources */,
 				2DB0382E52179861D722081C /* Assets.xcassets in Resources */,
 				348E5B0B3FBF497C77E76C64 /* loopme-icon.png in Resources */,
+				5AE1EDC91FA9E0BCAC89B5F9 /* ScamNet.vocab.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -795,6 +803,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				20A70092BEE5A2CB175EB574 /* engine.json in Resources */,
+				3035BAA84B5AF49DF7ABD8F1 /* ScamNet.vocab.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -811,6 +820,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5FFE864ACB26EBC91345C2A0 /* engine.json in Resources */,
+				E4264EB3B438C76FA6F6F019 /* ScamNet.vocab.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -918,8 +928,9 @@
 				"${PODS_CONFIGURATION_BUILD_DIR}/RNSVG/RNSVGFilters.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/React-Core_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-cxxreact/React-cxxreact_privacy.bundle",
-				"${PODS_ROOT}/../../modules/scam-ai/ios/Resources/ScamFilter.mlmodel",
-				"${PODS_ROOT}/../../modules/scam-ai/ios/Resources/ScamText.mlmodel",
+				"${PODS_ROOT}/../../modules/scam-ai/ios/Resources/ScamNet.mlmodel",
+				"${PODS_ROOT}/../../modules/scam-ai/ios/Resources/ScamNet.vocab.txt",
+				"${PODS_ROOT}/../../modules/scam-ai/ios/Resources/swift_scores.csv",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
@@ -932,8 +943,9 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RNSVGFilters.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-Core_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-cxxreact_privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ScamFilter.mlmodel",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ScamText.mlmodel",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ScamNet.mlmodel",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ScamNet.vocab.txt",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/swift_scores.csv",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -966,9 +978,9 @@
 				9EBB398A9E15FABADE7A514E /* Normalize.swift in Sources */,
 				6FC74F49356DA91A89988A43 /* Redact.swift in Sources */,
 				9AE390376E3A68143BA9E3E9 /* SharedStore.swift in Sources */,
-				876C68FB4DF275560B2D11B7 /* ScamText.mlmodel in Sources */,
 				2B403FB3E58A322FB3643A09 /* ExtensionCloud.swift in Sources */,
-				68FCBF5A8683A5CB84D0987F /* ScamFilter.mlmodel in Sources */,
+				24446C5699C10A3B31CE52B9 /* ScamNet.mlmodel in Sources */,
+				77C8E6D724B4F63D4CE95A9D /* ScamNetRunner.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1010,8 +1022,8 @@
 				C2537CAFF147A3EE134E529A /* Redact.swift in Sources */,
 				0FCD1BCEB49F519FED6A51CF /* SharedStore.swift in Sources */,
 				4D116B87D01D06B207F93C9C /* CoreModel.swift in Sources */,
-				A5286901C25156D4ED133459 /* ScamText.mlmodel in Sources */,
-				634D856FD92C4B8FEAC7440A /* ScamFilter.mlmodel in Sources */,
+				DB2A33D871C525401F8BF798 /* ScamNet.mlmodel in Sources */,
+				55AE689DD6D44B3874CAE01A /* ScamNetRunner.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1028,6 +1040,7 @@
 				39E63B7C4EA07B55DFE2807F /* Redact.swift in Sources */,
 				05BA01DBBE0888A3DE62E4D0 /* SharedStore.swift in Sources */,
 				6515549980DA10932E89B689 /* CoreModel.swift in Sources */,
+				B8C75BC3D151548D0884D96A /* ScamNetRunner.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1044,7 +1057,8 @@
 				4AEB60AE0802914E84CBD35B /* Redact.swift in Sources */,
 				96180CD5B36FBC0D31F12A64 /* SharedStore.swift in Sources */,
 				2BB01F7EF2684036CAFA3955 /* CoreModel.swift in Sources */,
-				4E9621969F662760A3C2C6E6 /* ScamFilter.mlmodel in Sources */,
+				7B9676BAEFDC140187293F3E /* ScamNet.mlmodel in Sources */,
+				D2BCEF18824C5E549CEB3259 /* ScamNetRunner.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

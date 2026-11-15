@@ -1,0 +1,773 @@
+text,label,source,p
+"Ms Chen from the Inland Revenue here. Our records show a discrepancy in your filing. I would advise you not to discuss it while the investigation is open.",scam,bench_dev,0.9990
+"Nan!! Locked out of my accounts and mum's not picking up. Can you send something to tide me over till Friday?",scam,bench_dev,0.0049
+"Your policy is set to auto-renew at a higher rate. To lock in the old price, confirm your card details on the portal before Friday.",scam,bench_dev,0.9795
+"Hello, this is the technical department. We are seeing your router broadcasting on an insecure channel. I can fix it remotely if you let me on.",scam,bench_dev,0.9990
+"Congratulations, your number was picked in our customer draw. To release the funds we just need the small transfer levy cleared first.",scam,bench_dev,0.9990
+"I run a small crypto desk and my client list is closed, but a mutual friend spoke highly of you. Minimum entry is modest and returns are steady.",scam,bench_dev,0.5820
+"Delivery attempted. Reschedule required. A handling amount of 1.79 is outstanding before we can release the item.",scam,bench_dev,0.9990
+"This is a courtesy call regarding suspicious use of your national insurance number. Do not discuss this call with anyone until we verify you.",scam,bench_dev,0.9980
+"Hi, sorry to bother — it's me from number 42. Had a bit of an emergency and I'm short. Could you help and I'll drop it back tomorrow?",scam,bench_dev,0.9990
+"Your account will be closed for inactivity unless you log in through the secure portal today.",scam,bench_dev,0.9990
+"We can help you claw back what you lost in that investment. Our success fee is only payable up front.",scam,bench_dev,0.9463
+"Hola, soy del banco. Hemos detectado un cargo sospechoso. No cuelgue y confirme sus datos por favor.",scam,bench_dev,0.2686
+"Good afternoon, I'm calling from the fraud prevention unit. Before we proceed can you confirm the long number on your card so I can verify you.",scam,bench_dev,0.9990
+"Your grandson has been in an accident and needs representation. I am his solicitor. He asked me not to alarm his parents.",scam,bench_dev,0.9814
+"Payment could not be processed for your recent order. Update your billing details within 12 hours or the order will be cancelled.",scam,bench_dev,0.9990
+"We are conducting a routine audit of pension holdings. To confirm your entitlement please provide your policy and date of birth.",scam,bench_dev,0.9990
+"You have been overcharged on your energy bill for 3 years. To process your refund we need your account and sort code.",scam,bench_dev,0.9990
+"Hi love, it's me. Phone's playing up so using this one. Are you free? Bit of a situation and I didn't want to worry you.",scam,bench_dev,0.9990
+"Our records indicate your warranty coverage has lapsed. Press one now to be connected with a coverage specialist.",scam,bench_dev,0.9990
+"Your parcel is being held by customs. Import duty of 2.99 must be settled within 48 hours or the item will be returned.",scam,bench_dev,0.9990
+"This is an automated message. Unusual activity was detected. Press 1 to speak with a security officer immediately.",scam,bench_dev,0.9990
+"I saw your listing and I'd like to buy it. My courier will collect. I'll send extra to cover his fee, just forward that part on to him.",scam,bench_dev,0.9980
+"URGENT: your child has been involved in an incident at school. Call this number immediately for details.",scam,bench_dev,0.9990
+"Bonjour, votre compte sera bloque aujourd'hui. Confirmez vos informations sans tarder.",scam,bench_dev,0.0088
+"Following the data breach we are issuing compensation. Confirm your identity and bank details to receive your payment.",scam,bench_dev,0.9990
+"Ms Chen from the surgery here — your repeat prescription is ready whenever you want to pop in.",safe,bench_dev,0.0000
+"Nan!! Just got my exam results and I passed everything!! Ringing you tonight xx",safe,bench_dev,0.0000
+"Your policy auto-renews next month at the same rate. Nothing to do, but the documents are in your account.",safe,bench_dev,0.0000
+"Hello, it's the engineer about your broadband appointment tomorrow — I should be with you between 9 and 11.",safe,bench_dev,0.0010
+"Congratulations on the new job! We're all so pleased for you. Drinks on Friday to celebrate?",safe,bench_dev,0.0010
+"I run a small pottery class on Tuesdays and there's a space free if you fancy it. No pressure!",safe,bench_dev,0.0000
+"Delivery attempted today but nobody was home. We've left it in the porch as agreed. No charge.",safe,bench_dev,0.0000
+"This is a courtesy call from the dentist about your check-up next Thursday. Ring us if that no longer suits.",safe,bench_dev,0.0010
+"Hi, it's me from number 42 — took in a parcel for you, pop round any time this evening.",safe,bench_dev,0.0010
+"Your account has been inactive for a while. If you'd like to keep it, just sign in through the app when convenient.",safe,bench_dev,0.0010
+"We got your complaint about the investment charges and have escalated it. No fee for this, we'll update you within 10 days.",safe,bench_dev,0.0010
+"Hola, soy Marta del club de lectura. La reunion es el jueves a las seis. Hasta pronto!",safe,bench_dev,0.0000
+"Good afternoon, this is the bank calling about your appointment on Tuesday. Nothing urgent, just confirming the time.",safe,bench_dev,0.0000
+"Your grandson called the house phone earlier — he's fine, just wanted a chat. Ring him back when you can.",safe,bench_dev,0.0010
+"Payment received, thank you. Your order is being packed and will ship tomorrow.",safe,bench_dev,0.0010
+"We're conducting our annual member survey. It takes 3 minutes and is completely optional.",safe,bench_dev,0.0010
+"You've been overcharged on last month's bill. We've already credited your account, nothing for you to do.",safe,bench_dev,0.0010
+"Hi love, it's me. Running late from work, don't wait for dinner. See you about eight x",safe,bench_dev,0.0918
+"Our records show your warranty covers this repair in full. Book a visit whenever suits you.",safe,bench_dev,0.0010
+"Your parcel cleared customs and is out for delivery today. No charges outstanding.",safe,bench_dev,0.0000
+"This is an automated reminder that your library books are due back on Friday.",safe,bench_dev,0.0010
+"I saw your listing and I'd like to buy it. Could I collect on Saturday morning and pay you then?",safe,bench_dev,0.0010
+"Message from school: sports day is moved to Thursday due to the weather. No action needed.",safe,bench_dev,0.0000
+"Bonjour, votre commande est prete a etre retiree en magasin. Merci beaucoup!",safe,bench_dev,0.0010
+"Following the outage last week we've applied a credit to your account. It'll show on your next bill.",safe,bench_dev,0.0010
+"Afternoon. I'm from the council tax office. Our system shows an underpayment going back two years and I need to resolve it with you today.",scam,bench_holdout,0.9990
+"Grandad it's Jamie. I've had a bump in the car and the other driver wants cash to not report it. Please don't say anything to dad.",scam,bench_holdout,0.0625
+"Your streaming plan could not be renewed. Re-enter your payment information to avoid losing your watchlist.",scam,bench_holdout,0.9990
+"This is the helpdesk. We've had an alert from your machine. If you can get to a computer I'll walk you through securing it.",scam,bench_holdout,0.9844
+"You have an unclaimed rebate of 340 from the energy price cap. Verify your details to have it paid into your account.",scam,bench_holdout,0.9990
+"A friend mentioned you might be interested. I've been putting money into a managed fund and the monthly returns have been consistent.",scam,bench_holdout,0.9932
+"Item held at depot. Small fee outstanding for storage before release can be arranged.",scam,bench_holdout,0.9980
+"We're ringing about irregular activity on your utility account. Please don't end the call while I transfer you to the fraud team.",scam,bench_holdout,0.9971
+"Hiya, it's next door's daughter. Mum's had a fall and I've had to rush out without my purse. Any chance you could help?",scam,bench_holdout,0.9932
+"Dormant account notice: sign in via the link provided to prevent permanent closure of your savings.",scam,bench_holdout,0.9990
+"Our firm specialises in recovering funds lost to fraudulent schemes. An initial administration charge applies.",scam,bench_holdout,0.9863
+"Buenos dias, hay un problema con su cuenta. Necesitamos que confirme su numero de tarjeta ahora mismo.",scam,bench_holdout,0.9990
+"Calling from the card protection team — to confirm I'm talking to the right person, could you read me the three digits on the back?",scam,bench_holdout,0.8828
+"I represent your nephew in a legal matter. He's asked that his mother not be told while bail is arranged.",scam,bench_holdout,0.9990
+"Order on hold. Confirm your card within 6 hours or we will release the item to another customer.",scam,bench_holdout,0.9990
+"Pension review: to confirm your entitlement we need your policy number and national insurance number.",scam,bench_holdout,0.9980
+"Our audit found you were charged incorrectly. To return the money we'll need your account number and sort code.",scam,bench_holdout,0.9990
+"It's me darling, different phone, mine's in for repair. Are you around? Something's come up and I can't ring.",scam,bench_holdout,0.9990
+"Your cover is about to end. Press two now to be transferred to a renewals advisor before your policy lapses.",scam,bench_holdout,0.9990
+"Package detained pending duty payment of 3.49. Settle within 24 hours to avoid it being returned to sender.",scam,bench_holdout,0.9990
+"Automated security notice. Irregular sign-in detected. Press 1 immediately to lock your account.",scam,bench_holdout,0.9990
+"I'd like to purchase the item. My shipping agent will collect — I'll add his fee to the payment, please pass it to him on arrival.",scam,bench_holdout,0.9990
+"This is the school office. There has been an incident involving your grandchild. Please ring back on this number urgently.",scam,bench_holdout,0.9990
+"Guten Tag, Ihr Konto wird heute gesperrt. Bitte bestatigen Sie sofort Ihre Daten.",scam,bench_holdout,0.0010
+"As a result of the recent breach you are entitled to compensation. Confirm your identity and bank details to proceed.",scam,bench_holdout,0.9990
+"Afternoon — it's the council about your garden waste collection. It moves to Wednesdays from next month.",safe,bench_holdout,0.0010
+"Grandad it's Jamie. Passed my driving test first time!! Coming round Sunday to show you the car.",safe,bench_holdout,0.0010
+"Your streaming plan renews on the 8th at the usual price. Manage it any time in settings.",safe,bench_holdout,0.0000
+"This is the helpdesk following up on the ticket you raised. It's resolved — no action needed at your end.",safe,bench_holdout,0.0010
+"You're due a rebate of 340 from the energy price cap. It'll be credited automatically next month.",safe,bench_holdout,0.0049
+"A friend mentioned you might be interested — we've got a spare seat in the walking group on Saturdays.",safe,bench_holdout,0.0010
+"Item is at the depot ready for collection. Open until 5, no fee.",safe,bench_holdout,0.0000
+"We're ringing about the direct debit you set up. It's all gone through fine, just confirming for your records.",safe,bench_holdout,0.0039
+"Hiya, it's next door's daughter. Mum's had a fall but she's OK — just letting you know in case you heard the ambulance.",safe,bench_holdout,0.0195
+"Your account has been dormant a while. Nothing will happen to it, but do sign in if you'd like to keep it active.",safe,bench_holdout,0.0010
+"Our firm has completed the conveyancing. The final statement is enclosed and there's nothing further to pay.",safe,bench_holdout,0.0010
+"Buenos dias, su pedido esta listo para recoger en la tienda. Muchas gracias!",safe,bench_holdout,0.0039
+"Calling from the card team — your replacement card was posted yesterday and should arrive Thursday.",safe,bench_holdout,0.0000
+"I represent the estate and can confirm probate has completed. No action needed from you at this stage.",safe,bench_holdout,0.0068
+"Order confirmed. We'll email tracking as soon as it leaves the warehouse.",safe,bench_holdout,0.0010
+"Pension statement: your annual summary is now available to view in your online account.",safe,bench_holdout,0.0000
+"Our audit found you were charged incorrectly last year. A refund has been issued to your original payment method.",safe,bench_holdout,0.7227
+"It's me darling — got the tickets for Saturday. Shall I pick you up at six?",safe,bench_holdout,0.0000
+"Your cover renews automatically on the 30th at the same premium. Documents are in your account.",safe,bench_holdout,0.0000
+"Package cleared customs with no charges and is scheduled for delivery tomorrow.",safe,bench_holdout,0.0010
+"Automated reminder: your car is booked in for a service on Tuesday at 9am.",safe,bench_holdout,0.0000
+"I'd like to purchase the item if it's still available. Happy to collect and pay cash on the day.",safe,bench_holdout,0.8896
+"Message from the school office: parents evening bookings are now open on the portal.",safe,bench_holdout,0.0000
+"Guten Tag, Ihre Bestellung wurde versandt und kommt morgen an. Vielen Dank!",safe,bench_holdout,0.0010
+"Following the outage we've credited your account automatically. It'll appear on your next statement.",safe,bench_holdout,0.0020
+"Good morning, I'm calling from the pensions advisory service. There's an issue with your entitlement that we need to sort out before the deadline passes.",scam,bench_final,0.9990
+"Mum, the landlord's threatening to change the locks. I know it's a lot to ask but could you help me out until my wages land?",scam,bench_final,0.9990
+"Notification: your cloud storage is full and your photos will be deleted in 48 hours unless you upgrade using the secure form.",scam,bench_final,0.9990
+"Hello, we're calling about the accident you had that wasn't your fault. We can start your claim today, I just need a few details.",scam,bench_final,0.9990
+"You have been pre-approved for a loan of 5,000 at a fixed rate. To release the funds we require the arrangement fee up front.",scam,bench_final,0.9990
+"Sir, this is the anti-fraud bureau. Your identity has been used in a criminal matter. Remain on the line while I connect you to an officer.",scam,bench_final,0.9990
+"Your TV licence could not be renewed as the details we hold are out of date. Update them now to avoid a penalty.",scam,bench_final,0.9990
+"Hi! Sorry to message out of the blue. I got your number from the group. I've been trading forex and thought of you.",scam,bench_final,0.9961
+"The item is reserved for you but we need a deposit today to hold it, otherwise it goes to the next person on the list.",scam,bench_final,0.0352
+"This is a final notice from the debt recovery team regarding monies owed. Contact us today to avoid enforcement.",scam,bench_final,0.9990
+"Grandad, I'm so sorry, I've got myself into trouble and I can't tell mum and dad. Is there any way you could send me something?",scam,bench_final,0.9971
+"We are upgrading our systems. To keep your account active please re-register your card details through the link below.",scam,bench_final,0.9990
+"Hello, your computer's licence key has expired. Ring this number and a technician will renew it for you remotely.",scam,bench_final,0.9990
+"Attention: a payment of 749.00 to a foreign merchant is pending on your card. If you did not make this, call us on the number below.",scam,bench_final,0.9990
+"Bonjour, un colis vous attend. Des frais de livraison de 2,30 euros restent a regler avant expedition.",scam,bench_final,0.9990
+"I've been asked to contact you about compensation owed for mis-sold insurance. There is a small processing fee to release it.",scam,bench_final,0.9990
+"Your booking could not be confirmed as the card was declined. Re-enter your details within the hour or the room will be released.",scam,bench_final,0.9980
+"It's your grandson. I'm at the police station and they'll only release me if the fine is paid today. Please don't tell mum.",scam,bench_final,0.9990
+"Security alert: someone in another country is trying to access your account. Confirm your password to stop them.",scam,bench_final,0.9990
+"We tried to deliver your prescription but nobody was in. A small redelivery charge is payable before we can try again.",scam,bench_final,0.9990
+"Good morning, it's the pensions team — your annual statement has been posted and should reach you this week.",safe,bench_final,0.0010
+"Mum, the landlord finally fixed the boiler! Hot water at last. Coming over Sunday if you're about.",safe,bench_final,0.0010
+"Your cloud storage is nearly full. You can free up space or upgrade any time in settings — nothing will be deleted.",safe,bench_final,0.0010
+"Hello, we're calling to confirm your car is booked in for its service on Thursday. Nothing needed from you before then.",safe,bench_final,0.0000
+"You've been pre-approved for a higher limit. There's no charge and no obligation — details are in your online account.",safe,bench_final,0.0010
+"Sir, your order is ready for collection at the trade counter whenever suits you this week.",safe,bench_final,0.0000
+"Your TV licence renews automatically next month. The details we hold are up to date, so there's nothing to do.",safe,bench_final,0.0000
+"Hi! Sorry to message out of the blue — I got your number from the walking group. Are you going on Saturday?",safe,bench_final,0.0010
+"The item is reserved under your name until Friday. No deposit needed, just come in when you can.",safe,bench_final,0.0000
+"This is a reminder from the library that two books are overdue. No fine, just bring them back when you're passing.",safe,bench_final,0.0127
+"Grandad, I passed my exams!! Coming over at the weekend to tell you all about it. Love you.",safe,bench_final,0.0000
+"We're upgrading our systems on Sunday night. The app may be unavailable for a few hours — no action needed.",safe,bench_final,0.0000
+"Hello, your software licence renews automatically on the 14th. The receipt will be emailed to you.",safe,bench_final,0.0010
+"A payment of 749.00 to Wickes was authorised on your card ending 4417. View it in the app.",safe,bench_final,0.0000
+"Bonjour, votre colis a ete livre et depose chez le gardien. Bonne journee!",safe,bench_final,0.0010
+"We've reviewed your insurance complaint and upheld it. Your compensation will be paid automatically, with no fee.",safe,bench_final,0.0010
+"Your booking is confirmed. The card was charged as expected and the confirmation is in your inbox.",safe,bench_final,0.0010
+"It's your grandson — got the internship! Ring you tonight to tell you about it properly.",safe,bench_final,0.0010
+"Security notice: we've added extra protection to your account. You don't need to do anything.",safe,bench_final,0.0000
+"We tried to deliver your prescription but nobody was in. It's back at the pharmacy for collection, no charge.",safe,bench_final,0.0010
+"This is your bank's security team. We're sending a courier to collect your card for safe destruction. Please cut it in half and hand it over.",scam,bench_fresh4,0.9990
+"I have two tickets for Saturday going cheap as I can't make it. Bank transfer only I'm afraid, first come first served.",scam,bench_fresh4,0.0059
+"Congratulations on the role! Before we finalise, please send a scan of your passport and your bank details for payroll.",scam,bench_fresh4,0.9990
+"We noticed your property qualifies for a government green grant. The surveyor is in your area today and the discount ends tonight.",scam,bench_fresh4,0.9990
+"Your relative has arranged a medical alert pendant for you. We just need to confirm the monthly payment details to activate it.",scam,bench_fresh4,0.9990
+"The flat is still available. To secure the viewing slot please transfer the holding deposit today, plenty of interest on this one.",scam,bench_fresh4,0.9990
+"This is the water board. We need access to check contamination in your area. Our operative will call round shortly.",scam,bench_fresh4,0.9990
+"Alert: a SIM swap request was made on your number. If this wasn't you, reply STOP and confirm the last four digits of your account.",scam,bench_fresh4,0.8018
+"Your father's care home fees are overdue and his place is at risk. Payment must be made today to avoid discharge.",scam,bench_fresh4,0.9990
+"We're collecting for the local children's hospice. Card payment over the phone is easiest, or a bank transfer if you prefer.",scam,bench_fresh4,0.0088
+"You were overpaid benefits three years ago. The sum must be repaid this week or it will be passed to enforcement.",scam,bench_fresh4,0.9990
+"Free trial ends tonight. If you don't want to be charged 89.99 monthly, confirm your card so we can cancel it.",scam,bench_fresh4,0.9844
+"I'm the new bookkeeper. The supplier bank details have changed, please use the new account for the invoice due today.",scam,bench_fresh4,0.9834
+"Voice message from your son. He sounds distressed and mentions an accident. Press 1 to hear the full message.",scam,bench_fresh4,0.9990
+"The vehicle is exactly as described. I'll hold it for you with a 500 deposit, my brother handles the paperwork.",scam,bench_fresh4,0.0029
+"Your pet insurance lapsed last month. Reconfirm your card now or the policy cannot be reinstated.",scam,bench_fresh4,0.9990
+"Following the death of your uncle abroad, you are named beneficiary. Legal costs must be cleared before funds transfer.",scam,bench_fresh4,0.9990
+"We are the roofing team who did next door. We noticed slipped tiles on yours, we can sort it now for cash.",scam,bench_fresh4,0.9961
+"Buenas tardes, somos del servicio tecnico. Su linea sera cortada hoy si no confirma sus datos bancarios.",scam,bench_fresh4,0.2900
+"Your energy meter needs an urgent safety check. Confirm your account number and we'll book the engineer.",scam,bench_fresh4,0.9990
+"This is your bank's security team confirming we've blocked the suspicious payment. Your card still works as normal.",safe,bench_fresh4,0.0010
+"I have two spare tickets for Saturday if anyone wants them — free to a good home, just let me know!",safe,bench_fresh4,0.0010
+"Congratulations on the role! HR will email the onboarding pack on Monday through the usual secure portal.",safe,bench_fresh4,0.0010
+"Your property may qualify for the government green grant. Details are on the council website — no rush, the scheme runs all year.",safe,bench_fresh4,0.0010
+"Your relative asked us to let you know the medical alert pendant has arrived and is already paid for.",safe,bench_fresh4,0.0010
+"The flat is still available. Viewings are Saturday between 10 and 2, just turn up, nothing to pay beforehand.",safe,bench_fresh4,0.0000
+"This is the water board. Works on your street start Monday and water may be off between 9 and 3. No access needed.",safe,bench_fresh4,0.0000
+"Alert: a SIM swap request was made on your number. If this wasn't you, ring us on the number on your statement.",safe,bench_fresh4,0.0010
+"Your father's care home has sent this month's invoice to your email as usual. It's due at the end of the month.",safe,bench_fresh4,0.0000
+"Thank you for collecting for the children's hospice last year. The tin is ready whenever you can pop in.",safe,bench_fresh4,0.0000
+"You were overpaid benefits three years ago. It has already been written off, nothing is owed and no action is needed.",safe,bench_fresh4,0.0713
+"Your free trial ends tonight and will convert to the paid plan. Cancel any time in the app if you'd rather not continue.",safe,bench_fresh4,0.0010
+"I'm the new bookkeeper — just introducing myself. Nothing needed from you, the payment run is unchanged.",safe,bench_fresh4,0.0010
+"You have a voicemail from your son. Listen in the app or ring your voicemail as usual.",safe,bench_fresh4,0.0000
+"The vehicle is exactly as described. Happy for you to come and view it, and pay however suits when you're satisfied.",safe,bench_fresh4,0.0010
+"Your pet insurance renews next month at the same premium. The documents are in your account.",safe,bench_fresh4,0.0000
+"Following your uncle's death, the solicitor will write to you directly. There is nothing to pay at this stage.",safe,bench_fresh4,0.0010
+"We're the roofing team who did next door. We've posted a card through if you ever want a free quote, no obligation.",safe,bench_fresh4,0.0010
+"Buenas tardes, su cita para la revision es el jueves a las diez. No hace falta hacer nada mas.",safe,bench_fresh4,0.0000
+"Your energy meter reading is due. Submit it in the app or reply with the numbers when convenient.",safe,bench_fresh4,0.0000
+"Our legal team can release you from your timeshare obligations. The court application fee is payable before we can lodge it.",scam,bench_fresh5,0.9990
+"Enforcement agent attending your address tomorrow regarding an unpaid liability. Settle now to prevent removal of goods.",scam,bench_fresh5,0.9990
+"You can access your pension before 55 through a legitimate loophole. Transfer to our scheme and we handle the paperwork.",scam,bench_fresh5,0.9990
+"My darling, I'm being held at customs over the gift I sent you. They want a clearance charge and my cards are frozen here.",scam,bench_fresh5,0.9990
+"It's the boss. I'm in back-to-back meetings. Need you to buy gift cards for the client thank-yous and send me the codes.",scam,bench_fresh5,0.9990
+"School trip payment failed. Please re-send via bank transfer today or your grandchild's place will be given away.",scam,bench_fresh5,0.9990
+"You're paying too much for energy. I can switch you now over the phone, I just need your meter number and bank details.",scam,bench_fresh5,0.9990
+"We collect clothing for the children's charity. Leave bags out Thursday, and any cash donations in the envelope provided.",scam,bench_fresh5,0.0010
+"Our syndicate has won on 9 of the last 12 draws. A one-off buy-in secures your share of the next jackpot.",scam,bench_fresh5,0.9990
+"Your banking app must be updated to meet new regulations. Install the update from the link to keep access.",scam,bench_fresh5,0.9990
+"Unpaid parking charge notice. The amount doubles at midnight. Pay now to avoid court action.",scam,bench_fresh5,0.9990
+"Your trial of the joint supplement is ending. We'll continue the monthly shipment at 79.99 unless you call to confirm cancellation.",scam,bench_fresh5,0.0020
+"This is the police. Your card is being used by staff at your branch. Don't tell them — withdraw the cash and we'll collect it as evidence.",scam,bench_fresh5,0.9941
+"Our driver couldn't reach you so your neighbour paid the customs charge. Please reimburse them via the link.",scam,bench_fresh5,0.9990
+"You've been entered into the grand prize draw. A small entry confirmation fee applies before the draw closes.",scam,bench_fresh5,0.9990
+"Position confirmed pending certification. The training module costs 149 and is refunded with your first pay packet.",scam,bench_fresh5,0.0869
+"Council tax rebate approved for your band. Provide your account details and we'll process the refund today.",scam,bench_fresh5,0.9990
+"As your appointed carer I'll need access to the account to manage the bills. It's simpler if you add me as a signatory.",scam,bench_fresh5,0.0020
+"Ihr Paket konnte nicht zugestellt werden. Zahlen Sie die Gebuehr von 2,99 Euro ueber den Link.",scam,bench_fresh5,0.9990
+"Your broadband will be disconnected within the hour for non-payment. Press 1 now to settle by card.",scam,bench_fresh5,0.9990
+"Our legal team has completed the timeshare transfer. Everything is settled and there is nothing further to pay.",safe,bench_fresh5,0.0010
+"The council has confirmed your liability was cleared last month. No further action and no agent will attend.",safe,bench_fresh5,0.0010
+"Your pension statement shows you can take benefits from 57. Speak to Pension Wise for free impartial guidance.",safe,bench_fresh5,0.0117
+"My darling, the parcel arrived safely and it's beautiful. Thank you, I'll ring you at the weekend.",safe,bench_fresh5,0.0010
+"It's the boss — great work this week. Nothing needed from you, just wanted to say thanks before the weekend.",safe,bench_fresh5,0.0000
+"School trip payment received, thank you. Your grandchild's place is confirmed and the kit list is attached.",safe,bench_fresh5,0.0010
+"Your energy tariff is ending. Compare options on the regulator's website or ring us on the number on your bill.",safe,bench_fresh5,0.0146
+"Thank you for the clothing donation last month. The shop raised over 200 from your bags.",safe,bench_fresh5,0.0029
+"The lottery syndicate at work is up to 12 members. Same as always, no extra buy-in, I'll email the numbers.",safe,bench_fresh5,0.0010
+"We've updated the banking app. Update it from the App Store as usual when you get a moment.",safe,bench_fresh5,0.0000
+"Parking permit renewal is due. Renew online at the council website any time before the end of the month.",safe,bench_fresh5,0.0010
+"Your supplement trial ends Friday and will not renew. If you'd like to continue, order any time from the shop.",safe,bench_fresh5,0.0000
+"This is the police station front desk returning your call about the lost property. It's here whenever you want it.",safe,bench_fresh5,0.0000
+"Our driver left your parcel with your neighbour at number 12. Nothing to pay, they've signed for it.",safe,bench_fresh5,0.0000
+"You've been entered into the members' prize draw. Free to enter, drawn on the 30th, no purchase needed.",safe,bench_fresh5,0.0010
+"Position confirmed. Training is provided on site and paid, starting Monday at 9. Bring photo ID.",safe,bench_fresh5,0.0000
+"Council tax rebate approved for your band. It will be credited to the account your direct debit comes from.",safe,bench_fresh5,0.0010
+"As your appointed carer I'll pop in Tuesday. The bills are all on direct debit so nothing needs doing.",safe,bench_fresh5,0.0000
+"Ihre Bestellung wurde zugestellt und beim Nachbarn abgegeben. Vielen Dank!",safe,bench_fresh5,0.0010
+"Your broadband bill is due on the 12th and will be taken by direct debit as usual.",safe,bench_fresh5,0.0000
+"HMRC: you are due a tax refund of 284.60. Download our app and sign in to claim it before the deadline.",scam,bench_fresh6,0.0811
+"I'm the landlord but I'm working abroad at the moment. Send the first month and I'll post the keys out to you.",scam,bench_fresh6,0.2324
+"WARNING: your device is infected with 3 viruses. Do not restart. Call our certified technicians on the number shown.",scam,bench_fresh6,0.9951
+"Hi, I'm the new admin for the family group. Verify your number by sending me the six digit code you'll receive.",scam,bench_fresh6,0.9990
+"Sponsor me for the marathon! Just transfer to my personal account and I'll pass it all to the charity.",scam,bench_fresh6,0.8154
+"Green energy bonds paying 8.4% fixed, capital protected, FSCS covered. Limited allocation remaining this quarter.",scam,bench_fresh6,0.7471
+"We can beat your current insurance quote by 40%. I just need your policy number and card to secure the price today.",scam,bench_fresh6,0.9990
+"Your solar panels are due their compulsory five year service. Failure to book invalidates your warranty.",scam,bench_fresh6,0.9971
+"The council is surveying homes for the insulation grant. Confirm ownership and your date of birth and we'll book you in.",scam,bench_fresh6,0.9951
+"Short term advance approved, no credit check. The security deposit is returned with your first repayment.",scam,bench_fresh6,0.0186
+"Amazon: your account was accessed from a device in Lagos. If this wasn't you, verify your identity on the link now.",scam,bench_fresh6,0.9990
+"Copyright infringement detected on your account. Pay the settlement fee within 72 hours or legal proceedings begin.",scam,bench_fresh6,0.9990
+"Your NHS appointment requires a booking fee of 12.50 to be confirmed. Pay online to keep your slot.",scam,bench_fresh6,0.9990
+"Have you considered a prepaid funeral plan? We can lock today's price if you set up the direct debit on this call.",scam,bench_fresh6,0.9990
+"Your will is not legally valid under the new rules. Our specialist can rewrite it, the fee is payable up front.",scam,bench_fresh6,0.9912
+"You could release 60,000 tax free from your home. No repayments ever. Reply YES for a callback from an adviser.",scam,bench_fresh6,0.9951
+"We were working on the drains next door and noticed yours are collapsing. We can excavate today, cash price.",scam,bench_fresh6,0.9980
+"Our error: we refunded you twice. Please return the duplicate 480 by bank transfer to the account below.",scam,bench_fresh6,0.9990
+"Elon is doubling every coin sent to the giveaway address for the next hour. Send 0.1 and receive 0.2 back.",scam,bench_fresh6,0.9990
+"Votre facture est impayee. Reglez sous 24 heures ou votre ligne sera suspendue.",scam,bench_fresh6,0.9990
+"HMRC: you are due a tax refund of 284.60. It will be paid to your bank account automatically within 10 working days.",safe,bench_fresh6,0.0000
+"I'm the landlord — happy to show you round Saturday. No money needed until the paperwork is signed.",safe,bench_fresh6,0.0010
+"Your antivirus scan finished and found no problems. Next scan is scheduled for Sunday.",safe,bench_fresh6,0.0000
+"Hi, I'm the new admin for the family group — just adding everyone's birthdays to the calendar, nothing needed from you.",safe,bench_fresh6,0.0068
+"Sponsor me for the marathon! Here's my page on the charity's own fundraising site, every penny goes to them.",safe,bench_fresh6,0.0010
+"Your savings account rate is changing to 4.1% from the 1st. No action needed, details in your online banking.",safe,bench_fresh6,0.0010
+"Your insurance renewal quote is attached. Shop around if you like — you have until the 20th to decide.",safe,bench_fresh6,0.0000
+"Your solar panels are due their optional five year check. It's up to you, and your warranty is unaffected.",safe,bench_fresh6,0.0010
+"The council is surveying homes for the insulation grant. Details and eligibility are on the council website.",safe,bench_fresh6,0.0010
+"Your loan application was approved. There are no upfront fees and the first repayment is on the 1st.",safe,bench_fresh6,0.0010
+"Amazon: your account was accessed from a new device. If this was you, no action is needed.",safe,bench_fresh6,0.0000
+"Your photo licence has been renewed for another 10 years. The certificate is in your account.",safe,bench_fresh6,0.0000
+"Your NHS appointment is confirmed for Tuesday at 10:20. There is no charge, just bring your medication list.",safe,bench_fresh6,0.0000
+"Thanks for enquiring about funeral plans. The brochure is in the post, and there's no obligation at all.",safe,bench_fresh6,0.0000
+"Your will has been filed with us and remains valid. We'll write if the rules ever change.",safe,bench_fresh6,0.0010
+"Your mortgage statement is ready. The balance and remaining term are in your online account.",safe,bench_fresh6,0.0000
+"We were working on the drains next door — we've posted a card through in case you ever need us. No rush.",safe,bench_fresh6,0.0010
+"We refunded you twice by mistake. We've corrected it at our end, nothing needed from you.",safe,bench_fresh6,0.0010
+"The crypto exchange has completed your withdrawal. It should appear in your wallet shortly.",safe,bench_fresh6,0.7344
+"Votre facture de ce mois est disponible dans votre espace client. Prelevement le 5 comme d'habitude.",safe,bench_fresh6,0.0010
+"Your plot at Rosewood Memorial is behind on perpetual-care dues. Settle 84.00 before the spring mowing or the marker will be lifted.",scam,bench_wild,0.1016
+"Shoreline HOA: drone survey found an unapproved shed roof pitch on your lot. Fine accrues daily until the variance fee is paid at the portal.",scam,bench_wild,0.9814
+"Your storage unit at Bay 14 goes to lien auction Thursday. Wire the arrears today and we will pull it from the catalogue.",scam,bench_wild,0.0244
+"County Water Board: mandatory lead-service-line survey. Non-response is a 200 citation. Submit your account and routing details to schedule.",scam,bench_wild,0.9990
+"Your late father's unclaimed royalty residuals are held by our office. A 3% release levy applies before disbursement.",scam,bench_wild,0.9990
+"This is the septic compliance desk. Your three-year inspection lapsed. Pay the re-inspection bond now or the permit is revoked.",scam,bench_wild,0.9990
+"Hello, we repaved the Hendersons' drive and have sealant left on the truck. Half price if we do yours this afternoon, cash only.",scam,bench_wild,0.0039
+"Your pet's microchip registry expired. Without renewal today, the chip will not resolve to your number if she is found.",scam,bench_wild,0.9707
+"Good news, a dog matching Biscuit was handed in two counties over. Transport crate deposit is 140, refundable on pickup.",scam,bench_wild,0.9922
+"Your alumni class gift was pledged but never completed. The matching window closes at midnight and the department loses the match.",scam,bench_wild,0.0059
+"Pastor asked me to reach out quietly. The roof fund is short and he does not want it raised Sunday. Can you help before the contractor leaves?",scam,bench_wild,0.0020
+"Veterans Service Office: your disability percentage was recalculated upward. A retroactive-processing fee releases the back pay.",scam,bench_wild,0.9961
+"Pension Trust notice: you were overpaid 1,840 across four quarters. Repay by Friday to avoid referral to the recovery unit.",scam,bench_wild,0.0361
+"Hereditary risk flagged in your genealogy match. Our counsellor can release the full report once the lab access fee clears.",scam,bench_wild,0.9951
+"Your library account shows a 2019 reference volume never returned. The balance has gone to collections and will hit your credit file.",scam,bench_wild,0.4072
+"Jury Services: you failed to appear on the 14th. Pay the contempt assessment electronically to avoid a bench warrant.",scam,bench_wild,0.9990
+"Smart meter rollout: your property is scheduled Tuesday. An installation surcharge applies unless you opt out through the link.",scam,bench_wild,0.9707
+"Chimney compliance: borough records show no sweep certificate on file. Unswept flues void your home insurance. Book with our crew today.",scam,bench_wild,0.9941
+"The storm took three limbs off your oak. We are in the neighbourhood with the lift. Cash now and we clear it before the rain.",scam,bench_wild,0.9629
+"Hearing aid battery subscription lapsed. Your devices will stop pairing in 48 hours unless billing is updated.",scam,bench_wild,0.9951
+"Medicare is issuing chipped cards this quarter. Confirm your number and date of birth so yours is not delayed.",scam,bench_wild,0.9990
+"Our records show your carbon monoxide detector failed the registry audit. A certified replacement must be purchased through this office.",scam,bench_wild,0.9990
+"You were named in the Delacroix class settlement. Claimants must verify an account for the deposit before the 30th.",scam,bench_wild,0.9766
+"Timeshare exit: a buyer is in escrow for your Cabo week. We need the closing fee wired to release the contract.",scam,bench_wild,0.9990
+"Solar rebate audit: your 2024 incentive was over-credited. Remit the difference or a lien attaches to the panels.",scam,bench_wild,0.9922
+"Historical society: a photograph of your grandmother appears in our archive. A reproduction and rights fee secures the original print.",scam,bench_wild,0.9990
+"Your seed order could not clear customs. Phytosanitary handling is 46.50, payable to the broker below.",scam,bench_wild,0.9990
+"Beekeepers registry: hives must be re-registered this season. Unregistered colonies are subject to destruction order.",scam,bench_wild,0.9990
+"Your allotment plot is flagged for non-cultivation. Pay the retention fee or it reverts to the waiting list on Monday.",scam,bench_wild,0.9971
+"Quilting guild treasurer here, the venue needs the deposit tonight and my card is declining. Can you send it and I will settle up at the meeting?",scam,bench_wild,0.0244
+"The caravan site has you down for winter storage but the invoice bounced. Settle today or the unit is moved to the overflow field.",scam,bench_wild,0.1299
+"Your mobility scooter's warranty servicing is overdue. Unserviced units are not covered if the battery fails in public.",scam,bench_wild,0.9668
+"Stairlift safety recall on your model. A certified inspection is required and the call-out is payable in advance.",scam,bench_wild,0.9990
+"Your grave-tending subscription at St Brigid's lapsed. Flowers were not placed for the anniversary. Reinstate here.",scam,bench_wild,0.2529
+"The crematorium has unclaimed ashes under your family name from 1998. A storage levy has accrued.",scam,bench_wild,0.5059
+"Probate notice: a distant cousin died intestate in Perth. Our firm needs a kinship verification fee to include you.",scam,bench_wild,0.9990
+"Your late husband's firearm is still on the licence. Surrender fees apply unless the transfer is processed this week.",scam,bench_wild,0.9971
+"DVLA style notice: your vehicle's SORN was not renewed. Immediate payment prevents the recovery agent visit.",scam,bench_wild,0.9990
+"Toll bridge account under-read by 62 crossings. A reconciliation payment stops the plate being blocked.",scam,bench_wild,0.9980
+"Your parking permit zone changed. The old permit is void from today. Buy the replacement through the council portal below.",scam,bench_wild,0.9990
+"Bin collection moved to a subscription model for garden waste. Households that do not pay by Friday lose the service for the year.",scam,bench_wild,0.0195
+"School reunion committee: the venue wants a per-head guarantee tonight. Send your share and I will forward the receipt.",scam,bench_wild,0.9971
+"You have an unreturned hospital loan item, a commode, recorded in your name. Replacement cost is charged if not settled.",scam,bench_wild,0.9980
+"District nurse scheduling: a home visit co-payment must be registered before the appointment can be confirmed.",scam,bench_wild,0.9971
+"Your prescription delivery service needs the annual dispensing fee renewed or repeats stop at the end of the month.",scam,bench_wild,0.0088
+"Dental plan audit: a treatment was billed in error and you owe the difference. Non-payment refers the account out.",scam,bench_wild,0.9990
+"Your optician holds a pair of glasses never collected from 2022. Storage charges are now due.",scam,bench_wild,0.0195
+"Insurance premium recalculated after an undeclared claim. Pay the adjustment today to keep the policy in force.",scam,bench_wild,0.9990
+"Boiler service plan: engineers cannot attend until the overdue instalment clears. You are currently uncovered.",scam,bench_wild,0.9980
+"Your home emergency cover lapsed and a flood claim is open on the postcode. Reinstate before the cut-off.",scam,bench_wild,0.9971
+"Chimney of next door is leaning toward your roof. We are certified and can brace it today, payment on the spot.",scam,bench_wild,0.0049
+"Gutter survey found three blocked downpipes. Winter damage is not covered once a survey has been issued and ignored.",scam,bench_wild,0.0488
+"Damp specialist: your neighbour's survey flagged a shared wall. Treatment must be coordinated and deposits are taken now.",scam,bench_wild,0.9990
+"Pest control notice: wasp activity reported in your loft by a neighbour. Call-out is cheaper today than under emergency rate.",scam,bench_wild,0.9883
+"Your freezer guarantee requires a compressor check this year. Unchecked units void the food-spoilage cover.",scam,bench_wild,0.7021
+"Appliance registry: your washing machine is on a safety recall list. Register with the handling charge to arrange the engineer.",scam,bench_wild,0.9990
+"Your broadband line test failed overnight. An engineer slot requires a reserved booking payment, refunded on the bill.",scam,bench_wild,0.9375
+"Phone line maintenance charge was removed in error. Reinstate it or the line is classed as unmaintained from next week.",scam,bench_wild,0.9990
+"Your old mobile number is being recycled. Pay the retention fee to keep it attached to your accounts.",scam,bench_wild,0.9990
+"Email archive migration: mailboxes not renewed by Thursday are purged, including everything before 2020.",scam,bench_wild,0.1064
+"Your photo cloud has exceeded the legacy plan. Pay now or the oldest albums are removed first, starting with 2011.",scam,bench_wild,0.1543
+"Domain renewal for your late husband's memorial site is overdue. The page goes offline in 72 hours.",scam,bench_wild,0.0059
+"The memorial bench you sponsored needs a replacement plaque after vandalism. Costs are shared between sponsors.",scam,bench_wild,0.9912
+"Your charity direct debit failed. Children's meals in the programme are suspended pending reinstatement.",scam,bench_wild,0.9922
+"Sponsorship update: your sponsored child needs an emergency medical contribution outside the usual programme.",scam,bench_wild,0.9912
+"Air ambulance lottery: your number came up but the entry lapsed. Reactivate within 24 hours to claim the draw.",scam,bench_wild,0.9814
+"Your raffle book was never returned to the committee. Either return the stubs or settle the face value tonight.",scam,bench_wild,0.0010
+"Bowls club subscription unpaid. Insurance excludes unpaid members from Saturday's fixture.",scam,bench_wild,0.0039
+"Allotment shed break-ins: the association is collecting for a shared CCTV fund. Your share is 35 by Friday.",scam,bench_wild,0.0039
+"Neighbourhood watch is buying a defibrillator for the green. We are 60 short and the supplier holds until five.",scam,bench_wild,0.0010
+"Village hall boiler failed. The committee is covering it personally and splitting the cost. Can you transfer your share?",scam,bench_wild,0.9727
+"Your Meals on Wheels contribution was not collected this month. Service pauses after two missed contributions.",scam,bench_wild,0.0029
+"Day centre transport levy introduced this term. Seats are allocated to those who have paid when the minibus is full.",scam,bench_wild,0.0049
+"Your blue badge is up for review. An administration fee applies to the renewal assessment.",scam,bench_wild,0.1084
+"Adaptations grant: the occupational therapist's report requires a processing payment before the ramp is ordered.",scam,bench_wild,0.9863
+"Warm home discount: you qualify but must verify your bank to receive the credit before the scheme closes.",scam,bench_wild,0.9990
+"Winter fuel payment was issued to a closed account. Confirm new details so it can be reissued.",scam,bench_wild,0.9990
+"Your energy account is in credit by 214. A refund release charge applies for same-day transfer.",scam,bench_wild,0.9844
+"Water meter read remotely as faulty. An estimated bill stands unless the recalibration fee is paid.",scam,bench_wild,0.3105
+"Council tax band challenge succeeded for your street. Claim your rebate by confirming your account details.",scam,bench_wild,0.9990
+"Your single-person discount is under review. Provide verification today or the discount is removed retrospectively.",scam,bench_wild,0.9990
+"Electoral roll: your entry could not be confirmed. Unconfirmed entries are removed and affect credit applications.",scam,bench_wild,0.9990
+"Passport office: your renewal needs an expedited handling payment or the application is returned unprocessed.",scam,bench_wild,0.9990
+"Your driving licence photo expires with the paper counterpart. A combined renewal fee applies through this link.",scam,bench_wild,0.9990
+"Blue light card renewal for carers. Your discount lapses at midnight unless the membership is extended.",scam,bench_wild,0.9697
+"Carer's allowance overlap detected with another benefit. Repay the overlap now to avoid a formal investigation.",scam,bench_wild,0.9990
+"Attendance allowance review: a medical assessment booking fee is required before the home visit.",scam,bench_wild,0.9971
+"Your stairlift insurance claim was approved but the excess must be paid before the engineer is dispatched.",scam,bench_wild,0.2070
+"The funeral plan provider has gone into administration. Transfer your plan today for a fee to protect the value.",scam,bench_wild,0.9990
+"Your will is held by a firm that has merged. Retrieval and re-registration charges apply before it can be executed.",scam,bench_wild,0.9990
+"Power of attorney registry: your document was not stamped. It is invalid until the registration fee clears.",scam,bench_wild,0.9990
+"Safe deposit box fees unpaid since 2021. Contents go to public auction unless cleared this week.",scam,bench_wild,0.9990
+"Premium bonds: an unclaimed prize from 2019 requires identity verification and a small release charge.",scam,bench_wild,0.9990
+"Your old building society account was demutualised and shares are owed. A nominee transfer fee releases them.",scam,bench_wild,0.9990
+"Dormant account scheme: funds in your name will transfer to the Treasury unless reclaimed with the recovery charge.",scam,bench_wild,0.9990
+"Your late mother's jewellery was found in the care home safe. Courier insurance must be paid before release.",scam,bench_wild,0.9990
+"The care home is raising a top-up fee this month. Payment is needed before Friday or the room is reassessed.",scam,bench_wild,0.0146
+"Respite booking deposit did not clear. The week will be released to the waiting list this afternoon.",scam,bench_wild,0.0010
+"Your hospital car park appeal was rejected. The charge doubles at midnight.",scam,bench_wild,0.0010
+"Ambulance service non-emergency transport now requires a booking contribution, taken at the time of scheduling.",scam,bench_wild,0.9990
+"Hearing test results flagged a fitting fee outstanding. Devices are not released until it is settled.",scam,bench_wild,0.9961
+"Your spectacles prescription cannot be dispensed until the NHS voucher shortfall is paid online.",scam,bench_wild,0.9971
+"Podiatry appointments now require a booking fee. Unpaid bookings are cancelled automatically.",scam,bench_wild,0.9834
+"Your flu jab was administered under the wrong code and must be self-funded. Pay here to correct the record.",scam,bench_wild,0.9990
+"Dentist deregistration warning: you will lose your place unless the retention fee is received this week.",scam,bench_wild,0.9902
+"The gardening service your daughter arranged has an unpaid balance. We will stop attending after Thursday.",scam,bench_wild,0.0010
+"Window cleaner here, the round has gone to monthly billing. Three visits are outstanding, can you settle tonight?",scam,bench_wild,0.0029
+"Your milk delivery account is in arrears and the float is being withdrawn from the street.",scam,bench_wild,0.9932
+"Mobile hairdresser: the insurance now requires a card on file for home visits. Add yours to keep your slot.",scam,bench_wild,0.0010
+"Your chiropodist is retiring and the new practice needs re-registration with a joining payment.",scam,bench_wild,0.9961
+"Your prescription is ready for collection after 2 pm at the Market Street branch.",safe,bench_wild,0.0000
+"Mum, the train gets in at 6:40. No rush, I will wait inside the station.",safe,bench_wild,0.0000
+"Appointment reminder: Dr Patel, Tuesday 10:15. Reply CANCEL if you cannot attend.",safe,bench_wild,0.0000
+"Your table for four on Saturday at seven is confirmed. See you then.",safe,bench_wild,0.0000
+"The book you reserved is in. We will hold it at the desk for a week.",safe,bench_wild,0.0000
+"Bin collection moves to Wednesday next week because of the bank holiday.",safe,bench_wild,0.0000
+"Your car is ready. MOT passed, no advisories. We are open until half five.",safe,bench_wild,0.0000
+"Grandad, the photos from Sunday came out lovely. I will print a few for you.",safe,bench_wild,0.0000
+"Your energy statement is ready to view. Nothing to do, your direct debit is unchanged.",safe,bench_wild,0.0000
+"Hello from the surgery, your blood results are normal. No action needed.",safe,bench_wild,0.0020
+"The bowls fixture on Saturday is cancelled, the green is waterlogged.",safe,bench_wild,0.0000
+"Your order has shipped and should arrive Thursday. No signature needed.",safe,bench_wild,0.0000
+"It was lovely to see you at the weekend. Safe travels home.",safe,bench_wild,0.0000
+"The village hall committee meets Thursday at seven. Tea and biscuits as usual.",safe,bench_wild,0.0000
+"Your library books are due back on the 14th. You can renew online or ring us.",safe,bench_wild,0.0000
+"Dad, I have put the shopping in the porch. Milk is in the blue bag.",safe,bench_wild,0.0000
+"A payment of 24.00 to Tesco was authorised on your card ending 4471.",safe,bench_wild,0.0000
+"Your verification code is 448213. Do not share it with anyone.",safe,bench_wild,0.0000
+"Reminder: the chiropodist is coming to the day centre on Friday morning.",safe,bench_wild,0.0000
+"Thanks for the birthday card, it arrived this morning and made my day.",safe,bench_wild,0.0000
+"The gardener says the hedge needs doing next month, not urgent.",safe,bench_wild,0.0000
+"Your repeat prescription request has been received and will be ready in two days.",safe,bench_wild,0.0000
+"We have rescheduled your boiler service to the 22nd at your request.",safe,bench_wild,0.0010
+"Hi love, running about twenty minutes late, traffic on the bypass.",safe,bench_wild,0.0010
+"Your taxi is booked for 9:15 on Tuesday to the hospital. Fare as quoted.",safe,bench_wild,0.0000
+"The church coffee morning raised 240 pounds. Thank you to everyone who baked.",safe,bench_wild,0.0000
+"Your council tax direct debit for this month has been taken as scheduled.",safe,bench_wild,0.0010
+"Your flu jab appointment is confirmed for Saturday at 11:20, no need to reply.",safe,bench_wild,0.0000
+"Mum, Sophie passed her driving test this morning. She is over the moon.",safe,bench_wild,0.0000
+"The optician called to say your glasses are ready whenever you are passing.",safe,bench_wild,0.0010
+"Hi, it's Dave from the garage. The bank said your card bounced for the brake job. Can you send it by transfer instead? Details below, need it before we close.",scam,bench_blind,0.9990
+"Your Medicare Advantage plan has a pending rebate of 212. Our agent needs to confirm your Medicare ID and bank to issue it.",scam,bench_blind,0.9990
+"Council here. Your green bin was contaminated twice. A 40 cleaning charge applies, pay at the portal to avoid a stop on collections.",scam,bench_blind,0.9980
+"Mum, I'm at A&E with the baby, they need the card for the prescription. Can you read me your long number and the expiry? Quick please.",scam,bench_blind,0.9980
+"Your Sky package has been upgraded in error. To cancel the extra 29.99 a month, call this number before 5pm.",scam,bench_blind,0.9990
+"Your Centrelink file was audited and an overpayment of 1,430 was found. A payment arrangement must be set up today on this number.",scam,bench_blind,0.9990
+"Your church directory photo was never collected. A 15 printing fee is now owed to the parish office. Transfer to the account below.",scam,bench_blind,0.9990
+"Grandpa, it's Jake. I'm okay but the police want a deposit for the damaged car. Can you Zelle 900 to the officer's account? Don't tell Mom.",scam,bench_blind,0.6006
+"Your Interac payment of 450 from Mike bounced. Click here to re-accept and sign in to your bank to release it.",scam,bench_blind,0.9990
+"Your flat's buildings insurance has lapsed because the freeholder's policy ended. Pay 185 today to be covered under the new one.",scam,bench_blind,0.9990
+"This is the NDIS plan manager. Your plan budget is unspent and will be returned unless you authorise the transfer below.",scam,bench_blind,0.9990
+"Your Virgin Media bill failed. Service pauses at midnight. Update your card here to keep your phone and TV.",scam,bench_blind,0.9990
+"Hello, it's the solicitor's clerk. Completion is tomorrow and our bank has changed. Send the deposit to the new account below today.",scam,bench_blind,0.9990
+"Your Ring doorbell subscription is unpaid. Your videos will be deleted tonight. Renew here.",scam,bench_blind,0.9990
+"A speeding camera recorded your car in a school zone. Pay 90 now at this link or the matter goes to court.",scam,bench_blind,0.9990
+"Your pharmacy loyalty points of 4,200 expire tonight. Redeem by confirming your card at the link.",scam,bench_blind,0.9990
+"Nan, I'm using the neighbour's phone, mine got nicked. Can you put 150 on this account so I can get a replacement today?",scam,bench_blind,0.9990
+"Your Aadhaar linked SIM will be disconnected in 2 hours. Call this number for verification.",scam,bench_blind,0.9980
+"Your Australia Post parcel needs an address correction. A 1.20 fee applies. Pay here.",scam,bench_blind,0.9990
+"Your GP has referred you privately. A consultation deposit of 60 is due at the link to confirm.",scam,bench_blind,0.9990
+"Tenant here, the boiler broke and the landlord said you'd cover it. Send 220 to this account and I'll get the plumber round.",scam,bench_blind,0.9990
+"Your voter registration failed a check. Confirm your National Insurance number at the link within 24 hours to avoid a fine.",scam,bench_blind,0.9990
+"Hi, Sophie here from the kennel. Biscuit needs an emergency vet and we need 300 upfront by transfer. Details below.",scam,bench_blind,0.9990
+"Your bank is merging systems tonight. Move your balance to the holding account below to keep it safe until morning.",scam,bench_blind,0.9990
+"Lottery results: your syndicate ticket matched 5 numbers. Pay the 25 claim fee to this account to receive your share.",scam,bench_blind,0.9990
+"HMRC: a penalty of 100 is due for late filing. Pay at the link today to stop daily charges.",scam,bench_blind,0.9990
+"Hello darling, I'm the engineer you've been talking to. My leave is approved but I need 700 for the ticket. Can you help your man?",scam,bench_blind,0.9990
+"Your Singtel line has unusual overseas usage. To avoid suspension, confirm your NRIC at the link.",scam,bench_blind,0.9990
+"This is Revenue. A refund of 310 is held. Enter your IBAN at the link to release it.",scam,bench_blind,0.9990
+"Dad, I bought you a hearing aid online, it's held at customs. Can you pay the 45 duty at the link so it's delivered this week?",scam,bench_blind,0.9990
+"Hi, it's Dave from the garage. Brakes are done, 180 as quoted. Pay at the desk when you collect, we're open till 6.",safe,bench_blind,0.0010
+"Your Medicare Advantage plan summary for this quarter is available in your online account. This is not a bill.",safe,bench_blind,0.0000
+"Council here. Your green bin will be collected Wednesday this week instead of Tuesday because of the bank holiday.",safe,bench_blind,0.0010
+"Mum, at A&E with the baby, just a fever, all fine. Will ring you when we're home.",safe,bench_blind,0.0000
+"Your Sky bill of 54.00 will be taken by direct debit on the 15th as usual.",safe,bench_blind,0.0000
+"Your Centrelink payment was made today. Your next reporting date is the 24th.",safe,bench_blind,0.0000
+"The church directory photos are ready to collect from the office any Sunday. They've already been paid for.",safe,bench_blind,0.0000
+"Grandpa, it's Jake. Passed my driving test! Will come and show you the car Sunday.",safe,bench_blind,0.0010
+"Your Interac e-Transfer of 450 from Mike has been deposited automatically into your chequing account.",safe,bench_blind,0.0010
+"Your buildings insurance renews on the 3rd at 185 for the year. Nothing to do unless you want to change it.",safe,bench_blind,0.0000
+"NDIS: your plan has been renewed for 12 months. Your plan manager will be in touch to review supports.",safe,bench_blind,0.0000
+"Virgin Media: engineers are fixing a fault in your area. Your service should be back by 4pm. No action needed.",safe,bench_blind,0.0000
+"Solicitor's office here. Completion went through at 11. The keys are at the estate agent. Congratulations.",safe,bench_blind,0.0000
+"Your Ring doorbell recorded motion at the front door at 2:14pm. Open the app to view.",safe,bench_blind,0.0010
+"Reminder: the school zone speed limit is 20 during term time. Safe driving from the parish council.",safe,bench_blind,0.0010
+"Your pharmacy loyalty points balance is 4,200. Points do not expire while your account is active.",safe,bench_blind,0.0010
+"Nan, got a new phone, same number. Ignore the old one. Speak Sunday.",safe,bench_blind,0.0000
+"Your Jio recharge of Rs 239 was successful. Valid for 28 days.",safe,bench_blind,0.0000
+"Australia Post: your parcel will be delivered today between 1 and 5. No signature required.",safe,bench_blind,0.0000
+"Your GP has referred you to the hospital. They will write to you with an appointment. There is nothing to pay.",safe,bench_blind,0.0000
+"Tenant here. The boiler is fixed, the plumber said it was just the pressure. No charge. Thanks for sorting it so fast.",safe,bench_blind,0.0010
+"You are registered to vote at your current address. No action is needed before the election.",safe,bench_blind,0.0059
+"Hi, Sophie from the kennel. Biscuit has settled in fine and ate all her dinner. Photo attached.",safe,bench_blind,0.0000
+"Your bank's app will be unavailable Sunday 1am to 4am for maintenance. Your cards will work as normal.",safe,bench_blind,0.0000
+"Lottery syndicate: we won 12 pounds between us. I'll put it towards next week's ticket as usual.",safe,bench_blind,0.0000
+"HMRC: your tax code has changed for the new tax year. Your employer has been told. Nothing to do.",safe,bench_blind,0.0000
+"Hello, it's Ray from the bowls club. The tea rota is attached. You're down for the 14th with Pat.",safe,bench_blind,0.0000
+"Singtel: your bill of 42.80 is ready. It will be paid by GIRO on the 20th as usual.",safe,bench_blind,0.0000
+"Revenue: your Statement of Liability for last year is available in myAccount. Any refund is paid automatically.",safe,bench_blind,0.0000
+"Dad, the hearing aid I ordered for you has arrived at mine. I'll bring it Saturday and set it up.",safe,bench_blind,0.0000
+"Hi it's Lorraine from the dentist. Your crown is back from the lab but the lab fee of 120 wasn't covered. Pay at the link before Thursday so we can fit it.",scam,bench_blind2,0.9990
+"Your Aldi delivery driver could not find your house. Confirm your address and pay the 2.50 reattempt charge here.",scam,bench_blind2,0.9990
+"Grandma it's Chloe. My landlord is changing the locks unless I pay today. Can you send 650 to this account? I'll explain tonight, please don't ring Mum.",scam,bench_blind2,0.9990
+"Your Ancestry subscription has an unpaid balance. Your family tree will be deleted in 24 hours unless you update your card.",scam,bench_blind2,0.9590
+"This is the Bank's fraud desk. Someone is in your account right now. Install the app at this link so our engineer can lock them out.",scam,bench_blind2,0.9990
+"Your mobility allowance has been recalculated. To release the back pay of 1,120, confirm your account details with the officer on this number.",scam,bench_blind2,0.9990
+"Your eBay listing was paid by a buyer overseas. Ship today and pay the 40 international handling fee at the link, refunded on delivery.",scam,bench_blind2,0.9990
+"Hello, Ted from the allotment committee. The water board is fining us for the leak. Each plot owes 28 by tonight. Account below.",scam,bench_blind2,0.9990
+"Your My Health Record has been accessed from an unknown device. Verify your Medicare number at the link.",scam,bench_blind2,0.9990
+"This is Uber. A driver has reported you for damage to his vehicle. Pay the 150 cleaning fee at the link or your account will be suspended.",scam,bench_blind2,0.9990
+"Your pharmacy says your blood pressure tablets are now private only. Pay 38 at the link to have them dispensed today.",scam,bench_blind2,0.9990
+"Your National Lottery account has a pending prize of 2,500. Confirm your bank details at the link to receive it.",scam,bench_blind2,0.9990
+"Hi Dad, it's Rob on a work phone. I'm in a meeting and need you to buy two 100 Apple gift cards for a client and text me the codes. I'll sort you out tonight.",scam,bench_blind2,0.9961
+"Your eircode has been flagged for a property tax underpayment. Pay 212 at the link to avoid interest.",scam,bench_blind2,0.9990
+"This is the Revenue Agency. Your SIN has been suspended. Call this number to restore it before your pension is affected.",scam,bench_blind2,0.9990
+"Your heating engineer found a gas leak and the supply is capped. Pay 190 at the link for the emergency repair slot.",scam,bench_blind2,0.9990
+"Your Facebook Marketplace sale is complete. The buyer paid through our secure service. Enter your card details at the link to receive the funds.",scam,bench_blind2,0.9990
+"Mum, my phone got wet, using Lucy's. The car got towed and the pound wants 380 cash by 6. Can you transfer it to this account? Will pay you back Friday.",scam,bench_blind2,0.9736
+"Your eyes test results show a change. A private follow-up is required. Pay the 75 deposit at the link to book.",scam,bench_blind2,0.9990
+"Your Ryanair booking is incomplete. Pay the 35 check-in fee at the link or your seat is released.",scam,bench_blind2,0.9990
+"The hospice shop here. Your donated furniture was sold but the van fee of 20 wasn't covered. Please transfer it to the account below.",scam,bench_blind2,0.9990
+"Your grandchild's school says the lunch account is 48 overdrawn. Pay at the link today or lunches stop.",scam,bench_blind2,0.9990
+"This is the Post Office. A letter with your name has customs duty of 3.10 owing. Pay here to release it.",scam,bench_blind2,0.9990
+"Your pension provider is moving to a new platform. Log in at the link with your details or your pot will be frozen.",scam,bench_blind2,0.9990
+"Your Spotify family plan has an unpaid balance. Pay at the link to keep the family's accounts.",scam,bench_blind2,0.9990
+"Hello, this is Sergeant Hayes. Your name has come up in a money laundering case. Do not discuss this. Call me on this number today.",scam,bench_blind2,0.9990
+"Your Samsung TV warranty has expired. Renew for 49 at the link or repairs are chargeable in full.",scam,bench_blind2,0.9990
+"Your BUPA claim has been approved. Enter your bank details at the link to receive the 320.",scam,bench_blind2,0.9990
+"Hi, it's your cleaner Ana. My account is closed, please send this month's 120 to my cousin's account below.",scam,bench_blind2,0.9990
+"Your library e-book loan has incurred a 6 late fee. Pay at the link or your card is blocked.",scam,bench_blind2,0.9990
+"Hi it's Lorraine from the dentist. Your crown is back from the lab. We can fit it Thursday at 10 if that suits. It's already covered by what you paid.",safe,bench_blind2,0.0000
+"Your Aldi delivery is on its way and will be with you between 4 and 6. The driver will knock.",safe,bench_blind2,0.0000
+"Grandma it's Chloe. Got the keys to the new flat! Come and see it when you're next in town.",safe,bench_blind2,0.0010
+"Your Ancestry subscription renews next month at the same price. Manage it in your account settings.",safe,bench_blind2,0.0000
+"Your bank's fraud team here. We declined a 300 payment that didn't look like you. Your card still works. Call the number on your card if you have questions.",safe,bench_blind2,0.0088
+"Your mobility allowance has been paid for this month. Your next payment is on the 14th.",safe,bench_blind2,0.0000
+"Your eBay item sold for 42. The buyer has paid. Post it within 3 days with the label in the app.",safe,bench_blind2,0.0000
+"Hello, Ted from the allotment committee. The water is back on at the site. Thanks for your patience.",safe,bench_blind2,0.0010
+"My Health Record: your pathology results have been added. Log in through the myGov app as usual to view them.",safe,bench_blind2,0.0000
+"Uber: your trip receipt for 9.80 to the clinic. Thanks for riding with us.",safe,bench_blind2,0.0000
+"Pharmacy: your blood pressure tablets are ready. No charge, you're exempt.",safe,bench_blind2,0.0000
+"National Lottery: your ticket didn't win this week. Good luck next time.",safe,bench_blind2,0.0000
+"Hi Dad, it's Rob. Got a work phone now, same old number for personal. See you Sunday for the match.",safe,bench_blind2,0.0010
+"Revenue: your Local Property Tax payment for the year has been received. Thank you.",safe,bench_blind2,0.0000
+"Canada Revenue Agency: your return has been assessed. Your refund of 212 will be deposited within 8 business days.",safe,bench_blind2,0.0000
+"Heating engineer here. Boiler serviced, all safe. Certificate's through the door. 80 as quoted, pay when you're passing.",safe,bench_blind2,0.0049
+"Facebook Marketplace: a buyer has messaged about the lamp. Open the app to reply.",safe,bench_blind2,0.0000
+"Mum, phone got wet but it's drying out, might be off for a day. Nothing wrong, just so you know if I don't answer.",safe,bench_blind2,0.0000
+"Optician: your eye test showed no change. Same prescription. See you in two years.",safe,bench_blind2,0.0000
+"Ryanair: online check-in is open for your flight on Friday. Check in through the app, it's free.",safe,bench_blind2,0.0000
+"Hospice shop here. Your furniture was collected this morning. Thank you so much for the donation.",safe,bench_blind2,0.0000
+"School: your grandchild's lunch account has 12 in credit. Top up any time through the usual app, no rush.",safe,bench_blind2,0.0000
+"Post Office: your parcel is ready to collect from the branch. Bring ID. Nothing to pay.",safe,bench_blind2,0.0000
+"Your pension provider's annual statement is in the post. Your pot grew 4 percent last year.",safe,bench_blind2,0.0000
+"Spotify: your family plan payment went through as usual.",safe,bench_blind2,0.0000
+"Hello, Sergeant Hayes from the community team. The coffee morning with the police is Tuesday at the hall. Pop in if you'd like to chat.",safe,bench_blind2,0.0000
+"Samsung: your TV's software updated overnight. Nothing to do.",safe,bench_blind2,0.0000
+"BUPA: your claim has been paid to the account we hold on file. The statement is in your online account.",safe,bench_blind2,0.0000
+"Hi, it's Ana. I can't come Tuesday, is Wednesday OK? Same time.",safe,bench_blind2,0.0010
+"Library: your e-book loan has been returned automatically. You can borrow another any time.",safe,bench_blind2,0.0000
+"hi its lorraine from the dentist your crown is back from the lab but the lab fee of 120 wasnt covered pay at the link before thursday so we can fit it",scam,bench_noisy,0.9990
+"YOUR ALDI DELIVERY DRIVER COULD NOT FIND YOUR HOUSE CONFIRM YOUR ADDRESS AND PAY THE 250 REATTEMPT CHARGE HERE",scam,bench_noisy,0.9990
+"Grndm4 it's Cho3. My landlord 1s changing the locks unless I p4y today. Can you send 650 to this 4count? I'll 3xl4in tonight, pleas3 d0n't r1ng Mum.",scam,bench_noisy,0.9980
+"⚠️ your ancestry subscription has an unpaid balance your family tree will be deleted in 24 hours unless you update your card",scam,bench_noisy,0.9990
+"❗ This is the Bank's fraud dek. Soeone is in your account right now. Install the app at this link so our engineer can lock them out.",scam,bench_noisy,0.9990
+"Y0ur m0bility allowance has been r3calculated. T0 release the back pay of 1,120, confirm your account deta1ls with the officer 0n this nub3r.",scam,bench_noisy,0.9990
+"Your 3Bay listing w4s paid by a buy3r ovrseas. Ship today and p4y th3 40 1nternational hadling fee at the l1k, refunded 0n delivery.",scam,bench_noisy,0.9990
+"h3llo ted from the allotment committee the water board is fining us f0r the leak each pl0t owes 28 by ton1ght account below",scam,bench_noisy,0.9990
+"your my health record has been accessed from an unknown device verify your medicare number at the link",scam,bench_noisy,0.9990
+"💳 This is Uber. A driver has reported you for damage to his veicle. Pay the 150 cleaning fee at the link or your account will be suspended.",scam,bench_noisy,0.9990
+"👉 Your pharmacy says your bl00d pr3ssure tablets are now private only. Pay 38 4t th3 link to have them dispens3d tod4y.",scam,bench_noisy,0.9990
+"YOUR NATIONAL LOTTERY ACCOUNT HAS A PENDING PRIZE OF 2,500. CONFIRM YOUR BANK DETAILS AT THE LINK TO RECEIVE IT.",scam,bench_noisy,0.9990
+"🚨 Hi Dad, it's Rob on a work phone. I'm in a meeting and need you to buy two 100 Apple gift cards for a client and text me the codes. I'll sort you out toight.",scam,bench_noisy,0.9990
+"💳 Your eircode has been flagged for a property t4x und3rpayment. Pay 212 4t the link to avoid interest.",scam,bench_noisy,0.9990
+"this is the revenue agency your sin has b33n suspend3d call th1s number to rest0re it bef0re your pensi0n is affected",scam,bench_noisy,0.9990
+"🚨 YOUR HEATING ENGINEER FOUND A GAS LEAK AND THE SUPPLY IS CAPPED. PAY 190 AT THE LINK FOR THE EMERGENCY REPAIR SLOT.",scam,bench_noisy,0.9990
+"your facebook marketplace sale is complete the buyer paid through our secure service enter your card details at the link to receive the funds",scam,bench_noisy,0.9990
+"MUM MY PHONE GOT WET USING LUCYS THE CAR GOT TOWED AND THE POUND WANTS 380 CASH BY 6 CAN YOU TRANSFER IT TO THIS ACCOUNT WILL PAY YOU BACK FRIDAY",scam,bench_noisy,0.9990
+"👉 YOUR EYES TEST RESULTS SHOW A CHANGE. A PRIVATE FOLLOW-UP IS REQUIRED. PAY THE 75 DEPOSIT AT THE LINK TO BOOK.",scam,bench_noisy,0.9990
+"❗ Your Ryanair booking is incomplete. Pay the 35 check-in fee at the link or your seat is released.",scam,bench_noisy,0.9990
+"⚠️ The hospice shop here. Your donated furniture was sold but the van fee of 20 wasn't covered. Plase trnsfer it to the acount below.",scam,bench_noisy,0.9941
+"your grandchilds school says the lunch account is 48 overdrawn pay at the link today or lunches stop",scam,bench_noisy,0.9990
+"🚨 This is the P0st Office. A letter w1th your name has customs duty of 3.10 ow1ng. Pay h3re to r3lease it.",scam,bench_noisy,0.9990
+"💳 YOUR PENSION PROVIDER IS MOVING TO A NEW PLATFORM. LOG IN AT THE LINK WITH YOUR DETAILS OR YOUR POT WILL BE FROZEN.",scam,bench_noisy,0.9990
+"your spotify fam1ly plan has an unpaid balance pay at the link t0 ke3p th3 familys accounts",scam,bench_noisy,0.9990
+"👉 Hell0, this is Serge4nt Hayes. Your name has come up in a money laundering case. Do not discuss this. Call me on this number tod4y.",scam,bench_noisy,0.9980
+"💳 ⚠️ Your Samsung TV warranty has expired. Renew for 49 at the link or repairs are chargeable in full.",scam,bench_noisy,0.9990
+"📦 Your BUPA claim has been approved. Ener your bank details at the link to receive the 320.",scam,bench_noisy,0.9990
+"❗ HI, IT'S YOUR CLEANER ANA. MY ACCOUNT IS CLOSED, PLEASE SEND THIS MONTH'S 120 TO MY COUSIN'S ACCOUNT BELOW.",scam,bench_noisy,0.9990
+"YOUR LIBRARY E-BOOK LOAN HAS INCURRED A 6 LATE FEE. PAY AT THE LINK OR YOUR CARD IS BLOCKED.",scam,bench_noisy,0.9990
+"Hi it's Lorraine from the dentist. Your crown is back from the lab. We can fit it Thursday at 10 if that suits. It's already covered by what you paid.",safe,bench_noisy,0.0000
+"Your Aldi delivery is on its way and will be with you between 4 and 6. The driver will knck.",safe,bench_noisy,0.0000
+"gr4ndma its chloe got the keys to the new flat come and see 1t when youre next in town",safe,bench_noisy,0.0000
+"📦 your ancestry subscription renews next month at the same price manage it in your account settings",safe,bench_noisy,0.0010
+"Your bank's fr4ud te4m he3. We declined a 300 pam3nt th4t didn't look l1ke you. Your card still w0rks. Call the number on your card if you have questions.",safe,bench_noisy,0.0391
+"your mobility allowance has been paid for this month your next payment is on the 14th",safe,bench_noisy,0.0010
+"❗ Your eBay item sold for 42. The buyer has paid. P0st it within 3 days w1th the label in the app.",safe,bench_noisy,0.0000
+"Hello, Ted from the al0tment committe3. The water is back on at the site. Thanks for y0ur p4t1ence.",safe,bench_noisy,0.0020
+"👉 My Health Rec0rd: y0ur path0logy r3sults h4ve been added. Log in through the myGov app as usu4l to view them.",safe,bench_noisy,0.0010
+"👉 uber: your trip receipt for 980 to the clinic thanks for riding with us",safe,bench_noisy,0.0010
+"PHARMACY: YOUR BLOOD PRESSURE TABLETS 4RE READY. N0 CHARG3, YOU'RE EXEMPT.",safe,bench_noisy,0.0010
+"national lotery: your tiket didnt win this week good luck next time",safe,bench_noisy,0.0010
+"👉 hi dad its rob got a work phone now same old number for personal see you sunday for the match",safe,bench_noisy,0.0020
+"REVENUE: YOUR LOCAL PROPERTY TAX PAYMENT FOR THE YEAR HAS BEEN RECEIVED. THANK YOU.",safe,bench_noisy,0.0000
+"❗ Can4da Revenue Agency: y0ur return h4s be3n assess3d. Your r3fund of 212 w1ll be dep0sited within 8 busin3ss d4ys.",safe,bench_noisy,0.9893
+"🚨 ⚠️ Heating engineer here. Boiler serviced, all safe. Certificate's through the door. 80 as quoted, pay when you're passing.",safe,bench_noisy,0.0068
+"⚠️ Fac3bo0k M4rketplace: a buyer h4s messaged about the lamp. Open the app to reply.",safe,bench_noisy,0.0039
+"MUM, PHONE GOT WET BUT IT'S DRYING OUT, MIGHT BE OFF FOR A DAY. NOTHING WRONG, JUST SO YOU KNOW IF I DON'T ANSWER.",safe,bench_noisy,0.0000
+"optician: your eye test showed no change same prescription see you in two years",safe,bench_noisy,0.0117
+"ryanair: 0nl1n3 check-1n is 0pen for your flight on frid4y ch3ck in thr0ugh the app its free",safe,bench_noisy,0.0010
+"HOSPICE SHOP HERE. YOUR FURNITURE WAS COLLECTED THIS MORNING. THANK YOU SO MUCH FOR THE DONATION.",safe,bench_noisy,0.0000
+"school: your gr4ndchilds lunch account has 12 in credit top up any time through th3 usual 4pp no rush",safe,bench_noisy,0.0010
+"❗ Post Office: your p4rc3l 1s r34dy to collect fr0m the branch. Bring ID. Nothing t0 pay.",safe,bench_noisy,0.0010
+"📦 Your pension prvider's annual statement is in the pot. Your pot grew 4 percent last year.",safe,bench_noisy,0.0000
+"spotify: your family plan payment went through as usal",safe,bench_noisy,0.0010
+"📦 hello sergeant hayes from the community team the coffee morning with the police is tuesday at the hall pop in if youd like to chat",safe,bench_noisy,0.0010
+"📦 Sasung: your TV's software updated ovrnight. Nothing to do.",safe,bench_noisy,0.0000
+"👉 BUPA: your cl4im has b3en paid to the account we hold on fil3. The stat3ment is in your 0nl1ne 4cc0unt.",safe,bench_noisy,0.0000
+"💳 Hi, it's Ana. I ca't come Tuesday, is Wednesday OK? Same time.",safe,bench_noisy,0.0000
+"LIBRARY: YOUR E-BOOK LOAN HAS BEEN RETURNED AUTOMATICALLY. YOU CAN BORROW ANOTHER ANY TIME.",safe,bench_noisy,0.0000
+"Ihr Konto wurde gesperrt. Bestätigen Sie Ihre Identität hier, sonst wird es gelöscht.",scam,bench_lang,0.0010
+"DHL: Ihr Paket konnte nicht zugestellt werden. Zollgebühr von 1,99 € zahlen, um es freizugeben.",scam,bench_lang,0.0010
+"Il tuo conto è stato bloccato. Verifica la tua identità cliccando qui entro 24 ore.",scam,bench_lang,0.0234
+"Poste: pacco in giacenza. Paga la tassa di 2,50 € per lo sblocco.",scam,bench_lang,0.0000
+"Uw rekening is geblokkeerd. Bevestig uw gegevens via de link.",scam,bench_lang,0.9971
+"PostNL: pakket kon niet bezorgd worden. Betaal de invoerkosten van 2,99.",scam,bench_lang,0.0000
+"Aapka SBI account block ho jayega. KYC update karne ke liye link par click karein aaj hi.",scam,bench_lang,0.9990
+"Beta, paise 5000 turant bhej do is number par, emergency hai.",scam,bench_lang,0.0029
+"Akun Anda akan diblokir. Verifikasi data Anda dengan klik tautan ini.",scam,bench_lang,0.0049
+"Paket Anda tertahan di bea cukai. Bayar biaya 15.000 untuk pengiriman.",scam,bench_lang,0.0000
+"Ang iyong account ay na-block. I-verify ang iyong identity dito.",scam,bench_lang,0.0029
+"OTP batao jo abhi aaya hai, verification ke liye.",scam,bench_lang,0.0010
+"Ihr Paket wurde heute um 14:10 zugestellt. Vielen Dank.",safe,bench_lang,0.0000
+"Termin beim Zahnarzt am Montag um 10 Uhr. Bitte 5 Minuten früher kommen.",safe,bench_lang,0.0000
+"Il tuo pacco è stato consegnato. Buona giornata.",safe,bench_lang,0.0029
+"Ci vediamo domenica a pranzo. Porto io il dolce.",safe,bench_lang,0.0000
+"Uw pakket is bezorgd bij de buren op nummer 6.",safe,bench_lang,0.0010
+"Tot morgen bij de dokter, 9 uur.",safe,bench_lang,0.0020
+"Aapka recharge Rs 239 ka successful hua. 28 din valid.",safe,bench_lang,0.0029
+"Mummy, kal subah 8 baje aaunga. Chai ready rakhna.",safe,bench_lang,0.0000
+"Pesanan Anda telah dikirim. Tiba besok.",safe,bench_lang,0.0000
+"Sampai jumpa hari Minggu di rumah nenek.",safe,bench_lang,0.0010
+"Na-deliver na ang parcel mo kanina. Salamat.",safe,bench_lang,0.0010
+"Kita tayo sa Linggo, dala ko ang pagkain.",safe,bench_lang,0.0010
+"Your account is locked. Buy a $200 iTunes gift card immediately and send the code.",scam,bench_suite,0.9990
+"This is Walmart support, settle your balance with Google Play cards today or account closes.",scam,bench_suite,0.9990
+"Pay the fine with Steam cards within 24 hours to avoid arrest.",scam,bench_suite,0.9990
+"Grandma its me, I got in an accident and im in jail, I need bail money, dont tell mom",scam,bench_suite,0.9961
+"This is your grandson, I\u2019m in the hospital and need money wired now, please hurry",scam,bench_suite,0.9990
+"Your granddaughter is in trouble with the police, send $2000 bail immediately",scam,bench_suite,0.9990
+"USPS: your package is held pending a $1.99 redelivery fee: http://bit.ly/x8s2",scam,bench_suite,0.9990
+"FedEx: address issue on parcel, pay customs fee here www.fedex-parcel.top",scam,bench_suite,0.9990
+"UPS shipment unable to deliver, confirm address and pay fee http://ups.delivery-fix.xyz",scam,bench_suite,0.9990
+"E-ZPass: unpaid toll balance of $6.99, settle now to avoid violation ezpass-pay.icu",scam,bench_suite,0.9990
+"BBVA: su cuenta sera suspendida hoy. Verifique inmediatamente aqui: bbva-seguro-verificar.co/x2",scam,bench_suite,0.9990
+"Banamex: actividad inusual. Ingrese sus datos para evitar el bloqueo de su cuenta: acceso-banamex.top",scam,bench_suite,0.9990
+"Felicidades! Ha ganado un premio de la loteria. Reclame su premio hoy mismo.",scam,bench_suite,0.9990
+"Su paquete esta retenido en aduana. Pague la tarifa de $2.50 aqui: correos-entrega.info",scam,bench_suite,0.9990
+"Comparta el codigo de verificacion que le enviamos para desbloquear su cuenta.",scam,bench_suite,0.9980
+"Votre compte sera suspendu. Verifiez votre identite ici: compte-securise-verif.info",scam,bench_suite,0.9990
+"Votre colis est retenu. Payez les frais de douane ici: livraison-colis-frais.top",scam,bench_suite,0.9990
+"Caixa: sua conta sera bloqueada hoje. Verifique sua identidade: caixa-seguro-acesso.top",scam,bench_suite,0.9990
+"FasTrak final notice: toll due, pay immediately at fastrak-billing.click",scam,bench_suite,0.9990
+"This is Chase. Please read me the 6-digit code we sent to verify your identity.",scam,bench_suite,0.9990
+"Bank of America security: share the one-time passcode to cancel the transfer",scam,bench_suite,0.9990
+"To unlock your account, send us the verification code you just received",scam,bench_suite,0.9990
+"Did you authorize a $899 Zelle to M. Rivera? Reply NO to dispute.",scam,bench_suite,0.0068
+"Chase Fraud Alert: unauthorized charge of $451. Reply YES or NO.",scam,bench_suite,0.6885
+"This is the fraud department, we need to move your funds to a safe account right away",scam,bench_suite,0.9990
+"Your money is at risk, transfer your balance to this secure account we opened for you",scam,bench_suite,0.9990
+"IRS notice: you owe back taxes, pay immediately or a warrant will be issued",scam,bench_suite,0.9990
+"Social Security Administration: your SSN is suspended, call immediately to avoid arrest",scam,bench_suite,0.9990
+"FBI: you are under investigation, do not tell your family or your attorney, stay on the line",scam,bench_suite,0.9961
+"An arrest warrant has been issued. Do not contact anyone. Pay the bond now via bitcoin.",scam,bench_suite,0.9990
+"You have won the Publishers Clearing House lottery! Claim your prize with a small fee",scam,bench_suite,0.9990
+"Congratulations you have been selected for a $1000 Walmart reward, click to claim",scam,bench_suite,0.9990
+"Your tax refund of $1,432 is pending, verify your bank details to claim it",scam,bench_suite,0.9990
+"Netflix: payment failed, update your payment information at netflix-billing.top",scam,bench_suite,0.9990
+"Your Apple subscription expired, renew now at apple.account-verify.xyz",scam,bench_suite,0.9971
+"We noticed an unusual sign-in on your Amazon account, verify at http://arnazon-secure.com",scam,bench_suite,0.9990
+"Suspicious login attempt. Confirm your identity: http://chase.secure-login.xyz",scam,bench_suite,0.9990
+"Verify your PayPal account now: http://paypa1-support.com/login",scam,bench_suite,0.9990
+"Security alert, click http://192.168.4.22/verify to restore access",scam,bench_suite,0.9990
+"Wells Fargo: account on hold, restore here http://tinyurl.com/wf-restore",scam,bench_suite,0.9990
+"Hi is this Jessica? Oh sorry wrong number! But you seem nice, where are you from?",scam,bench_suite,0.9990
+"Sorry, wrong number! Anyway, I\u2019m Amy, nice to meet a new friend :)",scam,bench_suite,0.0010
+"I\u2019ve fallen for you my darling, soon we\u2019ll be together, but first help me with a small transfer",scam,bench_suite,0.9990
+"My dearest, destiny brought us together. My crypto portfolio doubled, let me teach you",scam,bench_suite,0.9873
+"I made $8,400 last month on a trading platform with guaranteed returns in USDT, want in?",scam,bench_suite,0.9990
+"Add me on WhatsApp to continue, my agent will set up your investment account",scam,bench_suite,0.9990
+"Chat with me on Telegram for the part time job, earn $500 a day no experience",scam,bench_suite,0.9951
+"Work from home, easy money, $300/day, apply now on WhatsApp",scam,bench_suite,0.9990
+"We can recover your money from the scam, our law firm needs a $500 retainer first",scam,bench_suite,0.9990
+"Refund department: we retrieved your lost funds, pay the release fee to claim them",scam,bench_suite,0.9990
+"Install AnyDesk so our technician can fix your computer and refund you",scam,bench_suite,0.9990
+"Microsoft support: your PC is infected, download TeamViewer immediately",scam,bench_suite,0.9990
+"Act now! Your Medicare benefits expire today, call this number immediately",scam,bench_suite,0.9990
+"Final notice: your Costco membership reward expires tonight, claim at costco-rewards.vip",scam,bench_suite,0.9990
+"Your Venmo is limited. Verify your card at venmo.help-center.icu within 24 hours",scam,bench_suite,0.0010
+"Dear customer, your ATT bill is overdue, pay at att-billing.sbs to avoid disconnection",scam,bench_suite,0.9990
+"Buy bitcoin at the crypto ATM and deposit it to clear your name, keep this confidential",scam,bench_suite,0.9990
+"Your computer sent viruses to the government. Pay in crypto, do not discuss with anyone",scam,bench_suite,0.9990
+"Hello dear, I am a widowed engineer on an oil rig, I feel a connection, message me on WhatsApp",scam,bench_suite,0.9990
+"Your Spotify payment was declined, update billing at spotify-renew.top",scam,bench_suite,0.9990
+"DHL parcel held at customs, pay 2.30 fee: rb.gy/dhl22",scam,bench_suite,0.9990
+"You are eligible for a stimulus rebate, click here to verify your identity and claim",scam,bench_suite,0.9990
+"Your Wells Fargo account was compromised. A specialist will call to help secure your money.",scam,bench_suite,0.9990
+"Amazon refund pending: we overcharged you $300, install this app so we can return it",scam,bench_suite,0.9990
+"This is urgent, wire $900 via Western Union today or lose the apartment deposit",scam,bench_suite,0.9990
+"Send the money by Zelle now, my phone is broken, this is your son",scam,bench_suite,0.9990
+"Sweepstakes winner! To receive your car, pay taxes upfront via MoneyGram",scam,bench_suite,0.9990
+"Verify your Medicare card number now or your benefits will be suspended immediately",scam,bench_suite,0.9990
+"Yоur Аpple ID has been lоcked. Verify nоw at apple-id-verify.top",scam,bench_suite,0.9990
+"Send me the gi​ft ca​rd codes right away please",scam,bench_suite,0.8652
+"Update your billing information here: netfl1x-billing.com",scam,bench_suite,0.9990
+"Your wallmart reward of $500 expires tonight: wallmart-rewards.com",scam,bench_suite,0.9980
+"You are the beneficiary of an unclaimed estate of $2.4 million. Pay the transfer fee to claim your inheritance",scam,bench_suite,0.9990
+"We accidentally overpaid you $500. Deposit the check and send back the difference via Zelle",scam,bench_suite,0.9990
+"I have a video of you from your webcam. Pay $800 in bitcoin within 48 hours or I send it to every contact",scam,bench_suite,0.9990
+"Help hurricane victims today. Donate with Apple gift cards, any amount helps",scam,bench_suite,0.8135
+"Your account will be frozen today. Call 888-402-1187 immediately to keep access",scam,bench_suite,0.9990
+"Scan this QR code to receive your $100 Zelle refund instantly",scam,bench_suite,0.9990
+"Coinbase support: to restore access, confirm your seed phrase with our agent",scam,bench_suite,0.9980
+"Adorable teacup puppies ready today, just send the $200 shipping deposit via Zelle",scam,bench_suite,0.9990
+"Microsoft alert: viruses were detected on your PC. Call now to avoid data loss",scam,bench_suite,0.9990
+"chase.com278282: your account needs verification, sign in here",scam,bench_suite,0.9990
+"Hi mum, my phone broke, this is my new number. Can you help me pay a bill today?",scam,bench_suite,0.9990
+"Hi mum its me, lost my phone, new number. Can you transfer me £250 today?",scam,bench_suite,0.9990
+"Amazon: your order for $1,299.99 has shipped. If this wasn\u2019t you call 888-555-0142 immediately.",scam,bench_suite,0.9922
+"Hello dear, I am a widow with $4.5 million and I need your help transferring it.",scam,bench_suite,0.9990
+"I am a widower dying of cancer and wish to donate my $2 million estate to you.",scam,bench_suite,0.9990
+"Hello. Dad here lol. Please send the 400 dollars.",scam,bench_suite,0.0039
+"Hi! This is Camila from the recruiting team at Amazon. We came across your profile and feel you would be a fantastic match for our part-time remote position. Earnings: $250-$500 per day. If you\u2019re interested, please reach out via text to 7023078239 for more details.",scam,bench_suite,0.9990
+"We are hiring! Work from home 1-2 hours a day and earn $300-$800 daily. Message us on WhatsApp +1 702 307 8239 to start.",scam,bench_suite,0.9990
+"Hi Dad, running 10 min late for lunch, order me the soup please!",safe,bench_suite,0.0010
+"Hey, can you babysit Saturday evening? I pay $20 per hour and will drive you home.",safe,bench_suite,0.0010
+"Hi Mark, this is Dana from the Riverside Library. Your interview for the assistant role is Tuesday at 10. Reply to confirm.",safe,bench_suite,0.0000
+"Hola mama, llego 15 minutos tarde a la cena. Nos vemos pronto!",safe,bench_suite,0.0000
+"Recordatorio: su cita con la Dra. Gomez es el martes a las 3pm.",safe,bench_suite,0.0000
+"Ta commande est prete, tu peux venir la chercher a la boulangerie.",safe,bench_suite,0.0010
+"Reminder: your appointment with Dr. Patel is Tuesday at 2pm. Reply C to confirm.",safe,bench_suite,0.0000
+"Your dentist visit is tomorrow at 9am. Reply C to confirm or R to reschedule.",safe,bench_suite,0.0000
+"Amazon: your order #114-2837465-991 has shipped. Arriving Thursday.",safe,bench_suite,0.0000
+"Your order number 8823-AA71 was delivered to your front door.",safe,bench_suite,0.0000
+"Thanks for your payment of $84.12 to PSE&G. Payment received.",safe,bench_suite,0.0000
+"Your Chase verification code is 493022. Do not share this code with anyone.",safe,bench_suite,0.0000
+"Your one-time code is 88231. It expires in 10 minutes.",safe,bench_suite,0.0000
+"Google: your verification code is 552901",safe,bench_suite,0.0010
+"Mom, I\u2019ll pick you up at 4 for the doctor, love you",safe,bench_suite,0.0000
+"Hey it\u2019s Sarah, are we still on for bridge Thursday?",safe,bench_suite,0.0000
+"Your prescription is ready for pickup at CVS pharmacy #442.",safe,bench_suite,0.0000
+"Wegmans: your grocery order is ready for pickup at 5pm.",safe,bench_suite,0.0000
+"Your library books are due Friday. Renew online or return by 6pm.",safe,bench_suite,0.0000
+"PSEG: scheduled maintenance in your area Tuesday 1-3pm. No action needed.",safe,bench_suite,0.0000
+"Flight DL2231 is on time, departing gate B12 at 3:45pm.",safe,bench_suite,0.0000
+"Your table for 2 at Olive Garden is confirmed for 6:30 tonight.",safe,bench_suite,0.0000
+"Verizon: your bill of $92.40 was paid. Thank you!",safe,bench_suite,0.0000
+"Your package has been delivered. Photo available in the app.",safe,bench_suite,0.0000
+"Church potluck moved to Saturday 5pm, bring your famous casserole!",safe,bench_suite,0.0000
+"This is Dr. Kim\u2019s office confirming your annual physical on 3/14 at 10am.",safe,bench_suite,0.0000
+"Uber: your driver Miguel is arriving in a white Camry, plate XJK-2214.",safe,bench_suite,0.0000
+"Netflix: a new device signed in. If this was you, no action is needed.",safe,bench_suite,0.0000
+"Your Social Security statement is available. Sign in at ssa.gov to view it.",safe,bench_suite,0.0010
+"Costco: your photo order is ready at the membership desk.",safe,bench_suite,0.0000
+"Hi Grandma! Can\u2019t wait to see you Sunday, I\u2019m bringing the kids",safe,bench_suite,0.0010
+"Your electric bill is $118.22, due March 15. Pay in the PSEG app or by mail.",safe,bench_suite,0.0000
+"School closed tomorrow due to snow. All after-school activities canceled.",safe,bench_suite,0.0000
+"Hair appointment with Donna confirmed for Friday 11am. Reply C to confirm.",safe,bench_suite,0.0000
+"Your car is ready for pickup at Honda service. Total: $212.50.",safe,bench_suite,0.0000
+"Bridge club is at Helen\u2019s this week, 1pm. Bring cards!",safe,bench_suite,0.0000
+"Reminder: HOA meeting Tuesday 7pm in the clubhouse.",safe,bench_suite,0.0000
+"AAA: your membership renews next month. No action needed today.",safe,bench_suite,0.0000
+"Walgreens: flu shots now available, walk-ins welcome.",safe,bench_suite,0.0010
+"Your Medicare card was mailed and should arrive in 7-10 days.",safe,bench_suite,0.0000
+"Bank of America: your statement is ready. Log in to your app to view.",safe,bench_suite,0.0000
+"Chase: you spent $43.12 at Shell. Not you? Check your app.",safe,bench_suite,0.0000
+"Your rent payment of $1,450 was received. Thank you!",safe,bench_suite,0.0010
+"Aarav: landed safely, will call tonight!",safe,bench_suite,0.0000
+"Book club picks: The Covenant of Water. See you Thursday at 2.",safe,bench_suite,0.0000
+"Your Instacart order was delivered. Rate your shopper in the app.",safe,bench_suite,0.0000
+"Jury duty reminder: report Monday 8:30am, County Courthouse room 210.",safe,bench_suite,0.0000
+"Comcast: technician arriving between 10-12 tomorrow as scheduled.",safe,bench_suite,0.0000
+"Your photos from Walgreens are ready! Order #P-99213.",safe,bench_suite,0.0000
+"Dinner at our place Sunday? Dad\u2019s making lasagna",safe,bench_suite,0.0000
+"Your YMCA class is confirmed: Water Aerobics, Mon/Wed 9am.",safe,bench_suite,0.0000
+"Prescription refill approved. Ready after 3pm today at CVS.",safe,bench_suite,0.0000
+"Your Southwest flight check-in opens at 10:15am tomorrow.",safe,bench_suite,0.0000
+"Property tax payment received. Receipt #2024-8871.",safe,bench_suite,0.0000
+"Hi it\u2019s Mike next door, your package was left with us, come by anytime",safe,bench_suite,0.0039
+"Target: your pickup order is ready at Guest Services until 8pm.",safe,bench_suite,0.0000
+"The pharmacy called: your new dose starts tomorrow, take with food.",safe,bench_suite,0.0000
+"Your appointment with the eye doctor is confirmed for April 2 at 1:30.",safe,bench_suite,0.0000
+"Zelle: you received $50.00 from Sarah Miller. It\u2019s in your account.",safe,bench_suite,0.0000
+"Your водоmeter reading is due. Submit in the utility app this week.",safe,bench_suite,0.0010
+"Grandpa, beat my chess record! Rematch this weekend?",safe,bench_suite,0.0010
+"Reminder from Trinity Church: choir practice Wednesday 7pm.",safe,bench_suite,0.0000
+"DMV: your registration renewal was processed. New sticker mails in 2 weeks.",safe,bench_suite,0.0000
+"Your gym membership payment of $29 posted. Thanks!",safe,bench_suite,0.0000
+"Lunch Thursday? My treat this time. Carol x",safe,bench_suite,0.0000
+"Chase: We will never ask for your password or PIN. If you get such a call, hang up and call us directly.",safe,bench_suite,0.0000
+"Your Apple ID was used to sign in to iCloud on a new Mac. If this was you, no action is needed.",safe,bench_suite,0.0000
+"Donate to the Red Cross at redcross.org or by calling 1-800-RED-CROSS.",safe,bench_suite,0.0703
+"Your Netflix plan price is changing next month. See details in your account settings.",safe,bench_suite,0.0010
+"USPS: Your package was delivered at 2:14pm. Track more at usps.com.",safe,bench_suite,0.0000
+"Grandpa, my recital is Friday at 6! Can you and grandma come?",safe,bench_suite,0.0000
+"Reminder: flu clinic at the senior center Tuesday, walk-ins welcome, bring your Medicare card.",safe,bench_suite,0.0010
+"Wells Fargo: your requested statement is attached. Questions? Call the number on your card.",safe,bench_suite,0.0000
+"Hi mum, just landed. Battery about to die, will call you tomorrow.",safe,bench_suite,0.0010
+"My phone broke so I\u2019m on Sarah\u2019s for now. No rush, just letting you know.",safe,bench_suite,0.0010
+"Hey dad, can you pay the window cleaner if he comes? I\u2019ll transfer you back.",safe,bench_suite,0.2891
+"I am a widower and I\u2019d like to join the Tuesday walking group please.",safe,bench_suite,0.0010
+"Amazon: your order has shipped and is arriving tomorrow. No action needed.",safe,bench_suite,0.0000

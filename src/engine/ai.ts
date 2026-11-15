@@ -13,7 +13,6 @@
 import { detect, Verdict, DetectorOptions } from './ScamDetector';
 import { modelMayJudge } from './guard';
 import { normalizeText } from './normalize';
-import { modelProbability, SCAM_THRESHOLD } from './model';
 import { availableTier, classify, AiTier, AiJudgement } from '../../modules/scam-ai';
 
 export interface FusedVerdict extends Verdict {
@@ -62,39 +61,9 @@ export function instant(message: string, opts?: DetectorOptions): FusedVerdict {
 }
 
 function instantVerdict(message: string, opts?: DetectorOptions): FusedVerdict {
-  const v = detect(message, opts);
-
-  // An allowlisted sender is the person's own explicit decision; nothing overrides it.
-  if (v.tags.includes('allowlist')) return { ...v, aiTier: 'none', fused: false };
-  // Fragments (an email address, a name, a short note) get no model raise.
-  if (!modelMayJudge(message)) return { ...v, aiTier: 'none', fused: false };
-
-  let p = 0;
-  try { p = modelProbability(normalizeText((message || '').trim()).text); } catch { return { ...v, aiTier: 'none', fused: false }; }
-  if (p < SCAM_THRESHOLD) return { ...v, aiTier: 'builtin', fused: false };
-
-  // Above the threshold the model is deliberately conservative: measured on the
-  // repo suite it never trained on, it fires rarely and almost never on a
-  // genuine message. Green becomes amber; a weak amber hardens. Red stays red.
-  const level: Verdict['level'] = v.level === 'red' ? 'red'
-    : v.level === 'amber' && p >= 0.9 ? 'red'
-    : v.level === 'green' ? 'amber'
-    : 'amber';
-  if (level === v.level) return { ...v, aiTier: 'builtin', fused: false };
-
-  const note = 'The on-device model recognizes the shape of this message as a scam, even though it does not match a specific known trick.';
-  return {
-    ...v,
-    level,
-    reason: v.level === 'green' ? 'This does not match a named trick, but it reads like a scam.' : v.reason,
-    safeStep: level === 'red'
-      ? 'Do not reply and do not send anything. Delete the message.'
-      : 'Don’t tap or reply yet. Check with them on a number you already have.',
-    signals: v.signals.includes(note) ? v.signals : [...v.signals, note],
-    confidence: p >= 0.9 ? 'fairly' : 'unsure',
-    aiTier: 'builtin',
-    fused: true,
-  };
+  // Rules only. The one learned model, ScamNet, answers asynchronously in
+  // upgrade(); the old hashed word model that used to vote here is gone.
+  return { ...detect(message, opts), aiTier: 'none', fused: false };
 }
 
 /**

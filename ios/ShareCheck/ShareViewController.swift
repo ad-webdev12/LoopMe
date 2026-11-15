@@ -10,7 +10,7 @@ import Vision
 // written to the shared log so it shows in History and reaches the caretaker
 // the next time Loop Me opens.
 final class ShareViewController: UIViewController {
-  static let model = CoreModel.named("ScamText", threshold: 0.8)
+  static let model = CoreModel.named("ScamNet", threshold: 0.8)
   private let card = UIView()
   private let stack = UIStackView()
   private let spinner = UIActivityIndicatorView(style: .large)

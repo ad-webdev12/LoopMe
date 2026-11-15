@@ -26,16 +26,31 @@ end
 
 engine_dir = File.join(ROOT, 'ios', 'Shared', 'Engine')
 engine_refs = Dir[File.join(engine_dir, '*.swift')].sort.map { |f| ref_for(engine_group, f, ROOT) }
-filter_model = ref_for(engine_group, File.join(engine_dir, 'ScamFilter.mlmodel'), ROOT)
-text_model = ref_for(project.main_group['scam-ai'] || project.main_group.new_group('scam-ai', File.join(ROOT, 'modules', 'scam-ai', 'ios', 'Resources')),
-                     File.join(ROOT, 'modules', 'scam-ai', 'ios', 'Resources', 'ScamText.mlmodel'), ROOT)
+ai_dir = File.join(ROOT, 'modules', 'scam-ai', 'ios')
+ai_group = project.main_group['scam-ai'] || project.main_group.new_group('scam-ai', ai_dir)
+net_swift = ref_for(ai_group, File.join(ai_dir, 'ScamNetRunner.swift'), ROOT)
+net_model = ref_for(ai_group, File.join(ai_dir, 'Resources', 'ScamNet.mlmodel'), ROOT)
+net_vocab = ref_for(ai_group, File.join(ai_dir, 'Resources', 'ScamNet.vocab.txt'), ROOT)
+
+def ensure_resource(target, ref)
+  return if target.resources_build_phase.files_references.include?(ref)
+  target.resources_build_phase.add_file_reference(ref, true)
+  puts "#{target.name}: + resource #{File.basename(ref.path)}"
+end
+
+# The old Create ML models are gone; drop any leftover references.
+%w[ScamText.mlmodel ScamFilter.mlmodel scam-ai/ios/ScamNet.swift].each do |old|
+  project.files.select { |f| f.real_path.to_s.end_with?(old) }.each { |f| f.remove_from_project; puts "- #{old}" }
+end
 
 %w[TextFilter CallDirectory ShareCheck MessagesCheck].each do |name|
   target = project.targets.find { |t| t.name == name }
   next puts("#{name}: missing, run add-extensions.rb first") unless target
   engine_refs.each { |r| ensure_source(target, r) }
-  ensure_source(target, filter_model) if name == 'TextFilter' || name == 'ShareCheck' || name == 'MessagesCheck'
-  ensure_source(target, text_model) if name == 'ShareCheck' || name == 'MessagesCheck'
+  ensure_source(target, net_swift)   # CoreModel.swift needs the type even where no model ships
+  next if name == 'CallDirectory'
+  ensure_source(target, net_model)
+  ensure_resource(target, net_vocab)
 end
 project.save
 puts 'saved'
