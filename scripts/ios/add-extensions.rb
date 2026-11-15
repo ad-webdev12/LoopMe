@@ -132,7 +132,8 @@ end
 
 # Live Caller ID Lookup (iOS 18) is an ExtensionKit extension: a different
 # product type, embedded under Extensions/ rather than PlugIns/.
-unless project.targets.any? { |t| t.name == 'CallerID' }
+# Live Caller ID stays out until the lookup server is hosted (set LOOPME_CALLERID=1 to add it back).
+if ENV['LOOPME_CALLERID'] == '1' && !project.targets.any? { |t| t.name == 'CallerID' }
   target = project.new_target(:app_extension, 'CallerID', :ios, '18.0')
   target.product_type = 'com.apple.product-type.extensionkit-extension'
   target.product_reference.explicit_file_type = 'wrapper.extensionkit-extension'

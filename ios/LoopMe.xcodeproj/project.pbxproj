@@ -22,7 +22,6 @@
 		20A70092BEE5A2CB175EB574 /* engine.json in Resources */ = {isa = PBXBuildFile; fileRef = 7425BA7C6F3DEEAC8357EDA8 /* engine.json */; };
 		24446C5699C10A3B31CE52B9 /* ScamNet.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = ED88A199A80A9E228D8B362D /* ScamNet.mlmodel */; };
 		2505D1E2294CEE7976317129 /* Links.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B562C1AAA3540A9060ACC35 /* Links.swift */; };
-		25B5D62982B9B56F82597E3A /* CallerID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597E9DA98ACB2784A3827D3D /* CallerID.swift */; };
 		25E9D7CA906BAB17D58754F4 /* Normalize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 945077E77B5E2962B39434D8 /* Normalize.swift */; };
 		2600A6CA86136FD65E544B61 /* CoreModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49312EEB42FDF8F28BCEFC21 /* CoreModel.swift */; };
 		29E7B71A48E1D4A7D310903A /* CheckWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 42115E1BD3B71773905047FB /* CheckWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -58,7 +57,6 @@
 		77C8E6D724B4F63D4CE95A9D /* ScamNetRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A57A8E33F6BFD89AFAC63B /* ScamNetRunner.swift */; };
 		7B9676BAEFDC140187293F3E /* ScamNet.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = ED88A199A80A9E228D8B362D /* ScamNet.mlmodel */; };
 		7DEE84D04979E71681823124 /* engine.json in Resources */ = {isa = PBXBuildFile; fileRef = 7425BA7C6F3DEEAC8357EDA8 /* engine.json */; };
-		867254FA458ECFD023329377 /* CallerID.appex in Embed ExtensionKit Extensions */ = {isa = PBXBuildFile; fileRef = 7372FE9448BD42F5FBA205D3 /* CallerID.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8848BE495E18922275F1367D /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4D265154FE44392D71A81F4 /* Vision.framework */; };
 		89EC9347CA84CAF3D98D26E6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3880F1449DE7286E50DBC971 /* Foundation.framework */; };
 		8A8D7101F7871A22A5B0FFF6 /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BC43A396AA9E9FBFDDF6130 /* AppIntents.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -116,13 +114,6 @@
 			remoteGlobalIDString = B50C64B2F752ABD9DE023B86;
 			remoteInfo = CallDirectory;
 		};
-		6811DFF26119EEE25333A83E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E5BA8D77ED4A7DC153F16EAE;
-			remoteInfo = CallerID;
-		};
 		83C0B2920222D43FC21C821C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
@@ -171,7 +162,6 @@
 			dstPath = "$(EXTENSIONS_FOLDER_PATH)";
 			dstSubfolderSpec = 16;
 			files = (
-				867254FA458ECFD023329377 /* CallerID.appex in Embed ExtensionKit Extensions */,
 			);
 			name = "Embed ExtensionKit Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -216,12 +206,10 @@
 		4D04B69602AE0096904881CE /* CallKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CallKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/CallKit.framework; sourceTree = DEVELOPER_DIR; };
 		50A57A8E33F6BFD89AFAC63B /* ScamNetRunner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScamNetRunner.swift; path = ../ScamNetRunner.swift; sourceTree = "<group>"; };
 		5491F0CE324E1554B41E5EA2 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/CloudKit.framework; sourceTree = DEVELOPER_DIR; };
-		597E9DA98ACB2784A3827D3D /* CallerID.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CallerID.swift; sourceTree = "<group>"; };
 		5BC43A396AA9E9FBFDDF6130 /* AppIntents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/AppIntents.framework; sourceTree = DEVELOPER_DIR; };
 		644635D9F1E34418844BF8A0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = PrivacyInfo.xcprivacy; path = LoopMe/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		6C26B90D014DFB78C17A71F2 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/AVFoundation.framework; sourceTree = DEVELOPER_DIR; };
 		6EAB95A3D3A419B7BDF41BAF /* libPods-LoopMe.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-LoopMe.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		7372FE9448BD42F5FBA205D3 /* CallerID.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.extensionkit-extension"; includeInIndex = 0; path = CallerID.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		7425BA7C6F3DEEAC8357EDA8 /* engine.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; path = engine.json; sourceTree = "<group>"; };
 		8053B7FC48E47DD52593E09F /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		843F3674735390B0569A8130 /* SharedStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SharedStore.swift; path = "../../modules/scam-ai/ios/SharedStore.swift"; sourceTree = "<group>"; };
@@ -320,15 +308,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		D6524CEBE07A8F00EA1491CD /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				FADF3950677213B607F75B94 /* Foundation.framework in Frameworks */,
-				3D150DCC2C83672BAE9D7106 /* IdentityLookup.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -387,14 +366,6 @@
 			path = MessagesCheck;
 			sourceTree = "<group>";
 		};
-		566830F4E33E53517B63BB37 /* CallerID */ = {
-			isa = PBXGroup;
-			children = (
-				597E9DA98ACB2784A3827D3D /* CallerID.swift */,
-			);
-			path = CallerID;
-			sourceTree = "<group>";
-		};
 		77C4068D250B0B03037E23AE /* scam-ai */ = {
 			isa = PBXGroup;
 			children = (
@@ -429,7 +400,6 @@
 				77C4068D250B0B03037E23AE /* scam-ai */,
 				42A419BA525570D9F4644A76 /* MessagesCheck */,
 				04E67F1F8048E8185B59B1EF /* CheckWidget */,
-				566830F4E33E53517B63BB37 /* CallerID */,
 				BE16936B634B5D1CB73396FC /* LoopMeWatch */,
 			);
 			indentWidth = 2;
@@ -446,7 +416,6 @@
 				8464F0A783C38B6FF77038A0 /* ShareCheck.appex */,
 				264F377F32143F7867000D84 /* MessagesCheck.appex */,
 				42115E1BD3B71773905047FB /* CheckWidget.appex */,
-				7372FE9448BD42F5FBA205D3 /* CallerID.appex */,
 				9A54E6BC69289D3C1B1B113B /* LoopMeWatch.app */,
 			);
 			name = Products;
@@ -587,7 +556,6 @@
 				FDED574555836B786213E0AE /* PBXTargetDependency */,
 				394E2119DDD872B1D1EE0D03 /* PBXTargetDependency */,
 				ECF59C003E5B3167BF83926C /* PBXTargetDependency */,
-				4308D55DA989A7F50021388C /* PBXTargetDependency */,
 				2478689E2E9E356371C81431 /* PBXTargetDependency */,
 			);
 			name = LoopMe;
@@ -697,23 +665,6 @@
 			productReference = E225C34A5A7CA6D1A7AA0BC9 /* TextFilter.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		E5BA8D77ED4A7DC153F16EAE /* CallerID */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = C98F3E2154371E22BA6CA7AC /* Build configuration list for PBXNativeTarget "CallerID" */;
-			buildPhases = (
-				5BE6A2F61FE35B3F853BC536 /* Sources */,
-				D6524CEBE07A8F00EA1491CD /* Frameworks */,
-				0B23CEE2E7B99377AA218096 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = CallerID;
-			productName = CallerID;
-			productReference = 7372FE9448BD42F5FBA205D3 /* CallerID.appex */;
-			productType = "com.apple.product-type.extensionkit-extension";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -746,7 +697,6 @@
 				5E5C6516D81C33AD41870453 /* ShareCheck */,
 				589A28AF20BB8F697FC0B525 /* MessagesCheck */,
 				6515195A89FF20083DFBCAEF /* CheckWidget */,
-				E5BA8D77ED4A7DC153F16EAE /* CallerID */,
 				53752502D72784079126EB6C /* LoopMeWatch */,
 			);
 		};
@@ -766,13 +716,6 @@
 			files = (
 				B27B01E5DDF5C34B982E4157 /* PrivacyInfo.xcprivacy in Resources */,
 				E7F3F04BAA2D86260740787B /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		0B23CEE2E7B99377AA218096 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1001,14 +944,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5BE6A2F61FE35B3F853BC536 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				25B5D62982B9B56F82597E3A /* CallerID.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		A0DDB121B8BCDC97B8B636CA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1089,12 +1024,6 @@
 			target = 589A28AF20BB8F697FC0B525 /* MessagesCheck */;
 			targetProxy = DB92061B760F7CED2E869571 /* PBXContainerItemProxy */;
 		};
-		4308D55DA989A7F50021388C /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = CallerID;
-			target = E5BA8D77ED4A7DC153F16EAE /* CallerID */;
-			targetProxy = 6811DFF26119EEE25333A83E /* PBXContainerItemProxy */;
-		};
 		ECF59C003E5B3167BF83926C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = CheckWidget;
@@ -1116,7 +1045,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = CheckWidget/CheckWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1127,7 +1056,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.1;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1147,7 +1076,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = MessagesCheck/MessagesCheck.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1158,7 +1087,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.1;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.messages;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1177,7 +1106,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = LoopMe/LoopMe.entitlements;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1190,7 +1119,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1214,7 +1143,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = LoopMe/LoopMe.entitlements;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				INFOPLIST_FILE = LoopMe/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -1222,7 +1151,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1245,7 +1174,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = MessagesCheck/MessagesCheck.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1256,7 +1185,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.1;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.messages;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1275,7 +1204,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = CallDirectory/CallDirectory.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1286,7 +1215,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.1;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.calls;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1305,7 +1234,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = TextFilter/TextFilter.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1316,7 +1245,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.1;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.textfilter;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1334,7 +1263,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = ShareCheck/ShareCheck.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1345,39 +1274,9 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.1;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.share;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		49EB7E07E0DCAEE955BE4819 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = CallerID/CallerID.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
-				DEVELOPMENT_TEAM = 8TPMGLDM22;
-				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = CallerID/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0.1;
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.callerid;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1394,7 +1293,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = TextFilter/TextFilter.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1405,7 +1304,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.1;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.textfilter;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1424,7 +1323,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -1434,7 +1333,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.1;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1572,7 +1471,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -1582,7 +1481,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.1;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1601,7 +1500,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = ShareCheck/ShareCheck.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1612,38 +1511,9 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.1;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.share;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
-		B26BF2FAFB05851671E3D3BC /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = CallerID/CallerID.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
-				DEVELOPMENT_TEAM = 8TPMGLDM22;
-				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = CallerID/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0.1;
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.callerid;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1659,7 +1529,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = CheckWidget/CheckWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1670,7 +1540,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.1;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1688,7 +1558,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = CallDirectory/CallDirectory.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_TEAM = 8TPMGLDM22;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -1699,7 +1569,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.1;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.loopmescamsafety.app.calls;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1782,15 +1652,6 @@
 			buildConfigurations = (
 				75CEEB2D2E830C8ECFA46E13 /* Release */,
 				8C704CD1CF71A6C70451FC90 /* Debug */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		C98F3E2154371E22BA6CA7AC /* Build configuration list for PBXNativeTarget "CallerID" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				49EB7E07E0DCAEE955BE4819 /* Release */,
-				B26BF2FAFB05851671E3D3BC /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
