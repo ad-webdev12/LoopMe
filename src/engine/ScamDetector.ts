@@ -360,8 +360,17 @@ export function detect(message: string, opts: DetectorOptions = {}): Verdict {
   const codeWordMoment = tags.some(t => CODE_WORD_TAGS.has(t));
 
   // Verdict: cOMMITTED. Red means red. (Scamio's hedging is the most-criticized thing in this market.)
-  let level: Level = score >= 50 || forceRed ? 'red' : score >= 20 ? 'amber' : 'green';
-  const confidence: Confidence = forceRed || score >= 75 ? 'very' : level === 'red' ? 'very' : level === 'amber' ? (score >= 35 ? 'fairly' : 'unsure') : (signals.length ? 'fairly' : 'very');
+  // The rules were written for texts. In a long email the same words ("verify",
+  // a link, a dollar sign) are everyday, so the bar rises with length: from 40
+  // words up, the amber and red lines stretch by up to 4x. A known scam link
+  // or the full scam triangle still forces red at any length. Measured 15 Nov
+  // 2026 on six public email sets, see ml/scamnet/README.md.
+  const words = text.split(/\s+/).filter(Boolean).length;
+  const longFactor = words > 40 ? Math.min(4, 1 + (words - 40) / 30) : 1;
+  if (tags.includes('url-blocklisted')) forceRed = true;
+  const redAt = 50 * longFactor, amberAt = 20 * longFactor;
+  let level: Level = score >= redAt || forceRed ? 'red' : score >= amberAt ? 'amber' : 'green';
+  const confidence: Confidence = forceRed || score >= 75 * longFactor ? 'very' : level === 'red' ? 'very' : level === 'amber' ? (score >= 35 * longFactor ? 'fairly' : 'unsure') : (signals.length ? 'fairly' : 'very');
 
   let reason: string, safeStep: string;
   const hasBadLink = links.hits.some(h => h.w > 0);
@@ -389,6 +398,8 @@ export function detect(message: string, opts: DetectorOptions = {}): Verdict {
       ? 'Don’t call the number in the message. Find the real one yourself.'
       : has('job-offer', 'pay-bait')
       ? 'Don’t reply or text the number. Real employers don’t hire by text message.'
+      : has('prize')
+      ? 'Real prize draws never ask for a fee, a code or your card. If you did enter one, check with the organizer yourself.'
       : 'Don’t tap or reply yet. Check with them on a number you already have.';
   } else {
     reason = signals[0] || '';

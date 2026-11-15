@@ -101,10 +101,15 @@ enum Engine {
 
     let codeWordMoment = tags.contains { t.codeWordTags.contains($0) }
 
-    let level: Level = (score >= 50 || forceRed) ? .red : score >= 20 ? .amber : .green
-    let confidence: Confidence = (forceRed || score >= 75) ? .very
+    // Long text raises the bar, exactly as ScamDetector.ts does.
+    let words = text.split(whereSeparator: { $0.isWhitespace || $0.isNewline }).count
+    let longFactor: Double = words > 40 ? min(4, 1 + Double(words - 40) / 30) : 1
+    if tags.contains("url-blocklisted") { forceRed = true }
+    let redAt = 50 * longFactor, amberAt = 20 * longFactor
+    let level: Level = (Double(score) >= redAt || forceRed) ? .red : Double(score) >= amberAt ? .amber : .green
+    let confidence: Confidence = (forceRed || Double(score) >= 75 * longFactor) ? .very
       : level == .red ? .very
-      : level == .amber ? (score >= 35 ? .fairly : .unsure)
+      : level == .amber ? (Double(score) >= 35 * longFactor ? .fairly : .unsure)
       : (signals.isEmpty ? .very : .fairly)
 
     let hasBadLink = links.hits.contains { $0.w > 0 }
@@ -134,6 +139,8 @@ enum Engine {
         safeStep = "Don’t call the number in the message. Find the real one yourself."
       } else if has(["job-offer", "pay-bait"]) {
         safeStep = "Don’t reply or text the number. Real employers don’t hire by text message."
+      } else if has(["prize"]) {
+        safeStep = "Real prize draws never ask for a fee, a code or your card. If you did enter one, check with the organizer yourself."
       } else {
         safeStep = "Don’t tap or reply yet. Check with them on a number you already have."
       }
