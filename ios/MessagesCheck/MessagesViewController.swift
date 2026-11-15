@@ -424,16 +424,24 @@ final class MessagesViewController: MSMessagesAppViewController {
 
   // Short labels for the reason chips, from the engine's tags.
   static func chipLabels(for v: Verdict) -> [String] {
+    // Keyed by the engine's real tag names (src/engine/ScamDetector.ts, linkForensics.ts).
     let map: [String: String] = [
-      "family-emergency": "Pretends to be family", "giftcard": "Wants gift cards", "payment": "Wants money", "safe-account": "“Safe account” trick",
-      "otp": "Asks for a code", "code": "Asks for a code", "secrecy": "Keep it secret", "urgency": "Rushing you", "link": "Has a link", "shortlink": "Hidden link",
-      "parcel": "Fake delivery fee", "delivery": "Fake delivery fee", "bank": "Pretends to be a bank", "government": "Pretends to be official", "tech-support": "Fake tech support",
-      "prize": "Prize bait", "lottery": "Prize bait", "job-scam": "Too-easy job", "romance": "Romance con", "crypto": "Crypto pitch", "money-ask": "Asks for money", "fake-debt": "Fake debt", "overpayment": "Overpayment trick", "charity": "Fake charity",
+      "family-emergency": "Pretends to be family", "borrow-ask": "Asks to borrow money", "borrow-repay": "Asks for money", "money-ask": "Asks for money", "money-deadline": "Money, with a deadline",
+      "giftcard": "Wants gift cards", "payment": "Wants money", "payment-demand": "Demands payment", "pay-or-lose": "Pay or lose something", "advance-fee": "Fee to get money", "deposit-hold": "Wants a deposit", "pet-deposit": "Wants a deposit", "dependant-fee": "Fee for a relative",
+      "safe-account": "“Safe account” trick", "bank-alert": "Pretends to be a bank", "account-locked": "“Account locked”", "unusual-signin": "“Unusual sign-in”", "verify": "Wants you to “verify”", "detail-harvest": "Asks for your details", "otp-request": "Asks for a code",
+      "secrecy": "Keep it secret", "urgency": "Rushing you", "service-cutoff": "Threatens a cutoff", "renewal-pressure": "Renewal pressure", "subscription": "Fake subscription",
+      "url-mismatch": "Link isn’t what it says", "url-lookalike": "Lookalike link", "url-blocklisted": "Known scam link", "url-shortener": "Hidden link", "url-many": "Many links", "qr-bait": "QR code bait", "platform-hop": "Move to another app",
+      "delivery-fee": "Fake delivery fee", "package-fee": "Fake delivery fee", "courier-fraud": "Courier trick", "toll": "Fake toll", "refund": "Fake refund", "gov-impersonation": "Pretends to be official", "digital-arrest": "Fake arrest threat", "fake-debt": "Fake debt",
+      "tech-support": "Fake tech support", "remote-access": "Wants into your device", "callback": "Wants you to call back", "stay-on-line": "“Stay on the line”", "warranty": "Warranty bait", "claims-bait": "Claims bait", "doorstep": "Doorstep pitch",
+      "prize": "Prize bait", "job-offer": "Job by text", "job-scam": "Too-easy job", "pay-bait": "Pay too good", "investment": "Investment pitch", "crypto": "Crypto pitch", "wallet-phrase": "Asks for wallet words", "romance": "Romance con", "wrong-number": "“Wrong number” opener",
+      "overpayment": "Overpayment trick", "charity": "Fake charity", "sextortion": "Blackmail bluff", "recovery": "“Recover your money” con",
     ]
     var out: [String] = []
     for t in v.tags { if let l = map[t], !out.contains(l) { out.append(l) } }
-    if out.isEmpty { out = v.signals.prefix(2).map { s in String(s.split(separator: " ").prefix(3).joined(separator: " ")) } }
-    return Array(out.prefix(3))
+    // No known tag: show the exact phrases that matched, never a cut-off sentence.
+    if out.isEmpty { out = v.matches.prefix(2).map { m in "“" + String(m.prefix(28)) + (m.count > 28 ? "…”" : "”") } }
+    // Two fit on every width; a third wraps letter by letter.
+    return Array(out.prefix(2))
   }
 
   // MARK: - Actions
