@@ -71,7 +71,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
           <Row C={C} chip={Sparkles} chipColor={T.amber} title="Help improve Loop Me" pad={9} right={<IOSSwitch C={C} on={!!s.improve} onChange={v => set({ improve: v })} />} />
           <Row C={C} chip={Moon} chipColor="#1c1c1e" title="Dark mode" pad={9} last right={<IOSSwitch C={C} on={!!s.darkMode} onChange={v => set({ darkMode: v })} />} />
         </Group>
-        <Note C={C} top={10}>Scam texts from numbers you don’t know go straight to Junk.{s.improve ? ' When you correct an answer, the text is sent to Loop Me with numbers and names blanked, to train the next version.' : ''}</Note>
+        <Note C={C} top={10}>Scam texts from numbers you don’t know go straight to Junk.{s.improve ? ' When you correct an answer, that text is sent to Loop Me with phone numbers, emails and long numbers blanked, to train the next version. Nothing else is sent.' : ''}</Note>
 
         <View style={st.secret}>
           <Text style={[font(15, '600'), { color: '#fff' }]} allowFontScaling>Your family’s secret word</Text>

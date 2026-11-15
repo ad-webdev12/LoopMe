@@ -23,6 +23,10 @@ except Exception as e: print('clove',e)
 i=pd.read_csv(f'{R}/indian_scam.csv'); i=i[i['language'].astype(str).str.lower()=='english']; i['y']=i['label'].map({'scam':'scam','legit':'safe'}); add(i,'message','y','indian')
 # Ridham synthetic audited: only english
 rd=pd.read_csv(f'{R}/ridham.csv'); rd=rd[rd['language'].astype(str).str.startswith('en')]; add(rd,'text','label','ridham')
+# Corrections people chose to share from the app (ml/scamnet/pull-samples.sh).
+# Real, labeled by the person who got the text: the most valuable rows here.
+if os.path.exists(f'{R}/users.csv'):
+    u=pd.read_csv(f'{R}/users.csv'); u=u[u.text.str.len()>=4]; add(u,'text','label','users'); print('shared corrections',len(u))
 # Loop Me's own hand-written scam-focused data (elder scams)
 for f in [f'{LM}/ml/scam-train.csv', f'{LM}/ml/scam-test.csv']+glob.glob(f'{LM}/ml/extra/*.csv'):
     try:

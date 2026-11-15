@@ -149,3 +149,26 @@ alarms on the full UCI set; rules alone score 25% caught and 0.6% false alarms.
 - English only. The `lang` bench (six other languages) is caught by rules, not the model.
 - Still 1 to 2 false alarms per 100 odd, short, real texts ("Hey now am free you can call me."). More real ham would help most.
 - The text filter extension loads the 33 MB model under its memory cap; confirmed in the simulator only. If iOS kills it on a phone, the filter falls back to rules.
+
+## Learning from users
+
+Nothing a person checks leaves the phone on its own. When someone taps
+"Was this right?" and corrects an answer, the correction is remembered on the
+phone. If they have switched on "Help improve Loop Me" in Settings (offered once,
+after their first correction), that one text is also sent, with phone numbers,
+emails and long numbers blanked, to the app's public CloudKit database as a
+`Sample` record: text, label, country, date. No identity travels with it.
+
+To fold those into the next model:
+
+1. One-time: create a CloudKit management token in the CloudKit dashboard for
+   `iCloud.com.loopmescamsafety.app` and run `xcrun cktool save-token`.
+2. `sh ml/scamnet/pull-samples.sh` writes `ml/scamnet/raw/users.csv`.
+3. `python ml/scamnet/build_corpus.py` picks it up as source `users`.
+4. Train, convert, copy to Resources, `npm test`, ship.
+
+The `Sample` record type must exist in the Production schema, with a queryable
+index on `at`, or the upload fails silently on the phone and the pull returns nothing.
+
+App Privacy: once this switch is on for anyone, the app collects "Other User
+Content", optional, not linked to identity. The App Store listing must say so.

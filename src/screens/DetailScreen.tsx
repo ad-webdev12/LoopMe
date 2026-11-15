@@ -1,7 +1,7 @@
 // Scam · Show me more. Red summary card, why we think so, the message with
 // highlights and read-aloud, was this right, report and block, who saw it.
 import React from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Speech from 'expo-speech';
 import { Volume2 } from 'lucide-react-native';
 import { T, font } from '../theme';
@@ -11,6 +11,17 @@ import { reportRoute } from '../lib/region';
 import type { Ctx } from '../App';
 
 export default function DetailScreen({ ctx }: { ctx: Ctx }) {
+  // Once, after the first correction: offer to share corrections for training.
+  const offerImprove = () => {
+    const s = ctx.settings;
+    if (s.improve || s.improveAsked) return;
+    ctx.update({ ...s, improveAsked: true });
+    Alert.alert(
+      'Help Loop Me learn from this?',
+      'Send texts you correct to Loop Me, with phone numbers, emails and long numbers blanked, so the next version catches them. Nothing else is sent. You can turn it off in Settings.',
+      [{ text: 'Not now', style: 'cancel' }, { text: 'Send corrections', onPress: () => ctx.update({ ...ctx.settings, improve: true, improveAsked: true }) }],
+    );
+  };
   const { C, settings: s } = ctx;
   const v = ctx.verdict;
   const rec = ctx.hist.find(h => h.id === ctx.recordId);
@@ -67,10 +78,10 @@ export default function DetailScreen({ ctx }: { ctx: Ctx }) {
           <>
             <SectionHeader C={C}>Was this right?</SectionHeader>
             <View style={{ marginHorizontal: 16, flexDirection: 'row', gap: 8 }}>
-              <Pressable onPress={() => { ctx.correct(rec.id, level === 'green' ? 'fine' : 'scam').then(() => ctx.flash('Thanks. Loop Me will remember.')); }} style={({ pressed }) => [st.yn, { backgroundColor: C.card }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
+              <Pressable onPress={() => { ctx.correct(rec.id, level === 'green' ? 'fine' : 'scam').then(() => { ctx.flash('Thanks. Loop Me will remember.'); offerImprove(); }); }} style={({ pressed }) => [st.yn, { backgroundColor: C.card }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
                 <Text style={[font(16, '600'), { color: C.ink }]} allowFontScaling>{level === 'green' ? 'Yes, it’s fine' : 'Yes, a scam'}</Text>
               </Pressable>
-              <Pressable onPress={() => { if (level === 'green') void ctx.markScam(rec.id); else ctx.correct(rec.id, 'fine').then(() => ctx.flash('Noted. It won’t be flagged again.')); }} style={({ pressed }) => [st.yn, { backgroundColor: C.card }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
+              <Pressable onPress={() => { if (level === 'green') void ctx.markScam(rec.id); else ctx.correct(rec.id, 'fine').then(() => { ctx.flash('Noted. It won’t be flagged again.'); offerImprove(); }); }} style={({ pressed }) => [st.yn, { backgroundColor: C.card }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
                 <Text style={[font(16, '600'), { color: C.ink }]} allowFontScaling>{level === 'green' ? 'No, it’s a scam' : 'No, it’s really them'}</Text>
               </Pressable>
             </View>
