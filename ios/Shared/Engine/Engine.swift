@@ -151,6 +151,10 @@ enum Engine {
   /// Long enough to hold a pitch, or carrying a link, a phone number or money.
   /// A bare email address or a short note gets no model raise. Mirrors ai.ts.
   static func modelMayJudge(_ message: String) -> Bool {
+    // ScamNet only knows Latin script; it abstains unless most letters are ASCII. Mirrors guard.ts.
+    var letters = 0, ascii = 0
+    for ch in message where ch.isLetter { letters += 1; if ch.isASCII { ascii += 1 } }
+    if letters > 0 && Double(ascii) / Double(letters) < 0.6 { return false }
     let words = message.split(whereSeparator: { $0.isWhitespace || $0.isNewline }).count
     if words >= 6 { return true }
     return message.range(of: #"https?://|www\.|\$\s?\d|\d{3}[-.\s]\d{4}"#, options: [.regularExpression, .caseInsensitive]) != nil

@@ -219,7 +219,7 @@ if (falses.length) { console.log('\nFALSE POSITIVES:'); falses.forEach(x=>consol
 const pass = recall >= 0.95 && precisionOk && maxMs < 200 && twoStage.level==='red' && codeword.codeWordMoment && postPanic.level==='red' && allow.level==='green' && apostropheStable;
 console.log(pass ? '\nALL PASS' : '\nFAIL');
 // The model only gets a say when the text could carry a pitch.
-for (const frag of ['Advithrao6@gmail.com', 'ok see you at 5', 'Neil', 'thanks love you']) {
+for (const frag of ['Advithrao6@gmail.com', 'ok see you at 5', 'Neil', 'thanks love you', 'प्रिय मरीज, आपके रिपोर्ट्स तैयार हैं। कृपया हमारे अस्पताल में आकर अपनी रिपोर्ट्स प्राप्त करें', 'தமிழர்களின் பாரம்பரியத்தை அனைவருக்கும் தெரிய வைத்த அந்த பெரியவருக்கு மிக்க நன்றி ஐயா']) {
   if (modelMayJudge(frag)) { console.error('model should stay quiet on: ' + frag); process.exit(1); }
 }
 for (const full of ['Your package is held, pay the fee at http://bit.ly/x', 'Dad here send $400 now', 'Hi this is your bank, we noticed unusual activity on your account today']) {
