@@ -116,6 +116,8 @@ const native = requireOptionalNativeModule<{
   prepareAudioForSpeech(): Promise<boolean>;
   cloudAccountState(): Promise<CloudAccountState>;
   cloudCreateInvite(myName: string): Promise<string>;
+  cloudInviteCode(myName: string): Promise<string>;
+  cloudJoinWithCode(code: string): Promise<string>;
   cloudLinkStatus(): Promise<LinkStatus>;
   cloudPublishCheck(check: Record<string, unknown>): Promise<boolean>;
   cloudPublishPulse(pulse: Omit<FamilyPulse, 'at'>): Promise<boolean>;
@@ -218,6 +220,29 @@ export async function cloudCreateInviteOrError(myName: string): Promise<{ url: s
     return { error: noAccount ? 'This phone is not signed in to iCloud. Settings, your name at the top.' : msg.replace(/^.*?Error: /, '').slice(0, 400), noAccount };
   }
 }
+
+function cloudMessage(e: unknown): string {
+  const msg = String((e as { message?: string })?.message || e || '');
+  if (/not signed in|noAccount|no account/i.test(msg)) return 'This phone is not signed in to iCloud. Settings, your name at the top.';
+  return msg.replace(/^.*?Error: /, '').slice(0, 400) || 'iCloud did not answer. Try again in a moment.';
+}
+
+/** Owner: the 8-character invite code, as "K7M29QXH". */
+export async function cloudInviteCode(myName: string): Promise<{ code: string } | { error: string }> {
+  if (!native) return { error: 'iCloud is not available in this build.' };
+  try { const code = await native.cloudInviteCode(myName); return code ? { code } : { error: 'iCloud did not return a code. Try again in a moment.' }; }
+  catch (e) { return { error: cloudMessage(e) }; }
+}
+
+/** Caretaker: join with a code. Resolves with the owner's name. */
+export async function cloudJoinWithCode(code: string): Promise<{ name: string } | { error: string }> {
+  if (!native) return { error: 'iCloud is not available in this build.' };
+  try { return { name: await native.cloudJoinWithCode(code) }; }
+  catch (e) { return { error: cloudMessage(e) }; }
+}
+
+/** "K7M29QXH" as "K7M2 9QXH", easier to read out and type. */
+export function formatCode(code: string): string { return code.length === 8 ? code.slice(0, 4) + ' ' + code.slice(4) : code; }
 
 export async function cloudLinkStatus(): Promise<LinkStatus> {
   if (!native) return { linked: false, role: 'none', name: null, account: 'unknown' };

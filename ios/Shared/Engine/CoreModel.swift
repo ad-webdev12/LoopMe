@@ -1,22 +1,29 @@
 import Foundation
 import CoreML
-import NaturalLanguage
 
-// The learned second opinion for the extensions: ScamNet, the one
-// fine-tuned transformer the app ships (modules/scam-ai/ios/ScamNetRunner.swift).
-// It may only raise the alarm. It cannot talk a rule hit down.
+// The learned second opinion for the extensions. The share sheet and the
+// Messages drawer run ScamNet itself (modules/scam-ai/ios/ScamNetRunner.swift).
+// The text filter runs ScamNet Lite (ScamNetLite.swift), the version of
+// ScamNet small enough for the filter's memory cap. Either may only raise the
+// alarm. Neither can talk a rule hit down.
 final class CoreModel {
-  private let net: ScamNetRunner
+  private let score: (String) -> Double?
   let threshold: Double
-  private init(net: ScamNetRunner, threshold: Double) { self.net = net; self.threshold = threshold }
+  /// "ScamNet" or "ScamNetLite": which one answered, for the filter's health record.
+  let kind: String
+  private init(kind: String, threshold: Double, score: @escaping (String) -> Double?) { self.kind = kind; self.threshold = threshold; self.score = score }
 
   static func named(_ name: String = "ScamNet", threshold: Double, bundle: Bundle = .main) -> CoreModel? {
+    if name == "ScamNetLite" {
+      guard let n = ScamNetLite.load(bundle: bundle) else { return nil }
+      return CoreModel(kind: name, threshold: threshold) { n.probability($0) }
+    }
     guard let n = ScamNetRunner.load(bundle: bundle) else { return nil }
-    return CoreModel(net: n, threshold: threshold)
+    return CoreModel(kind: "ScamNet", threshold: threshold) { n.probability($0) }
   }
 
-  /// Probability that the text is a scam, 0 to 1. 0 when Core ML is unavailable.
-  func probability(_ text: String) -> Double { net.probability(text) ?? 0 }
+  /// Probability that the text is a scam, 0 to 1. 0 when the model could not answer.
+  func probability(_ text: String) -> Double { score(text) ?? 0 }
 }
 
 extension Engine {

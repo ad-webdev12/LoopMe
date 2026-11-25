@@ -31,6 +31,7 @@ ai_group = project.main_group['scam-ai'] || project.main_group.new_group('scam-a
 net_swift = ref_for(ai_group, File.join(ai_dir, 'ScamNetRunner.swift'), ROOT)
 net_model = ref_for(ai_group, File.join(ai_dir, 'Resources', 'ScamNet.mlmodel'), ROOT)
 net_vocab = ref_for(ai_group, File.join(ai_dir, 'Resources', 'ScamNet.vocab.txt'), ROOT)
+lite_bin = ref_for(engine_group, File.join(engine_dir, 'ScamNetLite.bin'), ROOT)
 
 def ensure_resource(target, ref)
   return if target.resources_build_phase.files_references.include?(ref)
@@ -49,8 +50,14 @@ end
   engine_refs.each { |r| ensure_source(target, r) }
   ensure_source(target, net_swift)   # CoreModel.swift needs the type even where no model ships
   next if name == 'CallDirectory'
-  ensure_source(target, net_model)
   ensure_resource(target, net_vocab)
+  if name == 'TextFilter'
+    # The filter runs ScamNet Lite only: the full model does not fit its memory cap.
+    ensure_resource(target, lite_bin)
+    target.source_build_phase.files.select { |f| f.file_ref == net_model }.each { |f| f.remove_from_project; puts "TextFilter: - ScamNet.mlmodel" }
+  else
+    ensure_source(target, net_model)
+  end
 end
 project.save
 puts 'saved'

@@ -2,19 +2,24 @@
 // (one iCloud share per phone), so any trusted person can be invited and all
 // of them hear about scams once they tap it. The text message here is the
 // only text Loop Me ever prepares.
-import { cloudCreateInviteOrError, cloudSubscribe } from '../../modules/scam-ai';
+import { cloudCreateInviteOrError, cloudInviteCode, cloudSubscribe } from '../../modules/scam-ai';
 import { sendSms, inviteText } from './familyLink';
 import { ensureNotificationPermission } from './notify';
 import type { Settings, TrustedPerson } from './storage';
 
-export type InviteResult = { ok: true; url: string } | { ok: false; error: string; noAccount: boolean };
+export type InviteResult = { ok: true; url: string; code?: string } | { ok: false; error: string; noAccount: boolean };
 
 /** The share link, or the real reason there is none. */
 export async function inviteLink(s: Settings): Promise<InviteResult> {
   // Never hang the button: if iCloud has not answered in 12 seconds, say so.
   const slow = new Promise<{ error: string; noAccount: boolean }>(res => setTimeout(() => res({ error: 'iCloud did not answer. Check your connection and try again.', noAccount: false }), 12000));
   const r = await Promise.race([cloudCreateInviteOrError(s.myName || s.careName || 'Family'), slow]);
-  if ('url' in r) { await cloudSubscribe(); await ensureNotificationPermission(); return { ok: true, url: r.url }; }
+  if ('url' in r) {
+    await cloudSubscribe(); await ensureNotificationPermission();
+    // The code is a second way in. If it cannot be made, the link still works.
+    const c = await Promise.race([cloudInviteCode(s.myName || s.careName || 'Family'), new Promise<{ error: string }>(res => setTimeout(() => res({ error: 'slow' }), 8000))]);
+    return { ok: true, url: r.url, code: 'code' in c ? c.code : undefined };
+  }
   return { ok: false, error: r.error, noAccount: r.noAccount };
 }
 
@@ -22,7 +27,7 @@ export async function inviteLink(s: Settings): Promise<InviteResult> {
 export async function sendInviteTo(s: Settings, person: TrustedPerson): Promise<InviteResult> {
   const r = await inviteLink(s);
   if (!r.ok) return r;
-  await sendSms(person.phone, inviteText(s.myName || s.careName, r.url));
+  await sendSms(person.phone, inviteText(s.myName || s.careName, r.url, r.code));
   return r;
 }
 

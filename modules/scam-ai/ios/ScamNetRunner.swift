@@ -13,19 +13,14 @@ import CoreML
 final class ScamNetRunner {
   static let maxLen = 128
   private let model: MLModel
-  private let vocab: [String: Int32]
-  private let cls: Int32, sep: Int32, pad: Int32, unk: Int32
+  private let tok: BertWordPiece
+  private var pad: Int32 { tok.pad }
 
   /// Loads ScamNet.mlmodelc (Xcode-compiled) or compiles ScamNet.mlmodel once into Caches.
   static func load(bundle: Bundle = .main) -> ScamNetRunner? {
     let bundles = [bundle, Bundle(for: ScamNetRunner.self)]
-    guard let vocabURL = bundles.lazy.compactMap({ $0.url(forResource: "ScamNet.vocab", withExtension: "txt") }).first,
-          let text = try? String(contentsOf: vocabURL, encoding: .utf8) else { return nil }
-    var vocab: [String: Int32] = [:]; vocab.reserveCapacity(31000)
-    var i: Int32 = 0
-    for line in text.split(separator: "\n", omittingEmptySubsequences: false) { vocab[String(line)] = i; i += 1 }
-    guard let model = compiled(bundles) else { return nil }
-    return ScamNetRunner(model: model, vocab: vocab)
+    guard let tok = BertWordPiece.load(bundles), let model = compiled(bundles) else { return nil }
+    return ScamNetRunner(model: model, tok: tok)
   }
 
   private static func compiled(_ bundles: [Bundle]) -> MLModel? {
@@ -49,10 +44,7 @@ final class ScamNetRunner {
     return nil
   }
 
-  private init(model: MLModel, vocab: [String: Int32]) {
-    self.model = model; self.vocab = vocab
-    cls = vocab["[CLS]"] ?? 101; sep = vocab["[SEP]"] ?? 102; pad = vocab["[PAD]"] ?? 0; unk = vocab["[UNK]"] ?? 100
-  }
+  private init(model: MLModel, tok: BertWordPiece) { self.model = model; self.tok = tok }
 
   /// Probability that the text is a scam or spam, 0 to 1. nil if Core ML failed.
   func probability(_ text: String) -> Double? {
@@ -69,19 +61,38 @@ final class ScamNetRunner {
     return max(0, min(1, p[0].doubleValue))
   }
 
-  // MARK: BERT uncased tokenizer (basic + WordPiece), matching Hugging Face's BertTokenizer.
+  func encode(_ text: String) -> [Int32] { tok.encode(text, maxLen: ScamNetRunner.maxLen) }
+}
 
-  func encode(_ text: String) -> [Int32] {
+/// BERT uncased tokenizer (basic + WordPiece), matching Hugging Face's
+/// BertTokenizer. Shared by ScamNet and ScamNet Lite: both use the same vocab.
+final class BertWordPiece {
+  let vocab: [String: Int32]
+  let cls: Int32, sep: Int32, pad: Int32, unk: Int32
+
+  static func load(_ bundles: [Bundle]) -> BertWordPiece? {
+    guard let url = bundles.lazy.compactMap({ $0.url(forResource: "ScamNet.vocab", withExtension: "txt") }).first,
+          let text = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+    var vocab: [String: Int32] = [:]; vocab.reserveCapacity(31000)
+    var i: Int32 = 0
+    for line in text.split(separator: "\n", omittingEmptySubsequences: false) { vocab[String(line)] = i; i += 1 }
+    return BertWordPiece(vocab: vocab)
+  }
+  init(vocab: [String: Int32]) {
+    self.vocab = vocab
+    cls = vocab["[CLS]"] ?? 101; sep = vocab["[SEP]"] ?? 102; pad = vocab["[PAD]"] ?? 0; unk = vocab["[UNK]"] ?? 100
+  }
+
+  func encode(_ text: String, maxLen: Int) -> [Int32] {
     var ids: [Int32] = [cls]
     for word in basicTokens(text) {
       for piece in wordPiece(word) { ids.append(piece) }
-      if ids.count >= ScamNetRunner.maxLen - 1 { break }
+      if ids.count >= maxLen - 1 { break }
     }
-    if ids.count > ScamNetRunner.maxLen - 1 { ids = Array(ids.prefix(ScamNetRunner.maxLen - 1)) }
+    if ids.count > maxLen - 1 { ids = Array(ids.prefix(maxLen - 1)) }
     ids.append(sep)
     return ids
   }
-
   private func basicTokens(_ text: String) -> [String] {
     // Lowercase, strip accents, split on whitespace, split punctuation and CJK characters into their own tokens.
     let folded = text.lowercased().folding(options: [.diacriticInsensitive], locale: nil)

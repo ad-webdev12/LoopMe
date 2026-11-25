@@ -22,7 +22,7 @@ import * as Family from './lib/family';
 import * as Feedback from './lib/feedback';
 import * as SplashScreen from 'expo-splash-screen';
 import { registerFamilyCategories, ensureNotificationPermission, scheduleWeekly } from './lib/notify';
-import { callDirectoryReload, sharedTallies } from '../modules/scam-ai';
+import { callDirectoryReload, sharedTallies, cloudJoinWithCode } from '../modules/scam-ai';
 import TabBar, { TabId } from './ui/TabBar';
 import Toast from './ui/Toast';
 import IntroScreen from './screens/IntroScreen';
@@ -544,6 +544,13 @@ export default function App() {
     if (where === 'alert' && text) { if (settingsRef.current.autoCheck !== false) check(text, 'an unknown number'); return; }
     // loopmein://go?screen=settings opens a screen by name (used by the phone test guide).
     if (where === 'go' && typeof queryParams?.screen === 'string' && ALL_SCREENS.includes(queryParams.screen as ScreenId)) { go(queryParams.screen as ScreenId); return; }
+    // loopmein://join?code=K7M29QXH joins the family link with a code.
+    if (where === 'join' && typeof queryParams?.code === 'string') {
+      const code = queryParams.code;
+      flash('Linking this phone');
+      cloudJoinWithCode(code).then(r => { if ('error' in r) flash(r.error); }).catch(() => flash('The code could not be checked. Try again.'));
+      return;
+    }
     if (where === 'check' && queryParams?.photo) { setPendingPhoto(true); go('home'); return; }
     if (where === 'check' && text) { check(text); return; }
     // The widget, Control Center and the Action button open the app with no

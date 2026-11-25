@@ -1,3 +1,5 @@
 raw/
 corpus.csv
 out_*/
+corpus.csv
+lite_corpus.csv

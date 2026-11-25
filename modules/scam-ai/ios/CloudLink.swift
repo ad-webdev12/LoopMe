@@ -25,6 +25,7 @@ let LM_ZONE = "LoopMeFamily"
 let LM_CHECK = "Check"
 let LM_NOTE = "Note"
 let LM_PULSE = "Pulse"
+let LM_INVITE = "Invite" // public: inv-<code> -> share url, so a typed code can join
 let LM_PING = "Ping"     // caretaker to owner: "send me anything you are holding", delivered as a silent push
 let LM_REFRESH_TASK = "com.loopmescamsafety.app.refresh"   // one record per owner, overwritten: counts, last seen, what is switched on
 let LM_SUB_SHARED = "loopme-shared-db"
@@ -170,6 +171,101 @@ final class CloudLink: @unchecked Sendable {
       why = CloudLink.describe(error)
     }
     throw CloudLinkError.failed("iCloud would not make the family link. " + why)
+  }
+
+  // MARK: invite code
+  //
+  // A link that opens the App Store first is lost: iOS does not hand it to the
+  // app after the install. So every invite also has a short code. The owner's
+  // phone writes one public record, named after the code, that holds the
+  // share link. The other phone types the code, reads that record, and joins.
+  // Public records are readable by anyone who knows the name, so the code is
+  // 8 characters from 31 symbols (about 850 billion) and expires after 7 days.
+
+  static let codeAlphabet = Array("ABCDEFGHJKMNPQRSTUVWXYZ23456789")
+  static let codeLife: TimeInterval = 7 * 24 * 3600
+
+  /// "k7m2 9qxh" style input to "K7M29QXH": upper case, spaces and dashes dropped.
+  /// The alphabet has no 0, O, 1, I or L, so a code never asks the reader to tell them apart.
+  static func normalizeCode(_ raw: String) -> String {
+    String(raw.uppercased().filter { codeAlphabet.contains($0) })
+  }
+
+  /// Owner side: the invite code for this phone's share, made once and reused for a week.
+  func inviteCode(myName: String) async throws -> String {
+    let url = try await createInvite(myName: myName)
+    if let code = store.inviteCode, let at = store.inviteCodeAt, store.inviteCodeURL == url,
+       Date().timeIntervalSince(at) < CloudLink.codeLife - 24 * 3600 {
+      return code
+    }
+    let code = String((0..<8).map { _ in CloudLink.codeAlphabet.randomElement()! })
+    let rec = CKRecord(recordType: LM_INVITE, recordID: CKRecord.ID(recordName: "inv-" + code))
+    rec["url"] = url as CKRecordValue
+    rec["name"] = myName as CKRecordValue
+    rec["at"] = Date() as CKRecordValue
+    let pub = try container.publicCloudDatabase
+    do { _ = try await pub.modifyRecords(saving: [rec], deleting: []) }
+    catch {
+      let ns = error as NSError
+      if ns.domain == CKError.errorDomain, [CKError.Code.invalidArguments.rawValue, CKError.Code.serverRejectedRequest.rawValue].contains(ns.code) {
+        throw CloudLinkError.failed("Invite codes are not switched on for this app yet. Use the link for now. " + CloudLink.describe(error))
+      }
+      throw CloudLinkError.failed("The code could not be made. " + CloudLink.describe(error))
+    }
+    // The previous code stops working once there is a new one.
+    if let old = store.inviteCode, old != code {
+      _ = try? await pub.modifyRecords(saving: [], deleting: [CKRecord.ID(recordName: "inv-" + old)])
+    }
+    store.inviteCode = code; store.inviteCodeAt = Date(); store.inviteCodeURL = url
+    return code
+  }
+
+  /// Caretaker side: join with a code typed in or scanned. Returns the owner's name.
+  func join(code raw: String) async throws -> String {
+    let code = CloudLink.normalizeCode(raw)
+    guard code.count == 8 else { throw CloudLinkError.failed("That code should be 8 letters and numbers. Check it and try again.") }
+    switch await accountState() {
+    case "available": break
+    case "noAccount": throw CloudLinkError.noAccount
+    default: throw CloudLinkError.failed("iCloud did not answer. Check the connection and that you are signed in to iCloud, then try again.")
+    }
+    let rec: CKRecord
+    do { rec = try await (try container).publicCloudDatabase.record(for: CKRecord.ID(recordName: "inv-" + code)) }
+    catch {
+      let ns = error as NSError
+      if ns.domain == CKError.errorDomain, ns.code == CKError.Code.unknownItem.rawValue {
+        throw CloudLinkError.failed("No invite has that code. It may have expired. Ask them to open Loop Me, go to Family and show the code again.")
+      }
+      throw CloudLinkError.failed("The code could not be checked. " + CloudLink.describe(error))
+    }
+    if let at = rec["at"] as? Date, Date().timeIntervalSince(at) > CloudLink.codeLife {
+      throw CloudLinkError.failed("That code has expired. Ask them to show a new one in Loop Me, under Family.")
+    }
+    guard let s = rec["url"] as? String, let url = URL(string: s) else { throw CloudLinkError.failed("That invite is damaged. Ask them to make a new one.") }
+    let metadata: CKShare.Metadata
+    do { metadata = try await (try container).shareMetadata(for: url) }
+    catch { throw CloudLinkError.failed("The invite could not be opened. " + CloudLink.describe(error)) }
+    if metadata.participantRole == .owner {
+      throw CloudLinkError.failed("This phone made that invite. Enter the code on the other phone, the one that should hear about scams.")
+    }
+    return try await acceptNow(metadata)
+  }
+
+  /// Accept a share and remember it. Shared by the link and the code.
+  @discardableResult
+  func acceptNow(_ metadata: CKShare.Metadata) async throws -> String {
+    let ownerName = CloudLink.displayName(metadata.ownerIdentity)
+      ?? metadata.share[CKShare.SystemFieldKey.title].flatMap { ($0 as? String)?.replacingOccurrences(of: "Loop Me: ", with: "") }
+      ?? "Family"
+    if metadata.participantStatus != .accepted {
+      do { _ = try await (try container).accept(metadata) }
+      catch { throw CloudLinkError.failed("iCloud would not join the family link. " + CloudLink.describe(error)) }
+    }
+    store.joinedOwnerName = ownerName
+    store.joinedZone = metadata.share.recordID.zoneID
+    CloudBus.shared.emit(["kind": "joined", "name": ownerName])
+    Task { _ = try? await self.subscribe(); _ = try? await self.sync(notify: false) }
+    return ownerName
   }
 
   /// A CloudKit error in words a person can act on, with the code kept so
@@ -339,30 +435,10 @@ final class CloudLink: @unchecked Sendable {
 
   /// Called from the AppDelegate when the caretaker opens the share link.
   func accept(_ metadata: CKShare.Metadata) {
-    let op = CKAcceptSharesOperation(shareMetadatas: [metadata])
-    let ownerName = CloudLink.displayName(metadata.ownerIdentity)
-      ?? metadata.share[CKShare.SystemFieldKey.title].flatMap { ($0 as? String)?.replacingOccurrences(of: "Loop Me: ", with: "") }
-      ?? "Family"
-    op.acceptSharesResultBlock = { [weak self] result in
-      guard let self else { return }
-      switch result {
-      case .success:
-        self.store.joinedOwnerName = ownerName
-        self.store.joinedZone = metadata.share.recordID.zoneID
-        CloudBus.shared.emit(["kind": "joined", "name": ownerName])
-        Task {
-          _ = try? await self.subscribe()
-          _ = try? await self.sync(notify: false)
-        }
-      case .failure(let e):
-        CloudBus.shared.emit(["kind": "joinFailed", "message": e.localizedDescription])
-      }
+    Task {
+      do { try await self.acceptNow(metadata) }
+      catch { CloudBus.shared.emit(["kind": "joinFailed", "message": (error as? LocalizedError)?.errorDescription ?? error.localizedDescription]) }
     }
-    guard let c = try? container else {
-      CloudBus.shared.emit(["kind": "joinFailed", "message": "iCloud is not available in this build"])
-      return
-    }
-    c.add(op)
   }
 
   /// Caretaker side: write a note back under one check.
@@ -607,6 +683,18 @@ final class FamilyStore: @unchecked Sendable {
   var caretakerName: String? {
     get { d.string(forKey: "family.caretakerName") }
     set { d.set(newValue, forKey: "family.caretakerName") }
+  }
+  var inviteCode: String? {
+    get { d.string(forKey: "family.inviteCode") }
+    set { d.set(newValue, forKey: "family.inviteCode") }
+  }
+  var inviteCodeAt: Date? {
+    get { d.object(forKey: "family.inviteCodeAt") as? Date }
+    set { d.set(newValue, forKey: "family.inviteCodeAt") }
+  }
+  var inviteCodeURL: String? {
+    get { d.string(forKey: "family.inviteCodeURL") }
+    set { d.set(newValue, forKey: "family.inviteCodeURL") }
   }
   var joinedOwnerName: String? {
     get { d.string(forKey: "family.joinedOwnerName") }

@@ -134,6 +134,15 @@ public class ScamAiModule: Module {
       return try await CloudLink.shared.createInvite(myName: myName)
     }
 
+    // Owner: the 8-character code for this phone's invite.
+    AsyncFunction("cloudInviteCode") { (myName: String) -> String in
+      return try await CloudLink.shared.inviteCode(myName: myName)
+    }
+    // Caretaker: join with a code. Returns the owner's name.
+    AsyncFunction("cloudJoinWithCode") { (code: String) -> String in
+      return try await CloudLink.shared.join(code: code)
+    }
+
     // Either side: { linked, role: owner|caretaker|none, name }
     AsyncFunction("cloudLinkStatus") { () -> [String: Any] in
       return await CloudLink.shared.linkStatus()

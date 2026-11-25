@@ -5,14 +5,15 @@
 //              arrives, and the linked state afterwards.
 //   WatchWait  the moment between tapping the invite and the link confirming.
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Linking, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Linking, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Check, X, Send, QrCode, Share2, Phone, UserPlus } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { Screen, BackLink, ScreenTitle, Lead, Note, Pill, Avatar, Card, SectionHeader, CheckCircle } from '../ui/base';
 import { loopPerson, firstName } from '../ui/pieces';
 import { sendSms, inviteText } from '../lib/familyLink';
 import { inviteLink } from '../lib/invite';
-import { cloudAccountState, qrPng } from '../../modules/scam-ai';
+import { cloudAccountState, cloudJoinWithCode } from '../../modules/scam-ai';
+import { InviteCodeSheet } from '../ui/InviteCodeSheet';
 import { pickTrustedPerson } from '../lib/contacts';
 import type { Ctx } from '../App';
 
@@ -47,10 +48,11 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
       const res = await pickTrustedPerson();
       const to = res.ok ? res.person : null;
       if (to) ctx.update({ ...s, familyInvited: true, trusted: s.trusted.some(t => t.phone === to.phone) ? s.trusted.map(t => t.phone === to.phone ? { ...t, invited: true } : t) : [{ ...to, invited: true }, ...s.trusted].slice(0, 3) });
-      await sendSms(to?.phone || null, inviteText(s.myName || s.careName, url));
+      const r = await inviteLink(s);
+      await sendSms(to?.phone || null, inviteText(s.myName || s.careName, url, r.ok ? r.code : undefined));
     } finally { setBusy(false); }
   };
-  const showCode = async () => { setBusy(true); try { const url = await inviteUrl(); if (url) setQr(qrPng(url)); } finally { setBusy(false); } };
+  const showCode = () => setQr('open');
   const airdrop = async () => { setBusy(true); try { const url = await inviteUrl(); if (url) await Share.share({ url, message: 'Loop Me invite' }); } finally { setBusy(false); } };
 
   return (
@@ -103,12 +105,7 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
             ) : (
               <Note C={C}>Runs on your own iCloud. Stop it here any time.</Note>
             )}
-            {qr && (
-              <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
-                <Text style={[font(15, '400', 1.45), { color: C.ink2 }]} allowFontScaling>On their phone, open the Camera and point it at this code. Tap the link that appears.</Text>
-                <Image source={{ uri: 'data:image/png;base64,' + qr }} style={{ width: '100%', aspectRatio: 1, marginTop: 12, borderRadius: 16 }} accessibilityLabel="Invite code" />
-              </View>
-            )}
+            <InviteCodeSheet C={C} settings={s} visible={qr === 'open'} onClose={() => setQr(null)} onReady={() => { if (!s.familyInvited) ctx.update({ ...ctx.settings, familyInvited: true }); }} />
             <View style={{ paddingHorizontal: 16, paddingTop: 20, gap: 10 }}>
               <Pill label={s.familyInvited ? 'Send the invite again' : 'Choose someone and send the invite'} disabled={busy} onPress={sendInvite} icon={busy ? <ActivityIndicator color="#fff" /> : <Send size={19} color="#fff" strokeWidth={2.2} />} />
               <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -152,13 +149,15 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
             <ScreenTitle C={C}>Tap the invite from their phone</ScreenTitle>
             <Lead C={C}>The invite is sent from Loop Me on the protected phone. Setting that phone up yourself? Choose “The phone to protect” on it and pick your own number.</Lead>
             <Card C={C} style={{ marginHorizontal: 16, marginTop: 16, paddingVertical: 4 }} radius={16}>
-              {['On the protected phone, open Loop Me', 'Family › Choose someone and send the invite › pick you', 'A text arrives here. Tap the link in it'].map((t, i) => (
+              {['On the protected phone, open Loop Me', 'Family › Choose someone and send the invite › pick you', 'A text arrives here. Tap the link in it, or type its code below'].map((t, i) => (
                 <View key={t} style={[{ flexDirection: 'row', gap: 14, paddingVertical: 12, alignItems: 'center' }, i < 2 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep }]}>
                   <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: C.greenTint, alignItems: 'center', justifyContent: 'center' }}><Text style={[font(14, '700'), { color: C.accent }]} allowFontScaling>{i + 1}</Text></View>
                   <Text style={[font(16, '400', 1.4), { color: C.ink, flex: 1 }]} allowFontScaling>{t}</Text>
                 </View>
               ))}
             </Card>
+            <SectionHeader C={C}>Got a code instead?</SectionHeader>
+            <JoinWithCode ctx={ctx} />
             <SectionHeader C={C}>What you will and will not see</SectionHeader>
             <Card C={C} style={{ marginHorizontal: 16, paddingVertical: 4 }} radius={16}>
               <Row C={C} yes text="Scam alerts, full screen, the moment they happen" />
@@ -211,3 +210,30 @@ export function WatchWait({ ctx }: { ctx: Ctx }) {
 }
 
 export { CheckCircle };
+
+/** The code path: for a phone that installed Loop Me after the invite arrived. */
+function JoinWithCode({ ctx }: { ctx: Ctx }) {
+  const { C } = ctx;
+  const [code, setCode] = useState('');
+  const [busy, setBusy] = useState(false);
+  const clean = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const join = async () => {
+    setBusy(true);
+    try {
+      const r = await cloudJoinWithCode(clean);
+      if ('error' in r) ctx.flash(r.error);
+      // Success: the native side announces "joined" and the app takes over from there.
+    } finally { setBusy(false); }
+  };
+  return (
+    <KeyboardAvoidingView behavior="padding">
+      <Card C={C} style={{ marginHorizontal: 16 }} radius={16}>
+        <Text style={[font(15, '400', 1.4), { color: C.ink2 }]} allowFontScaling>It is in the invite text, under the link. On their phone it is under Family, Show a code instead.</Text>
+        <TextInput value={code} onChangeText={t => setCode(t.toUpperCase().slice(0, 9))} placeholder="K7M2 9QXH" placeholderTextColor={C.ink2}
+          autoCapitalize="characters" autoCorrect={false} spellCheck={false} returnKeyType="go" onSubmitEditing={() => { if (clean.length === 8) void join(); }}
+          style={[font(28, '700'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, height: 60, marginTop: 12, textAlign: 'center', letterSpacing: 3 }]} accessibilityLabel="Invite code" />
+        <Pill label={busy ? 'Linking' : 'Link this phone'} height={52} style={{ marginTop: 12 }} disabled={busy || clean.length !== 8} onPress={join} icon={busy ? <ActivityIndicator color="#fff" /> : undefined} />
+      </Card>
+    </KeyboardAvoidingView>
+  );
+}

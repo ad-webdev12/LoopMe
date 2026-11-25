@@ -5,7 +5,8 @@
 // photo from Contacts, change the relationship, remove.
 import React, { useEffect, useState } from 'react';
 import { Alert, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Phone, MessageCircle, Send, Plus, Smartphone, ChevronRight, ArrowRight, Star, RefreshCw, Trash2 } from 'lucide-react-native';
+import { Phone, MessageCircle, Send, Plus, Smartphone, ChevronRight, ArrowRight, Star, RefreshCw, Trash2, QrCode } from 'lucide-react-native';
+import { InviteCodeSheet } from '../ui/InviteCodeSheet';
 import { T, font } from '../theme';
 import { Screen, LargeTitle, Avatar, Note, Pill } from '../ui/base';
 import { loopPerson, firstName } from '../ui/pieces';
@@ -25,6 +26,7 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
   const [pending, setPending] = useState<TrustedPerson | null>(null);
   const [open, setOpen] = useState<TrustedPerson | null>(null);
   const [busy, setBusy] = useState(false);
+  const [codeOpen, setCodeOpen] = useState(false);
   const tel = (p: string) => Linking.openURL('tel:' + p.replace(/[^\d+]/g, '')).catch(() => {});
   const sms = (p: string) => Linking.openURL('sms:' + p.replace(/[^\d+]/g, '')).catch(() => {});
 
@@ -92,9 +94,10 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
               <Action C={C} Icon={MessageCircle} label="Message" onPress={() => person.phone ? sms(person.phone) : ctx.flash('No number saved for ' + who + '.')} />
               <Action C={C} Icon={Send} label={'Ask ' + pronoun(person)} onPress={() => person.linked ? ctx.go('ask') : setOpen(person)} />
             </View>
-            {!person.linked && (
+            {!person.linked && (<>
               <Pill label={person.invited ? 'Send the invite again' : 'Send ' + who + ' the invite'} height={50} style={{ alignSelf: 'stretch', marginTop: 12 }} disabled={busy} onPress={() => invite(person)} trailing={<ArrowRight size={18} color="#fff" strokeWidth={2.2} />} />
-            )}
+              <Pressable onPress={() => setCodeOpen(true)} hitSlop={8} accessibilityRole="button" style={{ marginTop: 12 }}><Text style={[font(16, '600'), { color: C.dark ? C.accent : T.greenDeep }]} allowFontScaling>Link with a code instead</Text></Pressable>
+            </>)}
           </Pressable>
         ) : (
           <View style={[st.hero, { backgroundColor: C.card, alignItems: 'flex-start' }]}>
@@ -143,6 +146,7 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
 
       <RelationSheet C={C} name={pending?.name || null} onPick={saveWithRelation} onClose={() => setPending(null)} />
 
+      <InviteCodeSheet C={C} settings={s} visible={codeOpen} onClose={() => setCodeOpen(false)} onReady={() => { if (!s.familyInvited) ctx.update({ ...ctx.settings, familyInvited: true }); }} />
       <Modal visible={!!open} transparent animationType="fade" onRequestClose={() => setOpen(null)}>
         <Pressable style={st.dim} onPress={() => setOpen(null)}>
           <Pressable style={[st.sheet, { backgroundColor: C.card }]} onPress={() => {}}>
@@ -164,6 +168,7 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
                 </View>
                 <View style={{ marginTop: 16, gap: 8 }}>
                   {!linkedOf(open) && <Pill label={open.invited ? 'Send the invite again' : 'Send ' + firstName(open.name) + ' the invite'} height={52} disabled={busy} onPress={() => invite(open)} icon={<Send size={18} color="#fff" strokeWidth={2.2} />} />}
+                  {!linkedOf(open) && <Pill label="Show a code instead" height={52} bg={C.greenTint} color={T.greenDeep} onPress={() => { setOpen(null); setCodeOpen(true); }} icon={<QrCode size={18} color={T.greenDeep} strokeWidth={2.2} />} />}
                   <Pill label={'Call ' + firstName(open.name)} height={52} bg={C.greenTint} color={T.greenDeep} onPress={() => tel(open.phone)} icon={<Phone size={18} color={T.greenDeep} strokeWidth={2.2} />} />
                   {person && open.phone !== person.phone && <Pill label="Make the main person" height={52} bg={C.greenTint} color={T.greenDeep} onPress={() => makeMain(open)} icon={<Star size={18} color={T.greenDeep} strokeWidth={2.2} />} />}
                   <Pill label="Update photo from Contacts" height={52} bg={C.greenTint} color={T.greenDeep} onPress={() => updatePhoto(open)} icon={<RefreshCw size={18} color={T.greenDeep} strokeWidth={2.2} />} />
