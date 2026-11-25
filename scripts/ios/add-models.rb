@@ -59,5 +59,11 @@ end
     ensure_source(target, net_model)
   end
 end
+# The app itself: Xcode compiles ScamNet.mlmodel into the app bundle, so the
+# first check after launch never waits for a compile (the pod used to ship it
+# raw). Same compiled model the extensions use.
+app = project.targets.find { |t| t.name == 'LoopMe' }
+ensure_source(app, net_model) if app
+
 project.save
 puts 'saved'

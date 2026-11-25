@@ -22,6 +22,10 @@ public class ScamAiModule: Module {
   public func definition() -> ModuleDefinition {
     Name("ScamAi")
 
+    // Load ScamNet in the background as soon as the app starts, so the first
+    // check gets the model's answer instead of timing out to rules only.
+    OnCreate { DispatchQueue.global(qos: .userInitiated).async { _ = ScamClassifier.shared.isLoaded } }
+
     // Apple's own paste button. Reading the clipboard through it never shows
     // the "Allow Paste" alert, because the tap itself is the permission.
     View(PasteControlView.self) {

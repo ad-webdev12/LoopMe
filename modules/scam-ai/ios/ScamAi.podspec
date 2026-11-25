@@ -23,5 +23,7 @@ Pod::Spec.new do |s|
   }
 
   s.source_files = "**/*.{h,m,mm,swift,hpp,cpp}"
-  s.resources = "Resources/**/*"
+  # ScamNet.mlmodel is compiled into the app target by Xcode (scripts/ios/add-models.rb);
+  # only the vocabulary ships through the pod.
+  s.resources = ["Resources/ScamNet.vocab.txt"]
 end

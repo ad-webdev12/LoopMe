@@ -76,7 +76,16 @@ export function normalizeText(input: string): Normalized {
   t = t.replace(/[^\S\n]+/g, ' ');
   t = deleet(t);
   // Emoji carry no meaning the detector should learn from, in either direction.
-  t = t.replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, '').replace(/[^\S\n]+/g, ' ').trim();
+  // Same rule as Normalize.swift, character for character: drop anything shown
+  // as an emoji by default, any emoji above U+2000, and the joiner and variation
+  // marks. (Swift has no Extended_Pictographic test, so this is the shared one.)
+  t = Array.from(t).filter(ch => {
+    const cp = ch.codePointAt(0)!;
+    if (cp === 0xFE0F || cp === 0x200D) return false;
+    if (/\p{Emoji_Presentation}/u.test(ch)) return false;
+    if (cp > 0x2000 && /\p{Emoji}/u.test(ch)) return false;
+    return true;
+  }).join('').replace(/[^\S\n]+/g, ' ').trim();
   return { text: t, disguised };
 }
 
@@ -85,8 +94,9 @@ export function normalizeText(input: string): Normalized {
 // letters than digits, where every digit is one that stands for a letter,
 // is folded; "x8s2", "Rs5000" and "17" are left alone.
 const LEET: Record<string, string> = { '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', '7': 't' };
+// Word edges follow ICU's \b, as in Normalize.swift: marks like the keycap U+20E3 count as word characters.
 export function deleet(t: string): string {
-  return t.replace(/\b(?=[A-Za-z0-9]*[A-Za-z])(?=[A-Za-z0-9]*[013457])[A-Za-z0-9]{3,}\b/g, (w) => {
+  return t.replace(/(?<![\p{Alphabetic}\p{M}\p{Nd}\p{Pc}‌‍])(?=[A-Za-z0-9]*[A-Za-z])(?=[A-Za-z0-9]*[013457])[A-Za-z0-9]{3,}(?![\p{Alphabetic}\p{M}\p{Nd}\p{Pc}‌‍])/gu, (w) => {
     const letters = (w.match(/[A-Za-z]/g) || []).length;
     const digits = (w.match(/[0-9]/g) || []).length;
     if (letters < 2 || digits === 0 || digits > letters || /[2689]/.test(w) || /^[0-9]/.test(w)) return w;

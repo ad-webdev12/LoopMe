@@ -78,6 +78,7 @@
 		C5014983EDAA881668BE3A6B /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF4EE409F876664A8A05F080 /* WidgetKit.framework */; };
 		CBE85C02725FDA23E0DE71DE /* MessagesCheck.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 264F377F32143F7867000D84 /* MessagesCheck.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CE2404669CC8F146AA4B9590 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389B4380A6D0BE5521D3E969 /* Engine.swift */; };
+		CE7F97E809B0C2F38D1FA93C /* ScamNet.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = ED88A199A80A9E228D8B362D /* ScamNet.mlmodel */; };
 		D1C3CBFE239100B72C1A1EBB /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389B4380A6D0BE5521D3E969 /* Engine.swift */; };
 		D2BCEF18824C5E549CEB3259 /* ScamNetRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A57A8E33F6BFD89AFAC63B /* ScamNetRunner.swift */; };
 		D4BEE7D722AC6261D08D5FFD /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25B6B2818200D3D2F554CF34 /* UniformTypeIdentifiers.framework */; };
@@ -804,7 +805,6 @@
 				"${PODS_CONFIGURATION_BUILD_DIR}/RNSVG/RNSVGFilters.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/React-Core_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-cxxreact/React-cxxreact_privacy.bundle",
-				"${PODS_ROOT}/../../modules/scam-ai/ios/Resources/ScamNet.mlmodel",
 				"${PODS_ROOT}/../../modules/scam-ai/ios/Resources/ScamNet.vocab.txt",
 			);
 			name = "[CP] Copy Pods Resources";
@@ -818,7 +818,6 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RNSVGFilters.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-Core_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-cxxreact_privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ScamNet.mlmodel",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ScamNet.vocab.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -836,6 +835,7 @@
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
 				36F5DEEC29A2F0AF7DF541CB /* ExpoModulesProvider.swift in Sources */,
 				E8D4CDAF16449FE4C232C498 /* CheckIntent.swift in Sources */,
+				CE7F97E809B0C2F38D1FA93C /* ScamNet.mlmodel in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

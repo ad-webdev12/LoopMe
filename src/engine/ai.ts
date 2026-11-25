@@ -91,7 +91,12 @@ export async function upgrade(message: string, rule: Verdict, opts?: DetectorOpt
   // fragments. They only get a say when the text could carry a pitch.
   if (!modelMayJudge(message)) return { ...rule, aiTier: tier, fused: false };
 
-  const ai = await classify(message);
+  // The model reads the same cleaned text in the app, the drawer, the share
+  // sheet and the filter (leet digits folded, emoji dropped). The app used to
+  // send the raw text, so the same message could score differently here.
+  const cleaned = normalizeText((message || '').trim()).text;
+  if (!cleaned) return { ...rule, aiTier: tier, fused: false };
+  const ai = await classify(cleaned);
   if (!ai) return { ...rule, aiTier: tier, fused: false };
 
   // ScamNet may only raise a level, never lower one. Tried letting it clear a
