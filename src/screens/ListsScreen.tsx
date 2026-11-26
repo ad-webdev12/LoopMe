@@ -1,4 +1,4 @@
-// Blocked Numbers and Safe Senders. Plain grouped lists; add by typing,
+// Blocked numbers and trusted numbers. Plain grouped lists; add by typing,
 // remove with one tap. Blocking goes to the call directory too.
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -23,7 +23,7 @@ export default function ListsScreen({ ctx }: { ctx: Ctx }) {
       if (s.blocked.includes(d)) { ctx.flash('That number is already blocked.'); return; }
       await ctx.blockNumber(v);
     } else {
-      if (s.allowlist.some(a => a.toLowerCase() === v.toLowerCase())) { ctx.flash('Already a safe sender.'); return; }
+      if (s.allowlist.some(a => a.toLowerCase() === v.toLowerCase())) { ctx.flash('That one is already trusted.'); return; }
       ctx.update({ ...s, allowlist: [...s.allowlist, v] });
     }
     setValue('');
@@ -37,8 +37,8 @@ export default function ListsScreen({ ctx }: { ctx: Ctx }) {
   return (
     <Screen C={C} playKey={ctx.screen}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }} keyboardShouldPersistTaps="handled">
-        <BackLink label="Settings" onPress={() => ctx.go('settings')} />
-        <ScreenTitle C={C}>{blocked ? 'Blocked Numbers' : 'Safe Senders'}</ScreenTitle>
+        <BackLink label="Back" onPress={() => ctx.go('numbers')} />
+        <ScreenTitle C={C}>{blocked ? 'Blocked numbers' : 'Trusted numbers'}</ScreenTitle>
         <Lead C={C}>{blocked ? 'These can’t call or text you. Loop Me tells your iPhone to stop them.' : 'Texts from these names or numbers are never flagged.'}</Lead>
         <View style={[st.addRow, { backgroundColor: C.card }]}>
           <TextInput value={value} onChangeText={setValue} placeholder={blocked ? 'Number to block' : 'Name or number'} placeholderTextColor={C.meta} keyboardType={blocked ? 'phone-pad' : 'default'} returnKeyType="done" onSubmitEditing={add}

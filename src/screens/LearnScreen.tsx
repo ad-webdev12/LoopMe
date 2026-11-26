@@ -54,7 +54,7 @@ export default function LearnScreen({ ctx }: { ctx: Ctx }) {
             );
           })}
         </View>
-        <Pill label="Practice a scam call" style={{ marginHorizontal: 16, marginTop: 18 }} icon={<Phone size={20} color="#fff" strokeWidth={2} />} onPress={() => ctx.go('practice')} />
+        <Pill label="Learn how to spot a scam call" style={{ marginHorizontal: 16, marginTop: 18 }} icon={<Phone size={20} color="#fff" strokeWidth={2} />} onPress={() => ctx.go('practice')} />
       </ScrollView>
     </Screen>
   );

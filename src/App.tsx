@@ -5,7 +5,7 @@
 // saved history, the text filter and share sheet feeding history through the
 // app group, and the family link over the family's own iCloud.
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, AppState, Linking as RNLinking, LogBox, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Alert, AppState, Linking as RNLinking, LogBox, StatusBar, StyleSheet, Text, View, useColorScheme } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
@@ -45,6 +45,7 @@ import CaregiverScreen from './screens/CaregiverScreen';
 import ScammedScreen from './screens/ScammedScreen';
 import ListsScreen from './screens/ListsScreen';
 import DrawerInfoScreen from './screens/DrawerInfoScreen';
+import { NumbersScreen, HowToScreen, AdvancedScreen, PrivacyScreen, SupportScreen } from './screens/SettingsSubScreens';
 import WardScreen from './screens/WardScreen';
 import FamilyAlertScreen from './screens/FamilyAlertScreen';
 import NoteScreen from './screens/NoteScreen';
@@ -55,6 +56,7 @@ export type ScreenId =
   | 'home' | 'checking' | 'scam' | 'amber' | 'green' | 'detail' | 'callcheck'
   | 'history' | 'family' | 'ask' | 'maria'
   | 'settings' | 'setup' | 'learn' | 'practice' | 'caregiver' | 'scammed' | 'blocked' | 'safe' | 'drawerInfo'
+  | 'numbers' | 'howto' | 'advanced' | 'privacy' | 'support'
   | 'ward' | 'wardItem' | 'familyAlert' | 'note' | 'ob5' | 'ob6';
 
 export interface Ctx {
@@ -108,7 +110,7 @@ export interface Ctx {
 
 // The floating bar shows on the four tabs only; pushed screens have Back.
 const TAB_SCREENS: ScreenId[] = ['home', 'history', 'family', 'settings', 'ward'];
-const ALL_SCREENS: ScreenId[] = ['home', 'checking', 'scam', 'amber', 'green', 'detail', 'callcheck', 'history', 'family', 'ask', 'maria', 'settings', 'setup', 'learn', 'practice', 'caregiver', 'scammed', 'blocked', 'safe', 'drawerInfo', 'ward', 'watchedBy', 'watch', 'intro', 'ob1', 'ob2', 'ob3', 'ob4', 'ob5', 'ob6'];
+const ALL_SCREENS: ScreenId[] = ['home', 'checking', 'scam', 'amber', 'green', 'detail', 'callcheck', 'history', 'family', 'ask', 'maria', 'settings', 'setup', 'learn', 'practice', 'caregiver', 'scammed', 'blocked', 'safe', 'drawerInfo', 'numbers', 'howto', 'advanced', 'privacy', 'support', 'ward', 'watchedBy', 'watch', 'intro', 'ob1', 'ob2', 'ob3', 'ob4', 'ob5', 'ob6'];
 
 LogBox.ignoreLogs(['SafeAreaView has been deprecated']);
 
@@ -135,6 +137,9 @@ SplashScreen.setOptions({ duration: 220, fade: true });
 
 export default function App() {
   const [settings, setSettings] = useState<Settings | null>(null);
+  // Appearance follows the iPhone (Settings > Display & Brightness). The old
+  // in-app dark mode setting is ignored.
+  const scheme = useColorScheme();
   const [screen, setScreen] = useState<ScreenId>('intro');
   const [msg, setMsg] = useState('');
   const [verdict, setVerdict] = useState<FusedVerdict | null>(null);
@@ -597,7 +602,7 @@ export default function App() {
     : screen === 'familyAlert' ? (alertRec?.level === 'amber' ? T.amber : T.red)
     : screen === 'practice' ? T.practice
     : T.green;
-  const C = palette(!!settings.darkMode);
+  const C = palette(scheme === 'dark');
 
   const ctx: Ctx = {
     settings, update, screen, go, flash, check,
@@ -609,7 +614,7 @@ export default function App() {
     noteOpen,
     closeNote: () => { setNoteOpen(null); setScreen('home'); },
     loopIn, sendNoteTo, refreshFamily, unlinkFamily, blockNumber, correct, markScam, back, tallies, pulse, checking, openRecord,
-    C: palette(!!settings.darkMode),
+    C,
     pendingPhoto, clearPendingPhoto: () => setPendingPhoto(false),
   };
 
@@ -651,6 +656,11 @@ export default function App() {
         {screen === 'scammed' && <ScammedScreen ctx={ctx} />}
         {(screen === 'blocked' || screen === 'safe') && <ListsScreen ctx={ctx} />}
         {screen === 'drawerInfo' && <DrawerInfoScreen ctx={ctx} />}
+        {screen === 'numbers' && <NumbersScreen ctx={ctx} />}
+        {screen === 'howto' && <HowToScreen ctx={ctx} />}
+        {screen === 'advanced' && <AdvancedScreen ctx={ctx} />}
+        {screen === 'privacy' && <PrivacyScreen ctx={ctx} />}
+        {screen === 'support' && <SupportScreen ctx={ctx} />}
         {screen === 'ward' && <WardScreen ctx={ctx} />}
         {screen === 'wardItem' && <MariaScreen ctx={ctx} />}
         {screen === 'familyAlert' && <FamilyAlertScreen ctx={ctx} />}

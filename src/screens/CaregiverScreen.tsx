@@ -39,7 +39,7 @@ export default function CaregiverScreen({ ctx }: { ctx: Ctx }) {
     <Screen C={C} playKey="caregiver">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <BackLink onPress={() => ctx.go('settings')} />
+          <BackLink onPress={ctx.back} />
           {!!s.careName && (
             <View style={[st.badge, { backgroundColor: C.amberTint }]}>
               <HandHeart size={16} color={C.amberText} strokeWidth={2} />

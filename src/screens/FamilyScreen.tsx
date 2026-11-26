@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Phone, MessageCircle, Send, Plus, Smartphone, ChevronRight, ArrowRight, Star, RefreshCw, Trash2, QrCode, Settings as Gear, HandHeart } from 'lucide-react-native';
 import { InviteCodeSheet } from '../ui/InviteCodeSheet';
+import { SecretWordCard } from '../ui/SecretWordCard';
 import { T, font } from '../theme';
 import { Screen, LargeTitle, Avatar, Note, Pill } from '../ui/base';
 import { loopPerson, firstName } from '../ui/pieces';
@@ -140,6 +141,8 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
             </Pressable>
           )}
         </View>
+
+        <SecretWordCard ctx={ctx} />
 
         <View style={[st.list, { backgroundColor: C.card, marginTop: 18, paddingVertical: 0 }]}>
           <Pressable onPress={() => ctx.go('caregiver')} style={({ pressed }) => [st.linkRow, pressed && { opacity: 0.6 }]} accessibilityRole="button">

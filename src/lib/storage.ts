@@ -26,7 +26,7 @@ export interface Settings {
   careRel: string;               // Mother / Father / Other
   autoCheck: boolean;            // "Check unknown texts for me"
   improve: boolean;              // send corrected texts (redacted) to help the detector; off by default
-  darkMode: boolean;             // off by default; real tokens, never an inversion
+  darkMode: boolean;             // no longer used: the app follows the iPhone's appearance
   introSeen: boolean;
   // The family link over iCloud. Mirrored from the native side at launch so
   // screens can read it synchronously.

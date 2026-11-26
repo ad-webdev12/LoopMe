@@ -1,4 +1,4 @@
-// Use Loop Me in Messages: how the drawer works, with the three steps and a
+// How to check a text message: how the drawer works, with the three steps and a
 // picture of the strip. Nothing here is fake; it is a guide to the real
 // extension that ships in the Messages app.
 import React from 'react';
@@ -13,8 +13,8 @@ export default function DrawerInfoScreen({ ctx }: { ctx: Ctx }) {
   return (
     <Screen C={C} playKey="drawerInfo">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
-        <BackLink label="Settings" onPress={() => ctx.go('settings')} />
-        <ScreenTitle C={C}>Use Loop Me in Messages</ScreenTitle>
+        <BackLink label="Back" onPress={() => ctx.go('howto')} />
+        <ScreenTitle C={C}>How to check a text message</ScreenTitle>
         <Lead C={C}>Check a text without leaving Messages. Loop Me sits in the + list under the keyboard, next to Photos.</Lead>
 
         <View style={st.drawer}>

@@ -187,7 +187,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
                 <PulseDot />
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text style={[font(16, '600', 1.3), { color: C.dark ? '#fff' : T.redInk }]} allowFontScaling>Scam texts and calls aren’t blocked yet</Text>
-                  <Text style={[font(14.5, '400', 1.35), { color: C.dark ? '#fff' : T.redInk, marginTop: 2 }]} allowFontScaling>Allow {filterOn || callsOn ? '1 iPhone permission' : '2 iPhone permissions'} to block them</Text>
+                  <Text style={[font(14.5, '400', 1.35), { color: C.dark ? '#fff' : T.redInk, marginTop: 2 }]} allowFontScaling>{filterOn || callsOn ? '1 step left to turn on protection' : '2 steps to turn on protection'}</Text>
                 </View>
                 <View style={st.allow}><Text style={[font(15, '600'), { color: '#fff' }]} allowFontScaling>Allow</Text></View>
               </Animated.View>
