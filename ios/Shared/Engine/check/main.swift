@@ -25,6 +25,10 @@ for c in cases {
   if v.tags != wantTags { diffs.append("tags \(v.tags) vs \(wantTags)") }
   if v.reason != wantReason { diffs.append("reason differs") }
   if v.safeStep != wantStep { diffs.append("safeStep differs") }
+  let wantEx = c["explain"] as? [String] ?? []
+  let gotEx = Explain.points(m, v.level, v.tags).map { $0.phrase + "|" + $0.short }
+  if gotEx != wantEx { diffs.append("explain \(gotEx) vs \(wantEx)") }
+  if Explain.headline(m, v.level, v.tags) != (c["headline"] as? String ?? "") { diffs.append("headline differs") }
   if !diffs.isEmpty {
     bad += 1
     print("MISMATCH: \(m.prefix(90))")

@@ -1,6 +1,7 @@
 // Scam · Show me more. The verdict tag, why, the message with its flagged
 // phrases and read-aloud, the numbered reasons, block and report, was this
 // right, and who has been looped in.
+import { explain, highlights } from '../engine/explain';
 import React from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Speech from 'expo-speech';
@@ -22,6 +23,7 @@ export default function DetailScreen({ ctx }: { ctx: Ctx }) {
   const route = reportRoute();
   const digits = (rec?.sender || '').replace(/\D/g, '');
   const canBlock = digits.length >= 7 && !s.blocked.includes(digits);
+  const points = explain(ctx.msg, level, v?.tags || []);
   const back = () => ctx.go(level === 'amber' ? 'amber' : level === 'green' ? 'green' : 'scam');
   const seenNote = rec?.notes?.find(n => !n.mine);
   const read = () => Speech.speak(ctx.msg, { rate: 0.9 });
@@ -40,12 +42,8 @@ export default function DetailScreen({ ctx }: { ctx: Ctx }) {
         <Text style={[font(32, '700', 1.08, -0.5), { color: C.ink, paddingTop: 10, paddingHorizontal: 20 }]} allowFontScaling>
           {level === 'red' ? 'Why it’s a scam' : level === 'amber' ? 'Why to be careful' : 'Why it looks okay'}
         </Text>
-        {!!(v?.safeStep || v?.reason) && (
-          <Text style={[font(17, '400', 1.45), { color: C.ink2, opacity: C.dark ? 0.8 : 0.75, paddingTop: 8, paddingHorizontal: 20 }]} allowFontScaling>{v?.safeStep || v?.reason}</Text>
-        )}
-
         <View style={[st.card, { backgroundColor: C.card, marginTop: 18, paddingVertical: 14 }]}>
-          <Highlighted text={ctx.msg} matches={level === 'green' ? [] : (v?.matches || [])} color={C.ink} size={16.5} lh={1.42}
+          <Highlighted text={ctx.msg} matches={highlights(ctx.msg, level, v?.tags || [])} color={C.ink} size={16.5} lh={1.42}
             mark={level === 'amber' ? C.amberText : C.dark ? '#ff8a73' : T.redInk} underline={level === 'amber' ? T.amber : T.red} />
           <Pressable onPress={read} style={({ pressed }) => [st.readBtn, { backgroundColor: C.greenTint }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
             <Volume2 size={18} color={C.accent} strokeWidth={2} />
@@ -53,12 +51,12 @@ export default function DetailScreen({ ctx }: { ctx: Ctx }) {
           </Pressable>
         </View>
 
-        {(v?.signals || []).length > 0 && (
+        {points.length > 0 && (
           <View style={[st.card, { backgroundColor: C.card, marginTop: 12 }]}>
-            {(v?.signals || []).map((sig, i, arr) => (
+            {points.map((pt, i, arr) => (
               <View key={i} style={[{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13 }, i < arr.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep2 }]}>
                 <View style={[st.num, { backgroundColor: color }]}><Text style={[font(13, '700'), { color: '#fff' }]} allowFontScaling={false}>{i + 1}</Text></View>
-                <Text style={[font(17, '500', 1.3), { color: C.ink, flex: 1 }]} allowFontScaling>{sig}</Text>
+                <Text style={[font(17, '500', 1.3), { color: C.ink, flex: 1 }]} allowFontScaling>{pt.short}</Text>
               </View>
             ))}
           </View>

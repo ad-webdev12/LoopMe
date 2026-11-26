@@ -172,3 +172,71 @@ enum Engine {
     return detect(message, opts)
   }
 }
+
+
+// MARK: - Explain
+// Mirrors src/engine/explain.ts: the few short phrases in the message that
+// show the verdict, each with a plain reason. Same table (engine.json), same
+// order, so the Messages drawer says exactly what the app says.
+struct ExplainPoint { let phrase: String; let short: String; let why: String }
+
+enum Explain {
+  private struct Pat { let re: NSRegularExpression; let short: String; let why: String; let rank: Int; let needTags: [String] }
+  private static let pats: [Pat] = {
+    let list = EngineTables.shared.explain["patterns"] as? [[String: Any]] ?? []
+    return list.compactMap { d in
+      guard let src = d["source"] as? String, let re = try? NSRegularExpression(pattern: src, options: (d["flags"] as? String ?? "").contains("i") ? [.caseInsensitive] : []) else { return nil }
+      return Pat(re: re, short: d["short"] as? String ?? "", why: d["why"] as? String ?? "", rank: d["rank"] as? Int ?? 0, needTags: d["needTags"] as? [String] ?? [])
+    }
+  }()
+  private static let byTag: [String: [String]] = EngineTables.shared.explain["byTag"] as? [String: [String]] ?? [:]
+  private static let clean: [ExplainPoint] = (EngineTables.shared.explain["clean"] as? [[String: Any]] ?? []).map {
+    ExplainPoint(phrase: "", short: $0["short"] as? String ?? "", why: $0["why"] as? String ?? "")
+  }
+
+  static func points(_ text: String, _ level: Level, _ tags: [String]) -> [ExplainPoint] {
+    let ns = text as NSString
+    struct F { let at: Int; let end: Int; let rank: Int; let order: Int; let p: Pat; let phrase: String }
+    var found: [F] = []
+    for (k, p) in pats.enumerated() {
+      if !p.needTags.isEmpty && !p.needTags.contains(where: { tags.contains($0) }) { continue }
+      for m in p.re.matches(in: text, range: NSRange(location: 0, length: ns.length)) {
+        var phrase = ns.substring(with: m.range).trimmingCharacters(in: .whitespaces)
+        while let last = phrase.last, ".,;:!?)".contains(last) { phrase.removeLast() }
+        let len = (phrase as NSString).length
+        if len > 1 { found.append(F(at: m.range.location, end: m.range.location + len, rank: p.rank, order: k, p: p, phrase: phrase)) }
+      }
+    }
+    found.sort { $0.rank != $1.rank ? $0.rank > $1.rank : $0.at < $1.at }
+    var pick: [F] = []
+    for f in found {
+      if pick.count >= 3 { break }
+      if pick.contains(where: { $0.p.short == f.p.short }) { continue }
+      if pick.contains(where: { f.at < $0.end && $0.at < f.end }) { continue }
+      pick.append(f)
+    }
+    pick.sort { $0.at < $1.at }
+    var out = pick.map { ExplainPoint(phrase: $0.phrase, short: $0.p.short, why: $0.p.why) }
+    if level != .green && out.count < 2 {
+      for t in tags {
+        if let f = byTag[t], f.count == 2, out.count < 3, !out.contains(where: { $0.short == f[0] }) { out.append(ExplainPoint(phrase: "", short: f[0], why: f[1])) }
+      }
+    }
+    if level == .green {
+      let has = { (s: String) in out.contains { $0.short == s } }
+      let hasLink = text.range(of: "\\b(?:https?://|www\\.)|\\.[a-z]{2,6}/", options: [.regularExpression, .caseInsensitive]) != nil
+      return clean.filter { c in
+        !(c.short == "No money" && (has("Wants money fast") || has("Small fee to pay"))) && !(c.short == "No link" && hasLink) && !(c.short == "No rush" && has("Rushing you"))
+      }
+    }
+    return out
+  }
+
+  static func headline(_ text: String, _ level: Level, _ tags: [String]) -> String {
+    if level == .green { return "Nothing here matches a scam we know." }
+    if tags.contains("family-emergency") { return "Someone is pretending to be family." }
+    let pts = points(text, level, tags)
+    if let best = pats.filter({ p in pts.contains { $0.short == p.short } }).max(by: { $0.rank < $1.rank }) { return best.why }
+    return level == .red ? "This matches a scam we know." : "Texts like this are easy to fake."
+  }
+}

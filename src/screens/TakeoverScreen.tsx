@@ -2,6 +2,7 @@
 // Padding 70/22, headline 50/800, the message as a white card with the flagged
 // phrases underlined, numbered reasons, who has been looped in, then the
 // buttons. Exact per the handoff screens 03, 05 and 06.
+import { highlights, headline as explainHeadline } from '../engine/explain';
 import React, { useEffect } from 'react';
 import * as Speech from 'expo-speech';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
@@ -39,12 +40,11 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
   // Read answers aloud (Settings): the verdict is spoken as it appears.
   useEffect(() => {
     if (!s.readAloud) return;
-    Speech.speak(headline.replace('\n', ' ') + ' ' + (v?.reason || ''), { rate: 0.9 });
+    Speech.speak(headline.replace('\n', ' ') + ' ' + explainHeadline(ctx.msg, level, v?.tags || []), { rate: 0.9 });
     return () => { Speech.stop(); };
   }, [ctx.recordId]); // eslint-disable-line react-hooks/exhaustive-deps
-  const sub = v?.reason || '';
-  // Short reasons here; the full sentences live on Show me more.
-  const signals = (v?.signals || []).slice(0, 3).map(x => x.split(/(?<=[.!?])\s/)[0]);
+  // One plain line here; the reasons, one by one, live on Show me more.
+  const sub = explainHeadline(ctx.msg, level, v?.tags || []);
 
   return (
     <Takeover color={color} haptic={level === 'red' ? 'error' : level === 'amber' ? 'warning' : null} playKey={ctx.recordId + level}>
@@ -53,21 +53,11 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
         <Text style={[font(18, '400', 1.4), { color: '#fff', marginTop: 14 }]} allowFontScaling>{sub}</Text>
 
         <MessageCard C={{ ...C, card: '#fff', ink: '#000', meta: '#000' }} sender={sender} when={whenLabel(rec?.at || Date.now())} text={ctx.msg}
-          matches={level === 'green' ? [] : (v?.matches || [])}
+          matches={highlights(ctx.msg, level, v?.tags || [])}
           mark={level === 'amber' ? T.amberInk : T.redInk} underline={level === 'amber' ? T.amber : T.red}
           shadow={level === 'red' ? 'rgba(80,10,0,.25)' : level === 'amber' ? 'rgba(60,30,0,.25)' : undefined}
           style={{ marginTop: 20 }} />
 
-        {level === 'red' && signals.length > 0 && (
-          <View style={{ marginTop: 18, gap: 9 }}>
-            {signals.map((sig, i) => (
-              <View key={i} style={{ flexDirection: 'row', gap: 10 }}>
-                <Text style={[font(16, '700'), { color: '#fff', opacity: 0.75 }]} allowFontScaling>{i + 1}</Text>
-                <Text style={[font(16, '500', 1.35), { color: '#fff', flex: 1 }]} allowFontScaling>{sig}</Text>
-              </View>
-            ))}
-          </View>
-        )}
         {level === 'amber' && (
           <>
             <Text style={[font(17, '600', 1.4), { color: '#fff', marginTop: 18 }]} allowFontScaling>What to do</Text>

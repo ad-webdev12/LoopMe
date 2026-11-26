@@ -367,7 +367,7 @@ final class MessagesViewController: MSMessagesAppViewController {
     col.setCustomSpacing(16, after: top)
     col.addArrangedSubview(label("Stop. Don’t reply.", 34, .heavy, .white, ls: -1))
     col.setCustomSpacing(8, after: col.arrangedSubviews.last!)
-    col.addArrangedSubview(label(v.reason, 17, .medium, .white, lines: 3))
+    col.addArrangedSubview(label(Explain.headline(text, v.level, v.tags), 17, .medium, .white, lines: 3))
     col.addArrangedSubview(spacer())
     col.addArrangedSubview(rowOf([cap("Why?", bg: .white, fg: redText, action: #selector(whyTapped)),
                                   sendFailed && who != nil ? cap("Try again", bg: UIColor.white.withAlphaComponent(0.22), fg: .white, action: #selector(tellTapped))
@@ -375,10 +375,9 @@ final class MessagesViewController: MSMessagesAppViewController {
   }
 
   /// The quoted phrase and what it means, paired from the engine's matches and signals.
+  /// The quoted phrase and its reason: the same explainer the app uses.
   private func whyRows(_ v: Verdict) -> [(String?, String)] {
-    let sig = Array(v.signals.prefix(3))
-    let m = Array(v.matches.prefix(3))
-    return sig.enumerated().map { i, s in (i < m.count && sig.count == m.count ? "“" + m[i].prefix(1).uppercased() + m[i].dropFirst() + "”" : nil, s) }
+    Explain.points(text, v.level, v.tags).map { p in (p.phrase.isEmpty ? nil : "“" + p.phrase + "”", p.why) }
   }
 
   private func buildWhy(_ col: UIStackView) {
@@ -413,7 +412,7 @@ final class MessagesViewController: MSMessagesAppViewController {
     col.addArrangedSubview(verdictTop("Be careful", dark: amber)); col.setCustomSpacing(16, after: col.arrangedSubviews.last!)
     col.addArrangedSubview(label("Don’t reply yet.", 34, .heavy, .white, ls: -1))
     col.setCustomSpacing(8, after: col.arrangedSubviews.last!)
-    col.addArrangedSubview(label(v.reason + " " + v.safeStep, 17, .medium, .white, lines: 4))
+    col.addArrangedSubview(label(Explain.headline(text, v.level, v.tags) + " " + v.safeStep, 17, .medium, .white, lines: 4))
     col.addArrangedSubview(spacer())
     let first = who != nil ? cap("Ask " + who!, bg: .white, fg: amberInk, action: #selector(askTapped)) : cap("Done", bg: .white, fg: amberInk, action: #selector(reset))
     col.addArrangedSubview(rowOf([first, cap("Why?", bg: UIColor.white.withAlphaComponent(0.22), fg: .white, action: #selector(whyTapped))]))
@@ -518,7 +517,7 @@ final class MessagesViewController: MSMessagesAppViewController {
     guard let v = verdict else { return }
     if voice.isSpeaking { voice.stopSpeaking(at: .immediate); return }
     let head = v.level == .red ? "Stop. Don't reply. " : v.level == .amber ? "Don't reply yet. " : "Looks okay. "
-    let u = AVSpeechUtterance(string: head + v.signals.prefix(3).joined(separator: " ")); u.rate = 0.46
+    let u = AVSpeechUtterance(string: head + Explain.points(text, v.level, v.tags).map { $0.short + ". " + $0.why }.joined(separator: " ")); u.rate = 0.46
     try? AVAudioSession.sharedInstance().setCategory(.playback, options: .duckOthers); try? AVAudioSession.sharedInstance().setActive(true)
     voice.speak(u)
   }

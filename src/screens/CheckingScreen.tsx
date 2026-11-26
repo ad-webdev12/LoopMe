@@ -4,19 +4,25 @@
 // underneath (App.check) and this screen stays until the real verdict is in;
 // the last status line simply holds until then.
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
-import { Lock } from 'lucide-react-native';
+import { ActivityIndicator, Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { Check, Lock } from 'lucide-react-native';
+import { highlights } from '../engine/explain';
 import { T, font } from '../theme';
 import { APP_ICON, Screen, motionOff } from '../ui/base';
 import { Bubble, Highlighted, senderLabel, whenLabel } from '../ui/pieces';
 import type { Ctx } from '../App';
 
 const STEPS = ['Reading the words…', 'Checking the number…', 'Looking for scam tricks…'];
+const CHECKS = [
+  { t: 'The words', d: 'Money, secrets, rushing you' },
+  { t: 'Links and numbers', d: 'Where they really go' },
+  { t: 'Scams we know', d: 'Compared with thousands of real ones' },
+];
 
 export default function CheckingScreen({ ctx }: { ctx: Ctx }) {
   const { C } = ctx;
   const rec = ctx.hist.find(h => h.id === ctx.recordId);
-  const matches = ctx.verdict?.matches || [];
+  const matches = ctx.verdict ? highlights(ctx.msg, ctx.verdict.level, ctx.verdict.tags || []) : [];
   const off = motionOff();
 
   const fill = useRef(new Animated.Value(0)).current;
@@ -69,6 +75,25 @@ export default function CheckingScreen({ ctx }: { ctx: Ctx }) {
         )}
       </View>
 
+      {/* What is being looked at, ticked off as it goes. Real steps: the rules,
+          the link checks, then ScamNet, the model trained on real scam texts. */}
+      <View style={[st.list, { backgroundColor: C.card }]}>
+        {CHECKS.map((c, i) => {
+          const done = step > i, now = step === i;
+          return (
+            <View key={c.t} style={[st.row, i < CHECKS.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep2 }]}>
+              <View style={[st.dot, { backgroundColor: done ? T.green : C.dark ? '#2c2c2e' : '#eef4f1' }]}>
+                {done ? <Check size={15} color="#fff" strokeWidth={3} /> : now ? <ActivityIndicator size="small" color={T.green} /> : null}
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[font(17, '600'), { color: C.ink, opacity: done || now ? 1 : 0.45 }]} allowFontScaling>{c.t}</Text>
+                <Text style={[font(15, '400'), { color: C.ink2, opacity: done || now ? 0.7 : 0.35, marginTop: 1 }]} allowFontScaling>{c.d}</Text>
+              </View>
+            </View>
+          );
+        })}
+      </View>
+
       <View style={st.foot}>
         <Lock size={16} color={C.dark ? '#ebebf5' : '#3c3c43'} strokeWidth={2} />
         <Text style={[font(15, '500'), { color: C.dark ? '#ebebf5' : '#3c3c43' }]} allowFontScaling>Checked on this phone. Nothing is sent.</Text>
@@ -83,5 +108,8 @@ const st = StyleSheet.create({
   bar: { height: '100%', borderRadius: 3, backgroundColor: T.green },
   card: { marginTop: 24, borderRadius: 20, paddingTop: 14, paddingHorizontal: 16, paddingBottom: 16, overflow: 'hidden' },
   band: { position: 'absolute', left: 0, right: 0, top: 0, height: 44, backgroundColor: 'rgba(13,107,87,.12)', borderBottomWidth: 2.5, borderBottomColor: T.green },
+  list: { marginTop: 14, borderRadius: 20, paddingHorizontal: 16 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14 },
+  dot: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   foot: { marginTop: 'auto', paddingTop: 24, paddingBottom: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
 });

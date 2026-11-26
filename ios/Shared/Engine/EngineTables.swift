@@ -43,6 +43,8 @@ final class EngineTables {
   let threshold: Double
   let bias: Double
   let weights: [Double]
+  /// The explainer's table (src/engine/explain.ts): phrases to point at and why.
+  let explain: [String: Any]
 
   private init() {
     let url = EngineTables.locate()
@@ -105,6 +107,7 @@ final class EngineTables {
     let val = m["val"] as? [Double] ?? []
     for i in 0..<min(idx.count, val.count) where idx[i] >= 0 && idx[i] < dim { w[idx[i]] = val[i] }
     weights = w
+    explain = json["explain"] as? [String: Any] ?? [:]
   }
 
   private static func locate() -> URL? {

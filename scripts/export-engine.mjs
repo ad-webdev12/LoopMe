@@ -34,6 +34,7 @@ const model = await import('file://' + join(w, 'model.ts'));
 const feats = await import('file://' + join(w, 'features.ts'));
 const norm = await import('file://' + join(w, 'normalize.ts'));
 const ai = await import('file://' + join(w, 'ai.ts'));
+const ex = await import('file://' + join(w, 'explain.ts'));
 
 const re = (r) => ({ source: r.source, flags: r.flags });
 const T = det.ENGINE_TABLES, L = links.LINK_TABLES, F = feats.FEATURE_TABLES(), N = norm.NORMALIZE_TABLES, M = model.MODEL_RAW;
@@ -52,6 +53,7 @@ const out = {
   },
   features: Object.fromEntries(Object.entries(F).map(([k, v]) => [k, re(v)])),
   normalize: { confusables: N.CONFUSABLES, punct: N.PUNCT, sensitive: re(N.SENSITIVE) },
+  explain: { patterns: ex.EXPLAIN, byTag: ex.BY_TAG, clean: ex.CLEAN },
   model: { dim: feats.DIM, charW: feats.CHAR_W, threshold: model.SCAM_THRESHOLD, bias: M.BIAS, idx: [...M.IDX], val: [...M.VAL].map(v => +v.toFixed(5)) },
 };
 
@@ -80,7 +82,8 @@ const msgs = [...pick('SCAMS'), ...pick('LEGIT'), ...wild.SCAM, ...wild.LEGIT,
 ];
 const cases = msgs.map(m => {
   const v = ai.instant(m);
-  return { m, level: v.level, score: v.score, tags: v.tags, reason: v.reason, safeStep: v.safeStep, fused: v.fused, signals: v.signals.length };
+  return { m, level: v.level, score: v.score, tags: v.tags, reason: v.reason, safeStep: v.safeStep, fused: v.fused, signals: v.signals.length,
+    explain: ex.explain(m, v.level, v.tags).map(p => p.phrase + '|' + p.short), headline: ex.headline(m, v.level, v.tags) };
 });
 writeFileSync(join(dir, 'cases.json'), JSON.stringify(cases));
 console.log(`cases.json: ${cases.length} messages`);

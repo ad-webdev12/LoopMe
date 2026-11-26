@@ -142,22 +142,13 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
         </View>
 
         <View style={[st.list, { backgroundColor: C.card, marginTop: 18, paddingVertical: 0 }]}>
-          <Pressable onPress={() => ctx.go('caregiver')} style={({ pressed }) => [st.linkRow, person && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep }, pressed && { opacity: 0.6 }]} accessibilityRole="button">
+          <Pressable onPress={() => ctx.go('caregiver')} style={({ pressed }) => [st.linkRow, pressed && { opacity: 0.6 }]} accessibilityRole="button">
             <HandHeart size={22} color={C.accent} strokeWidth={2} />
             <View style={{ flex: 1 }}>
               <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Set up for someone else</Text>
             </View>
             <ChevronRight size={18} color={C.chevron} strokeWidth={2.2} />
           </Pressable>
-          {person && (
-            <Pressable onPress={() => ctx.go('maria')} style={({ pressed }) => [st.linkRow, pressed && { opacity: 0.6 }]} accessibilityRole="button">
-              <Smartphone size={22} color={C.accent} strokeWidth={2} />
-              <View style={{ flex: 1 }}>
-                <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>See what {who} sees</Text>
-              </View>
-              <ChevronRight size={18} color={C.chevron} strokeWidth={2.2} />
-            </Pressable>
-          )}
         </View>
       </ScrollView>
 
