@@ -23,7 +23,8 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
   const sender = senderLabel(rec);
   const digits = (rec?.sender || '').replace(/\D/g, '');
   const canBlock = digits.length >= 7 && !s.blocked.includes(digits);
-  const trusted = s.trusted[0];
+  // Who to call: the person in the loop first, then anyone saved with a number.
+  const trusted = [person, ...s.trusted].find(p => !!p && (p.phone || '').replace(/\D/g, '').length >= 3) || null;
 
   const block = async () => {
     if (!rec?.sender) return;
@@ -73,8 +74,11 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
             <Text style={[font(16, '400', 1.45), { color: '#fff', marginTop: 4 }]} allowFontScaling>{v?.safeStep || 'Don’t tap or reply yet. Check with them on a number you already have.'}</Text>
           </>
         )}
-        {level === 'green' && !!v?.reason && (
-          <Text style={[font(16, '400', 1.45), { color: '#fff', marginTop: 18 }]} allowFontScaling>{v.reason}</Text>
+        {level === 'green' && (
+          <Text style={[font(16, '400', 1.45), { color: '#fff', marginTop: 18 }]} allowFontScaling>
+            {/feels off/i.test(v?.safeStep || '') ? v!.safeStep
+              : (v?.safeStep && v.safeStep !== 'Nothing to do.' ? v.safeStep + ' ' : '') + 'If it still feels off, ' + (who ? 'ask ' + who + '.' : 'ask someone you trust.')}
+          </Text>
         )}
 
         <View style={{ marginTop: 'auto', paddingTop: 24, gap: 10 }}>
@@ -103,17 +107,17 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
           )}
           {level === 'amber' && (
             <>
-              {person?.linked ? <Pill label={'Ask ' + who} bg="#fff" color={T.amberInk} onPress={ask} icon={<Send size={18} color={T.amberInk} strokeWidth={2.2} />} /> : null}
-              {!!trusted && <Pill label={'Call ' + firstName(trusted.name)} bg={person?.linked ? 'rgba(255,255,255,.22)' : '#fff'} color={person?.linked ? '#fff' : T.amberInk} onPress={() => call(trusted.phone)} icon={<Phone size={18} color={person?.linked ? '#fff' : T.amberInk} strokeWidth={2.2} />} />}
+              {!!trusted && <Pill label={'Call ' + firstName(trusted.name)} bg="#fff" color={T.amberInk} onPress={() => call(trusted.phone)} icon={<Phone size={18} color={T.amberInk} strokeWidth={2.2} />} />}
+              {person?.linked && <Pill label={'Ask ' + who} bg={trusted ? 'rgba(255,255,255,.22)' : '#fff'} color={trusted ? '#fff' : T.amberInk} onPress={ask} icon={<Send size={18} color={trusted ? '#fff' : T.amberInk} strokeWidth={2.2} />} />}
               {!person?.linked && !trusted ? (
                 <>
                   <Pill label="Show me more" bg="#fff" color={T.amberInk} onPress={() => ctx.go('detail')} />
-                  <Pill label="Leave it" bg="rgba(255,255,255,.22)" onPress={() => ctx.go('home')} />
+                  <Pill label="Close" bg="rgba(255,255,255,.22)" onPress={() => ctx.go('home')} />
                 </>
               ) : (
                 <View style={{ flexDirection: 'row', marginTop: 2 }}>
                   <TextBtn label="Show me more" onPress={() => ctx.go('detail')} style={{ flex: 1 }} />
-                  <TextBtn label="Leave it" onPress={() => ctx.go('home')} style={{ flex: 1 }} />
+                  <TextBtn label="Close" onPress={() => ctx.go('home')} style={{ flex: 1 }} />
                 </View>
               )}
             </>

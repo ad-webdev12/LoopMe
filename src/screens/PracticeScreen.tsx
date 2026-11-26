@@ -23,8 +23,8 @@ export default function PracticeScreen({ ctx }: { ctx: Ctx }) {
   return (
     <Takeover color={T.practice} haptic={null} playKey="practice">
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1, paddingTop: 70, paddingHorizontal: 24 }} showsVerticalScrollIndicator={false} bounces={false}>
-        <Text style={[font(17, '400'), { color: '#fff', textAlign: 'center' }]} allowFontScaling>Practice call</Text>
-        <Text style={[font(32, '500'), { color: white, textAlign: 'center', marginTop: 6 }]} allowFontScaling>Unknown caller</Text>
+        <Text style={[font(17, '400'), { color: 'rgba(255,255,255,.7)', textAlign: 'center' }]} allowFontScaling>Practice call</Text>
+        <Text style={[font(32, '500'), { color: white, textAlign: 'center', marginTop: 6 }]} allowFontScaling adjustsFontSizeToFit numberOfLines={1}>+1 (628) 555-0117</Text>
         <View style={st.badge}>
           <TriangleAlert size={16} color="#ff8a75" strokeWidth={2.2} />
           <Text style={[font(14, '600'), { color: '#ff8a75' }]} allowFontScaling>Pretend caller. Nobody is really calling.</Text>
@@ -32,6 +32,10 @@ export default function PracticeScreen({ ctx }: { ctx: Ctx }) {
 
         {state === 'intro' && (
           <>
+            <View style={st.card}>
+              <Text style={[font(17, '600'), { color: white }]} allowFontScaling>A practice run, so it feels familiar</Text>
+              <Text style={[font(16, '400', 1.45), { color: 'rgba(255,255,255,.75)', marginTop: 6 }]} allowFontScaling>This is the most common scam call. No app can hear a real call, so learn the pattern now, while it’s safe.</Text>
+            </View>
             <View style={st.bottom}>
               <Pill label="Start the practice call" height={58} onPress={() => setState('call')} icon={<Phone size={20} color="#fff" strokeWidth={2} />} />
               <Pill label="Not now" height={54} bg="transparent" border="rgba(255,255,255,.3)" onPress={() => ctx.go('settings')} />
@@ -75,7 +79,7 @@ export default function PracticeScreen({ ctx }: { ctx: Ctx }) {
             </Swap>
             <View style={st.bottom}>
               <Pill label="Try it again" bg="#fff" color={T.practice} onPress={() => setState('call')} />
-              <Pill label="Read the five tricks" height={54} bg="transparent" border="rgba(255,255,255,.3)" onPress={() => ctx.go('learn')} />
+              <Pill label="Read the scams to know" height={54} bg="transparent" border="rgba(255,255,255,.3)" onPress={() => ctx.go('learn')} />
             </View>
           </>
         )}

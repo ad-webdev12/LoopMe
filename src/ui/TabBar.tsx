@@ -1,8 +1,10 @@
-// Floating tab bar, exact per the handoff: 14px from the sides, 30px from the
-// bottom, 64 tall, radius 32, white, shadow 0 10px 30px rgba(0,0,0,.12). The
-// active tab is a dark-green pill (124 wide, 48 tall) that slides between
-// tabs in 450ms cubic-bezier(.3,.9,.25,1); its label fades in with a 120ms
-// delay. Inactive tabs are grey icons only, sharing the remaining width.
+// Floating tab bar, per the handoff: Check, Family, History. 50pt in from the
+// sides, 30pt from the bottom, 64 tall, radius 32, white, shadow 0 10 30
+// rgba(0,0,0,.12). The active tab is a dark-green capsule (124 wide, 48 tall)
+// showing icon + label that slides between tabs; its label fades in with a
+// 120ms delay. Inactive tabs are grey icons only (about 75 wide). Settings is
+// reached from the gear on Family. The caretaker phone has no Family screen,
+// so it keeps a fourth Settings tab and the wider bar.
 import React, { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import * as Haptics from 'expo-haptics';
@@ -13,7 +15,6 @@ import { motionOff } from './base';
 export type TabId = 'home' | 'history' | 'family' | 'settings' | 'ward';
 
 const PILL_W = 124;
-const SIDE = 14;
 const PAD = 8;
 
 export default function TabBar({ C, screen, go, careMode, watchName }: { C: Palette; screen: string; go: (t: TabId) => void; careMode: boolean; watchName: string }) {
@@ -27,10 +28,10 @@ export default function TabBar({ C, screen, go, careMode, watchName }: { C: Pale
       ]
     : [
         { t: 'home', label: 'Check', Icon: ScanText, on: ['home', 'checking', 'callcheck'].includes(screen) },
+        { t: 'family', label: 'Family', Icon: Users, on: ['family', 'ask', 'maria', 'watchedBy', 'watch', 'settings', 'learn', 'setup', 'caregiver', 'blocked', 'safe', 'drawerInfo'].includes(screen) },
         { t: 'history', label: 'History', Icon: Clock, on: screen === 'history' },
-        { t: 'family', label: 'Family', Icon: Users, on: ['family', 'ask', 'maria', 'watchedBy', 'watch'].includes(screen) },
-        { t: 'settings', label: 'Settings', Icon: Settings, on: ['settings', 'learn', 'setup', 'caregiver', 'blocked', 'safe', 'drawerInfo'].includes(screen) },
       ];
+  const SIDE = tabs.length > 3 ? 14 : 50;
   let active = tabs.findIndex(t => t.on);
   if (active < 0) active = 0;
   const inner = width - SIDE * 2 - PAD * 2;
@@ -57,7 +58,7 @@ export default function TabBar({ C, screen, go, careMode, watchName }: { C: Pale
   }, [active, rest]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <View style={[st.bar, { backgroundColor: C.card, shadowColor: '#000' }]} pointerEvents="box-none">
+    <View style={[st.bar, { left: SIDE, right: SIDE, backgroundColor: C.card, shadowColor: '#000' }]} pointerEvents="box-none">
       <Animated.View style={[st.pill, { transform: [{ translateX: x }] }]} pointerEvents="none">
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           {React.createElement(tabs[active].Icon, { size: 20, color: '#fff', strokeWidth: 2.2 })}
@@ -67,7 +68,7 @@ export default function TabBar({ C, screen, go, careMode, watchName }: { C: Pale
       {tabs.map((t, i) => (
         <Pressable key={t.t} onPress={() => go(t.t)} accessibilityRole="button" accessibilityLabel={t.label} accessibilityState={{ selected: i === active }}
           style={({ pressed }) => [{ width: i === active ? PILL_W : rest, height: 48, alignItems: 'center', justifyContent: 'center' }, pressed && { transform: [{ scale: 0.92 }] }]}>
-          {i !== active && <t.Icon size={23} color={C.dark ? '#fff' : '#000'} strokeWidth={1.9} />}
+          {i !== active && <t.Icon size={23} color={C.dark ? '#aeaeb2' : '#6c6c70'} strokeWidth={1.9} />}
         </Pressable>
       ))}
     </View>
@@ -76,7 +77,7 @@ export default function TabBar({ C, screen, go, careMode, watchName }: { C: Pale
 
 const st = StyleSheet.create({
   bar: {
-    position: 'absolute', left: SIDE, right: SIDE, bottom: 30, height: 64, borderRadius: 32,
+    position: 'absolute', bottom: 30, height: 64, borderRadius: 32,
     paddingHorizontal: PAD, flexDirection: 'row', alignItems: 'center',
     shadowOpacity: 0.12, shadowRadius: 30, shadowOffset: { width: 0, height: 10 }, zIndex: 6,
   },

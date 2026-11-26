@@ -21,6 +21,10 @@ final class MessagesViewController: MSMessagesAppViewController {
   private var verdict: Verdict?
   private var recordId = ""
   private var asked = false
+  private var sendFailed = false
+  private var reply: ExtensionCloud.Reply?
+  private var poll: Timer?
+  private var pollStarted = Date()
   private let voice = AVSpeechSynthesizer()
   private var container = UIView()
 
@@ -66,7 +70,7 @@ final class MessagesViewController: MSMessagesAppViewController {
     guard let p = itemProviders.first(where: { $0.canLoadObject(ofClass: NSString.self) }) else { return }
     _ = p.loadObject(ofClass: NSString.self) { [weak self] obj, _ in
       guard let s = (obj as? NSString)?.trimmingCharacters(in: .whitespacesAndNewlines), !s.isEmpty else { return }
-      DispatchQueue.main.async { self?.text = String(s); self?.render(.ready) }
+      DispatchQueue.main.async { self?.text = String(s); self?.check() }
     }
   }
   override func canPaste(_ itemProviders: [NSItemProvider]) -> Bool { itemProviders.contains { $0.canLoadObject(ofClass: NSString.self) } }
@@ -90,7 +94,7 @@ final class MessagesViewController: MSMessagesAppViewController {
         // The animation takes 2.5 s; the answer waits for it.
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.6) {
           guard self.state == .checking else { return }
-          if v.level == .red { UINotificationFeedbackGenerator().notificationOccurred(.error) }
+          if v.level == .red { UINotificationFeedbackGenerator().notificationOccurred(.error); if self.who != nil { self.publish(asked: false) } }
           self.render(v.level == .red ? .scam : v.level == .amber ? .careful : .safe)
         }
       }
@@ -220,36 +224,58 @@ final class MessagesViewController: MSMessagesAppViewController {
   }
 
   // MARK: states
+  // Capsule buttons, as in the design: 56 tall, fully round.
+  private func cap(_ title: String, bg: UIColor, fg: UIColor, icon: String? = nil, action: Selector) -> UIButton {
+    let b = button(title, bg: bg, fg: fg, icon: icon, action: action)
+    b.configuration?.background.cornerRadius = 28
+    b.constraints.first { $0.firstAttribute == .height }?.constant = 56
+    return b
+  }
+  private func hstretch() -> UIView { let s = UIView(); s.setContentHuggingPriority(.defaultLow, for: .horizontal); return s }
+  private func appIcon(_ size: CGFloat) -> UIView {
+    let i = UIImageView(image: UIImage(named: "loopme-icon")); i.contentMode = .scaleAspectFill; i.backgroundColor = green
+    i.layer.cornerRadius = size * 0.23; i.clipsToBounds = true
+    i.widthAnchor.constraint(equalToConstant: size).isActive = true; i.heightAnchor.constraint(equalToConstant: size).isActive = true
+    return i
+  }
+  private func centered(_ v: UIView) -> UIStackView { let s = UIStackView(arrangedSubviews: [v]); s.axis = .vertical; s.alignment = .center; return s }
+
   private func buildIdle(_ col: UIStackView) {
-    let lock = UIStackView(arrangedSubviews: [{ let i = UIImageView(image: UIImage(systemName: "lock.fill")); i.tintColor = meta; i.widthAnchor.constraint(equalToConstant: 13).isActive = true; i.contentMode = .scaleAspectFit; return i }(), label("Stays on this phone", 13.5, .medium, meta)])
-    lock.spacing = 5; lock.alignment = .center
-    col.addArrangedSubview(header(lock))
-    col.setCustomSpacing(12, after: col.arrangedSubviews.last!)
-    col.addArrangedSubview(label("Not sure about a message?\nCopy it, then tap Paste.", 26, .heavy, ink, ls: -0.5))
-    col.setCustomSpacing(16, after: col.arrangedSubviews.last!)
-    let steps = rowOf(["Press and hold the text", "Tap Copy", "Tap Paste below"].enumerated().map { i, t in
-      let card = UIView(); card.backgroundColor = .white; card.layer.cornerRadius = 12
-      let n = label("\(i + 1)", 13, .bold, green); let l = label(t, 14, .medium, ink2)
-      let st = UIStackView(arrangedSubviews: [n, l]); st.axis = .vertical; st.spacing = 3; st.translatesAutoresizingMaskIntoConstraints = false
-      card.addSubview(st)
-      NSLayoutConstraint.activate([st.topAnchor.constraint(equalTo: card.topAnchor, constant: 9), st.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 10), st.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -10), st.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -10)])
-      return card
-    })
-    steps.spacing = 6
-    col.addArrangedSubview(steps)
+    let top = UIView(); top.heightAnchor.constraint(equalToConstant: 18).isActive = true
+    col.addArrangedSubview(top)
+    col.addArrangedSubview(centered(appIcon(44)))
+    col.setCustomSpacing(14, after: col.arrangedSubviews.last!)
+    let title = label("Not sure about this text?", 26, .heavy, ink, ls: -0.6); title.textAlignment = .center
+    col.addArrangedSubview(title)
+    col.setCustomSpacing(8, after: title)
+    let steps = UIStackView(); steps.spacing = 10; steps.alignment = .center
+    for (i, t) in ["Hold the text", "Copy", "Paste here"].enumerated() {
+      if i > 0 { let c = UIImageView(image: UIImage(systemName: "chevron.right", withConfiguration: UIImage.SymbolConfiguration(pointSize: 11, weight: .semibold))); c.tintColor = UIColor(white: 0.62, alpha: 1); steps.addArrangedSubview(c) }
+      steps.addArrangedSubview(label(t, 16, .medium, ink2))
+    }
+    col.addArrangedSubview(centered(steps))
     col.addArrangedSubview(spacer())
     let paste: UIControl
     if #available(iOS 16.0, *) {
-      let c = UIPasteControl.Configuration(); c.displayMode = .iconAndLabel; c.baseBackgroundColor = green; c.baseForegroundColor = .white; c.cornerStyle = .fixed
-      let pc = UIPasteControl(configuration: c); pc.target = self; pc.layer.cornerRadius = 14; pc.clipsToBounds = true; paste = pc
+      let c = UIPasteControl.Configuration(); c.displayMode = .labelOnly; c.baseBackgroundColor = green; c.baseForegroundColor = .white; c.cornerStyle = .capsule
+      let pc = UIPasteControl(configuration: c); pc.target = self; paste = pc
     } else {
-      paste = button("Paste", bg: green, fg: .white, icon: "doc.on.clipboard", action: #selector(readBoard))
+      paste = cap("Paste and check", bg: green, fg: .white, action: #selector(readBoard))
     }
-    paste.heightAnchor.constraint(equalToConstant: 54).isActive = true
-    let img = button("", bg: greenTint, fg: green, icon: "photo", action: #selector(openAppPhoto))
-    img.widthAnchor.constraint(equalToConstant: 54).isActive = true
-    let row = UIStackView(arrangedSubviews: [paste, img]); row.spacing = 8
-    col.addArrangedSubview(row)
+    paste.heightAnchor.constraint(equalToConstant: 56).isActive = true
+    // A soft halo round the button, as drawn.
+    let halo = UIView(); halo.backgroundColor = greenTint; halo.layer.cornerRadius = 36
+    paste.translatesAutoresizingMaskIntoConstraints = false; halo.addSubview(paste)
+    NSLayoutConstraint.activate([paste.topAnchor.constraint(equalTo: halo.topAnchor, constant: 8), paste.bottomAnchor.constraint(equalTo: halo.bottomAnchor, constant: -8), paste.leadingAnchor.constraint(equalTo: halo.leadingAnchor, constant: 8), paste.trailingAnchor.constraint(equalTo: halo.trailingAnchor, constant: -8)])
+    col.addArrangedSubview(halo)
+    col.setCustomSpacing(6, after: halo)
+    if #available(iOS 16.0, *) {
+      let hint = label("Tap Paste, then Loop Me checks it", 13, .medium, meta); hint.textAlignment = .center
+      col.addArrangedSubview(hint); col.setCustomSpacing(4, after: hint)
+    }
+    let lock = UIStackView(arrangedSubviews: [{ let i = UIImageView(image: UIImage(systemName: "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 12, weight: .medium))); i.tintColor = meta; return i }(), label("Checked on this phone", 14, .medium, meta)])
+    lock.spacing = 5; lock.alignment = .center
+    col.addArrangedSubview(centered(lock))
   }
 
   private func buildReady(_ col: UIStackView) {
@@ -322,104 +348,129 @@ final class MessagesViewController: MSMessagesAppViewController {
     col.addArrangedSubview(tiles)
   }
 
+  private func verdictTop(_ tag: String, dark: UIColor) -> UIStackView {
+    let p = pill(tag, bg: UIColor.black.withAlphaComponent(0.16), fg: .white, radius: 14, height: 28, size: 14, weight: .semibold)
+    p.setContentHuggingPriority(.required, for: .horizontal)
+    let top = UIStackView(arrangedSubviews: [p, hstretch()]); top.alignment = .center
+    return top
+  }
+
   private func buildScam(_ col: UIStackView) {
     guard let v = verdict else { return }
-    let scamPill = pill("Scam", bg: UIColor.black.withAlphaComponent(0.18), fg: .white)
-    scamPill.setContentHuggingPriority(.required, for: .horizontal)
-    let top = UIStackView(arrangedSubviews: [scamPill])
-    top.alignment = .center
-    if who == nil { let sp = UIView(); sp.setContentHuggingPriority(.defaultLow, for: .horizontal); top.addArrangedSubview(sp) }
+    let top = verdictTop("Scam", dark: red)
     if let who = who {
-      let sp = UIView(); sp.setContentHuggingPriority(.defaultLow, for: .horizontal); top.addArrangedSubview(sp)
-      let a = avatar(24, onColor: true)
-      let ring = CABasicAnimation(keyPath: "shadowOpacity"); a.layer.shadowColor = UIColor.white.cgColor; a.layer.shadowRadius = 6; a.layer.shadowOffset = .zero
-      ring.fromValue = 0.6; ring.toValue = 0; ring.duration = 1.8; ring.repeatCount = .infinity; a.layer.add(ring, forKey: "ring")
-      let loop = UIStackView(arrangedSubviews: [a, label(asked ? who + " has been looped in" : "Tell " + who + " below", 14, .semibold, .white)]); loop.spacing = 7; loop.alignment = .center
+      let a = avatar(26, onColor: true)
+      let loop = UIStackView(arrangedSubviews: [a, label(sendFailed ? "Couldn’t reach " + who : asked ? who + " has been looped in" : "Telling " + who + "…", 14.5, .semibold, .white)]); loop.spacing = 7; loop.alignment = .center
       top.addArrangedSubview(loop)
     }
     col.addArrangedSubview(top)
-    col.setCustomSpacing(14, after: top)
+    col.setCustomSpacing(16, after: top)
     col.addArrangedSubview(label("Stop. Don’t reply.", 34, .heavy, .white, ls: -1))
     col.setCustomSpacing(8, after: col.arrangedSubviews.last!)
-    col.addArrangedSubview(label(v.reason, 17, .medium, .white, lines: 2))
-    col.setCustomSpacing(12, after: col.arrangedSubviews.last!)
-    let chips = UIStackView(arrangedSubviews: MessagesViewController.chipLabels(for: v).map { pill($0, bg: UIColor.white.withAlphaComponent(0.2), fg: .white, height: 30, weight: .semibold) })
-    chips.spacing = 6; chips.alignment = .leading
-    let chipSpacer = UIView(); chipSpacer.setContentHuggingPriority(.defaultLow, for: .horizontal); chips.addArrangedSubview(chipSpacer)
-    col.addArrangedSubview(chips)
+    col.addArrangedSubview(label(v.reason, 17, .medium, .white, lines: 3))
     col.addArrangedSubview(spacer())
-    let first = who != nil && !asked ? button("Tell " + who!, bg: .white, fg: red, action: #selector(tellTapped)) : button("See why", bg: .white, fg: red, action: #selector(whyTapped))
-    let second = who != nil && !asked ? button("See why", bg: UIColor.white.withAlphaComponent(0.2), fg: .white, action: #selector(whyTapped)) : button("Done", bg: UIColor.white.withAlphaComponent(0.2), fg: .white, action: #selector(reset))
-    col.addArrangedSubview(rowOf([first, second]))
+    col.addArrangedSubview(rowOf([cap("Why?", bg: .white, fg: redText, action: #selector(whyTapped)),
+                                  sendFailed && who != nil ? cap("Try again", bg: UIColor.white.withAlphaComponent(0.22), fg: .white, action: #selector(tellTapped))
+                                                           : cap("Done", bg: UIColor.white.withAlphaComponent(0.22), fg: .white, action: #selector(reset))]))
+  }
+
+  /// The quoted phrase and what it means, paired from the engine's matches and signals.
+  private func whyRows(_ v: Verdict) -> [(String?, String)] {
+    let sig = Array(v.signals.prefix(3))
+    let m = Array(v.matches.prefix(3))
+    return sig.enumerated().map { i, s in (i < m.count && sig.count == m.count ? "“" + m[i].prefix(1).uppercased() + m[i].dropFirst() + "”" : nil, s) }
   }
 
   private func buildWhy(_ col: UIStackView) {
     guard let v = verdict else { return }
-    let back = UIButton(type: .system); back.setTitle("Back", for: .normal); back.setImage(UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(pointSize: 14, weight: .semibold)), for: .normal); back.tintColor = redText; back.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold); back.addTarget(self, action: #selector(backToScam), for: .touchUpInside)
-    let top = UIStackView(arrangedSubviews: [back, { let s = UIView(); s.setContentHuggingPriority(.defaultLow, for: .horizontal); return s }(), pill("Scam", bg: red, fg: .white, radius: 8, height: 26, size: 13)]); top.alignment = .center
+    let tone: (UIColor, UIColor, UIColor, String) = v.level == .red ? (red, redText, UIColor(red: 0.98, green: 0.84, blue: 0.81, alpha: 1), "Scam")
+      : v.level == .amber ? (amber, amberInk, UIColor(red: 0.96, green: 0.89, blue: 0.76, alpha: 1), "Be careful")
+      : (green, greenDeep, UIColor(red: 0.84, green: 0.92, blue: 0.88, alpha: 1), "Looks okay")
+    let back = UIButton(type: .system); back.setTitle(" Back", for: .normal); back.setImage(UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(pointSize: 15, weight: .semibold)), for: .normal); back.tintColor = tone.1; back.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold); back.addTarget(self, action: #selector(backToVerdict), for: .touchUpInside)
+    let tag = pill(tone.3, bg: tone.0, fg: .white, radius: 13, height: 26, size: 14, weight: .semibold)
+    let top = UIStackView(arrangedSubviews: [back, hstretch(), label("Why", 18, .bold, ink), tag]); top.alignment = .center; top.spacing = 8
     col.addArrangedSubview(top)
-    col.setCustomSpacing(4, after: top)
-    col.addArrangedSubview(label("Why it’s a scam", 22, .bold, redInk))
-    col.setCustomSpacing(10, after: col.arrangedSubviews.last!)
-    let list = UIStackView(arrangedSubviews: v.signals.prefix(3).enumerated().map { i, s in
-      let n = UIView(); n.backgroundColor = self.red; n.layer.cornerRadius = 11; n.widthAnchor.constraint(equalToConstant: 22).isActive = true; n.heightAnchor.constraint(equalToConstant: 22).isActive = true
-      let nl = self.label("\(i + 1)", 12.5, .bold, .white); nl.translatesAutoresizingMaskIntoConstraints = false; n.addSubview(nl)
-      NSLayoutConstraint.activate([nl.centerXAnchor.constraint(equalTo: n.centerXAnchor), nl.centerYAnchor.constraint(equalTo: n.centerYAnchor)])
-      let r = UIStackView(arrangedSubviews: [n, self.label(s, 15.5, .regular, self.ink2, lines: 2)]); r.spacing = 10; r.alignment = .top; return r
-    })
-    list.axis = .vertical; list.spacing = 9
+    col.setCustomSpacing(8, after: top)
+    let list = UIStackView(); list.axis = .vertical
+    for (i, r) in whyRows(v).enumerated() {
+      let line = UIView(); line.backgroundColor = UIColor(white: 0.88, alpha: 1); line.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
+      list.addArrangedSubview(line)
+      let item = UIStackView(); item.axis = .vertical; item.alignment = .leading; item.spacing = 3; item.isLayoutMarginsRelativeArrangement = true; item.layoutMargins = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
+      if let q = r.0 { item.addArrangedSubview(pill(q, bg: tone.2, fg: ink, radius: 6, height: 26, size: 16, weight: .bold)) }
+      item.addArrangedSubview(label(r.1, 15.5, .regular, ink2, lines: 2))
+      list.addArrangedSubview(item)
+      _ = i
+    }
     col.addArrangedSubview(list)
     col.addArrangedSubview(spacer())
-    col.addArrangedSubview(rowOf([button("Read it to me", bg: .white, fg: redText, icon: "speaker.wave.2.fill", action: #selector(speakTapped)), button("Block in Loop Me", bg: red, fg: .white, action: #selector(openApp))]))
+    var row: [UIView] = [cap("Read it to me", bg: bubble, fg: ink, icon: "speaker.wave.2.fill", action: #selector(speakTapped))]
+    row.append(cap("Done", bg: tone.0, fg: .white, action: #selector(reset)))
+    col.addArrangedSubview(rowOf(row))
   }
 
   private func buildCareful(_ col: UIStackView) {
     guard let v = verdict else { return }
-    let top = UIStackView(arrangedSubviews: [pill("Be careful", bg: UIColor.black.withAlphaComponent(0.16), fg: .white)]); top.alignment = .leading
-    col.addArrangedSubview(top); col.setCustomSpacing(14, after: top)
-    col.addArrangedSubview(label("Don’t reply to it.", 34, .heavy, .white, ls: -1))
-    col.setCustomSpacing(10, after: col.arrangedSubviews.last!)
-    col.addArrangedSubview(label(v.reason + " " + v.safeStep, 17, .medium, .white, lines: 3))
+    col.addArrangedSubview(verdictTop("Be careful", dark: amber)); col.setCustomSpacing(16, after: col.arrangedSubviews.last!)
+    col.addArrangedSubview(label("Don’t reply yet.", 34, .heavy, .white, ls: -1))
+    col.setCustomSpacing(8, after: col.arrangedSubviews.last!)
+    col.addArrangedSubview(label(v.reason + " " + v.safeStep, 17, .medium, .white, lines: 4))
     col.addArrangedSubview(spacer())
-    let first = who != nil ? button("Ask " + who!, bg: .white, fg: amberInk, icon: "paperplane.fill", action: #selector(askTapped)) : button("See it in Loop Me", bg: .white, fg: amberInk, action: #selector(openApp))
-    let second = button("Done", bg: UIColor.white.withAlphaComponent(0.2), fg: .white, action: #selector(reset))
-    col.addArrangedSubview(rowOf([first, second]))
+    let first = who != nil ? cap("Ask " + who!, bg: .white, fg: amberInk, action: #selector(askTapped)) : cap("Done", bg: .white, fg: amberInk, action: #selector(reset))
+    col.addArrangedSubview(rowOf([first, cap("Why?", bg: UIColor.white.withAlphaComponent(0.22), fg: .white, action: #selector(whyTapped))]))
   }
 
   private func buildSafe(_ col: UIStackView) {
-    let top = UIStackView(arrangedSubviews: [pill("Looks okay", bg: UIColor.black.withAlphaComponent(0.16), fg: .white)]); top.alignment = .leading
-    col.addArrangedSubview(top); col.setCustomSpacing(14, after: top)
+    col.addArrangedSubview(verdictTop("Looks okay", dark: green)); col.setCustomSpacing(16, after: col.arrangedSubviews.last!)
     col.addArrangedSubview(label("Looks okay.", 34, .heavy, .white, ls: -1))
-    if let r = verdict?.reason, !r.isEmpty {
-      col.setCustomSpacing(10, after: col.arrangedSubviews.last!)
-      col.addArrangedSubview(label(r, 17, .medium, .white, lines: 3))
-    }
+    col.setCustomSpacing(8, after: col.arrangedSubviews.last!)
+    col.addArrangedSubview(label("Nothing here matches a scam we know. It doesn’t ask for money, a code or a link.", 17, .medium, .white, lines: 3))
     col.addArrangedSubview(spacer())
-    let second = who != nil ? button("Ask " + who! + " anyway", bg: UIColor.white.withAlphaComponent(0.2), fg: .white, action: #selector(askTapped)) : button("See it in Loop Me", bg: UIColor.white.withAlphaComponent(0.2), fg: .white, action: #selector(openApp))
-    col.addArrangedSubview(rowOf([button("Done", bg: .white, fg: greenDeep, action: #selector(reset)), second]))
+    let second = who != nil ? cap("Ask " + who!, bg: UIColor.white.withAlphaComponent(0.22), fg: .white, action: #selector(askTapped)) : cap("Why?", bg: UIColor.white.withAlphaComponent(0.22), fg: .white, action: #selector(whyTapped))
+    col.addArrangedSubview(rowOf([cap("Done", bg: .white, fg: greenDeep, action: #selector(reset)), second]))
+  }
+
+  private func bubbleView(_ views: [UIView], bg: UIColor, mine: Bool) -> UIStackView {
+    let b = UIView(); b.backgroundColor = bg; b.layer.cornerRadius = 18
+    b.layer.maskedCorners = mine ? [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner] : [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMaxXMaxYCorner]
+    let st = UIStackView(arrangedSubviews: views); st.axis = .vertical; st.spacing = 3; st.translatesAutoresizingMaskIntoConstraints = false
+    b.addSubview(st)
+    NSLayoutConstraint.activate([st.topAnchor.constraint(equalTo: b.topAnchor, constant: 10), st.leadingAnchor.constraint(equalTo: b.leadingAnchor, constant: 14), st.trailingAnchor.constraint(equalTo: b.trailingAnchor, constant: -14), st.bottomAnchor.constraint(equalTo: b.bottomAnchor, constant: -11)])
+    b.widthAnchor.constraint(lessThanOrEqualToConstant: 280).isActive = true
+    let w = UIStackView(arrangedSubviews: mine ? [hstretch(), b] : [b, hstretch()]); w.alignment = .top
+    return w
   }
 
   private func buildAsking(_ col: UIStackView) {
     let who = self.who ?? "them"
-    let top = UIStackView(arrangedSubviews: [avatar(32, onColor: false), label(who, 17, .bold, ink), { let s = UIView(); s.setContentHuggingPriority(.defaultLow, for: .horizontal); return s }(), label(asked ? "Sent to their phone" : "Sending", 13.5, .medium, meta)]); top.spacing = 10; top.alignment = .center
+    let status: UIView
+    if sendFailed {
+      status = label("Not sent", 14, .semibold, redText)
+    } else if asked {
+      let s = UIStackView(arrangedSubviews: [{ let i = UIImageView(image: UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(pointSize: 12, weight: .bold))); i.tintColor = green; return i }(), label(reply != nil ? "Answered" : "Sent to their phone", 14, .medium, green)]); s.spacing = 5; s.alignment = .center; status = s
+    } else {
+      status = label("Sending…", 14, .medium, meta)
+    }
+    let top = UIStackView(arrangedSubviews: [avatar(32, onColor: false), label(who, 18, .bold, ink), hstretch(), status]); top.spacing = 10; top.alignment = .center
     col.addArrangedSubview(top); col.setCustomSpacing(14, after: top)
-    let out = UIView(); out.backgroundColor = green; out.layer.cornerRadius = 18; out.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner]
-    let st = UIStackView(arrangedSubviews: [label("Is this real?", 16, .semibold, .white), label("“" + String(text.prefix(120)) + (text.count > 120 ? "…”" : "”"), 14, .regular, UIColor(red: 0.89, green: 0.937, blue: 0.918, alpha: 1), lines: 2)]); st.axis = .vertical; st.spacing = 3; st.translatesAutoresizingMaskIntoConstraints = false
-    out.addSubview(st)
-    NSLayoutConstraint.activate([st.topAnchor.constraint(equalTo: out.topAnchor, constant: 9), st.leadingAnchor.constraint(equalTo: out.leadingAnchor, constant: 13), st.trailingAnchor.constraint(equalTo: out.trailingAnchor, constant: -13), st.bottomAnchor.constraint(equalTo: out.bottomAnchor, constant: -10)])
-    let wrap = UIStackView(arrangedSubviews: [{ let s = UIView(); s.setContentHuggingPriority(.defaultLow, for: .horizontal); return s }(), out]); wrap.alignment = .top
-    out.widthAnchor.constraint(lessThanOrEqualToConstant: 270).isActive = true
-    col.addArrangedSubview(wrap); col.setCustomSpacing(6, after: wrap)
-    let typing = UIView(); typing.backgroundColor = bubble; typing.layer.cornerRadius = 18; typing.heightAnchor.constraint(equalToConstant: 36).isActive = true; typing.widthAnchor.constraint(equalToConstant: 62).isActive = true
-    let dots = UIStackView(); dots.spacing = 5; dots.translatesAutoresizingMaskIntoConstraints = false
-    for i in 0..<3 { let d = UIView(); d.backgroundColor = meta; d.layer.cornerRadius = 4; d.widthAnchor.constraint(equalToConstant: 8).isActive = true; d.heightAnchor.constraint(equalToConstant: 8).isActive = true
-      let a = CAKeyframeAnimation(keyPath: "transform.translation.y"); a.values = [0, -3, 0, 0]; a.keyTimes = [0, 0.3, 0.6, 1]; a.duration = 1.2; a.repeatCount = .infinity; a.beginTime = CACurrentMediaTime() + Double(i) * 0.2; d.layer.add(a, forKey: "t"); dots.addArrangedSubview(d) }
-    typing.addSubview(dots)
-    NSLayoutConstraint.activate([dots.centerXAnchor.constraint(equalTo: typing.centerXAnchor), dots.centerYAnchor.constraint(equalTo: typing.centerYAnchor)])
-    let tw = UIStackView(arrangedSubviews: [typing, { let s = UIView(); s.setContentHuggingPriority(.defaultLow, for: .horizontal); return s }()])
-    col.addArrangedSubview(tw)
+    let q = label("“" + String(text.prefix(120)) + (text.count > 120 ? "…”" : "”"), 14.5, .regular, UIColor(red: 0.89, green: 0.937, blue: 0.918, alpha: 1), lines: 2)
+    let out = bubbleView([label("Is this real?", 16.5, .semibold, .white), q], bg: green, mine: true)
+    col.addArrangedSubview(out); col.setCustomSpacing(8, after: out)
+    if let r = reply {
+      col.addArrangedSubview(bubbleView([label(r.text, 16.5, .regular, ink, lines: 4)], bg: bubble, mine: false))
+    } else if sendFailed {
+      col.addArrangedSubview(label("Check the internet and that iCloud is on, then try again.", 15, .regular, ink2, lines: 2))
+    } else {
+      let typing = UIView(); typing.backgroundColor = bubble; typing.layer.cornerRadius = 18; typing.heightAnchor.constraint(equalToConstant: 36).isActive = true; typing.widthAnchor.constraint(equalToConstant: 62).isActive = true
+      let dots = UIStackView(); dots.spacing = 5; dots.translatesAutoresizingMaskIntoConstraints = false
+      for i in 0..<3 { let d = UIView(); d.backgroundColor = meta; d.layer.cornerRadius = 4; d.widthAnchor.constraint(equalToConstant: 8).isActive = true; d.heightAnchor.constraint(equalToConstant: 8).isActive = true
+        let a = CAKeyframeAnimation(keyPath: "transform.translation.y"); a.values = [0, -3, 0, 0]; a.keyTimes = [0, 0.3, 0.6, 1]; a.duration = 1.2; a.repeatCount = .infinity; a.beginTime = CACurrentMediaTime() + Double(i) * 0.2; d.layer.add(a, forKey: "t"); dots.addArrangedSubview(d) }
+      typing.addSubview(dots)
+      NSLayoutConstraint.activate([dots.centerXAnchor.constraint(equalTo: typing.centerXAnchor), dots.centerYAnchor.constraint(equalTo: typing.centerYAnchor)])
+      col.addArrangedSubview(UIStackView(arrangedSubviews: [typing, hstretch()]))
+    }
     col.addArrangedSubview(spacer())
-    col.addArrangedSubview(rowOf([button("Done", bg: green, fg: .white, action: #selector(reset)), button("Call " + who, bg: greenTint, fg: green, icon: "phone.fill", action: #selector(callWho))]))
+    let first = sendFailed ? cap("Try again", bg: green, fg: .white, action: #selector(askTapped)) : cap("Done", bg: green, fg: .white, action: #selector(reset))
+    col.addArrangedSubview(rowOf([first, cap("Call " + who, bg: greenTint, fg: green, icon: "phone.fill", action: #selector(callWho))]))
   }
 
   // Short labels for the reason chips, from the engine's tags.
@@ -445,37 +496,72 @@ final class MessagesViewController: MSMessagesAppViewController {
   }
 
   // MARK: - Actions
-  @objc private func reset() { voice.stopSpeaking(at: .immediate); text = ""; verdict = nil; asked = false; render(.idle) }
-  @objc private func readBoard() { if let t = UIPasteboard.general.string?.trimmingCharacters(in: .whitespacesAndNewlines), !t.isEmpty { text = t; render(.ready) } }
+  @objc private func reset() { voice.stopSpeaking(at: .immediate); stopPolling(); text = ""; verdict = nil; asked = false; sendFailed = false; reply = nil; render(.idle) }
+  @objc private func readBoard() { if let t = UIPasteboard.general.string?.trimmingCharacters(in: .whitespacesAndNewlines), !t.isEmpty { text = t; check() } }
   @objc private func checkTapped() { check() }
   @objc private func whyTapped() { render(.why) }
-  @objc private func backToScam() { render(.scam) }
+  @objc private func backToVerdict() {
+    guard let v = verdict else { return render(.idle) }
+    render(v.level == .red ? .scam : v.level == .amber ? .careful : .safe)
+  }
+  /// Dial the person in the loop. The number comes from the app (Family), saved in the app group.
   @objc private func callWho() {
-    let digits = SharedStore.defaults.string(forKey: "family.caretakerPhone") ?? ""
-    if !digits.isEmpty, let u = URL(string: "tel:" + digits) { extensionContext?.open(u, completionHandler: nil) } else { openApp() }
+    let digits = (SharedStore.defaults.string(forKey: "family.caretakerPhone") ?? "").filter { $0.isNumber || $0 == "+" }
+    if digits.count >= 7, let u = URL(string: "tel:" + digits) {
+      extensionContext?.open(u) { ok in if !ok { DispatchQueue.main.async { self.open(host: "go", query: [URLQueryItem(name: "screen", value: "family")]) } } }
+    } else {
+      // No number saved for them yet: Family in the app is where it gets added.
+      open(host: "go", query: [URLQueryItem(name: "screen", value: "family")])
+    }
   }
   @objc private func speakTapped() {
     guard let v = verdict else { return }
     if voice.isSpeaking { voice.stopSpeaking(at: .immediate); return }
-    let u = AVSpeechUtterance(string: "Stop. Don't reply. " + v.signals.prefix(3).joined(separator: " ")); u.rate = 0.46
+    let head = v.level == .red ? "Stop. Don't reply. " : v.level == .amber ? "Don't reply yet. " : "Looks okay. "
+    let u = AVSpeechUtterance(string: head + v.signals.prefix(3).joined(separator: " ")); u.rate = 0.46
     try? AVAudioSession.sharedInstance().setCategory(.playback, options: .duckOthers); try? AVAudioSession.sharedInstance().setActive(true)
     voice.speak(u)
   }
-  @objc private func tellTapped() { publish(); render(.scam) }
-  @objc private func askTapped() { publish(); render(.asking) }
-  private func publish() {
+  @objc private func tellTapped() { asked = false; publish(asked: false); render(.scam, animated: false) }
+  @objc private func askTapped() { asked = false; publish(asked: true); render(.asking) }
+
+  /// Send this check to the person in the loop. `asked` makes it a question
+  /// that waits for their answer; a scam is sent as a heads-up.
+  private func publish(asked isQuestion: Bool) {
     guard let v = verdict, !asked else { return }
-    asked = true
+    asked = true; sendFailed = false
     let id = recordId, excerpt = Redact.privateDetails(text).prefix(180).description
     Task {
       let ok = await ExtensionCloud.publish(id: id, level: v.level.rawValue, excerpt: excerpt, reason: v.reason, at: Date().timeIntervalSince1970 * 1000)
       await MainActor.run {
-        SharedStore.markPublished([id]); SharedStore.logVerdict(self.entry(v, asked: true, published: ok))
-        if ok { UINotificationFeedbackGenerator().notificationOccurred(.success) }
-        if self.state == .asking { self.render(.asking, animated: false) }
+        if ok { SharedStore.markPublished([id]) }
+        SharedStore.logVerdict(self.entry(v, asked: isQuestion, published: ok))
+        if ok { UINotificationFeedbackGenerator().notificationOccurred(.success) } else { self.asked = false; self.sendFailed = true }
+        if ok && isQuestion { self.startPolling() }
+        if self.state == .asking || self.state == .scam { self.render(self.state, animated: false) }
       }
     }
   }
+
+  // Wait for the answer: check every 4 seconds while the drawer is open, for up to 20 minutes.
+  private func startPolling() {
+    stopPolling(); pollStarted = Date()
+    poll = Timer.scheduledTimer(withTimeInterval: 4, repeats: true) { [weak self] _ in
+      guard let self = self else { return }
+      if Date().timeIntervalSince(self.pollStarted) > 1200 { self.stopPolling(); return }
+      let id = self.recordId
+      Task {
+        guard let r = await ExtensionCloud.reply(for: id) else { return }
+        await MainActor.run {
+          guard self.recordId == id, self.reply == nil else { return }
+          self.reply = r; self.stopPolling()
+          UINotificationFeedbackGenerator().notificationOccurred(.success)
+          if self.state == .asking { self.render(.asking) }
+        }
+      }
+    }
+  }
+  private func stopPolling() { poll?.invalidate(); poll = nil }
   @objc private func openAppPhoto() { open(host: "check", query: [URLQueryItem(name: "photo", value: "1")]) }
   @objc private func openApp() { open(host: "check", query: text.isEmpty ? [] : [URLQueryItem(name: "text", value: String(text.prefix(2000)))]) }
   private func open(host: String, query: [URLQueryItem]) {

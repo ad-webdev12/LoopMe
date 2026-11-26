@@ -63,8 +63,8 @@ export default function ListsScreen({ ctx }: { ctx: Ctx }) {
 }
 
 const st = StyleSheet.create({
-  addRow: { marginHorizontal: 16, marginTop: 16, borderRadius: 12, paddingLeft: 16, paddingRight: 8, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  addRow: { marginHorizontal: 16, marginTop: 16, borderRadius: 16, paddingLeft: 16, paddingRight: 8, flexDirection: 'row', alignItems: 'center', gap: 8 },
   plus: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  list: { marginHorizontal: 16, marginTop: 14, borderRadius: 12, paddingLeft: 16 },
+  list: { marginHorizontal: 16, marginTop: 14, borderRadius: 16, paddingLeft: 16 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 13, paddingRight: 16 },
 });

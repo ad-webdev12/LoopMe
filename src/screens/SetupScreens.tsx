@@ -1,14 +1,14 @@
 // Setup, three or four short screens on the app's own primitives.
 // Ob1 which phone · Ob2 whose phone (caregiver) · Ob3 what stays here ·
 // Ob4 the one person to tell. The contacts picker and the invite are real.
-import React, { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, Animated, Easing, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as Contacts from 'expo-contacts';
-import { ArrowRight, Check, Plus, Send, Smartphone, Users } from 'lucide-react-native';
+import { ArrowRight, Check, Send, Smartphone, Users } from 'lucide-react-native';
 import { sendInviteTo, markInvited } from '../lib/invite';
 import { ensureNotificationPermission } from '../lib/notify';
 import { T, font } from '../theme';
-import { Screen, ScreenTitle, Lead, Card, Row, Group, Pill, Segmented, Note, TextBtn, Avatar } from '../ui/base';
+import { Screen, ScreenTitle, Lead, Card, Row, Group, Pill, Segmented, Note, TextBtn, Avatar, APP_ICON, motionOff } from '../ui/base';
 import { PermCard, TEXT_STEPS, CALL_STEPS, TEXT_FRAMES, TEXT_CAPTIONS, CALL_FRAMES, CALL_CAPTIONS } from './SetupScreen';
 import { callDirectoryStatus } from '../../modules/scam-ai';
 import { AppState, Linking } from 'react-native';
@@ -18,24 +18,53 @@ import { RelationSheet } from '../ui/RelationSheet';
 import type { TrustedPerson } from '../lib/storage';
 import type { Ctx } from '../App';
 
+/** Page dots from the design: 7px grey dots, the current one a 22px green bar. */
 function Steps({ ctx, i, of }: { ctx: Ctx; i: number; of: number }) {
   const { C } = ctx;
   return (
-    <View style={{ paddingHorizontal: 20, paddingTop: 14 }}>
-      <View style={{ flexDirection: 'row', gap: 5 }}>
-        {Array.from({ length: of }).map((_, k) => <View key={k} style={{ flex: 1, height: 5, borderRadius: 3, backgroundColor: k < i ? T.green : (C.dark ? '#3a3a3c' : '#d1d1d6') }} />)}
+    <View style={{ alignItems: 'center', paddingTop: 22 }} accessible accessibilityLabel={'Step ' + i + ' of ' + of}>
+      <View style={{ flexDirection: 'row', gap: 6 }}>
+        {Array.from({ length: of }).map((_, k) => <View key={k} style={{ width: k === i - 1 ? 22 : 7, height: 7, borderRadius: 4, backgroundColor: k === i - 1 ? T.green : (C.dark ? '#3a3a3c' : '#d1d1d6') }} />)}
       </View>
-      <Text style={[font(15, '600'), { color: C.ink, marginTop: 10 }]} allowFontScaling>Step {i} of {of}</Text>
     </View>
   );
 }
 function Bottom({ label, onPress }: { label: string; onPress: () => void }) {
   return (
-    <View style={{ marginTop: 'auto', paddingHorizontal: 16, paddingBottom: 34, paddingTop: 16 }}>
-      <Pill label={label} onPress={onPress} trailing={<ArrowRight size={18} color="#fff" strokeWidth={2.2} />} />
+    <View style={{ marginTop: 'auto', paddingHorizontal: 28, paddingBottom: 42, paddingTop: 16 }}>
+      <Primary label={label} onPress={onPress} />
     </View>
   );
 }
+/** The design's main button: 56 tall, fully round, 18/600 white on green. */
+function Primary({ label, onPress, disabled, icon }: { label: string; onPress: () => void; disabled?: boolean; icon?: React.ReactNode }) {
+  return (
+    <Pressable onPress={onPress} disabled={disabled} accessibilityRole="button"
+      style={({ pressed }) => [st.primary, pressed && { opacity: 0.8 }, disabled && { opacity: 0.6 }]}>
+      {icon}
+      <Text style={[font(18, '600'), { color: '#fff' }]} allowFontScaling>{label}</Text>
+    </Pressable>
+  );
+}
+/** The quiet green link under it ("Not now"). */
+function Quiet({ label, onPress }: { label: string; onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" style={({ pressed }) => [{ minHeight: 48, alignItems: 'center', justifyContent: 'center', alignSelf: 'center', paddingHorizontal: 16, marginTop: 6 }, pressed && { opacity: 0.6 }]}>
+      <Text style={[font(17, '500'), { color: T.green, textAlign: 'center' }]} allowFontScaling>{label}</Text>
+    </Pressable>
+  );
+}
+/** Centered title + body, as on the design's setup screens. */
+function Words({ C, title, body }: { C: Ctx['C']; title: string; body: string }) {
+  return (
+    <>
+      <Text style={[font(32, '700', 1.08), { color: C.ink, letterSpacing: -0.6, textAlign: 'center', marginTop: 34 }]} allowFontScaling accessibilityRole="header">{title}</Text>
+      <Text style={[font(17, '400', 1.45), { color: C.ink2, textAlign: 'center', marginTop: 14 }]} allowFontScaling>{body}</Text>
+    </>
+  );
+}
+// Same as the strip behind the status bar, so the page has no seam at the top.
+const pageBg = (C: Ctx['C']) => C.ground;
 
 // ---------------- Ob1: which phone is this? ----------------
 export function Ob1({ ctx }: { ctx: Ctx }) {
@@ -153,36 +182,46 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
       setPending(res.person);
     } catch { ctx.flash('Your contacts could not be opened. Try again in a moment.'); }
   };
+  const ring = pageBg(C);
+  const blank = C.dark ? ['#3a3a3c', '#2c2c2e'] : ['#e3e3e8', '#d6d6db'];
   return (
-    <Screen C={C} playKey="ob4" scroll>
-      <Steps ctx={ctx} i={4} of={care ? 6 : 5} />
-      <ScreenTitle C={C} top={18}>Who should hear when a scam lands?</ScreenTitle>
-      <Lead C={C}>{care ? 'Add yourself, then send the invite to your own number. Flagged texts will show up on your phone.' : 'They get one text with a link. Tapping it joins their phone to this one.'}</Lead>
-      <Group C={C} style={{ marginHorizontal: 16, marginTop: 22 }}>
-        <View style={{ paddingLeft: 16 }}>
-          {first && (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingRight: 16, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep }}>
-              <Avatar name={first.name} photo={first.photo} size={44} />
-              <View style={{ flex: 1 }}>
-                <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling numberOfLines={1}>{firstName}</Text>
-                <Text style={[font(15, '400'), { color: C.ink2, marginTop: 1 }]} allowFontScaling numberOfLines={1}>{[first.relation, first.phone].filter(Boolean).join(' · ')}</Text>
-              </View>
-              <Check size={19} color={T.green} strokeWidth={2.4} />
+    <Screen C={C} playKey="ob4" scroll style={{ backgroundColor: ring }}>
+      <View style={st.page}>
+        <Steps ctx={ctx} i={4} of={care ? 6 : 5} />
+        {first ? (
+          <>
+            <View style={{ marginTop: 72 }}>
+              <Avatar name={first.name} photo={first.photo} size={120} />
+              <View style={[st.badge, { width: 38, height: 38, right: -2, bottom: -2, borderColor: ring }]}><Check size={18} color="#fff" strokeWidth={3} /></View>
             </View>
-          )}
-          <Pressable onPress={addFromContacts} accessibilityRole="button" style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingRight: 16 }, pressed && { opacity: 0.6 }]}>
-            <View style={[st.plus, { borderColor: T.green }]}><Plus size={16} color={T.green} strokeWidth={2} /></View>
-            <Text style={[font(17, '600'), { color: T.green }]} allowFontScaling>{first ? 'Choose someone else' : 'Choose from contacts'}</Text>
-          </Pressable>
-        </View>
-      </Group>
-      {first && (
-        <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
-          <Pill label={sent ? 'Invite sent to ' + firstName : 'Send ' + firstName + ' the invite'} bg={sent ? C.card : T.green} color={sent ? T.green : '#fff'} disabled={sending || sent} onPress={sendLink}
-            icon={sent ? <Check size={18} color={T.green} strokeWidth={2.4} /> : <Send size={18} color="#fff" strokeWidth={2.2} />} />
-        </View>
-      )}
-      <Bottom label="Continue" onPress={() => ctx.go('ob5')} />
+            <Words C={C} title={firstName + ' is in your loop.'}
+              body={sent
+                ? 'Invite sent. Once ' + firstName + ' accepts, they hear about every scam that reaches you.'
+                : care ? 'Send the invite to your own number. Flagged texts will show up on your phone.'
+                : 'Send ' + firstName + ' an invite. Once they accept, they hear about every scam that reaches you.'} />
+            <View style={st.foot}>
+              {sent
+                ? <Primary label="Continue" onPress={() => ctx.go('ob5')} />
+                : <Primary label={sending ? 'Making the invite' : 'Send ' + firstName + ' the invite'} disabled={sending} onPress={sendLink} icon={<Send size={18} color="#fff" strokeWidth={2.2} />} />}
+              <Quiet label="Choose someone else" onPress={addFromContacts} />
+              {!sent && <Quiet label="Send it later" onPress={() => ctx.go('ob5')} />}
+            </View>
+          </>
+        ) : (
+          <>
+            <View style={{ flexDirection: 'row', marginTop: 72 }} importantForAccessibility="no-hide-descendants">
+              <View style={[st.blank, { backgroundColor: blank[0], borderColor: ring }]} />
+              <View style={[st.blank, { backgroundColor: blank[1], borderColor: ring, marginLeft: -34 }]} />
+            </View>
+            <Words C={C} title="Who should hear if a scam reaches you?"
+              body={care ? 'Add yourself, so flagged texts on this phone show up on yours.' : 'Pick one person you trust. Loop Me tells them when it stops a scam.'} />
+            <View style={st.foot}>
+              <Primary label="Choose from Contacts" onPress={addFromContacts} />
+              <Quiet label="Not now" onPress={() => ctx.go('ob5')} />
+            </View>
+          </>
+        )}
+      </View>
       <RelationSheet C={C} name={pending?.name || null} onClose={() => setPending(null)} onPick={relation => {
         if (!pending) return;
         const rest = ctx.settings.trusted.filter(x => !samePhone(x.phone, pending.phone));
@@ -215,17 +254,63 @@ export function Ob5({ ctx }: { ctx: Ctx }) {
     ctx.update({ ...ctx.settings, introSeen: true, role: 'elder', protectionLater: later });
     ctx.go('home');
   };
+  const [waiting, setWaiting] = useState(false);
+  const [howTo, setHowTo] = useState(false);
+  const openSettings = () => { setWaiting(true); Linking.openSettings().catch(() => ctx.flash('iPhone Settings could not be opened.')); };
+  const ring = pageBg(C);
   return (
-    <Screen C={C} playKey="ob5" scroll>
-      <Steps ctx={ctx} i={5} of={care ? 6 : 5} />
-      <ScreenTitle C={C} top={18}>Turn on scam protection</ScreenTitle>
-      <Lead C={C}>Two switches in iPhone Settings. Apple only lets you flip them yourself. Here is where they are.</Lead>
-      <PermCard C={C} Icon={MessageCircle} title="Unknown texts" on={textsOn} steps={TEXT_STEPS} frames={TEXT_FRAMES} captions={TEXT_CAPTIONS} onOpen={() => Linking.openSettings()} first />
-      <PermCard C={C} Icon={Phone} title="Scam callers" on={callsOn} steps={CALL_STEPS} frames={CALL_FRAMES} captions={CALL_CAPTIONS} onOpen={() => Linking.openSettings()} />
-      <View style={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 34, gap: 6 }}>
-        <Pill label={done ? 'Continue' : 'Do this later'} bg={done ? T.green : C.card} color={done ? '#fff' : T.green} onPress={() => finish(!done)} trailing={done ? <ArrowRight size={18} color="#fff" strokeWidth={2.2} /> : undefined} />
+    <Screen C={C} playKey="ob5" scroll style={{ backgroundColor: ring }}>
+      <View style={st.page}>
+        <Steps ctx={ctx} i={5} of={care ? 6 : 5} />
+        <View style={{ marginTop: 72 }}>
+          <Image source={APP_ICON} style={st.icon} accessibilityLabel="Loop Me" />
+          {done
+            ? <View style={[st.badge, { width: 42, height: 42, right: -10, bottom: -10, borderColor: ring }]}><Check size={20} color="#fff" strokeWidth={3} /></View>
+            : <AlertDot ring={ring} />}
+        </View>
+        {done
+          ? <Words C={C} title="You’re protected." body="Texts from numbers you don’t know are checked first. Scam callers are blocked." />
+          : waiting
+          ? <Words C={C} title="Waiting for you…" body={'Turn on both switches, then come back. Loop Me will notice.\n\nUnknown texts: ' + (textsOn ? 'on' : 'off') + '. Scam callers: ' + (callsOn ? 'on' : 'off') + '.'} />
+          : <Words C={C} title="Turn on scam protection" body="Two switches in iPhone Settings. Apple asks you to flip them yourself, so we’ll take you straight there." />}
+        {!done && (
+          <Quiet label={howTo ? 'Hide the steps' : 'Show me where the switches are'} onPress={() => setHowTo(v => !v)} />
+        )}
+      </View>
+      {!done && howTo && (
+        <View>
+          <PermCard C={C} Icon={MessageCircle} title="Unknown texts" on={textsOn} steps={TEXT_STEPS} frames={TEXT_FRAMES} captions={TEXT_CAPTIONS} onOpen={openSettings} first />
+          <PermCard C={C} Icon={Phone} title="Scam callers" on={callsOn} steps={CALL_STEPS} frames={CALL_FRAMES} captions={CALL_CAPTIONS} onOpen={openSettings} />
+        </View>
+      )}
+      <View style={[st.foot, { paddingHorizontal: 28, paddingBottom: 42 }]}>
+        {done ? (
+          <Primary label={care ? 'Continue' : 'Start using Loop Me'} onPress={() => finish(false)} />
+        ) : (
+          <>
+            <Primary label="Open iPhone Settings" onPress={openSettings} />
+            <Quiet label="Not now" onPress={() => finish(true)} />
+          </>
+        )}
       </View>
     </Screen>
+  );
+}
+
+/** The red dot on the icon that pulses until both switches are on. */
+function AlertDot({ ring }: { ring: string }) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (motionOff()) return;
+    const loop = Animated.loop(Animated.timing(v, { toValue: 1, duration: 1600, easing: Easing.out(Easing.ease), useNativeDriver: true }));
+    loop.start();
+    return () => loop.stop();
+  }, [v]);
+  return (
+    <View style={{ position: 'absolute', right: -6, top: -6, width: 30, height: 30 }} pointerEvents="none">
+      <Animated.View style={[st.dot, { borderWidth: 0, backgroundColor: 'rgba(236,48,19,.35)', opacity: v.interpolate({ inputRange: [0, 1], outputRange: [0.8, 0] }), transform: [{ scale: v.interpolate({ inputRange: [0, 1], outputRange: [1, 1.9] }) }] }]} />
+      <View style={[st.dot, { borderColor: ring }]} />
+    </View>
   );
 }
 
@@ -260,6 +345,13 @@ export function Ob6({ ctx }: { ctx: Ctx }) {
 const firstNameOf = (n: string) => (n || '').split(' ')[0] || 'they';
 
 const st = StyleSheet.create({
+  page: { flexGrow: 1, paddingHorizontal: 28, paddingBottom: 34, alignItems: 'center' },
+  foot: { marginTop: 'auto', alignSelf: 'stretch', paddingTop: 24 },
+  primary: { height: 56, borderRadius: 28, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, alignSelf: 'stretch', paddingHorizontal: 20 },
+  badge: { position: 'absolute', borderRadius: 21, backgroundColor: T.green, borderWidth: 4, alignItems: 'center', justifyContent: 'center' },
+  blank: { width: 104, height: 104, borderRadius: 52, borderWidth: 4 },
+  icon: { width: 120, height: 120, borderRadius: 28, shadowColor: '#0d4a3b', shadowOpacity: 0.22, shadowRadius: 20, shadowOffset: { width: 0, height: 18 } },
+  dot: { position: 'absolute', left: 0, top: 0, width: 30, height: 30, borderRadius: 15, backgroundColor: T.red, borderWidth: 4 },
   input: { height: 50, borderRadius: 12, paddingHorizontal: 14, fontSize: 17 },
   plus: { width: 30, height: 30, borderRadius: 15, borderWidth: 1.5, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center' },
 });

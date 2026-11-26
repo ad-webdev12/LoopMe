@@ -172,7 +172,7 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToast(''), 2400);
   }, []);
 
-  const TAB_ORDER: ScreenId[] = ['ward', 'home', 'history', 'family', 'settings'];
+  const TAB_ORDER: ScreenId[] = ['ward', 'home', 'family', 'history', 'settings'];
   const go = useCallback((s: ScreenId) => {
     // Nothing may skip setup: any road "home" before onboarding is done leads
     // back into it (a share or Shortcut can arrive before first-run finishes).

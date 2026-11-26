@@ -40,6 +40,12 @@ export function senderLabel(rec?: Pick<CheckRecord, 'sender' | 'source'> | null)
 }
 
 /** Message text with the flagged phrases in red-ink, 600, red underline. */
+// Same length in and out, so an index found in the folded text cuts the original.
+// The engine reports phrases from normalized text (straight quotes, no dashes).
+function fold(t: string): string {
+  return t.toLowerCase().replace(/[\u2018\u2019\u02bc]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/[\u2013\u2014]/g, '-');
+}
+
 export function Highlighted({ text, matches, color, mark = T.redInk, underline = T.red, size = 16.5, lh = 1.4, style, numberOfLines, lit }: {
   text: string; matches: string[]; color: string; mark?: string; underline?: string; size?: number; lh?: number; style?: StyleProp<ViewStyle>; numberOfLines?: number;
   /** Which matches are lit (index); undefined lights all. */
@@ -52,7 +58,7 @@ export function Highlighted({ text, matches, color, mark = T.redInk, underline =
   while (rest.length) {
     let best: { i: number; m: string; k: number } | null = null;
     clean.forEach((m, k) => {
-      const i = rest.toLowerCase().indexOf(m.toLowerCase());
+      const i = fold(rest).indexOf(fold(m));
       if (i >= 0 && (!best || i < best.i)) best = { i, m, k };
     });
     if (!best) { parts.push({ t: rest, hit: -1 }); break; }

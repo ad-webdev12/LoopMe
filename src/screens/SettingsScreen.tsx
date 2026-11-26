@@ -38,7 +38,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
   return (
     <Screen C={C} playKey="settings">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
-        <LargeTitle C={C}>Settings</LargeTitle>
+        <LargeTitle C={C} right={<Pressable onPress={() => ctx.go('home')} style={({ pressed }) => [st.done, { backgroundColor: C.dark ? '#2c2c2e' : '#e5e5ea' }, pressed && { opacity: 0.7 }]} accessibilityRole="button"><Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Done</Text></Pressable>}>Settings</LargeTitle>
 
         {permsDone ? (
           <Pressable onPress={() => ctx.go('setup')} style={[st.perm, { backgroundColor: C.card }]} accessibilityRole="button">
@@ -77,7 +77,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
           <Text style={[font(15, '600'), { color: '#fff' }]} allowFontScaling>Your family’s secret word</Text>
           {word === 'locked' && (
             <Swap playKey="locked">
-              <Text style={[font(28, '800', 1.0, s.codeWordSet ? 6 : 0), { color: '#fff', marginTop: 10 }]} allowFontScaling={false}>{s.codeWordSet ? '•••••••' : 'Not set'}</Text>
+              <Text style={[font(28, '800', 1.0, s.codeWordSet ? 8 : 0), { color: '#fff', marginTop: 10 }]} allowFontScaling={false}>{s.codeWordSet ? '● ● ● ● ● ● ●' : 'Not set'}</Text>
               <Text style={[font(16, '400', 1.4), { color: '#fff', marginTop: 8 }]} allowFontScaling>If a caller sounds like family and asks for money, ask them for it.</Text>
               <SmallBtn label={s.codeWordSet ? 'Show it' : 'Set it'} bg="#fff" color={T.greenDeep} style={{ marginTop: 12 }} icon={<ScanFace size={18} color={T.greenDeep} strokeWidth={2} />} onPress={() => s.codeWordSet ? showWord() : ctx.go('caregiver')} />
             </Swap>
@@ -121,6 +121,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
 }
 
 const st = StyleSheet.create({
+  done: { height: 36, paddingHorizontal: 16, borderRadius: 18, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
   perm: { marginHorizontal: 16, borderRadius: 16, paddingVertical: 14, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
   start: { height: 36, paddingHorizontal: 16, borderRadius: 18, backgroundColor: T.red, alignItems: 'center', justifyContent: 'center' },
   secret: { marginHorizontal: 16, marginTop: 20, backgroundColor: T.greenDeep, borderRadius: 20, padding: 18, minHeight: 150 },

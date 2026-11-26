@@ -42,4 +42,43 @@ enum ExtensionCloud {
       db.add(op)
     }
   }
+
+  struct Reply { let text: String; let verdict: String; let from: String; let at: Date }
+
+  /// The caretaker's answer to one check, if it has landed. Reads the owner's
+  /// zone with the drawer's own change token, so it never takes changes away
+  /// from the app's sync.
+  static func reply(for checkId: String) async -> Reply? {
+    let d = SharedStore.defaults
+    let key = "drawer.noteToken"
+    if let cached = d.dictionary(forKey: "drawer.reply." + checkId), let t = cached["text"] as? String {
+      return Reply(text: t, verdict: cached["verdict"] as? String ?? "", from: cached["from"] as? String ?? "", at: Date(timeIntervalSince1970: cached["at"] as? Double ?? 0))
+    }
+    let zoneID = CKRecordZone.ID(zoneName: zone, ownerName: CKCurrentUserDefaultName)
+    let cfg = CKFetchRecordZoneChangesOperation.ZoneConfiguration()
+    if let data = d.data(forKey: key) { cfg.previousServerChangeToken = try? NSKeyedUnarchiver.unarchivedObject(ofClass: CKServerChangeToken.self, from: data) }
+    let db = CKContainer(identifier: container).privateCloudDatabase
+    let notes: [CKRecord] = await withCheckedContinuation { cont in
+      let op = CKFetchRecordZoneChangesOperation(recordZoneIDs: [zoneID], configurationsByRecordZoneID: [zoneID: cfg])
+      var found: [CKRecord] = []
+      op.recordWasChangedBlock = { _, r in if case .success(let rec) = r, rec.recordType == "Note" { found.append(rec) } }
+      op.recordZoneChangeTokensUpdatedBlock = { _, token, _ in
+        if let token, let data = try? NSKeyedArchiver.archivedData(withRootObject: token, requiringSecureCoding: true) { d.set(data, forKey: key) }
+      }
+      op.recordZoneFetchResultBlock = { _, r in
+        if case .success(let v) = r, let data = try? NSKeyedArchiver.archivedData(withRootObject: v.serverChangeToken, requiringSecureCoding: true) { d.set(data, forKey: key) }
+      }
+      op.fetchRecordZoneChangesResultBlock = { _ in cont.resume(returning: found) }
+      op.qualityOfService = .userInitiated
+      db.add(op)
+    }
+    // Remember every answer seen, so a later poll (with a newer token) still finds it.
+    for n in notes {
+      guard let cid = n["checkId"] as? String, let t = n["text"] as? String else { continue }
+      let at = (n["at"] as? Date ?? Date()).timeIntervalSince1970
+      d.set(["text": t, "verdict": n["verdict"] as? String ?? "", "from": n["from"] as? String ?? "", "at": at], forKey: "drawer.reply." + cid)
+    }
+    guard let c = d.dictionary(forKey: "drawer.reply." + checkId), let t = c["text"] as? String else { return nil }
+    return Reply(text: t, verdict: c["verdict"] as? String ?? "", from: c["from"] as? String ?? "", at: Date(timeIntervalSince1970: c["at"] as? Double ?? 0))
+  }
 }

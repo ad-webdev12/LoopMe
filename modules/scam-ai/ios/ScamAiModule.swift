@@ -210,6 +210,13 @@ public class ScamAiModule: Module {
       SharedStore.autoCheck = autoCheck
     }
 
+    // The person in the loop. The Messages drawer names them and dials them.
+    Function("sharedPutPerson") { (name: String, phone: String) in
+      let d = SharedStore.defaults
+      d.set(name.isEmpty ? nil : name, forKey: "family.personName")
+      d.set(phone.isEmpty ? nil : phone, forKey: "family.caretakerPhone")
+    }
+
     // Verdicts the text filter and share sheet produced while the app was closed.
     Function("sharedDrainLog") { () -> [[String: Any]] in
       return SharedStore.drainLog()

@@ -1,9 +1,9 @@
 // The caretaker's home: the person they look after, the week on that phone
 // (counts only, never message text), what needs a word, numbers that keep
 // trying, and what is switched on over there.
-import React from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Phone, ChevronRight } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Phone, ChevronRight, Send } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { Screen, LargeTitle, Avatar, Card, SectionHeader, Note, Tag, Pill, PulseDot } from '../ui/base';
 import { firstName, whenLabel } from '../ui/pieces';
@@ -18,11 +18,22 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
   const events = ctx.hist.filter(h => h.source === 'family');
   const open = events.filter(h => h.level !== 'green' && !(h.notes || []).some(n => n.mine)).slice(0, 5);
   const repeats = repeatSenders(ctx.hist);
+  const [note, setNote] = useState('');
+  const [sending, setSending] = useState(false);
+  // A heads-up with no particular text attached travels as a 'general' note.
+  const sendNote = async () => {
+    const t = note.trim();
+    if (!t) { ctx.flash('Type a few words first.'); return; }
+    setSending(true);
+    await ctx.sendNoteTo('general', t, '');
+    setSending(false);
+    setNote('');
+  };
   const tel = () => s.watching?.phone ? Linking.openURL('tel:' + s.watching.phone.replace(/[^\d+]/g, '')).catch(() => {}) : ctx.go('watch');
 
   return (
     <Screen C={C} playKey="ward">
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
         <LargeTitle C={C} right={<Pressable onPress={() => ctx.go('watch')} accessibilityRole="button" style={{ marginBottom: 5 }}><Text style={[font(17, '400'), { color: C.accent }]} allowFontScaling>Link</Text></Pressable>}>{name}</LargeTitle>
 
         <Card C={C} style={{ marginHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 14 }}>
@@ -51,6 +62,20 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
                 </Pressable>
               ))}
             </View>
+          </>
+        )}
+
+        {linked && (
+          <>
+            <SectionHeader C={C}>Send {name} a note</SectionHeader>
+            <Card C={C} style={{ marginHorizontal: 16 }} radius={16} pad={12}>
+              <TextInput value={note} onChangeText={setNote} multiline maxLength={300} placeholder="It shows up full screen on their phone" placeholderTextColor={C.meta}
+                style={[font(17, '400', 1.35), { color: C.ink, minHeight: 64, maxHeight: 150, textAlignVertical: 'top' }]} accessibilityLabel={'Note to ' + name} allowFontScaling />
+              <Pressable onPress={sendNote} disabled={sending || !note.trim()} style={({ pressed }) => [st.send, { opacity: !note.trim() || sending ? 0.45 : pressed ? 0.75 : 1 }]} accessibilityRole="button" accessibilityLabel={'Send note to ' + name}>
+                <Send size={16} color="#fff" strokeWidth={2.2} />
+                <Text style={[font(16, '600'), { color: '#fff' }]} allowFontScaling>Send</Text>
+              </Pressable>
+            </Card>
           </>
         )}
 
@@ -133,4 +158,5 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
 const st = StyleSheet.create({
   call: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   alert: { borderRadius: 20, padding: 18 },
+  send: { alignSelf: 'flex-end', marginTop: 8, height: 40, paddingHorizontal: 16, borderRadius: 20, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', gap: 6 },
 });

@@ -3,7 +3,7 @@
 // and tapping a row takes you to where it is done.
 import React, { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
-import { ArrowRight } from 'lucide-react-native';
+import { ArrowRight, HandHeart } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { Screen, BackLink, ScreenTitle, Lead, Pill, CheckCircle } from '../ui/base';
 import { callDirectoryStatus } from '../../modules/scam-ai';
@@ -17,10 +17,10 @@ export default function CaregiverScreen({ ctx }: { ctx: Ctx }) {
   useEffect(() => { callDirectoryStatus().then(setCalls).catch(() => {}); }, []);
   const perms = ctx.tallies.filtered > 0 && calls === 'enabled';
   const items = [
-    { t: 'Add a person to call', b: 'Reached in one tap from any scam warning.', on: s.trusted.length > 0, go: () => ctx.go('family') },
+    { t: 'Add a trusted person', b: s.careName ? 'The person they reach in one tap when something looks wrong.' : 'The person you reach in one tap when something looks wrong.', on: s.trusted.length > 0, go: () => ctx.go('family') },
     { t: s.careName ? 'Link your own phone' : 'Send someone the invite', b: s.careName ? 'Send yourself the invite. Flagged texts then show up on your phone.' : 'They hear about each scam on their own phone.', on: s.familyLinked, go: () => ctx.go('family') },
-    { t: 'Turn on scam protection', b: 'Two switches in iPhone Settings.', on: perms, go: () => ctx.go('setup') },
-    { t: 'Set the family secret word', b: 'One word only your family knows.', on: s.codeWordSet, go: () => setWordOpen(true) },
+    { t: 'Turn on scam protection', b: s.careName ? 'Allow both iPhone permissions on their phone.' : 'Allow both iPhone permissions.', on: perms, go: () => ctx.go('setup') },
+    { t: 'Set the family secret word', b: 'One word only your family knows. A cloned voice won’t know it.', on: s.codeWordSet, go: () => setWordOpen(true) },
   ];
   const done = items.filter(i => i.on).length;
   const saveWord = () => {
@@ -38,9 +38,17 @@ export default function CaregiverScreen({ ctx }: { ctx: Ctx }) {
   return (
     <Screen C={C} playKey="caregiver">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-        <BackLink onPress={() => ctx.go('settings')} />
-        <ScreenTitle C={C} top={12}>Finish setting up</ScreenTitle>
-        <Lead C={C} top={8}>Each line fills in on its own once it is done.</Lead>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <BackLink onPress={() => ctx.go('settings')} />
+          {!!s.careName && (
+            <View style={[st.badge, { backgroundColor: C.amberTint }]}>
+              <HandHeart size={16} color={C.amberText} strokeWidth={2} />
+              <Text style={[font(15, '600'), { color: C.amberText }]} allowFontScaling numberOfLines={1}>Setting up for someone else</Text>
+            </View>
+          )}
+        </View>
+        <ScreenTitle C={C} top={12}>{s.careName ? 'Set up for them' : 'Finish setting up'}</ScreenTitle>
+        <Lead C={C} top={8}>{s.careName ? 'Four things, then hand the phone back.' : 'Four things. Each one ticks itself once it’s done.'}</Lead>
         <View style={[st.list, { backgroundColor: C.card }]}>
           {items.map((it, i) => (
             <Pressable key={it.t} onPress={it.go} style={({ pressed }) => [st.row, i < items.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep }, pressed && { opacity: 0.6 }]} accessibilityRole="button" accessibilityState={{ checked: it.on }}>
@@ -77,8 +85,8 @@ export default function CaregiverScreen({ ctx }: { ctx: Ctx }) {
 }
 
 const st = StyleSheet.create({
-  badge: { alignSelf: 'flex-start', marginLeft: 20, marginTop: 6, flexDirection: 'row', alignItems: 'center', gap: 7, height: 30, paddingHorizontal: 12, borderRadius: 15 },
-  list: { marginHorizontal: 16, marginTop: 16, borderRadius: 16, paddingHorizontal: 16 },
+  badge: { flexShrink: 1, marginLeft: 6, flexDirection: 'row', alignItems: 'center', gap: 7, height: 30, paddingHorizontal: 12, borderRadius: 15 },
+  list: { marginHorizontal: 16, marginTop: 16, borderRadius: 20, paddingHorizontal: 16 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14 },
   dim: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', justifyContent: 'flex-end' },
   sheet: { borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, paddingBottom: 40 },

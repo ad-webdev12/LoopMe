@@ -3,8 +3,7 @@
 // in the person who looks out for them.
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Linking, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import * as Speech from 'expo-speech';
-import { X, ArrowRight, Phone, FileDown, Volume2 } from 'lucide-react-native';
+import { X, ArrowRight, Phone, FileDown, Volume2, ExternalLink } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { Screen, Swap, Pill, Avatar } from '../ui/base';
 import { loopPerson, firstName } from '../ui/pieces';
@@ -12,6 +11,7 @@ import { exportHistoryPdf } from '../lib/pdf';
 import { reportRoute } from '../lib/region';
 import { newRecord } from '../lib/history';
 import * as Family from '../lib/family';
+import { readAloud } from '../lib/speech';
 import type { Ctx } from '../App';
 
 export default function ScammedScreen({ ctx }: { ctx: Ctx }) {
@@ -24,7 +24,7 @@ export default function ScammedScreen({ ctx }: { ctx: Ctx }) {
     { t: 'First: you are okay.', b: 'This happens to careful people every day. It isn’t your fault. We’ll go one step at a time.' },
     { t: 'Call your bank.', b: 'Use the number on the back of your card, not one from a text or email. Ask them to freeze the card and stop any payments.' },
     { t: 'Stop them getting back in.', b: 'Change any password you gave them. If someone got onto your computer, switch it off and unplug it from the internet.' },
-    { t: 'Report it.', b: (route.site ? 'Report it at ' + route.siteName + '.' : 'Report it to the police.') + ' If you lost money, tell your local police too. Your Loop Me history shows what happened and when.' },
+    { t: 'Report it.', b: (route.site ? 'Go to ' + route.siteName + '.' : 'Report it to the police.') + ' If you lost money, tell your local police too. Your Loop Me history shows what happened and when.' },
     { t: 'Tell someone you trust.', b: 'You don’t have to sort this out alone.' + (who ? ' ' + who + ' can help with the calls.' : '') },
   ];
   const last = i === STEPS.length - 1;
@@ -55,7 +55,7 @@ export default function ScammedScreen({ ctx }: { ctx: Ctx }) {
     ctx.go('home');
     ctx.flash(who ? 'Well done. ' + who + ' knows, and ' + (person?.relation === 'Daughter' ? 'she’s' : person?.relation === 'Son' ? 'he’s' : 'they’re') + ' here to help.' : 'Well done. One step at a time.');
   };
-  const read = () => Speech.speak(step.t + ' ' + step.b, { rate: 0.9 });
+  const read = () => readAloud(step.t + ' ' + step.b);
 
   return (
     <Screen C={C} playKey="scammed" scroll>
@@ -75,6 +75,7 @@ export default function ScammedScreen({ ctx }: { ctx: Ctx }) {
           <Text style={[font(32, '700', 1.1), { color: C.ink }]} allowFontScaling>{step.t}</Text>
           <Text style={[font(18, '400', 1.5), { color: C.ink2, marginTop: 12 }]} allowFontScaling>{step.b}</Text>
           {i === 1 && <Inline C={C} label="Call my bank" icon={<Phone size={18} color={T.green} strokeWidth={2} />} onPress={callBank} />}
+          {i === 3 && !!route.site && <Inline C={C} label={route.siteLabel || 'Report it'} icon={<ExternalLink size={18} color={T.green} strokeWidth={2} />} onPress={() => Linking.openURL(route.site!).catch(() => {})} />}
           {i === 3 && <Inline C={C} label="Save my history as a PDF" icon={<FileDown size={18} color={T.green} strokeWidth={2} />} onPress={savePdf} />}
           {i === 4 && (
             <Pressable onPress={loopIn} style={({ pressed }) => [st.inline, { backgroundColor: C.card, height: 52, paddingLeft: 8, borderRadius: 26 }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
@@ -90,7 +91,7 @@ export default function ScammedScreen({ ctx }: { ctx: Ctx }) {
           ? <Pill label="I’ve done what I can" onPress={finish} />
           : <Pill label="Next step" onPress={() => setI(i + 1)} trailing={<ArrowRight size={18} color="#fff" strokeWidth={2.2} />} />}
         <View style={{ flexDirection: 'row', gap: 10 }}>
-          <Pill label="Read it to me" height={52} bg={C.card} color={C.ink} style={{ flex: 1 }} icon={<Volume2 size={18} color={C.ink} strokeWidth={2} />} onPress={read} />
+          <Pill label="Read it to me" height={52} bg={C.card} color={C.ink} style={i > 0 ? { flex: 1 } : { paddingHorizontal: 24 }} icon={<Volume2 size={18} color={C.ink} strokeWidth={2} />} onPress={read} />
           {i > 0 && <Pill label="Previous step" height={52} bg={C.card} color={C.ink} style={{ flex: 1 }} onPress={() => setI(i - 1)} />}
         </View>
       </View>

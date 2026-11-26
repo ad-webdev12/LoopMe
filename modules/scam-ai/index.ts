@@ -129,6 +129,7 @@ const native = requireOptionalNativeModule<{
   cloudSubscribe(): Promise<boolean>;
   cloudUnlink(): Promise<boolean>;
   sharedPutConfig(allowlist: string[], blocked: string[], flagged: string[], autoCheck: boolean): void;
+  sharedPutPerson(name: string, phone: string): void;
   sharedDrainLog(): FilterLogEntry[];
   sharedDrainCorrections(): { text: string; label: 'scam' | 'fine' }[];
   startListening(): Promise<boolean>;
@@ -313,6 +314,11 @@ export function addCloudListener(cb: (e: CloudEvent) => void): () => void {
 
 export function sharedPutConfig(c: { allowlist: string[]; blocked: string[]; flagged: string[]; autoCheck: boolean }): void {
   try { native?.sharedPutConfig(c.allowlist, c.blocked, c.flagged, c.autoCheck); } catch {}
+}
+
+/** The person in the loop, so the Messages drawer can name them and its Call button can dial them. */
+export function sharedPutPerson(name: string, phone: string): void {
+  try { native?.sharedPutPerson(name, phone); } catch {}
 }
 
 export function sharedDrainLog(): FilterLogEntry[] {

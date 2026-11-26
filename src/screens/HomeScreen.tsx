@@ -6,7 +6,7 @@ import { Animated, AppState, Image, Modal, Pressable, ScrollView, StyleSheet, Te
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ArrowRight, Camera, Mic, Keyboard, PhoneIncoming, LifeBuoy } from 'lucide-react-native';
+import { ArrowRight, Camera, Mic, Keyboard, PhoneIncoming, LifeBuoy, ChevronRight, KeyRound } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { APP_ICON, Avatar, PulseDot, Screen, usePulse } from '../ui/base';
 import { loopPerson, firstName } from '../ui/pieces';
@@ -28,7 +28,17 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
   const careMode = s.role === 'caretaker';
 
   const headline = HEADLINES[Math.floor(Date.now() / 9_000_000) % HEADLINES.length];
-  const date = new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+  // One time only: after a scam that pretended to be family, offer the
+  // family code word (set on the Caregiver screen), unless it is already set.
+  const [offer, setOffer] = useState(false);
+  useEffect(() => {
+    if (careMode || s.codeWordSet || ctx.verdict?.level !== 'red' || !ctx.verdict?.codeWordMoment) return;
+    AsyncStorage.getItem('loopmein.codeword.offered').then(v => {
+      if (v) return;
+      setOffer(true);
+      AsyncStorage.setItem('loopmein.codeword.offered', '1').catch(() => {});
+    }).catch(() => {});
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // hasStringAsync never shows the system paste alert; the text itself is
   // read only when they tap Check, so the alert comes from their own tap.
@@ -130,8 +140,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
               <Text style={[font(14, '600', 1.2), { color: '#3c3c43' }]} numberOfLines={1} allowFontScaling={false}>{pillText}</Text>
             </Pressable>
           </View>
-          <Text style={[font(15, '600'), { color: '#fff', marginTop: 24 }]} allowFontScaling>{date}</Text>
-          <Text style={[font(38, '800', 1.02, -1), { color: '#fff', marginTop: 6 }]} allowFontScaling>{headline}</Text>
+          <Text style={[font(38, '800', 1.02, -1), { color: '#fff', marginTop: 26 }]} allowFontScaling>{headline}</Text>
           {!!clip ? (
             <>
               <Text style={[font(14, '600'), { color: '#fff', marginTop: 20, marginBottom: 6, marginLeft: 6 }]} allowFontScaling>You copied this</Text>
@@ -184,19 +193,36 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
               </Animated.View>
             </Pressable>
           ))}
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            <Pressable onPress={() => ctx.go('callcheck')} style={({ pressed }) => [st.tile, { backgroundColor: C.card }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
-              <PhoneIncoming size={22} color={C.accent} strokeWidth={2} />
-              <Text style={[font(16, '600', 1.25), { color: C.ink, marginTop: 10 }]} allowFontScaling>It was a phone call</Text>
+          <View style={[st.group, { backgroundColor: C.card }]}>
+            <Pressable onPress={() => ctx.go('callcheck')} style={({ pressed }) => [st.groupRow, { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep2 }, pressed && { opacity: 0.6 }]} accessibilityRole="button">
+              <PhoneIncoming size={21} color={C.accent} strokeWidth={2} />
+              <Text style={[font(17, '600'), { color: C.ink, flex: 1 }]} allowFontScaling>It was a phone call</Text>
+              <ChevronRight size={16} color={C.chevron} strokeWidth={2.4} />
             </Pressable>
-            <Pressable onPress={() => ctx.go('scammed')} style={({ pressed }) => [st.tile, { backgroundColor: C.card }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
-              <LifeBuoy size={22} color={T.red} strokeWidth={2} />
-              <Text style={[font(16, '600', 1.25), { color: C.redText, marginTop: 10 }]} allowFontScaling>I think I’ve been scammed</Text>
+            <Pressable onPress={() => ctx.go('scammed')} style={({ pressed }) => [st.groupRow, pressed && { opacity: 0.6 }]} accessibilityRole="button">
+              <LifeBuoy size={21} color={T.red} strokeWidth={2} />
+              <Text style={[font(17, '600'), { color: C.redText, flex: 1 }]} allowFontScaling>I think I’ve been scammed</Text>
+              <ChevronRight size={16} color={C.chevron} strokeWidth={2.4} />
             </Pressable>
           </View>
         </View>
       </ScrollView>
 
+      <Modal visible={offer} transparent animationType="slide" onRequestClose={() => setOffer(false)}>
+        <Pressable style={st.dim} onPress={() => setOffer(false)}>
+          <Pressable style={[st.offer, { backgroundColor: C.card }]} onPress={() => {}}>
+            <View style={st.offerIcon}><KeyRound size={30} color="#fff" strokeWidth={2} /></View>
+            <Text style={[font(26, '700', 1.1, -0.4), { color: C.ink, marginTop: 16, textAlign: 'center' }]} allowFontScaling>Set a family code word?</Text>
+            <Text style={[font(16, '400', 1.42), { color: C.ink2, marginTop: 8, textAlign: 'center' }]} allowFontScaling>That text pretended to be family. Pick a word only your family knows, and ask for it whenever someone wants money.</Text>
+            <Pressable onPress={() => { setOffer(false); ctx.go('caregiver'); }} style={({ pressed }) => [st.offerYes, pressed && { opacity: 0.8 }]} accessibilityRole="button">
+              <Text style={[font(18, '600'), { color: '#fff' }]} allowFontScaling>Set it up</Text>
+            </Pressable>
+            <Pressable onPress={() => setOffer(false)} style={{ height: 46, justifyContent: 'center', marginTop: 4 }} accessibilityRole="button">
+              <Text style={[font(17, '500'), { color: C.accent }]} allowFontScaling>Not now</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
       <Modal visible={listening} animationType="slide" presentationStyle="pageSheet" onRequestClose={stopSaying}>
         <View style={{ flex: 1, backgroundColor: C.ground, padding: 20 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -237,13 +263,18 @@ function Alt({ Icon, label, onPress }: { Icon: typeof Camera; label: string; onP
 
 const st = StyleSheet.create({
   header: { backgroundColor: T.green, paddingTop: 0, paddingHorizontal: 20, paddingBottom: 22, borderBottomLeftRadius: 22, borderBottomRightRadius: 22 },
-  appIcon: { width: 54, height: 54, borderRadius: 14, borderWidth: 1.5, borderColor: 'rgba(255,255,255,.25)' },
+  appIcon: { width: 46, height: 46, borderRadius: 12, borderWidth: 1.5, borderColor: 'rgba(255,255,255,.25)' },
   pill: { marginLeft: 'auto', height: 40, borderRadius: 20, backgroundColor: '#fff', flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 5, paddingRight: 12, flexShrink: 1 },
   clipBubble: { backgroundColor: '#fff', borderTopLeftRadius: 16, borderTopRightRadius: 16, borderBottomRightRadius: 16, borderBottomLeftRadius: 5, paddingTop: 10, paddingHorizontal: 14, paddingBottom: 11, maxWidth: 300, alignSelf: 'flex-start' },
   shotRow: { marginTop: 14, flexDirection: 'row', alignItems: 'center', gap: 8 },
-  primary: { height: 72, borderRadius: 18, backgroundColor: '#fff', marginTop: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 22, paddingRight: 8 },
+  primary: { height: 62, borderRadius: 16, backgroundColor: '#fff', marginTop: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 22, paddingRight: 8 },
   arrowBox: { width: 46, height: 46, borderRadius: 11, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center' },
   status: { borderRadius: 14, paddingVertical: 14, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
   allow: { height: 36, paddingHorizontal: 14, borderRadius: 10, backgroundColor: T.red, alignItems: 'center', justifyContent: 'center' },
-  tile: { flex: 1, borderRadius: 14, padding: 14 },
+  group: { borderRadius: 16, paddingHorizontal: 16 },
+  groupRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 15 },
+  dim: { flex: 1, backgroundColor: 'rgba(0,0,0,.35)', justifyContent: 'flex-end' },
+  offer: { margin: 8, marginBottom: 8, borderRadius: 38, paddingTop: 26, paddingHorizontal: 24, paddingBottom: 20, alignItems: 'center' },
+  offerIcon: { width: 64, height: 64, borderRadius: 18, backgroundColor: T.greenDeep, alignItems: 'center', justifyContent: 'center' },
+  offerYes: { alignSelf: 'stretch', height: 56, borderRadius: 28, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center', marginTop: 20 },
 });

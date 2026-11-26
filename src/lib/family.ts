@@ -5,7 +5,7 @@
 // own iCloud (modules/scam-ai/ios/CloudLink.swift).
 import {
   cloudCreateInvite, cloudLinkStatus, cloudPublishCheck, cloudPublishPulse, cloudPing, cloudSendNote, cloudSnapshot, cloudSubscribe,
-  cloudSync, cloudUnlink, addCloudListener, sharedDrainLog, sharedDrainCorrections, sharedPutConfig, sharedTallies, callDirectoryStatus,
+  cloudSync, cloudUnlink, addCloudListener, sharedDrainLog, sharedDrainCorrections, sharedPutConfig, sharedPutPerson, sharedTallies, callDirectoryStatus,
   CloudEvent, FamilyNote, FamilyPulse, LinkStatus, SharedCheck, FilterLogEntry,
 } from '../../modules/scam-ai';
 import * as Notifications from 'expo-notifications';
@@ -18,9 +18,9 @@ import type { Settings } from './storage';
 export type { FamilyNote, FamilyPulse, LinkStatus, SharedCheck, CloudEvent };
 
 const QUICK: Record<'scam' | 'safe' | 'call' | 'block', string> = {
-  scam: 'It is fake. Delete it and do not reply.',
-  safe: 'That one is genuine. You are fine.',
-  call: 'Do not tap anything, I will call you now.',
+  scam: 'That’s a scam. Don’t reply, just leave it.',
+  safe: 'That one’s fine. You’re okay.',
+  call: 'Don’t tap anything. I’m calling you now.',
   block: 'I blocked that number for you.',
 };
 export const QUICK_NOTES = QUICK;
@@ -146,6 +146,8 @@ export function pushConfig(s: Settings, hist: CheckRecord[]) {
     .filter(h => h.level === 'red' && h.sender && h.sender.replace(/\D/g, '').length >= 7)
     .map(h => h.sender as string);
   sharedPutConfig({ allowlist: s.allowlist, blocked: s.blocked, flagged, autoCheck: s.autoCheck });
+  const main = s.trusted.find(p => (p.phone || '').replace(/\D/g, '').length >= 7) || s.trusted[0];
+  sharedPutPerson(main?.name || '', (main?.phone || '').replace(/[^\d+]/g, ''));
 }
 
 /** Caretaker: the owner's latest weekly picture, or null before the first one lands. */

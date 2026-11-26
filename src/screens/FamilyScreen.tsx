@@ -5,7 +5,7 @@
 // photo from Contacts, change the relationship, remove.
 import React, { useEffect, useState } from 'react';
 import { Alert, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Phone, MessageCircle, Send, Plus, Smartphone, ChevronRight, ArrowRight, Star, RefreshCw, Trash2, QrCode } from 'lucide-react-native';
+import { Phone, MessageCircle, Send, Plus, Smartphone, ChevronRight, ArrowRight, Star, RefreshCw, Trash2, QrCode, Settings as Gear, HandHeart } from 'lucide-react-native';
 import { InviteCodeSheet } from '../ui/InviteCodeSheet';
 import { T, font } from '../theme';
 import { Screen, LargeTitle, Avatar, Note, Pill } from '../ui/base';
@@ -27,8 +27,16 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
   const [open, setOpen] = useState<TrustedPerson | null>(null);
   const [busy, setBusy] = useState(false);
   const [codeOpen, setCodeOpen] = useState(false);
-  const tel = (p: string) => Linking.openURL('tel:' + p.replace(/[^\d+]/g, '')).catch(() => {});
-  const sms = (p: string) => Linking.openURL('sms:' + p.replace(/[^\d+]/g, '')).catch(() => {});
+  const digits = (p?: string) => (p || '').replace(/[^\d+]/g, '');
+  const tel = (p: string) => Linking.openURL('tel:' + digits(p)).catch(() => ctx.flash('This phone cannot make calls.'));
+  const sms = (p: string) => Linking.openURL('sms:' + digits(p)).catch(() => ctx.flash('Messages could not be opened.'));
+  // No saved number (an older link made over iCloud only): offer to pick them
+  // from Contacts so Call and Message have somewhere to go.
+  const needNumber = (name: string) => Alert.alert(
+    'No number saved for ' + firstName(name),
+    'Choose ' + firstName(name) + ' from your contacts and Loop Me will keep the number here.',
+    [{ text: 'Not now', style: 'cancel' }, { text: 'Choose from Contacts', onPress: () => { void add(); } }],
+  );
 
   // Photos follow Contacts. Re-read them whenever this screen opens.
   useEffect(() => {
@@ -72,13 +80,17 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
     } finally { setBusy(false); }
   };
   const linkedOf = (p: TrustedPerson) => isLinked(s, p);
-  const statusOf = (p: TrustedPerson) => linkedOf(p) ? 'Hears about every scam' : p.invited ? 'Invite sent. Waiting for a tap.' : 'Can be called. Not linked yet.';
+  const statusOf = (p: TrustedPerson) => linkedOf(p) ? 'Hears about every scam you get' : p.invited ? 'Invite sent. Waiting for a tap.' : 'Can be called. Not linked yet.';
   const pronoun = (p?: TrustedPerson | null) => objectOf(p?.relation);
 
   return (
     <Screen C={C} playKey="family">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
-        <LargeTitle C={C}>Family</LargeTitle>
+        <LargeTitle C={C} right={
+          <Pressable onPress={() => ctx.go('settings')} hitSlop={8} accessibilityRole="button" accessibilityLabel="Settings" style={({ pressed }) => [st.gear, { backgroundColor: C.sep2 }, pressed && { opacity: 0.7 }]}>
+            <Gear size={21} color={C.dark ? '#ebebf5' : '#3c3c43'} strokeWidth={2} />
+          </Pressable>
+        }>Family</LargeTitle>
 
         {person ? (
           <Pressable onPress={() => setOpen(person)} style={[st.hero, { backgroundColor: C.card }]} accessibilityRole="button" accessibilityLabel={'Options for ' + person.name}>
@@ -90,9 +102,9 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
               <Text style={[font(15, '500'), { color: person.linked ? T.greenDeep : C.amberText }]} allowFontScaling>{statusOf(person)}</Text>
             </View>
             <View style={{ flexDirection: 'row', gap: 8, alignSelf: 'stretch', marginTop: 16 }}>
-              <Action C={C} Icon={Phone} label="Call" onPress={() => person.phone ? tel(person.phone) : ctx.flash('No number saved for ' + who + '.')} />
-              <Action C={C} Icon={MessageCircle} label="Message" onPress={() => person.phone ? sms(person.phone) : ctx.flash('No number saved for ' + who + '.')} />
-              <Action C={C} Icon={Send} label={'Ask ' + pronoun(person)} onPress={() => person.linked ? ctx.go('ask') : setOpen(person)} />
+              <Action C={C} Icon={Phone} label="Call" onPress={() => digits(person.phone) ? tel(person.phone) : needNumber(person.name)} />
+              <Action C={C} Icon={MessageCircle} label="Message" onPress={() => digits(person.phone) ? sms(person.phone) : needNumber(person.name)} />
+              <Action C={C} Icon={Send} label={'Ask ' + pronoun(person)} onPress={() => ctx.go('ask')} />
             </View>
             {!person.linked && (<>
               <Pill label={person.invited ? 'Send the invite again' : 'Send ' + who + ' the invite'} height={50} style={{ alignSelf: 'stretch', marginTop: 12 }} disabled={busy} onPress={() => invite(person)} trailing={<ArrowRight size={18} color="#fff" strokeWidth={2.2} />} />
@@ -115,7 +127,7 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
                 <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>{p.name}</Text>
                 <Text style={[font(15, '400'), { color: C.ink2, marginTop: 2 }]} allowFontScaling>{(p.relation ? p.relation + ' · ' : '') + (linkedOf(p) ? 'Linked' : p.invited ? 'Invite sent' : 'Not linked')}</Text>
               </View>
-              <Pressable onPress={() => tel(p.phone)} style={({ pressed }) => [st.callBtn, { backgroundColor: C.greenTint }, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel={'Call ' + p.name}>
+              <Pressable onPress={() => digits(p.phone) ? tel(p.phone) : needNumber(p.name)} style={({ pressed }) => [st.callBtn, { backgroundColor: C.greenTint }, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel={'Call ' + p.name}>
                 <Phone size={18} color={C.accent} strokeWidth={2} />
               </Pressable>
               <ChevronRight size={16} color={C.chevron} strokeWidth={2.2} />
@@ -124,14 +136,22 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
           {s.trusted.length < 3 && (
             <Pressable onPress={add} style={({ pressed }) => [st.row, pressed && { opacity: 0.6 }]} accessibilityRole="button">
               <View style={[st.dashed]}><Plus size={18} color={C.accent} strokeWidth={2} /></View>
-              <Text style={[font(17, '600'), { color: C.accent }]} allowFontScaling>Add a person</Text>
+              <Text style={[font(17, '600'), { color: C.accent }]} allowFontScaling>Add someone to your loop</Text>
             </Pressable>
           )}
         </View>
         <Note C={C}>Everyone here can be called in one tap from a scam warning. Send someone the invite and they also hear about each scam on their own phone, and can answer with one tap.</Note>
 
-        {person && (
-          <View style={[st.list, { backgroundColor: C.card, marginTop: 18, paddingVertical: 0 }]}>
+        <View style={[st.list, { backgroundColor: C.card, marginTop: 18, paddingVertical: 0 }]}>
+          <Pressable onPress={() => ctx.go('caregiver')} style={({ pressed }) => [st.linkRow, person && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep }, pressed && { opacity: 0.6 }]} accessibilityRole="button">
+            <HandHeart size={22} color={C.accent} strokeWidth={2} />
+            <View style={{ flex: 1 }}>
+              <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Set up for someone else</Text>
+              <Text style={[font(15, '400'), { color: C.ink2, marginTop: 2 }]} allowFontScaling>Four things to check on their phone</Text>
+            </View>
+            <ChevronRight size={18} color={C.chevron} strokeWidth={2.2} />
+          </Pressable>
+          {person && (
             <Pressable onPress={() => ctx.go('maria')} style={({ pressed }) => [st.linkRow, pressed && { opacity: 0.6 }]} accessibilityRole="button">
               <Smartphone size={22} color={C.accent} strokeWidth={2} />
               <View style={{ flex: 1 }}>
@@ -140,8 +160,8 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
               </View>
               <ChevronRight size={18} color={C.chevron} strokeWidth={2.2} />
             </Pressable>
-          </View>
-        )}
+          )}
+        </View>
       </ScrollView>
 
       <RelationSheet C={C} name={pending?.name || null} onPick={saveWithRelation} onClose={() => setPending(null)} />
@@ -169,7 +189,7 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
                 <View style={{ marginTop: 16, gap: 8 }}>
                   {!linkedOf(open) && <Pill label={open.invited ? 'Send the invite again' : 'Send ' + firstName(open.name) + ' the invite'} height={52} disabled={busy} onPress={() => invite(open)} icon={<Send size={18} color="#fff" strokeWidth={2.2} />} />}
                   {!linkedOf(open) && <Pill label="Show a code instead" height={52} bg={C.greenTint} color={T.greenDeep} onPress={() => { setOpen(null); setCodeOpen(true); }} icon={<QrCode size={18} color={T.greenDeep} strokeWidth={2.2} />} />}
-                  <Pill label={'Call ' + firstName(open.name)} height={52} bg={C.greenTint} color={T.greenDeep} onPress={() => tel(open.phone)} icon={<Phone size={18} color={T.greenDeep} strokeWidth={2.2} />} />
+                  <Pill label={'Call ' + firstName(open.name)} height={52} bg={C.greenTint} color={T.greenDeep} onPress={() => digits(open.phone) ? tel(open.phone) : (setOpen(null), needNumber(open.name))} icon={<Phone size={18} color={T.greenDeep} strokeWidth={2.2} />} />
                   {person && open.phone !== person.phone && <Pill label="Make the main person" height={52} bg={C.greenTint} color={T.greenDeep} onPress={() => makeMain(open)} icon={<Star size={18} color={T.greenDeep} strokeWidth={2.2} />} />}
                   <Pill label="Update photo from Contacts" height={52} bg={C.greenTint} color={T.greenDeep} onPress={() => updatePhoto(open)} icon={<RefreshCw size={18} color={T.greenDeep} strokeWidth={2.2} />} />
                   <Pill label={'Remove ' + firstName(open.name)} height={52} bg={C.redTint} color={C.redText} onPress={() => remove(open)} icon={<Trash2 size={18} color={C.redText} strokeWidth={2.2} />} />
@@ -199,6 +219,7 @@ const st = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
   callBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   dashed: { width: 46, height: 46, borderRadius: 23, borderWidth: 1.5, borderStyle: 'dashed', borderColor: T.dashed, alignItems: 'center', justifyContent: 'center' },
+  gear: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginBottom: 2 },
   linkRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14 },
   rel: { height: 40, paddingHorizontal: 16, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   dim: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', justifyContent: 'flex-end' },

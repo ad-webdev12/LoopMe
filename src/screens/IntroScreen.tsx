@@ -5,7 +5,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, Easing, Image, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ArrowRight, Phone, TriangleAlert, User } from 'lucide-react-native';
+import { ArrowRight, Camera, Check, Flashlight, Lock, TriangleAlert, User, Users } from 'lucide-react-native';
 import { T } from '../theme';
 import { APP_ICON, motionOff } from '../ui/base';
 import { KFFade, KFPop, KFRise, bez } from '../ui/kf';
@@ -193,47 +193,122 @@ function Band({ k, travel }: { k: string; travel: number }) {
 function Beat1({ k }: { k: string }) {
   return (
     <View style={[st.abs, { left: 16, right: 16, top: 140, flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-start' }]}>
-      <KFPop duration={550} delay={100} playKey={k} easing={bez(0.2, 1.25, 0.3, 1)} style={{ alignItems: 'center', gap: 10 }}>
-        <View style={st.phone}>
-          <View style={st.notch} />
-          <View style={st.miniBubble}><Text style={st.miniText} allowFontScaling={false}>USPS: your parcel is on hold. A $1.95 fee is due.</Text></View>
-          <KFPop duration={400} delay={1000} playKey={k} easing={bez(0.2, 1.25, 0.3, 1)} style={st.miniFlag}>
-            <TriangleAlert size={11} color="#fff" strokeWidth={2.6} />
-            <Text style={st.miniFlagText} allowFontScaling={false} numberOfLines={1}>Flagged as a scam</Text>
-          </KFPop>
-          <KFFade duration={300} delay={1300} playKey={k}>
-            <Text style={[st.meta, { fontSize: 10, fontWeight: '500', marginTop: 8 }]} allowFontScaling={false}>You didn’t reply.</Text>
-          </KFFade>
-        </View>
-        <View style={st.who}><View style={[st.whoDot, { borderColor: T.red }]} /><Text style={st.whoText} allowFontScaling={false}>You</Text></View>
+      <KFPop duration={550} delay={100} playKey={k} easing={bez(0.2, 1.25, 0.3, 1)} style={{ alignItems: 'center', gap: 12 }}>
+        <MiniPhone>
+          {/* The text as it arrives... */}
+          <View style={{ flex: 1, backgroundColor: '#fff', paddingTop: 26, paddingHorizontal: 8 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <Image source={APP_ICON} style={{ width: 11, height: 11, borderRadius: 3 }} />
+              <Text style={{ fontSize: 7, fontWeight: '700', color: '#000' }} allowFontScaling={false}>Loop Me</Text>
+            </View>
+            <View style={{ marginTop: 7, backgroundColor: '#f2f2f7', borderRadius: 8, paddingVertical: 5, paddingHorizontal: 6 }}>
+              <Text style={{ fontSize: 7.5, lineHeight: 9.75, color: '#000' }} allowFontScaling={false}>USPS: your parcel is on hold. A $1.95 fee is due…</Text>
+            </View>
+            <View style={{ marginTop: 5, height: 18, borderRadius: 5, backgroundColor: T.green, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontSize: 7.5, fontWeight: '700', color: '#fff' }} allowFontScaling={false}>Check it</Text>
+            </View>
+          </View>
+          {/* ...then the red warning wipes up over it. */}
+          <WipeUp k={k} delay={900} style={[st.abs, { left: 0, right: 0, top: 0, bottom: 0, backgroundColor: T.red, paddingTop: 30, paddingHorizontal: 9 }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, opacity: 0.9 }}>
+              <View style={{ width: 4, height: 4, backgroundColor: '#fff' }} />
+              <Text style={{ fontSize: 6, fontWeight: '800', letterSpacing: 1, color: '#fff' }} allowFontScaling={false}>SCAM</Text>
+            </View>
+            <Text style={{ fontSize: 17, lineHeight: 17, fontWeight: '800', letterSpacing: -0.5, color: '#fff', marginTop: 8 }} allowFontScaling={false}>{'Stop.\nDon’t reply.'}</Text>
+            <Text style={{ fontSize: 7.5, lineHeight: 10, fontWeight: '500', color: '#fff', marginTop: 7, opacity: 0.95 }} allowFontScaling={false}>Real USPS never asks for a fee by text.</Text>
+            <View style={{ marginTop: 'auto' }}>
+              <KFFade duration={300} delay={2400} playKey={k} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 8 }}>
+                <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: 'rgba(255,255,255,.3)', alignItems: 'center', justifyContent: 'center' }}><Check size={7} color="#fff" strokeWidth={3} /></View>
+                <Text style={{ fontSize: 7, fontWeight: '600', color: '#fff' }} allowFontScaling={false}>Your family was told</Text>
+              </KFFade>
+              <View style={{ height: 20, borderRadius: 6, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginBottom: 6 }}>
+                <Text style={{ fontSize: 7.5, fontWeight: '700', color: T.red }} allowFontScaling={false}>Block this number</Text>
+              </View>
+              <View style={{ height: 18, borderRadius: 6, borderWidth: 1, borderColor: 'rgba(255,255,255,.6)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+                <Text style={{ fontSize: 7, fontWeight: '600', color: '#fff' }} allowFontScaling={false}>I didn’t reply</Text>
+              </View>
+            </View>
+          </WipeUp>
+        </MiniPhone>
+        <View style={st.who}><View style={[st.whoDot, { backgroundColor: T.red }]}><User size={13} color="#fff" strokeWidth={2.4} /></View><Text style={st.whoText} allowFontScaling={false}>You</Text></View>
       </KFPop>
 
-      <View style={{ width: 58, height: 20, marginTop: 110 }}>
+      <View style={{ width: 52, height: 20, marginTop: 128 }}>
         <Line k={k} />
         <Dot k={k} />
       </View>
 
-      <KFPop duration={550} delay={600} playKey={k} easing={bez(0.2, 1.25, 0.3, 1)} style={{ alignItems: 'center', gap: 10 }}>
-        <View style={st.phone}>
-          <View style={st.notch} />
-          <Text style={st.clock} allowFontScaling={false}>9:42</Text>
-          <Drop k={k} delay={2000} style={st.notif}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-              <Image source={APP_ICON} style={{ width: 14, height: 14, borderRadius: 4 }} />
-              <Text style={{ fontSize: 9.5, fontWeight: '600', color: '#000' }} allowFontScaling={false}>Loop Me</Text>
-              <Text style={{ marginLeft: 'auto', fontSize: 9, color: '#6c6c70' }} allowFontScaling={false}>now</Text>
+      <KFPop duration={550} delay={350} playKey={k} easing={bez(0.2, 1.25, 0.3, 1)} style={{ alignItems: 'center', gap: 12 }}>
+        <MiniPhone>
+          {/* Their lock screen: it wakes, and the alert drops in. */}
+          <LinearGradient colors={['#47625a', '#2f4a43', '#5b7f74']} locations={[0, 0.5, 1]} style={{ flex: 1, paddingTop: 28, paddingHorizontal: 7, alignItems: 'center' }}>
+            <Lock size={8} color="rgba(255,255,255,.85)" strokeWidth={2.6} />
+            <Text style={{ fontSize: 7, fontWeight: '500', color: '#fff', opacity: 0.9, marginTop: 4 }} allowFontScaling={false}>Friday, November 14</Text>
+            <Text style={{ fontSize: 38, lineHeight: 40, fontWeight: '700', letterSpacing: -1, color: '#fff', marginTop: 1 }} allowFontScaling={false}>9:42</Text>
+            <Drop k={k} delay={2100} style={st.notif}>
+              <Image source={APP_ICON} style={{ width: 16, height: 16, borderRadius: 4, marginTop: 1 }} />
+              <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text style={{ fontSize: 7, fontWeight: '700', color: '#000' }} allowFontScaling={false}>Loop Me</Text>
+                  <Text style={{ fontSize: 7, color: '#3c3c43' }} allowFontScaling={false}>now</Text>
+                </View>
+                <Text style={{ fontSize: 7, lineHeight: 9, fontWeight: '600', color: '#000', marginTop: 1 }} allowFontScaling={false}>Mom got a scam text</Text>
+                <Text style={{ fontSize: 7, lineHeight: 9, color: '#1c1c1e' }} allowFontScaling={false}>She didn’t reply. Tap to call her.</Text>
+              </View>
+            </Drop>
+            <View style={{ marginTop: 'auto', marginBottom: 12, alignSelf: 'stretch', flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 8 }}>
+              <View style={st.lockBtn}><Flashlight size={9} color="#fff" strokeWidth={2.4} /></View>
+              <View style={st.lockBtn}><Camera size={9} color="#fff" strokeWidth={2.4} /></View>
             </View>
-            <Text style={{ fontSize: 10.5, lineHeight: 13.6, fontWeight: '500', color: '#000', marginTop: 4 }} allowFontScaling={false}>Mom got a scam text. She didn’t reply.</Text>
-          </Drop>
-          <KFFade duration={300} delay={2800} playKey={k} style={st.callBtn}>
-            <Phone size={10} color="#fff" strokeWidth={2.6} />
-            <Text style={{ fontSize: 10.5, fontWeight: '700', color: '#fff' }} allowFontScaling={false}>Call Mom</Text>
-          </KFFade>
-        </View>
-        <View style={st.who}><View style={[st.whoDot, { borderColor: T.green }]} /><Text style={st.whoText} allowFontScaling={false}>Your family</Text></View>
+          </LinearGradient>
+          <Wake k={k} delay={1950} />
+        </MiniPhone>
+        <View style={st.who}><View style={[st.whoDot, { backgroundColor: T.green }]}><Users size={13} color="#fff" strokeWidth={2.4} /></View><Text style={st.whoText} allowFontScaling={false}>Your family</Text></View>
       </KFPop>
     </View>
   );
+}
+
+/** A small iPhone: dark bezel, side buttons, island and home bar. */
+function MiniPhone({ children }: { children: React.ReactNode }) {
+  return (
+    <View style={st.phone}>
+      <View style={[st.side, { left: -2, top: 64, height: 18 }]} />
+      <View style={[st.side, { left: -2, top: 90, height: 30 }]} />
+      <View style={[st.side, { right: -2, top: 80, height: 40 }]} />
+      <View style={{ flex: 1, borderRadius: 20, overflow: 'hidden' }}>
+        {children}
+        <View style={st.island} />
+        <View style={st.homeBar} />
+      </View>
+    </View>
+  );
+}
+
+/** zWipeUp: the warning slides up from the bottom and covers the screen. */
+function WipeUp({ k, delay, style, children }: { k: string; delay: number; style?: object; children: React.ReactNode }) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    v.setValue(motionOff() ? 1 : 0);
+    if (motionOff()) return;
+    const a = Animated.timing(v, { toValue: 1, duration: 450, delay, easing: bez(0.2, 0.9, 0.2, 1), useNativeDriver: true });
+    a.start();
+    return () => a.stop();
+  }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
+  return <Animated.View style={[style, { transform: [{ translateY: v.interpolate({ inputRange: [0, 1], outputRange: [270, 0] }) }] }]}>{children}</Animated.View>;
+}
+
+/** zWake: a black screen that fades away as the phone wakes. */
+function Wake({ k, delay }: { k: string; delay: number }) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    v.setValue(motionOff() ? 1 : 0);
+    if (motionOff()) return;
+    const a = Animated.timing(v, { toValue: 1, duration: 350, delay, useNativeDriver: true });
+    a.start();
+    return () => a.stop();
+  }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
+  return <Animated.View pointerEvents="none" style={[st.abs, { left: 0, right: 0, top: 0, bottom: 0, backgroundColor: '#000', opacity: v.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]} />;
 }
 
 /** The line between the two phones, drawn left to right. */
@@ -344,18 +419,15 @@ const st = StyleSheet.create({
   scamChipText: { fontSize: 14, fontWeight: '700', color: '#fff' },
   verdictText: { fontSize: 17, fontWeight: '700', color: '#8c1f0c' },
 
-  phone: { width: 136, height: 240, borderWidth: 2.5, borderColor: '#1b1b1b', borderRadius: 28, backgroundColor: '#fff', paddingTop: 24, paddingHorizontal: 9, paddingBottom: 10, overflow: 'hidden', shadowColor: '#0d4a3b', shadowOpacity: 0.18, shadowRadius: 18, shadowOffset: { width: 0, height: 18 } },
-  notch: { position: 'absolute', top: 7, left: 46, width: 40, height: 9, borderRadius: 5, backgroundColor: '#1b1b1b' },
-  miniBubble: { backgroundColor: '#e9e9eb', borderRadius: 12, borderBottomLeftRadius: 4, paddingVertical: 6, paddingHorizontal: 8 },
-  miniText: { fontSize: 11, lineHeight: 14.3, color: '#000' },
-  miniFlag: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 8, backgroundColor: T.red, paddingVertical: 6, paddingHorizontal: 6, borderRadius: 6 },
-  miniFlagText: { fontSize: 9, fontWeight: '700', color: '#fff', flexShrink: 1, letterSpacing: -0.1 },
-  clock: { fontSize: 24, fontWeight: '600', color: '#000', textAlign: 'center', marginTop: 4 },
-  notif: { marginTop: 12, backgroundColor: 'rgba(242,242,247,.96)', borderRadius: 12, paddingVertical: 7, paddingHorizontal: 8, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: 4 } },
-  callBtn: { marginTop: 7, height: 26, borderRadius: 13, backgroundColor: T.green, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 },
-  who: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 34, paddingLeft: 4, paddingRight: 12, borderRadius: 17, backgroundColor: '#fff' },
-  whoDot: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, backgroundColor: '#e3e3e8' },
-  whoText: { fontSize: 14.5, fontWeight: '700', color: '#000' },
+  phone: { width: 134, height: 276, padding: 4, borderRadius: 24, backgroundColor: '#1c1c1e', borderWidth: 1, borderColor: '#3a3a3c', shadowColor: '#0d281e', shadowOpacity: 0.22, shadowRadius: 20, shadowOffset: { width: 0, height: 20 } },
+  side: { position: 'absolute', width: 2, borderRadius: 1, backgroundColor: '#2c2c2e' },
+  island: { position: 'absolute', top: 5, left: '50%', marginLeft: -21, width: 42, height: 12, borderRadius: 6, backgroundColor: '#000' },
+  homeBar: { position: 'absolute', bottom: 4, left: '50%', marginLeft: -22, width: 44, height: 2.5, borderRadius: 2, backgroundColor: '#fff', opacity: 0.9 },
+  notif: { marginTop: 12, alignSelf: 'stretch', flexDirection: 'row', alignItems: 'flex-start', gap: 5, backgroundColor: 'rgba(245,245,245,.92)', borderRadius: 10, paddingVertical: 6, paddingHorizontal: 7, shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 5, shadowOffset: { width: 0, height: 4 } },
+  lockBtn: { width: 20, height: 20, borderRadius: 10, backgroundColor: 'rgba(0,0,0,.28)', alignItems: 'center', justifyContent: 'center' },
+  who: { flexDirection: 'row', alignItems: 'center', gap: 7, height: 32, paddingLeft: 4, paddingRight: 12, borderRadius: 16, backgroundColor: '#fff', shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 3, shadowOffset: { width: 0, height: 2 } },
+  whoDot: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  whoText: { fontSize: 14, fontWeight: '700', color: '#000' },
   dotHalo: { position: 'absolute', left: -5, top: -5, width: 23, height: 23, borderRadius: 12, backgroundColor: 'rgba(13,107,87,.2)' },
   dotCore: { width: 13, height: 13, borderRadius: 7, backgroundColor: '#fff', borderWidth: 3, borderColor: T.green },
 

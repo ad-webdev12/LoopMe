@@ -75,7 +75,7 @@ export default function CallCheckScreen({ ctx }: { ctx: Ctx }) {
           <Text style={[font(16, '400', 1.45), { color: '#fff', marginTop: 10 }]} allowFontScaling>If they call again, hang up. Then call the person or company on a number you already have.</Text>
           <Pill label="Block the number" bg="#fff" color={T.red} height={52} style={{ marginTop: 18 }} onPress={() => setAsking(true)} />
           <Pill label={who ? 'Loop in ' + who : 'Loop in someone'} bg="rgba(255,255,255,.2)" height={52} style={{ marginTop: 10 }}
-            onPress={() => { if (s.familyLinked) { ctx.flash('It is on ' + who + '’s phone now.'); ctx.go('home'); } else ctx.go('family'); }} />
+            onPress={() => { if (s.familyLinked && s.familyRole === 'owner' && who) { ctx.flash(who + ' can see it on their phone now.'); ctx.go('home'); } else ctx.go('family'); }} />
         </Swap>
       ) : (
         <Swap playKey="fine" style={[st.card, { backgroundColor: T.green, paddingVertical: 22, paddingHorizontal: 20 }]}>
