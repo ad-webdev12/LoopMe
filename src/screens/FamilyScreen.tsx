@@ -80,7 +80,7 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
     } finally { setBusy(false); }
   };
   const linkedOf = (p: TrustedPerson) => isLinked(s, p);
-  const statusOf = (p: TrustedPerson) => linkedOf(p) ? 'Hears about every scam you get' : p.invited ? 'Invite sent. Waiting for a tap.' : 'Can be called. Not linked yet.';
+  const statusOf = (p: TrustedPerson) => linkedOf(p) ? 'Hears about every scam you get' : p.invited ? 'Invite sent' : 'Not linked yet';
   const pronoun = (p?: TrustedPerson | null) => objectOf(p?.relation);
 
   return (
@@ -114,7 +114,7 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
         ) : (
           <View style={[st.hero, { backgroundColor: C.card, alignItems: 'flex-start' }]}>
             <Text style={[font(22, '700', 1.15), { color: C.ink }]} allowFontScaling>Nobody hears about scams yet</Text>
-            <Text style={[font(16, '400', 1.45), { color: C.ink2, marginTop: 8 }]} allowFontScaling>Choose one person from Contacts. They can be called in one tap, and once they accept the invite they see every scam the moment it lands.</Text>
+            <Text style={[font(16, '400', 1.45), { color: C.ink2, marginTop: 8 }]} allowFontScaling>Pick someone you trust. They hear about every scam you get.</Text>
             <Pill label="Choose someone" height={52} style={{ alignSelf: 'stretch', marginTop: 16 }} onPress={add} />
           </View>
         )}
@@ -140,14 +140,12 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
             </Pressable>
           )}
         </View>
-        <Note C={C}>Everyone here can be called in one tap from a scam warning. Send someone the invite and they also hear about each scam on their own phone, and can answer with one tap.</Note>
 
         <View style={[st.list, { backgroundColor: C.card, marginTop: 18, paddingVertical: 0 }]}>
           <Pressable onPress={() => ctx.go('caregiver')} style={({ pressed }) => [st.linkRow, person && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep }, pressed && { opacity: 0.6 }]} accessibilityRole="button">
             <HandHeart size={22} color={C.accent} strokeWidth={2} />
             <View style={{ flex: 1 }}>
               <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Set up for someone else</Text>
-              <Text style={[font(15, '400'), { color: C.ink2, marginTop: 2 }]} allowFontScaling>Four things to check on their phone</Text>
             </View>
             <ChevronRight size={18} color={C.chevron} strokeWidth={2.2} />
           </Pressable>
@@ -156,7 +154,6 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
               <Smartphone size={22} color={C.accent} strokeWidth={2} />
               <View style={{ flex: 1 }}>
                 <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>See what {who} sees</Text>
-                <Text style={[font(15, '400'), { color: C.ink2, marginTop: 2 }]} allowFontScaling>{who}’s phone, when a scam reaches you</Text>
               </View>
               <ChevronRight size={18} color={C.chevron} strokeWidth={2.2} />
             </Pressable>
