@@ -224,7 +224,7 @@ enum Explain {
     }
     if level == .green {
       let has = { (s: String) in out.contains { $0.short == s } }
-      let hasLink = text.range(of: "\\b(?:https?://|www\\.)|\\.[a-z]{2,6}/", options: [.regularExpression, .caseInsensitive]) != nil
+      let hasLink = text.range(of: linkish, options: [.regularExpression, .caseInsensitive]) != nil
       return clean.filter { c in
         !(c.short == "No money" && (has("Wants money fast") || has("Small fee to pay"))) && !(c.short == "No link" && hasLink) && !(c.short == "No rush" && has("Rushing you"))
       }
@@ -232,9 +232,13 @@ enum Explain {
     return out
   }
 
+  /// Same as LINKISH in explain.ts.
+  static let linkish = (EngineTables.shared.explain["linkish"] as? String) ?? "(?!)"
+
   static func headline(_ text: String, _ level: Level, _ tags: [String]) -> String {
     if level == .green { return "Nothing here matches a scam we know." }
     if tags.contains("family-emergency") { return "Someone is pretending to be family." }
+    if tags.contains("bank-alert") && level == .amber { return "It might really be your bank, but texts like this are easy to fake." }
     let pts = points(text, level, tags)
     if let best = pats.filter({ p in pts.contains { $0.short == p.short } }).max(by: { $0.rank < $1.rank }) { return best.why }
     return level == .red ? "This matches a scam we know." : "Texts like this are easy to fake."

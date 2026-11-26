@@ -156,6 +156,9 @@ export const CLEAN: Point[] = [
 
 const compiled = EXPLAIN.map(p => ({ ...p, re: new RegExp(p.source, p.flags + 'g') }));
 
+// Anything that reads as a web address, with or without https.
+export const LINKISH = /\b(?:https?:\/\/|www\.)|\b[a-z0-9-]+\.(?:com|net|org|info|co|io|us|uk|biz|xyz|top|site|online|app|ly|me|gov|edu)\b/i;
+
 export function explain(text: string, level: 'red' | 'amber' | 'green', tags: string[] = []): Point[] {
   const found: { at: number; end: number; rank: number; p: Pattern; phrase: string }[] = [];
   compiled.forEach(p => {
@@ -190,7 +193,7 @@ export function explain(text: string, level: 'red' | 'amber' | 'green', tags: st
     // A clean verdict lists what it checked, except anything the text does contain.
     const has = (s: string) => points.some(x => x.short === s);
     return CLEAN.filter(c => !(c.short === 'No money' && (has('Wants money fast') || has('Small fee to pay')))
-      && !(c.short === 'No link' && /\b(?:https?:\/\/|www\.)|\.[a-z]{2,6}\//i.test(text))
+      && !(c.short === 'No link' && LINKISH.test(text))
       && !(c.short === 'No rush' && has('Rushing you')));
   }
   return points;
@@ -205,6 +208,7 @@ export function highlights(text: string, level: 'red' | 'amber' | 'green', tags:
 export function headline(text: string, level: 'red' | 'amber' | 'green', tags: string[] = []): string {
   if (level === 'green') return 'Nothing here matches a scam we know.';
   if (tags.includes('family-emergency')) return 'Someone is pretending to be family.';
+  if (tags.includes('bank-alert') && level === 'amber') return 'It might really be your bank, but texts like this are easy to fake.';
   const pts = explain(text, level, tags);
   const best = EXPLAIN.filter(x => pts.some(p => p.short === x.short)).sort((a, b) => b.rank - a.rank)[0];
   return best ? best.why : level === 'red' ? 'This matches a scam we know.' : 'Texts like this are easy to fake.';

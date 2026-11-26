@@ -53,7 +53,7 @@ const out = {
   },
   features: Object.fromEntries(Object.entries(F).map(([k, v]) => [k, re(v)])),
   normalize: { confusables: N.CONFUSABLES, punct: N.PUNCT, sensitive: re(N.SENSITIVE) },
-  explain: { patterns: ex.EXPLAIN, byTag: ex.BY_TAG, clean: ex.CLEAN },
+  explain: { patterns: ex.EXPLAIN, byTag: ex.BY_TAG, clean: ex.CLEAN, linkish: ex.LINKISH.source },
   model: { dim: feats.DIM, charW: feats.CHAR_W, threshold: model.SCAM_THRESHOLD, bias: M.BIAS, idx: [...M.IDX], val: [...M.VAL].map(v => +v.toFixed(5)) },
 };
 
@@ -79,6 +79,8 @@ const msgs = [...pick('SCAMS'), ...pick('LEGIT'), ...wild.SCAM, ...wild.LEGIT,
   'Your pаypal account is limited. Confirm your identity: paypal.com-resolve.icu',
   'Did you authorize a $899 Zelle to M. Rivera? Reply NO to dispute.',
   'This is the fraud department, we need to move your funds to a safe account right away',
+  'Chase: Did you just spend $89.40 at BestBuy.com? Reply Y or N, or tap here to review.',
+  'Chase: You spent $89.40 at BestBuy.com on 11/26.',
 ];
 const cases = msgs.map(m => {
   const v = ai.instant(m);

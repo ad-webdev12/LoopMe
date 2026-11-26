@@ -45,6 +45,8 @@ const RULES: Rule[] = [
   { re: /\b(?:irs|social security(?: administration)?|ssa|medicare|dea|fbi|homeland security)\b[\s\S]{0,90}(?:suspend|arrest|owe|fine|immediately|final|blocked|frozen)/i, w: 45, tag: 'gov-impersonation', plain: 'It says it’s the government and threatens you.' },
   //: bank impersonation (stage 1 of the two-stage con)
   { re: /(?:did you (?:authorize|approve|make)|unauthorized|suspicious) (?:a |an |this )?(?:\$[\d,.]+ )?(?:charge|payment|transaction|transfer|purchase|zelle)/i, w: 30, tag: 'bank-alert', plain: 'It looks like a bank fraud alert and wants a reply.' },
+  // "Did you just spend $89.40 at …? Reply Y or N": the fraud-alert shape with an amount and a reply or tap.
+  { re: /did you (?:just )?(?:spend|send|pay|use your card|buy|purchase|make a purchase)\b[^.?!]{0,30}?\$[\d,.]+[\s\S]{0,80}?(?:reply|tap|click|press|text back|respond)/i, w: 30, tag: 'bank-alert', plain: 'It looks like a bank fraud alert and wants a reply.' },
   { re: /reply (?:no|yes|stop|1|y|n) (?:to|if)/i, w: 12, tag: 'bank-alert', plain: 'It asks you to reply.' },
   //: stage 2: the "safe account" move. Firing this is the app's highest duty.
   { re: /(?:move|transfer) (?:your |the )?(?:money|funds|balance)[\s\S]{0,50}(?:safe|secure|protected|new) account/i, w: 90, tag: 'safe-account', plain: 'It wants you to move money to a “safe account.”' },
