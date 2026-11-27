@@ -78,6 +78,7 @@ export type CloudEvent =
   | { kind: 'check'; check: SharedCheck }
   | { kind: 'note'; note: FamilyNote }
   | { kind: 'pulse'; pulse: FamilyPulse }
+  | { kind: 'word'; word: string; at: number }
   | { kind: 'synced' };
 
 /** A verdict the text filter or the share sheet produced while the app was closed. */
@@ -124,6 +125,7 @@ const native = requireOptionalNativeModule<{
   cloudSendNote(checkId: string, text: string, verdict: string, from: string): Promise<boolean>;
   cloudSubmitSample(text: string, label: string, country: string): Promise<boolean>;
   cloudPing(): Promise<boolean>;
+  cloudPutWord(word: string, at: number): Promise<{ word: string; at: number }>;
   cloudSync(): Promise<number>;
   cloudSnapshot(): FamilySnapshot;
   cloudSubscribe(): Promise<boolean>;
@@ -228,7 +230,7 @@ function cloudMessage(e: unknown): string {
   return msg.replace(/^.*?Error: /, '').slice(0, 400) || 'iCloud did not answer. Try again in a moment.';
 }
 
-/** Owner: the 8-character invite code, as "K7M29QXH". */
+/** Owner: the 5-digit invite code, as "48213". */
 export async function cloudInviteCode(myName: string): Promise<{ code: string } | { error: string }> {
   if (!native) return { error: 'iCloud is not available in this build.' };
   try { const code = await native.cloudInviteCode(myName); return code ? { code } : { error: 'iCloud did not return a code. Try again in a moment.' }; }
@@ -242,8 +244,8 @@ export async function cloudJoinWithCode(code: string): Promise<{ name: string } 
   catch (e) { return { error: cloudMessage(e) }; }
 }
 
-/** "K7M29QXH" as "K7M2 9QXH", easier to read out and type. */
-export function formatCode(code: string): string { return code.length === 8 ? code.slice(0, 4) + ' ' + code.slice(4) : code; }
+/** "48213" as "48 213", easier to read out and type. */
+export function formatCode(code: string): string { return code.length === 5 ? code.slice(0, 2) + ' ' + code.slice(2) : code; }
 
 export async function cloudLinkStatus(): Promise<LinkStatus> {
   if (!native) return { linked: false, role: 'none', name: null, account: 'unknown' };
@@ -278,6 +280,13 @@ export async function cloudSubmitSample(text: string, label: 'scam' | 'safe', co
 export async function cloudSendNote(checkId: string, text: string, verdict: FamilyNote['verdict'], from: string): Promise<boolean> {
   if (!native) return false;
   try { return await native.cloudSendNote(checkId, text, verdict, from); } catch { return false; }
+}
+
+/** Either side: share the family secret word with the linked phone. Resolves
+ *  with the word that is now current (a newer one from the other phone wins). */
+export async function cloudPutWord(word: string, at: number): Promise<{ word: string; at: number } | null> {
+  if (!native) return null;
+  try { return await native.cloudPutWord(word, at); } catch { return null; }
 }
 
 /** Either side: pull what is new. Resolves with how many new items arrived. */

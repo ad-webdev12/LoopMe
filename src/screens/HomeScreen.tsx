@@ -6,7 +6,7 @@ import { ActivityIndicator, Animated, AppState, Image, Modal, Pressable, ScrollV
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ArrowRight, Camera, Mic, Keyboard, PhoneIncoming, LifeBuoy, ChevronRight, KeyRound, Settings as Settings2 } from 'lucide-react-native';
+import { ArrowRight, Camera, Mic, Keyboard, PhoneIncoming, LifeBuoy, ChevronRight, KeyRound } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { APP_ICON, Avatar, PulseDot, Screen, usePulse } from '../ui/base';
 import { loopPerson, firstName } from '../ui/pieces';
@@ -156,10 +156,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
         <View style={st.header}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 10 }}>
-            <Pressable onPress={() => ctx.go('settings')} style={({ pressed }) => pressed && { opacity: 0.7 }} accessibilityRole="button" accessibilityLabel="Settings" hitSlop={6}>
-              <Image source={APP_ICON} style={st.appIcon} />
-              <View style={st.gear}><Settings2 size={13} color={T.green} strokeWidth={2.4} /></View>
-            </Pressable>
+            <Image source={APP_ICON} style={st.appIcon} accessibilityIgnoresInvertColors />
             <Pressable onPress={() => ctx.go(careMode ? 'ward' : 'family')} style={({ pressed }) => [st.pill, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel="Family">
               <View style={{ flexDirection: 'row' }}>
                 {people.map((p, i) => (
@@ -297,7 +294,6 @@ function Alt({ Icon, label, onPress, busy }: { Icon: typeof Camera; label: strin
 
 const st = StyleSheet.create({
   header: { backgroundColor: T.green, paddingTop: 0, paddingHorizontal: 20, paddingBottom: 22, borderBottomLeftRadius: 22, borderBottomRightRadius: 22 },
-  gear: { position: 'absolute', right: -4, bottom: -4, width: 22, height: 22, borderRadius: 11, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: T.green },
   appIcon: { width: 46, height: 46, borderRadius: 12, borderWidth: 1.5, borderColor: 'rgba(255,255,255,.25)' },
   pill: { marginLeft: 'auto', height: 40, borderRadius: 20, backgroundColor: '#fff', flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 5, paddingRight: 12, flexShrink: 1 },
   clipBubble: { backgroundColor: '#fff', borderTopLeftRadius: 16, borderTopRightRadius: 16, borderBottomRightRadius: 16, borderBottomLeftRadius: 5, paddingTop: 10, paddingHorizontal: 14, paddingBottom: 11, maxWidth: 300, alignSelf: 'flex-start' },

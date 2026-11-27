@@ -169,6 +169,10 @@ public class ScamAiModule: Module {
       return true
     }
 
+    AsyncFunction("cloudPutWord") { (word: String, at: Double) -> [String: Any] in
+      try await CloudLink.shared.putWord(word, at: at)
+    }
+
     AsyncFunction("cloudPing") { () -> Bool in
       await CloudLink.shared.ping()
       return true

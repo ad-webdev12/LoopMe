@@ -18,7 +18,8 @@ export interface Settings {
   allowlist: string[]; trusted: TrustedPerson[];
   watching: TrustedPerson | null; // caretaker side: the person they look out for
   codeWordSet: boolean;          // never store the word itself in plain settings exports
-  codeWord: string;              // on-device only, never leaves the phone
+  codeWord: string;              // shared only with the linked family phone, encrypted in iCloud
+  codeWordAt: number;            // when it was last set, so the newest word wins across phones
   panicCompletedAt: number | null; // enables the 90-day recovery-scam guard
   pairCode: string;              // kept for people upgrading; no longer shown
   watchedBy: string | null;      // elder side: caretaker's name once the family link is up
@@ -46,7 +47,7 @@ const DEFAULTS: Settings = {
   role: null, myName: '',
   alerts: true, readAloud: false,
   allowlist: [], trusted: [], watching: null,
-  codeWordSet: false, codeWord: '', panicCompletedAt: null,
+  codeWordSet: false, codeWord: '', codeWordAt: 0, panicCompletedAt: null,
   pairCode: '', watchedBy: null, careName: '', careRel: 'Mother', autoCheck: true, improve: false, darkMode: false, introSeen: false,
   familyLinked: false, familyRole: null, familyInvited: false, linkedNames: [], protectionLater: false, bankPhone: '', blocked: [], installedAt: 0,
 };

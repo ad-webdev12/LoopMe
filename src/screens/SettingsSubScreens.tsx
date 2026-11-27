@@ -1,19 +1,15 @@
 // The screens one level below Settings: trusted and blocked numbers, how to
 // use Loop Me, advanced settings, privacy and data, and contact support.
 import React from 'react';
-import { Linking, ScrollView, Text, View } from 'react-native';
-import { Ban, Check, MessageCircle, ShieldCheck, Bell, Search, Unlink, Send, LifeBuoy, Mail, Home } from 'lucide-react-native';
+import { ScrollView, Text, View } from 'react-native';
+import { Ban, Check, ShieldCheck, Search, Unlink, Send, Lock, Smartphone, UserX, Sparkles } from 'lucide-react-native';
+import { FilterScene, PrivacyScene } from '../ui/Scenes';
+import { useProtection } from '../lib/protection';
 import { T, font } from '../theme';
-import { Screen, BackLink, ScreenTitle, Lead, Group, Row, IOSSwitch, Note, SectionHeader } from '../ui/base';
-import { ensureNotificationPermission } from '../lib/notify';
+import { Screen, BackLink, ScreenTitle, Lead, Group, Row, IOSSwitch, Note, SectionHeader, Segmented } from '../ui/base';
+import { Tutorial, DRAWER_STEPS, APP_STEPS } from '../ui/Tutorial';
 import { loopPerson, firstName } from '../ui/pieces';
 import type { Ctx } from '../App';
-
-// TODO(support): no support email or help page exists in the app yet. Put the
-// real address here (for example 'mailto:...') and the Email row appears on
-// the Contact support screen. Until then that screen offers family and the
-// scam recovery steps only.
-export const SUPPORT_URL = '';
 
 export function NumbersScreen({ ctx }: { ctx: Ctx }) {
   const { C, settings: s } = ctx;
@@ -31,19 +27,18 @@ export function NumbersScreen({ ctx }: { ctx: Ctx }) {
   );
 }
 
-export function HowToScreen({ ctx }: { ctx: Ctx }) {
+export function HowToScreen({ ctx, start }: { ctx: Ctx; start?: 'messages' | 'app' }) {
   const { C } = ctx;
+  const [tab, setTab] = React.useState<'messages' | 'app'>(start || 'messages');
   return (
     <Screen C={C} playKey="howto">
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 130 }}>
         <BackLink label="Settings" onPress={() => ctx.go('settings')} />
         <ScreenTitle C={C}>How to use Loop Me</ScreenTitle>
-        <Group C={C} style={{ marginTop: 18 }}>
-          <Row C={C} chip={MessageCircle} chipColor={T.amber} title="How to check a text message" pad={9} chevron onPress={() => ctx.go('drawerInfo')} />
-          <Row C={C} chip={Home} chipColor={T.green} title="Check a text in Loop Me" pad={9} chevron onPress={() => ctx.go('home')} />
-          <Row C={C} chip={ShieldCheck} chipColor={T.green} title="Turn on scam protection" pad={9} chevron last onPress={() => ctx.go('setup')} />
-        </Group>
-        <Note C={C} top={14}>Red: scam. Amber: be careful. Green: looks okay.</Note>
+        <View style={{ marginTop: 16, marginBottom: 22 }}>
+          <Segmented C={C} options={['In Messages', 'In Loop Me']} value={tab === 'messages' ? 'In Messages' : 'In Loop Me'} onChange={v => setTab(v === 'In Messages' ? 'messages' : 'app')} />
+        </View>
+        <Tutorial key={tab} C={C} steps={tab === 'messages' ? DRAWER_STEPS : APP_STEPS} />
       </ScrollView>
     </Screen>
   );
@@ -53,19 +48,24 @@ export function AdvancedScreen({ ctx }: { ctx: Ctx }) {
   const { C, settings: s } = ctx;
   const set = (patch: Partial<typeof s>) => ctx.update({ ...s, ...patch });
   const who = firstName(loopPerson(s)?.name);
+  const p = useProtection(ctx.tallies);
   return (
     <Screen C={C} playKey="advanced">
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 130 }}>
         <BackLink label="Settings" onPress={() => ctx.go('settings')} />
-        <ScreenTitle C={C}>More settings</ScreenTitle>
+        <FilterScene C={C} />
+        <ScreenTitle C={C} top={4}>Scam text filter</ScreenTitle>
+        <Lead C={C} top={6}>Texts from unknown numbers are checked. Scams go to Junk.</Lead>
         <Group C={C} style={{ marginTop: 18 }}>
-          <Row C={C} chip={Bell} chipColor={T.red} title="Show large scam warnings" pad={9} right={<IOSSwitch C={C} on={s.alerts !== false} onChange={v => { set({ alerts: v }); if (v) void ensureNotificationPermission(); }} />} />
-          <Row C={C} chip={Search} chipColor={T.green} title="Automatically check suspicious texts" pad={9} last right={<IOSSwitch C={C} on={s.autoCheck !== false} onChange={v => set({ autoCheck: v })} />} />
+          <Row C={C} chip={Search} chipColor={T.green} title="Check unknown senders" pad={9} last right={<IOSSwitch C={C} on={s.autoCheck !== false} onChange={v => set({ autoCheck: v })} />} />
         </Group>
-        <Note C={C} top={10}>Both need protection turned on.</Note>
+        {p.known && !p.done && s.autoCheck !== false && (
+          <Group C={C} style={{ marginTop: 12 }}>
+            <Row C={C} chip={ShieldCheck} chipColor={T.red} title="Allow it in iPhone Settings" pad={9} chevron last onPress={() => ctx.go('setup')} />
+          </Group>
+        )}
 
-        <SectionHeader C={C}>Setting up</SectionHeader>
-        <Group C={C}>
+        <Group C={C} style={{ marginTop: 28 }}>
           <Row C={C} chip={Send} chipColor={T.amber} title="Setup checklist" pad={9} chevron last={!s.familyLinked} onPress={() => ctx.go('caregiver')} />
           {s.familyLinked && (
             <Row C={C} chip={Unlink} chipColor={T.red} title={s.familyRole === 'owner' ? 'Stop ' + (who || 'them') + ' hearing from this phone' : 'Stop looking after this phone'} pad={9} danger last onPress={ctx.unlinkFamily} />
@@ -78,38 +78,25 @@ export function AdvancedScreen({ ctx }: { ctx: Ctx }) {
 
 export function PrivacyScreen({ ctx }: { ctx: Ctx }) {
   const { C, settings: s } = ctx;
+  const facts: [typeof Lock, string][] = [[Smartphone, 'Checked on this phone'], [UserX, 'No account, no sign-in'], [Send, 'Shared only when you ask']];
   return (
     <Screen C={C} playKey="privacy">
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 130 }}>
         <BackLink label="Settings" onPress={() => ctx.go('settings')} />
-        <ScreenTitle C={C}>Privacy</ScreenTitle>
-        <Lead C={C}>Texts are checked on this phone. Nothing is sent.</Lead>
-        <Group C={C} style={{ marginTop: 18 }}>
-          <Row C={C} chip={ShieldCheck} chipColor={T.amber} title="Help improve Loop Me" pad={9} last right={<IOSSwitch C={C} on={!!s.improve} onChange={v => ctx.update({ ...s, improve: v })} />} />
+        <PrivacyScene C={C} />
+        <ScreenTitle C={C} top={4}>Your texts stay yours</ScreenTitle>
+        <View style={{ marginTop: 16, marginHorizontal: 16, gap: 10 }}>
+          {facts.map(([I, t]) => (
+            <View key={t} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.card, borderRadius: 14, padding: 14 }}>
+              <View style={{ width: 32, height: 32, borderRadius: 9, backgroundColor: C.greenTint, alignItems: 'center', justifyContent: 'center' }}><I size={18} color={T.green} strokeWidth={2.2} /></View>
+              <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>{t}</Text>
+            </View>
+          ))}
+        </View>
+        <Group C={C} style={{ marginTop: 26 }}>
+          <Row C={C} chip={Sparkles} chipColor={T.amber} title="Help improve Loop Me" pad={9} last right={<IOSSwitch C={C} on={!!s.improve} onChange={v => ctx.update({ ...s, improve: v })} />} />
         </Group>
-        <Note C={C} top={10}>Off by default. If on, a text you correct is sent with names and numbers removed.</Note>
-
-      </ScrollView>
-    </Screen>
-  );
-}
-
-export function SupportScreen({ ctx }: { ctx: Ctx }) {
-  const { C, settings: s } = ctx;
-  const person = loopPerson(s);
-  const who = firstName(person?.name);
-  return (
-    <Screen C={C} playKey="support">
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
-        <BackLink label="Settings" onPress={() => ctx.go('settings')} />
-        <ScreenTitle C={C}>Get help</ScreenTitle>
-        <Group C={C} style={{ marginTop: 18 }}>
-          <Row C={C} chip={Send} chipColor={T.green} title={who ? 'Ask ' + who : 'Ask your family'} pad={9} chevron onPress={() => ctx.go(person ? 'ask' : 'family')} />
-          <Row C={C} chip={LifeBuoy} chipColor={T.red} title="I think I’ve been scammed" pad={9} chevron last={!SUPPORT_URL} onPress={() => ctx.go('scammed')} />
-          {!!SUPPORT_URL && (
-            <Row C={C} chip={Mail} chipColor={T.iosGrey} title="Email Loop Me" pad={9} chevron last onPress={() => Linking.openURL(SUPPORT_URL).catch(() => ctx.flash('Mail could not be opened.'))} />
-          )}
-        </Group>
+        <Note C={C} top={10}>Sends texts you correct, with names and numbers removed.</Note>
       </ScrollView>
     </Screen>
   );

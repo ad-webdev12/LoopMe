@@ -1,23 +1,26 @@
-// Checking a message. The breathing app icon, a status line that steps
-// through what is being looked at, a progress bar, the message with its
-// flagged phrases lighting up under a scan band. The rules and the model run
-// underneath (App.check) and this screen stays until the real verdict is in;
-// the last status line simply holds until then.
+// Checking a message: the message under a scan band, and the engine's real
+// stages ticking down a rail. Stages that don't apply (no link, no sender)
+// are left out. The last stage holds until the real verdict is in.
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Easing, StyleSheet, Text, View } from 'react-native';
-import { Check, Lock } from 'lucide-react-native';
+import { Check } from 'lucide-react-native';
 import { highlights } from '../engine/explain';
 import { T, font } from '../theme';
 import { APP_ICON, Screen, motionOff } from '../ui/base';
 import { Bubble, Highlighted, senderLabel, whenLabel } from '../ui/pieces';
 import type { Ctx } from '../App';
 
-const STEPS = ['Reading the words…', 'Checking the number…', 'Looking for scam tricks…'];
-const CHECKS = [
-  { t: 'The words', d: 'Money, secrets, rushing you' },
-  { t: 'Links and numbers', d: 'Where they really go' },
-  { t: 'Scams we know', d: 'Compared with thousands of real ones' },
-];
+// The stages the engine really runs, in order. Only the ones that apply to
+// this message are shown: no link, no link stage; no sender, no sender stage.
+type Stage = { t: string; title: string };
+function stagesFor(text: string, sender?: string | null): Stage[] {
+  const out: Stage[] = [{ t: 'Unmasking hidden text', title: 'Reading the message' }];
+  if (/(https?:\/\/|www\.|\b[a-z0-9-]+\.(?:com|net|org|co|io|ly|info|xyz|top|me|us|uk|app|link|site|online)\b)/i.test(text)) out.push({ t: 'Following the links', title: 'Checking where links go' });
+  if (sender && /\d{3,}|@/.test(sender)) out.push({ t: 'Checking the sender', title: 'Looking at who sent it' });
+  out.push({ t: 'AI reading the meaning', title: 'Understanding what it asks' });
+  out.push({ t: 'Weighing it all up', title: 'Deciding' });
+  return out;
+}
 
 export default function CheckingScreen({ ctx }: { ctx: Ctx }) {
   const { C } = ctx;
@@ -31,6 +34,8 @@ export default function CheckingScreen({ ctx }: { ctx: Ctx }) {
   const fade = useRef(new Animated.Value(1)).current;
   const [lit, setLit] = useState(-1);
   const [step, setStep] = useState(0);
+  const stages = useRef(stagesFor(ctx.msg || '', rec?.sender)).current;
+  const STEP_MS = 620;
 
   useEffect(() => {
     const loops: Animated.CompositeAnimation[] = [];
@@ -42,13 +47,14 @@ export default function CheckingScreen({ ctx }: { ctx: Ctx }) {
       loops.forEach(l => l.start());
     }
     const t = [900, 1300, 1700].map((ms, i) => setTimeout(() => setLit(i), ms));
-    const k = [900, 1800].map((ms, i) => setTimeout(() => {
+    // The last stage holds until the real verdict arrives and this screen closes.
+    const k = stages.slice(1).map((_, i) => setTimeout(() => {
       if (off) { setStep(i + 1); return; }
       Animated.timing(fade, { toValue: 0, duration: 150, useNativeDriver: true }).start(() => {
         setStep(i + 1);
         Animated.timing(fade, { toValue: 1, duration: 200, useNativeDriver: true }).start();
       });
-    }, ms));
+    }, STEP_MS * (i + 1)));
     return () => { loops.forEach(l => l.stop()); [...t, ...k].forEach(clearTimeout); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -56,7 +62,7 @@ export default function CheckingScreen({ ctx }: { ctx: Ctx }) {
     <Screen C={C} playKey="checking" scroll style={{ paddingHorizontal: 16 }}>
       <View style={{ alignItems: 'center', paddingTop: 44 }}>
         <Animated.Image source={APP_ICON} style={[st.icon, !off && { transform: [{ scale: breathe.interpolate({ inputRange: [0, 1], outputRange: [1, 1.04] }) }] }]} />
-        <Animated.Text style={[font(24, '700', 1.33, -0.4), { color: C.ink, marginTop: 24, textAlign: 'center', opacity: fade }]} allowFontScaling accessibilityLiveRegion="polite">{STEPS[step]}</Animated.Text>
+        <Animated.Text style={[font(24, '700', 1.33, -0.4), { color: C.ink, marginTop: 24, textAlign: 'center', opacity: fade }]} allowFontScaling accessibilityLiveRegion="polite">{stages[step].title}</Animated.Text>
         <View style={[st.track, { backgroundColor: C.dark ? 'rgba(13,107,87,.3)' : '#dfe9e5' }]}>
           <Animated.View style={[st.bar, { width: fill.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }]} />
         </View>
@@ -75,28 +81,21 @@ export default function CheckingScreen({ ctx }: { ctx: Ctx }) {
         )}
       </View>
 
-      {/* What is being looked at, ticked off as it goes. Real steps: the rules,
-          the link checks, then ScamNet, the model trained on real scam texts. */}
-      <View style={[st.list, { backgroundColor: C.card }]}>
-        {CHECKS.map((c, i) => {
+      <View style={st.rail}>
+        {stages.map((c, i) => {
           const done = step > i, now = step === i;
           return (
-            <View key={c.t} style={[st.row, i < CHECKS.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep2 }]}>
-              <View style={[st.dot, { backgroundColor: done ? T.green : C.dark ? '#2c2c2e' : '#eef4f1' }]}>
-                {done ? <Check size={15} color="#fff" strokeWidth={3} /> : now ? <ActivityIndicator size="small" color={T.green} /> : null}
+            <View key={c.t} style={st.row}>
+              <View style={{ alignItems: 'center', width: 28 }}>
+                <View style={[st.dot, { backgroundColor: done ? T.green : now ? (C.dark ? 'rgba(13,107,87,.35)' : '#dff0ea') : C.dark ? '#2c2c2e' : '#eef1f0' }]}>
+                  {done ? <Check size={15} color="#fff" strokeWidth={3} /> : now ? <ActivityIndicator size="small" color={T.green} /> : null}
+                </View>
+                {i < stages.length - 1 && <View style={[st.line, { backgroundColor: done ? T.green : C.dark ? '#2c2c2e' : '#e3e8e6' }]} />}
               </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[font(17, '600'), { color: C.ink, opacity: done || now ? 1 : 0.45 }]} allowFontScaling>{c.t}</Text>
-                <Text style={[font(15, '400'), { color: C.ink2, opacity: done || now ? 0.7 : 0.35, marginTop: 1 }]} allowFontScaling>{c.d}</Text>
-              </View>
+              <Text style={[font(18, now ? '700' : '600'), { color: C.ink, opacity: done || now ? 1 : 0.35, paddingTop: 3 }]} allowFontScaling>{c.t}</Text>
             </View>
           );
         })}
-      </View>
-
-      <View style={st.foot}>
-        <Lock size={16} color={C.dark ? '#ebebf5' : '#3c3c43'} strokeWidth={2} />
-        <Text style={[font(15, '500'), { color: C.dark ? '#ebebf5' : '#3c3c43' }]} allowFontScaling>Checked on this phone. Nothing is sent.</Text>
       </View>
     </Screen>
   );
@@ -108,8 +107,8 @@ const st = StyleSheet.create({
   bar: { height: '100%', borderRadius: 3, backgroundColor: T.green },
   card: { marginTop: 24, borderRadius: 20, paddingTop: 14, paddingHorizontal: 16, paddingBottom: 16, overflow: 'hidden' },
   band: { position: 'absolute', left: 0, right: 0, top: 0, height: 44, backgroundColor: 'rgba(13,107,87,.12)', borderBottomWidth: 2.5, borderBottomColor: T.green },
-  list: { marginTop: 14, borderRadius: 20, paddingHorizontal: 16 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14 },
+  rail: { marginTop: 26, paddingHorizontal: 10, paddingBottom: 40 },
+  row: { flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
+  line: { width: 2, height: 22, borderRadius: 1, marginVertical: 3 },
   dot: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  foot: { marginTop: 'auto', paddingTop: 24, paddingBottom: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
 });

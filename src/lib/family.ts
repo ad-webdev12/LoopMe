@@ -3,7 +3,7 @@
 // the caretaker's phone writes notes back, and each side folds what it
 // receives into its own history. The transport is CloudKit, in the family's
 // own iCloud (modules/scam-ai/ios/CloudLink.swift).
-import {
+import { cloudPutWord,
   cloudCreateInvite, cloudLinkStatus, cloudPublishCheck, cloudPublishPulse, cloudPing, cloudSendNote, cloudSnapshot, cloudSubscribe,
   cloudSync, cloudUnlink, addCloudListener, sharedDrainLog, sharedDrainCorrections, sharedPutConfig, sharedPutPerson, sharedTallies, callDirectoryStatus,
   CloudEvent, FamilyNote, FamilyPulse, LinkStatus, SharedCheck, FilterLogEntry,
@@ -191,4 +191,11 @@ export function repeatSenders(hist: CheckRecord[]): { sender: string; count: num
     by.set(h.sender, cur);
   }
   return [...by.entries()].filter(([, v]) => v.count >= 2).map(([sender, v]) => ({ sender, ...v })).sort((a, b) => b.count - a.count);
+}
+
+/** Share the family secret word with the linked phone. When the other phone
+ *  has a newer one, that comes back instead, and is what should be kept. */
+export async function shareWord(s: Settings): Promise<{ word: string; at: number } | null> {
+  if (!s.familyLinked || !s.codeWordSet || !s.codeWord) return null;
+  return cloudPutWord(s.codeWord, s.codeWordAt || 1);
 }

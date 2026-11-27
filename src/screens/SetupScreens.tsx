@@ -1,6 +1,7 @@
 // Setup, three or four short screens on the app's own primitives.
 // Ob1 which phone · Ob2 whose phone (caregiver) · Ob3 what stays here ·
 // Ob4 the one person to tell. The contacts picker and the invite are real.
+import { nameProblem, tidyName } from '../lib/names';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Animated, Easing, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { ArrowRight, Check, Lock, Send, Smartphone, Users, WifiOff } from 'lucide-react-native';
@@ -32,10 +33,10 @@ function Steps({ ctx, i, of }: { ctx: Ctx; i: number; of: number }) {
 function ObBack({ ctx, to, inPage }: { ctx: Ctx; to: 'ob1' | 'ob2' | 'ob3' | 'ob4' | 'ob5'; inPage?: boolean }) {
   return <View style={{ marginTop: 6, alignSelf: 'stretch', marginHorizontal: inPage ? -28 : 0 }}><BackLink color={ctx.C.accent} onPress={() => ctx.go(to)} /></View>;
 }
-function Bottom({ label, onPress }: { label: string; onPress: () => void }) {
+function Bottom({ label, onPress, disabled }: { label: string; onPress: () => void; disabled?: boolean }) {
   return (
     <View style={{ marginTop: 'auto', paddingHorizontal: 28, paddingBottom: 42, paddingTop: 16 }}>
-      <Primary label={label} onPress={onPress} />
+      <Primary label={label} onPress={onPress} disabled={disabled} />
     </View>
   );
 }
@@ -97,11 +98,16 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
   const [rel, setRel] = useState(ctx.settings.careRel || 'Mother');
   const [whose, setWhose] = useState<'mine' | 'theirs'>(ctx.settings.careName ? 'theirs' : 'mine');
   const [me, setMe] = useState(ctx.settings.myName);
+  const problem = nameProblem(whose === 'mine' ? me : name);
+  const [tried, setTried] = useState(false);
   const next = () => {
-    if (whose === 'mine') { ctx.update({ ...ctx.settings, careName: '', myName: me.trim() }); ctx.go('ob3'); return; }
-    if (!name.trim()) { ctx.flash('Add their first name so alerts can use it.'); return; }
-    ctx.update({ ...ctx.settings, careName: name.trim(), careRel: rel }); ctx.go('ob3');
+    setTried(true);
+    if (problem) return;
+    if (whose === 'mine') { ctx.update({ ...ctx.settings, careName: '', myName: tidyName(me) }); ctx.go('ob3'); return; }
+    ctx.update({ ...ctx.settings, careName: tidyName(name), careRel: rel }); ctx.go('ob3');
   };
+  const typed = (whose === 'mine' ? me : name).trim().length > 0;
+  const hint = problem && (tried || typed) ? <Text style={[font(15, '500', 1.35), { color: C.redText, marginTop: 8 }]} allowFontScaling accessibilityLiveRegion="polite">{problem}</Text> : null;
   return (
     <Screen C={C} playKey="ob2" scroll>
       <ObBack ctx={ctx} to="ob1" />
@@ -113,7 +119,8 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
       {whose === 'mine' && (
         <Card C={C} style={{ marginHorizontal: 16, marginTop: 16 }} radius={16}>
           <Text style={[font(15, '600'), { color: C.ink, marginBottom: 8 }]} allowFontScaling>Your first name</Text>
-          <TextInput style={[st.input, { backgroundColor: C.ground, color: C.ink }]} value={me} onChangeText={setMe} returnKeyType="done" onSubmitEditing={next} placeholder="First name" placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"} accessibilityLabel="Your first name" />
+          <TextInput style={[st.input, { backgroundColor: C.ground, color: C.ink }]} value={me} onChangeText={setMe} returnKeyType="done" onSubmitEditing={next} placeholder="First name" placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"} accessibilityLabel="Your first name" autoCapitalize="words" textContentType="givenName" maxLength={30} />
+          {hint}
           <Note C={C} top={10} style={{ paddingHorizontal: 0 }}>So the person you choose next knows who the alerts are about.</Note>
         </Card>
       )}
@@ -121,7 +128,8 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
         <Card C={C} style={{ marginHorizontal: 16, marginTop: 16, gap: 16 }} radius={16}>
           <View>
             <Text style={[font(15, '600'), { color: C.ink, marginBottom: 8 }]} allowFontScaling>Their first name</Text>
-            <TextInput style={[st.input, { backgroundColor: C.ground, color: C.ink }]} value={name} onChangeText={setName} returnKeyType="done" onSubmitEditing={next} placeholder="First name" placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"} accessibilityLabel="Their first name" />
+            <TextInput style={[st.input, { backgroundColor: C.ground, color: C.ink }]} value={name} onChangeText={setName} returnKeyType="done" onSubmitEditing={next} placeholder="First name" placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"} accessibilityLabel="Their first name" autoCapitalize="words" maxLength={30} />
+            {hint}
           </View>
           <View>
             <Text style={[font(15, '600'), { color: C.ink, marginBottom: 8 }]} allowFontScaling>They are your</Text>
@@ -130,7 +138,7 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
           <Note C={C} top={0} style={{ paddingHorizontal: 0 }}>You are setting it up on their phone. They keep every setting.</Note>
         </Card>
       )}
-      <Bottom label="Continue" onPress={next} />
+      <Bottom label="Continue" onPress={next} disabled={!!problem} />
     </Screen>
   );
 }
@@ -330,7 +338,7 @@ export function Ob6({ ctx }: { ctx: Ctx }) {
   const finish = (save: boolean) => {
     const w = wordRef.current.trim();
     if (save && w.length < 3) { ctx.flash('Pick a word of three letters or more.'); return; }
-    ctx.update({ ...s, introSeen: true, role: 'elder', ...(save ? { codeWord: w, codeWordSet: true } : {}) });
+    ctx.update({ ...s, introSeen: true, role: 'elder', ...(save ? { codeWord: w, codeWordSet: true, codeWordAt: Date.now() } : {}) });
     ctx.go('home');
     ctx.flash('All set. Hand the phone back.');
   };

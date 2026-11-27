@@ -46,7 +46,7 @@ import CaregiverScreen from './screens/CaregiverScreen';
 import ScammedScreen from './screens/ScammedScreen';
 import ListsScreen from './screens/ListsScreen';
 import DrawerInfoScreen from './screens/DrawerInfoScreen';
-import { NumbersScreen, HowToScreen, AdvancedScreen, PrivacyScreen, SupportScreen } from './screens/SettingsSubScreens';
+import { NumbersScreen, HowToScreen, AdvancedScreen, PrivacyScreen } from './screens/SettingsSubScreens';
 import WardScreen from './screens/WardScreen';
 import FamilyAlertScreen from './screens/FamilyAlertScreen';
 import NoteScreen from './screens/NoteScreen';
@@ -262,6 +262,11 @@ export default function App() {
         : s.watching,
     };
     if (JSON.stringify(next) !== JSON.stringify(s)) update(next);
+    if (next.familyLinked) {
+      const w = await Family.shareWord(next);
+      const cur = settingsRef.current!;
+      if (w && w.at > (cur.codeWordAt || 0)) update({ ...cur, codeWord: w.word, codeWordSet: true, codeWordAt: w.at });
+    }
     const drained = await Family.drainExtensions(next);
     const { newChecks, newNotes, newBlocks, newSafes } = await Family.sync();
     if (drained.length || newChecks.length || newNotes.length) refreshHist();
@@ -334,6 +339,9 @@ export default function App() {
         });
       } else if (e.kind === 'pulse') {
         setPulse(e.pulse);
+      } else if (e.kind === 'word') {
+        const s = settingsRef.current!;
+        if (e.word && e.at > (s.codeWordAt || 0)) update({ ...s, codeWord: e.word, codeWordSet: true, codeWordAt: e.at });
       } else if (e.kind === 'synced') {
         Family.fold().then(refreshHist);
       }
@@ -587,7 +595,7 @@ export default function App() {
     if (where === 'alert' && text) { if (settingsRef.current.autoCheck !== false) check(text, 'an unknown number'); return; }
     // loopmein://go?screen=settings opens a screen by name (used by the phone test guide).
     if (where === 'go' && typeof queryParams?.screen === 'string' && ALL_SCREENS.includes(queryParams.screen as ScreenId)) { go(queryParams.screen as ScreenId); return; }
-    // loopmein://join?code=K7M29QXH joins the family link with a code.
+    // loopmein://join?code=48213 joins the family link with a code.
     if (where === 'join' && typeof queryParams?.code === 'string') {
       const code = queryParams.code;
       flash('Linking this phone');
@@ -699,7 +707,6 @@ export default function App() {
         {screen === 'howto' && <HowToScreen ctx={ctx} />}
         {screen === 'advanced' && <AdvancedScreen ctx={ctx} />}
         {screen === 'privacy' && <PrivacyScreen ctx={ctx} />}
-        {screen === 'support' && <SupportScreen ctx={ctx} />}
         {screen === 'ward' && <WardScreen ctx={ctx} />}
         {screen === 'wardItem' && <MariaScreen ctx={ctx} />}
         {screen === 'familyAlert' && <FamilyAlertScreen ctx={ctx} />}

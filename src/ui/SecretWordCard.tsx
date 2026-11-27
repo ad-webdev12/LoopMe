@@ -7,6 +7,8 @@ import { KeyRound, ScanFace } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { Pill, SmallBtn, Swap } from './base';
 import type { Ctx } from '../App';
+import * as Family from '../lib/family';
+import { loopPerson, firstName } from './pieces';
 
 export function SecretWordCard({ ctx }: { ctx: Ctx }) {
   const { C, settings: s } = ctx;
@@ -29,9 +31,12 @@ export function SecretWordCard({ ctx }: { ctx: Ctx }) {
   const save = () => {
     const w = draftRef.current.trim();
     if (w.length < 3) { ctx.flash('Pick a word of three letters or more.'); return; }
-    ctx.update({ ...ctx.settings, codeWord: w, codeWordSet: true });
+    const next = { ...ctx.settings, codeWord: w, codeWordSet: true, codeWordAt: Date.now() };
+    ctx.update(next);
     setEditing(false); setDraft(''); setWord('locked');
-    ctx.flash('Saved. Only this phone has it.');
+    if (!next.familyLinked) { ctx.flash('Saved'); return; }
+    const who = firstName(loopPerson(next)?.name) || 'your family';
+    Family.shareWord(next).then(r => ctx.flash(r ? 'Saved and shared with ' + who : 'Saved. It will reach ' + who + ' when online.'));
   };
   const change = async () => {
     // Changing it needs Face ID too, so nobody else can swap it.
@@ -64,15 +69,14 @@ export function SecretWordCard({ ctx }: { ctx: Ctx }) {
       {word === 'shown' && (
         <Swap playKey="shown">
           <Text style={[font(30, '800', 1.0), { color: '#fff', marginTop: 10 }]} allowFontScaling>{s.codeWord}</Text>
-          <Text style={[font(14, '400', 1.4), { color: '#fff', marginTop: 4 }]} allowFontScaling>Hides again when you leave this screen.</Text>
         </Swap>
       )}
-      <Text style={[font(16, '400', 1.4), { color: '#fff', marginTop: 10 }]} allowFontScaling>If someone calls claiming to be family and asks for money, hang up and call them on their usual number. You can also ask for your family’s secret word.</Text>
+      <Text style={[font(15, '400', 1.35), { color: 'rgba(255,255,255,.85)', marginTop: 8 }]} allowFontScaling>Ask for it if “family” calls for money.</Text>
       <View style={{ flexDirection: 'row', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
         {s.codeWordSet ? (<>
           {word === 'shown'
             ? <SmallBtn label="Hide" bg="rgba(255,255,255,.16)" color="#fff" onPress={() => setWord('locked')} />
-            : <SmallBtn label="Reveal secret word" bg="#fff" color={T.greenDeep} icon={<ScanFace size={18} color={T.greenDeep} strokeWidth={2} />} onPress={reveal} />}
+            : <SmallBtn label="Reveal" bg="#fff" color={T.greenDeep} icon={<ScanFace size={18} color={T.greenDeep} strokeWidth={2} />} onPress={reveal} />}
           <SmallBtn label="Change" bg="rgba(255,255,255,.16)" color="#fff" onPress={change} />
         </>) : (
           <SmallBtn label="Set a secret word" bg="#fff" color={T.greenDeep} icon={<KeyRound size={18} color={T.greenDeep} strokeWidth={2} />} onPress={() => setEditing(true)} />
@@ -86,7 +90,7 @@ export function SecretWordCard({ ctx }: { ctx: Ctx }) {
             <ScrollView keyboardShouldPersistTaps="always" bounces={false} style={{ flexGrow: 0 }}>
             <View style={[st.sheet, { backgroundColor: C.card }]}>
               <Text style={[font(20, '700'), { color: C.ink }]} allowFontScaling>The family secret word</Text>
-              <Text style={[font(15, '400', 1.4), { color: C.ink2, marginTop: 6 }]} allowFontScaling>Something only your family knows. It stays on this phone, behind Face ID.</Text>
+              <Text style={[font(15, '400', 1.4), { color: C.ink2, marginTop: 6 }]} allowFontScaling>{s.familyLinked ? 'Shared with your linked family.' : 'Only your family should know it.'}</Text>
               <TextInput value={draft} onChangeText={setDraft} onEndEditing={e => setDraft(e.nativeEvent.text)} onSubmitEditing={save} returnKeyType="done" autoFocus autoCapitalize="words" autoCorrect={false} placeholder="One word" placeholderTextColor={C.dark ? '#636366' : '#a1a1a6'}
                 style={[font(22, '600'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, padding: 14, marginTop: 14 }]} />
               <Pill label="Save it" style={{ marginTop: 14 }} onPress={save} />

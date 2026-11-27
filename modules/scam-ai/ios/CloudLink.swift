@@ -25,6 +25,7 @@ let LM_ZONE = "LoopMeFamily"
 let LM_CHECK = "Check"
 let LM_NOTE = "Note"
 let LM_PULSE = "Pulse"
+let LM_WORD = "Word"     // the family secret word, one record per family, encrypted, newest wins
 let LM_INVITE = "Invite" // public: inv-<code> -> share url, so a typed code can join
 let LM_PING = "Ping"     // caretaker to owner: "send me anything you are holding", delivered as a silent push
 let LM_REFRESH_TASK = "com.loopmescamsafety.app.refresh"   // one record per owner, overwritten: counts, last seen, what is switched on
@@ -179,33 +180,43 @@ final class CloudLink: @unchecked Sendable {
   // app after the install. So every invite also has a short code. The owner's
   // phone writes one public record, named after the code, that holds the
   // share link. The other phone types the code, reads that record, and joins.
-  // Public records are readable by anyone who knows the name, so the code is
-  // 8 characters from 31 symbols (about 850 billion) and expires after 7 days.
+  // Public records are readable by anyone who knows the name. The code is
+  // five digits so it is easy to read out and type, so it lives only one hour
+  // and is deleted as soon as someone joins with it.
 
-  static let codeAlphabet = Array("ABCDEFGHJKMNPQRSTUVWXYZ23456789")
-  static let codeLife: TimeInterval = 7 * 24 * 3600
+  static let codeAlphabet = Array("0123456789")
+  static let codeLength = 5
+  static let codeLife: TimeInterval = 3600
 
-  /// "k7m2 9qxh" style input to "K7M29QXH": upper case, spaces and dashes dropped.
-  /// The alphabet has no 0, O, 1, I or L, so a code never asks the reader to tell them apart.
+  /// "48 213" style input to "48213": everything but digits dropped.
   static func normalizeCode(_ raw: String) -> String {
-    String(raw.uppercased().filter { codeAlphabet.contains($0) })
+    String(raw.filter { codeAlphabet.contains($0) })
   }
 
   /// Owner side: the invite code for this phone's share, made once and reused for a week.
   func inviteCode(myName: String) async throws -> String {
     let url = try await createInvite(myName: myName)
     if let code = store.inviteCode, let at = store.inviteCodeAt, store.inviteCodeURL == url,
-       Date().timeIntervalSince(at) < CloudLink.codeLife - 24 * 3600 {
+       Date().timeIntervalSince(at) < CloudLink.codeLife - 10 * 60 {
       return code
     }
-    let code = String((0..<8).map { _ in CloudLink.codeAlphabet.randomElement()! })
-    let rec = CKRecord(recordType: LM_INVITE, recordID: CKRecord.ID(recordName: "inv-" + code))
-    rec["url"] = url as CKRecordValue
-    rec["name"] = myName as CKRecordValue
-    rec["at"] = Date() as CKRecordValue
     let pub = try container.publicCloudDatabase
-    do { _ = try await pub.modifyRecords(saving: [rec], deleting: []) }
-    catch {
+    var code = ""
+    var lastError: Error?
+    // Another family may hold the same five digits right now; try a few.
+    for _ in 0..<6 {
+      let candidate = String((0..<CloudLink.codeLength).map { _ in CloudLink.codeAlphabet.randomElement()! })
+      let rec = CKRecord(recordType: LM_INVITE, recordID: CKRecord.ID(recordName: "inv-" + candidate))
+      rec["url"] = url as CKRecordValue
+      rec["name"] = myName as CKRecordValue
+      rec["at"] = Date() as CKRecordValue
+      do {
+        let (saved, _) = try await pub.modifyRecords(saving: [rec], deleting: [], savePolicy: .ifServerRecordUnchanged)
+        if case .failure(let e)? = saved[rec.recordID] { lastError = e; continue }
+        code = candidate; lastError = nil; break
+      } catch { lastError = error }
+    }
+    if let error = lastError {
       let ns = error as NSError
       if ns.domain == CKError.errorDomain, [CKError.Code.invalidArguments.rawValue, CKError.Code.serverRejectedRequest.rawValue].contains(ns.code) {
         throw CloudLinkError.failed("Invite codes are not switched on for this app yet. Use the link for now. " + CloudLink.describe(error))
@@ -223,7 +234,7 @@ final class CloudLink: @unchecked Sendable {
   /// Caretaker side: join with a code typed in or scanned. Returns the owner's name.
   func join(code raw: String) async throws -> String {
     let code = CloudLink.normalizeCode(raw)
-    guard code.count == 8 else { throw CloudLinkError.failed("That code should be 8 letters and numbers. Check it and try again.") }
+    guard code.count == CloudLink.codeLength else { throw CloudLinkError.failed("The code is 5 numbers. Check it and try again.") }
     switch await accountState() {
     case "available": break
     case "noAccount": throw CloudLinkError.noAccount
@@ -321,6 +332,13 @@ final class CloudLink: @unchecked Sendable {
     }
     let joined = share.participants.filter { $0.role != .owner && $0.acceptanceStatus == .accepted }
     let names = joined.compactMap { CloudLink.displayName($0.userIdentity) }
+    // A code is single use: once someone new has joined, take it down.
+    let base = UserDefaults.standard.integer(forKey: "loopme.inviteCodeBase")
+    if let old = store.inviteCode, joined.count > base {
+      _ = try? await (try? container)?.publicCloudDatabase.modifyRecords(saving: [], deleting: [CKRecord.ID(recordName: "inv-" + old)])
+      store.inviteCode = nil; store.inviteCodeAt = nil
+    }
+    UserDefaults.standard.set(joined.count, forKey: "loopme.inviteCodeBase")
     if let p = joined.first {
       let name = CloudLink.displayName(p.userIdentity) ?? store.caretakerName ?? "your caretaker"
       store.caretakerName = name
@@ -456,6 +474,35 @@ final class CloudLink: @unchecked Sendable {
                       "at": Date().timeIntervalSince1970 * 1000, "mine": true])
   }
 
+  /// Either side: share the family secret word with the other phone. The
+  /// newest word wins; an older one never overwrites a newer one.
+  /// Returns the word that is now current, with its time.
+  func putWord(_ word: String, at: Double) async throws -> [String: Any] {
+    guard await accountState() == "available" else { throw CloudLinkError.noAccount }
+    let db: CKDatabase
+    let zone: CKRecordZone.ID
+    if let z = store.joinedZone { db = try container.sharedCloudDatabase; zone = z }
+    else { db = try container.privateCloudDatabase; zone = ownZoneID }
+    let id = CKRecord.ID(recordName: "secret-word", zoneID: zone)
+    let rec: CKRecord
+    if let existing = try? await db.record(for: id) {
+      let theirAt = (existing["at"] as? Double) ?? 0
+      if theirAt > at, let w = existing.encryptedValues["word"] as? String { return ["word": w, "at": theirAt] }
+      rec = existing
+    } else {
+      rec = CKRecord(recordType: LM_WORD, recordID: id)
+    }
+    rec.encryptedValues["word"] = word as CKRecordValue
+    rec["at"] = at as CKRecordValue
+    _ = try await db.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+    return ["word": word, "at": at]
+  }
+
+  private static func emitWord(_ r: CKRecord) {
+    guard let w = r.encryptedValues["word"] as? String else { return }
+    CloudBus.shared.emit(["kind": "word", "word": w, "at": (r["at"] as? Double) ?? 0])
+  }
+
   /// Caretaker side: leave. Removing the zone from the shared database is how
   /// a participant removes themselves from a share.
   func leave() async throws {
@@ -504,6 +551,7 @@ final class CloudLink: @unchecked Sendable {
       for r in changed where r.recordType == LM_NOTE {
         _ = store.appendNote(CloudLink.noteDict(r))
       }
+      for r in changed where r.recordType == LM_WORD { CloudLink.emitWord(r) }
       for r in changed where r.recordType == LM_PULSE {
         let dict = CloudLink.pulseDict(r)
         store.pulse = dict
@@ -516,6 +564,7 @@ final class CloudLink: @unchecked Sendable {
       let zones = (try? await container.privateCloudDatabase.allRecordZones()) ?? []
       if zones.contains(where: { $0.zoneID.zoneName == LM_ZONE }) {
         let (changed, _) = try await fetchChanges(db: container.privateCloudDatabase, zone: ownZoneID, tokenKey: "private")
+        for r in changed where r.recordType == LM_WORD { CloudLink.emitWord(r) }
         for r in changed where r.recordType == LM_NOTE {
           let dict = CloudLink.noteDict(r)
           if store.appendNote(dict) {

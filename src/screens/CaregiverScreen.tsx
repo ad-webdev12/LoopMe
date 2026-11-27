@@ -31,7 +31,7 @@ export default function CaregiverScreen({ ctx }: { ctx: Ctx }) {
   const saveWord = () => {
     const w = wordRef.current.trim();
     if (w.length < 3) { ctx.flash('Pick a word of three letters or more.'); return; }
-    ctx.update({ ...s, codeWord: w, codeWordSet: true });
+    ctx.update({ ...s, codeWord: w, codeWordSet: true, codeWordAt: Date.now() });
     setWordOpen(false); onWord('');
     ctx.flash('Saved. Only this phone has it.');
   };

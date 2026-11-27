@@ -37,7 +37,7 @@ export default function ListsScreen({ ctx }: { ctx: Ctx }) {
   return (
     <Screen C={C} playKey={ctx.screen}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }} keyboardShouldPersistTaps="handled">
-        <BackLink label="Back" onPress={() => ctx.go('numbers')} />
+        <BackLink label="Settings" onPress={() => ctx.go('settings')} />
         <ScreenTitle C={C}>{blocked ? 'Blocked numbers' : 'Trusted numbers'}</ScreenTitle>
         <Lead C={C}>{blocked ? 'Numbers you blocked.' : 'Never flagged.'}</Lead>
         <View style={[st.addRow, { backgroundColor: C.card }]}>

@@ -2,9 +2,9 @@
 // sides, 30pt from the bottom, 64 tall, radius 32, white, shadow 0 10 30
 // rgba(0,0,0,.12). The active tab is a dark-green capsule (124 wide, 48 tall)
 // showing icon + label that slides between tabs; its label fades in with a
-// 120ms delay. Inactive tabs are grey icons only (about 75 wide). Settings is
-// reached from the gear on Family. The caretaker phone has no Family screen,
-// so it keeps a fourth Settings tab and the wider bar.
+// 120ms delay. Inactive tabs are grey icons only. Settings is its own tab on
+// both phones, so it is always one tap away.
+//
 import React, { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import * as Haptics from 'expo-haptics';
@@ -15,6 +15,7 @@ import { motionOff } from './base';
 export type TabId = 'home' | 'history' | 'family' | 'settings' | 'ward';
 
 const PILL_W = 124;
+const SETTINGS_SCREENS = ['settings', 'learn', 'setup', 'caregiver', 'blocked', 'safe', 'drawerInfo', 'numbers', 'howto', 'advanced', 'privacy', 'name'];
 const PAD = 8;
 
 export default function TabBar({ C, screen, go, careMode, watchName }: { C: Palette; screen: string; go: (t: TabId) => void; careMode: boolean; watchName: string }) {
@@ -24,12 +25,13 @@ export default function TabBar({ C, screen, go, careMode, watchName }: { C: Pale
         { t: 'ward', label: watchName || 'Family', Icon: Users, on: ['ward', 'wardItem', 'maria'].includes(screen) },
         { t: 'home', label: 'Check', Icon: ScanText, on: ['home', 'checking'].includes(screen) },
         { t: 'history', label: 'History', Icon: Clock, on: screen === 'history' },
-        { t: 'settings', label: 'Settings', Icon: Settings, on: ['settings', 'learn', 'setup', 'caregiver', 'blocked', 'safe', 'drawerInfo'].includes(screen) },
+        { t: 'settings', label: 'Settings', Icon: Settings, on: SETTINGS_SCREENS.includes(screen) },
       ]
     : [
         { t: 'home', label: 'Check', Icon: ScanText, on: ['home', 'checking', 'callcheck'].includes(screen) },
         { t: 'family', label: 'Family', Icon: Users, on: ['family', 'ask', 'maria', 'watchedBy', 'watch'].includes(screen) },
         { t: 'history', label: 'History', Icon: Clock, on: screen === 'history' },
+        { t: 'settings', label: 'Settings', Icon: Settings, on: SETTINGS_SCREENS.includes(screen) },
       ];
   const SIDE = tabs.length > 3 ? 14 : 50;
   // Settings and its sub-screens have no tab of their own on this phone, so

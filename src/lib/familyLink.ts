@@ -22,6 +22,6 @@ export function inviteText(myName: string, url: string, code?: string): string {
   const whose = me === 'me' ? 'my' : me + '’s';
   const base = `Tap this once and Loop Me will tell you if a scam text reaches ${whose} phone: ${url}`;
   if (!code) return base;
-  const shown = code.length === 8 ? code.slice(0, 4) + ' ' + code.slice(4) : code;
-  return `${base}\n\nNo Loop Me yet? Get it from the App Store, open it, choose “The phone that hears about it” and enter this code: ${shown}`;
+  const shown = code.length === 5 ? code.slice(0, 2) + ' ' + code.slice(2) : code;
+  return `${base}\n\nNo Loop Me yet? Get it from the App Store, open it, choose “The phone that hears about it” and enter this code within an hour: ${shown}`;
 }

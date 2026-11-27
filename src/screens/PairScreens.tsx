@@ -236,17 +236,8 @@ function JoinWithCode({ ctx, onFocus }: { ctx: Ctx; onFocus?: () => void }) {
   const { C } = ctx;
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
-  const [badChar, setBadChar] = useState(false);
   const clean = code;
-  const onType = (t: string) => {
-    const up = t.toUpperCase().replace(/[\s-]/g, '');
-    // Keep only the letters and digits a code can have, as they are typed.
-    const kept = up.split('').filter(ch => CODE_ALPHABET.includes(ch)).join('').slice(0, 8);
-    const bad = up.split('').some(ch => !CODE_ALPHABET.includes(ch));
-    setBadChar(bad);
-    if (bad) onFocus?.();
-    setCode(kept);
-  };
+  const onType = (t: string) => setCode(t.replace(/\D/g, '').slice(0, CODE_LEN));
   const join = async () => {
     setBusy(true);
     try {
@@ -259,15 +250,14 @@ function JoinWithCode({ ctx, onFocus }: { ctx: Ctx; onFocus?: () => void }) {
     <View>
       <Card C={C} style={{ marginHorizontal: 16 }} radius={16}>
         <Text style={[font(15, '400', 1.4), { color: C.ink2 }]} allowFontScaling>It is in the invite text, under the link. On their phone it is under Family, Show a code instead.</Text>
-        <TextInput value={code} onChangeText={onType} onFocus={onFocus} placeholder="K7M29QXH" placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"}
-          autoCapitalize="characters" autoCorrect={false} spellCheck={false} returnKeyType="go" onSubmitEditing={() => { if (clean.length === 8) void join(); }}
-          style={[font(28, code ? '700' : '400'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, height: 60, marginTop: 12, textAlign: 'center', letterSpacing: 3 }]} accessibilityLabel="Invite code" />
-        {badChar && <Text style={[font(15, '400', 1.4), { color: C.redText, marginTop: 8 }]} allowFontScaling accessibilityLiveRegion="polite">Codes don’t use 0, 1, I, L or O.</Text>}
-        <Pill label={busy ? 'Linking' : 'Link this phone'} height={52} style={{ marginTop: 12 }} disabled={busy || clean.length !== 8} onPress={join} icon={busy ? <ActivityIndicator color="#fff" /> : undefined} />
+        <TextInput value={code} onChangeText={onType} onFocus={onFocus} placeholder="5 numbers" keyboardType="number-pad" textContentType="oneTimeCode" maxLength={CODE_LEN} placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"}
+          autoCorrect={false} spellCheck={false}
+          style={[font(28, code ? '700' : '400'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, height: 60, marginTop: 12, textAlign: 'center', letterSpacing: 8 }]} accessibilityLabel="Invite code" />
+        <Pill label={busy ? 'Linking' : 'Link this phone'} height={52} style={{ marginTop: 12 }} disabled={busy || clean.length !== CODE_LEN} onPress={join} icon={busy ? <ActivityIndicator color="#fff" /> : undefined} />
       </Card>
     </View>
   );
 }
 
-/** Invite codes use these only: no I, L, O, 0 or 1, so nothing is misread. */
-const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+/** Invite codes are five digits. */
+const CODE_LEN = 5;

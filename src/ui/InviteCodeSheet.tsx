@@ -44,7 +44,7 @@ export function InviteCodeSheet({ C, settings, visible, onClose, onReady }: { C:
             {shown ? (
               <View style={[st.codeBox, { backgroundColor: C.card }]}>
                 <Text style={[font(44, '700'), { color: C.ink, letterSpacing: 4 }]} allowFontScaling={false} selectable accessibilityLabel={'Code ' + shown.split('').join(' ')}>{shown}</Text>
-                <Text style={[font(14, '400'), { color: C.ink2, marginTop: 6 }]} allowFontScaling>Works for 7 days</Text>
+                <Text style={[font(14, '400'), { color: C.ink2, marginTop: 6 }]} allowFontScaling>Works for 1 hour</Text>
               </View>
             ) : (
               <Text style={[font(15, '400', 1.45), { color: C.ink2, marginTop: 18 }]} allowFontScaling>The code could not be made right now. The QR code below still works.</Text>

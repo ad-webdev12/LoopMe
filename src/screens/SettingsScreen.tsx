@@ -1,58 +1,92 @@
 // Settings. Built for someone who wants to know one thing first: am I
 // protected? One status card at the top, read from the iPhone itself. Then a
 // few plain rows; everything else sits one level down.
-import React from 'react';
-import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Animated, KeyboardAvoidingView, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { nameProblem, tidyName } from '../lib/names';
 import Constants from 'expo-constants';
-import { ShieldCheck, Volume2, Users, BookOpen, LifeBuoy, SlidersHorizontal, Lock, ChevronRight, HelpCircle } from 'lucide-react-native';
+import { ShieldCheck, Volume2, BookOpen, Lock, ChevronRight, HelpCircle, UserRound, Check, Ban, Filter } from 'lucide-react-native';
 import { T, font } from '../theme';
-import { Screen, LargeTitle, Group, Row, IOSSwitch, PulseDot, Note, SectionHeader, usePulse } from '../ui/base';
+import { Screen, LargeTitle, Group, Row, IOSSwitch, PulseDot, Note, Pill, usePulse } from '../ui/base';
 import { useProtection } from '../lib/protection';
-import type { Ctx, ScreenId } from '../App';
-
-// The tab Settings was opened from. Coming back from a Settings page keeps it,
-// so Done always returns to where the person started.
-let openedFrom: ScreenId = 'home';
-const OPENERS: ScreenId[] = ['home', 'family', 'history', 'ward'];
+import type { Ctx } from '../App';
 
 export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
   const { C, settings: s } = ctx;
-  if (OPENERS.includes(ctx.from)) openedFrom = ctx.from;
   const p = useProtection(ctx.tallies);
   const version = Constants.expoConfig?.version || '1.0.1';
   const set = (patch: Partial<typeof s>) => ctx.update({ ...s, ...patch });
-  const counts = s.allowlist.length + s.blocked.length;
+  // Set up for someone else: the name on this phone is theirs (careName).
+  const nameKey: 'careName' | 'myName' = s.careName && !s.myName ? 'careName' : 'myName';
+  const [editing, setEditing] = useState(false);
 
   return (
     <Screen C={C} playKey="settings">
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
-        <LargeTitle C={C} right={<Pressable onPress={() => ctx.go(openedFrom)} style={({ pressed }) => [st.done, { backgroundColor: C.dark ? '#2c2c2e' : '#e5e5ea' }, pressed && { opacity: 0.7 }]} accessibilityRole="button"><Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Done</Text></Pressable>}>Settings</LargeTitle>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 130 }}>
+        <LargeTitle C={C}>Settings</LargeTitle>
 
         <View style={{ height: 8 }} />
         <ProtectionCard ctx={ctx} p={p} />
 
         <View style={{ height: 20 }} />
         <Group C={C}>
-          <Row C={C} chip={Volume2} chipColor={T.iosGrey} title="Read answers aloud" pad={9} right={<IOSSwitch C={C} on={!!s.readAloud} onChange={v => set({ readAloud: v })} />} />
-          <Row C={C} chip={Users} chipColor={T.green} title="Trusted and blocked numbers" pad={9} chevron last onPress={() => ctx.go('numbers')} right={counts > 0 ? <Text style={[font(17, '400'), { color: C.meta }]} allowFontScaling>{counts}</Text> : undefined} />
+          <Row C={C} chip={UserRound} chipColor={T.green} title="Name" pad={9} chevron onPress={() => setEditing(true)} right={<Text style={[font(17, '400'), { color: C.dark ? '#8e8e93' : '#6c6c70' }]} numberOfLines={1} allowFontScaling>{s[nameKey] || 'Add'}</Text>} />
+          <Row C={C} chip={Volume2} chipColor={T.iosGrey} title="Read answers aloud" pad={9} last right={<IOSSwitch C={C} on={!!s.readAloud} onChange={v => set({ readAloud: v })} />} />
+        </Group>
+
+        <View style={{ height: 20 }} />
+        <Group C={C}>
+          <Row C={C} chip={Check} chipColor={T.green} title="Trusted numbers" pad={9} chevron onPress={() => ctx.go('safe')} right={s.allowlist.length ? <Text style={[font(17, '400'), { color: C.dark ? '#8e8e93' : '#6c6c70' }]} allowFontScaling>{s.allowlist.length}</Text> : undefined} />
+          <Row C={C} chip={Ban} chipColor={T.red} title="Blocked numbers" pad={9} chevron last onPress={() => ctx.go('blocked')} right={s.blocked.length ? <Text style={[font(17, '400'), { color: C.dark ? '#8e8e93' : '#6c6c70' }]} allowFontScaling>{s.blocked.length}</Text> : undefined} />
         </Group>
 
         <View style={{ height: 20 }} />
         <Group C={C}>
           <Row C={C} chip={HelpCircle} chipColor={T.green} title="How to use Loop Me" pad={9} chevron onPress={() => ctx.go('howto')} />
-          <Row C={C} chip={BookOpen} chipColor={T.amber} title="Learn about scams" pad={9} chevron onPress={() => ctx.go('learn')} />
-          <Row C={C} chip={LifeBuoy} chipColor={T.red} title="Get help" pad={9} chevron last onPress={() => ctx.go('support')} />
+          <Row C={C} chip={BookOpen} chipColor={T.amber} title="Learn about scams" pad={9} chevron last onPress={() => ctx.go('learn')} />
         </Group>
 
         <View style={{ height: 20 }} />
         <Group C={C}>
-          <Row C={C} chip={SlidersHorizontal} chipColor={T.iosGrey} title="More settings" pad={9} chevron onPress={() => ctx.go('advanced')} />
+          <Row C={C} chip={Filter} chipColor={T.red} title="Scam text filter" pad={9} chevron onPress={() => ctx.go('advanced')} />
           <Row C={C} chip={Lock} chipColor={T.iosGrey} title="Privacy" pad={9} chevron last onPress={() => ctx.go('privacy')} />
         </Group>
 
-        <Note C={C} center top={22}>Loop Me {version} · No account required</Note>
+        <Note C={C} center top={22}>Loop Me {version}</Note>
       </ScrollView>
+      <NameSheet ctx={ctx} visible={editing} field={nameKey} onClose={() => setEditing(false)} />
     </Screen>
+  );
+}
+
+function NameSheet({ ctx, visible, field, onClose }: { ctx: Ctx; visible: boolean; field: 'careName' | 'myName'; onClose: () => void }) {
+  const { C } = ctx;
+  const [draft, setDraft] = useState(ctx.settings[field]);
+  const [tried, setTried] = useState(false);
+  useEffect(() => { if (visible) { setDraft(ctx.settings[field]); setTried(false); } }, [visible]); // eslint-disable-line react-hooks/exhaustive-deps
+  const problem = nameProblem(draft);
+  const save = () => {
+    setTried(true);
+    if (problem) return;
+    ctx.update({ ...ctx.settings, [field]: tidyName(draft) });
+    onClose();
+    ctx.flash('Name saved');
+  };
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <View style={st.dim}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityLabel="Close" />
+        <KeyboardAvoidingView behavior="padding">
+          <View style={[st.sheet, { backgroundColor: C.card }]}>
+            <Text style={[font(20, '700'), { color: C.ink }]} allowFontScaling>{field === 'careName' ? 'Their first name' : 'Your first name'}</Text>
+            <TextInput value={draft} onChangeText={setDraft} onSubmitEditing={save} returnKeyType="done" autoFocus autoCapitalize="words" autoCorrect={false} maxLength={30} textContentType="givenName" placeholder="First name" placeholderTextColor={C.dark ? '#636366' : '#a1a1a6'}
+              style={[font(22, '600'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, padding: 14, marginTop: 14 }]} accessibilityLabel="First name" />
+            {problem && (tried || draft.trim().length > 0) && <Text style={[font(15, '500'), { color: C.redText, marginTop: 8 }]} allowFontScaling accessibilityLiveRegion="polite">{problem}</Text>}
+            <Pill label="Save" style={{ marginTop: 14 }} onPress={save} disabled={!!problem} />
+          </View>
+        </KeyboardAvoidingView>
+      </View>
+    </Modal>
   );
 }
 
@@ -91,5 +125,7 @@ function ProtectionCard({ ctx, p }: { ctx: Ctx; p: ReturnType<typeof useProtecti
 const st = StyleSheet.create({
   done: { height: 36, paddingHorizontal: 16, borderRadius: 18, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
   card: { marginHorizontal: 16, borderRadius: 16, paddingVertical: 16, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  dim: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', justifyContent: 'flex-end' },
+  sheet: { borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, paddingBottom: 40 },
   start: { height: 40, paddingHorizontal: 18, borderRadius: 20, backgroundColor: T.red, alignItems: 'center', justifyContent: 'center' },
 });
