@@ -43,7 +43,7 @@ export function Screen({ C, children, style, playKey, scroll }: { C: Palette; ch
   return (
     <Animated.View style={[{ flex: 1, backgroundColor: C.ground, opacity: v, transform: [{ translateX: tx }, { scale: sc }] }, style]}>
       {scroll ? (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="always" keyboardDismissMode="on-drag" automaticallyAdjustKeyboardInsets>
           {children}
         </ScrollView>
       ) : children}

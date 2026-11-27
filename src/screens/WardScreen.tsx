@@ -12,7 +12,10 @@ import type { Ctx } from '../App';
 
 export default function WardScreen({ ctx }: { ctx: Ctx }) {
   const { C, settings: s } = ctx;
+  const known = !!firstName(s.watching?.name);
   const name = firstName(s.watching?.name) || 'them';
+  // "Anna's phone", or "their phone" while the name is not known yet.
+  const phoneOf = known ? name + '’s phone' : 'their phone';
   const linked = s.familyLinked;
   const p = ctx.pulse;
   const events = ctx.hist.filter(h => h.source === 'family');
@@ -34,12 +37,12 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
   return (
     <Screen C={C} playKey="ward">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
-        <LargeTitle C={C} right={<Pressable onPress={() => ctx.go('watch')} accessibilityRole="button" style={{ marginBottom: 5 }}><Text style={[font(17, '400'), { color: C.accent }]} allowFontScaling>Link</Text></Pressable>}>{name}</LargeTitle>
+        <LargeTitle C={C} right={<Pressable onPress={() => ctx.go('watch')} accessibilityRole="button" style={{ marginBottom: 5 }}><Text style={[font(17, '400'), { color: C.accent }]} allowFontScaling>Link</Text></Pressable>}>{known ? name : 'Waiting for the invite'}</LargeTitle>
 
         <Card C={C} style={{ marginHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-          <Avatar name={s.watching?.name || name} photo={s.watching?.photo} size={56} />
+          <Avatar name={s.watching?.name || '?'} photo={s.watching?.photo} size={56} />
           <View style={{ flex: 1 }}>
-            <Text style={[font(20, '700'), { color: C.ink }]} allowFontScaling>{s.watching?.name || name}</Text>
+            <Text style={[font(20, '700'), { color: C.ink }]} allowFontScaling>{s.watching?.name || 'Not linked yet'}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
               <PulseDot size={8} color={linked ? T.green : T.amber} still />
               <Text style={[font(15, '400'), { color: C.ink2 }]} allowFontScaling>{linked ? 'Linked. You hear the moment something looks wrong.' : 'Waiting for the invite from their phone.'}</Text>
@@ -57,7 +60,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
               {open.map(h => (
                 <Pressable key={h.id} onPress={() => ctx.openWard(h.id)} style={({ pressed }) => [st.alert, { backgroundColor: h.level === 'red' ? T.red : T.amber }, pressed && { opacity: 0.85 }]} accessibilityRole="button">
                   <Text style={[font(14, '600'), { color: '#fff' }]} allowFontScaling>{whenLabel(h.at)}</Text>
-                  <Text style={[font(20, '800', 1.15), { color: '#fff', marginTop: 4 }]} allowFontScaling>{name} got {h.level === 'red' ? 'a scam text.' : 'a text worth a look.'}</Text>
+                  <Text style={[font(20, '800', 1.15), { color: '#fff', marginTop: 4 }]} allowFontScaling>{known ? name : 'They'} got {h.level === 'red' ? 'a scam text.' : 'a text worth a look.'}</Text>
                   <Text style={[font(15, '400', 1.4), { color: '#fff', marginTop: 8 }]} allowFontScaling numberOfLines={3}>“{h.excerpt}”</Text>
                 </Pressable>
               ))}
@@ -69,7 +72,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
           <>
             <SectionHeader C={C}>Send {name} a note</SectionHeader>
             <Card C={C} style={{ marginHorizontal: 16 }} radius={16} pad={12}>
-              <TextInput value={note} onChangeText={setNote} multiline maxLength={300} placeholder="It shows up full screen on their phone" placeholderTextColor={C.meta}
+              <TextInput value={note} onChangeText={setNote} multiline maxLength={300} placeholder="It shows up full screen on their phone" placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"}
                 style={[font(17, '400', 1.35), { color: C.ink, minHeight: 64, maxHeight: 150, textAlignVertical: 'top' }]} accessibilityLabel={'Note to ' + name} allowFontScaling />
               <Pressable onPress={sendNote} disabled={sending || !note.trim()} style={({ pressed }) => [st.send, { opacity: !note.trim() || sending ? 0.45 : pressed ? 0.75 : 1 }]} accessibilityRole="button" accessibilityLabel={'Send note to ' + name}>
                 <Send size={16} color="#fff" strokeWidth={2.2} />
@@ -79,7 +82,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
           </>
         )}
 
-        <SectionHeader C={C}>This week on {name}’s phone</SectionHeader>
+        <SectionHeader C={C}>This week on {phoneOf}</SectionHeader>
         <Card C={C} style={{ marginHorizontal: 16 }} radius={16}>
           {p ? (
             <>
@@ -105,8 +108,8 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
                     <Text style={[font(15, '400'), { color: C.ink2, marginTop: 2 }]} allowFontScaling>{r.count} times · last {whenLabel(r.last).toLowerCase()}</Text>
                   </View>
                   {r.blocked ? <Tag label="Blocked" bg={C.greenFine} color={T.greenDeep} /> : (
-                    <Pressable onPress={() => { const rec = events.find(h => h.sender === r.sender); if (rec) void ctx.sendNoteTo(rec.id, 'I blocked that number for you.', 'block'); ctx.flash('Blocked on ' + name + '’s phone.'); }} accessibilityRole="button">
-                      <Text style={[font(15, '600'), { color: C.redText }]} allowFontScaling>Block on {name}’s phone</Text>
+                    <Pressable onPress={() => { const rec = events.find(h => h.sender === r.sender); if (rec) void ctx.sendNoteTo(rec.id, 'I blocked that number for you.', 'block'); ctx.flash('Blocked on ' + phoneOf + '.'); }} accessibilityRole="button">
+                      <Text style={[font(15, '600'), { color: C.redText }]} allowFontScaling>Block on {phoneOf}</Text>
                     </Pressable>
                   )}
                 </View>
@@ -127,7 +130,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
                 </View>
               ))}
             </Card>
-            <Note C={C}>Loop Me {p.version ? p.version + ' ' : ''}on {name}’s phone. Off means a switch in their iPhone Settings; Settings › Set up for someone else has the exact path.</Note>
+            <Note C={C}>Loop Me {p.version ? p.version + ' ' : ''}on {phoneOf}. Off means a switch in their iPhone Settings; Settings › Set up for someone else has the exact path.</Note>
           </>
         )}
 

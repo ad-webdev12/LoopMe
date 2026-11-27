@@ -80,19 +80,20 @@ export function SecretWordCard({ ctx }: { ctx: Ctx }) {
       </View>
 
       <Modal visible={editing} transparent animationType="fade" onRequestClose={() => setEditing(false)}>
-        <Pressable style={st.dim} onPress={() => setEditing(false)}>
+        <View style={st.dim}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={() => setEditing(false)} accessibilityLabel="Close" />
           <KeyboardAvoidingView behavior="padding">
-            <ScrollView keyboardShouldPersistTaps="handled" bounces={false} style={{ flexGrow: 0 }}>
-            <Pressable style={[st.sheet, { backgroundColor: C.card }]} onPress={() => {}}>
+            <ScrollView keyboardShouldPersistTaps="always" bounces={false} style={{ flexGrow: 0 }}>
+            <View style={[st.sheet, { backgroundColor: C.card }]}>
               <Text style={[font(20, '700'), { color: C.ink }]} allowFontScaling>The family secret word</Text>
               <Text style={[font(15, '400', 1.4), { color: C.ink2, marginTop: 6 }]} allowFontScaling>Something only your family knows. It stays on this phone, behind Face ID.</Text>
-              <TextInput value={draft} onChangeText={setDraft} onEndEditing={e => setDraft(e.nativeEvent.text)} onSubmitEditing={save} returnKeyType="done" autoFocus autoCapitalize="words" autoCorrect={false} placeholder="One word" placeholderTextColor={C.meta}
+              <TextInput value={draft} onChangeText={setDraft} onEndEditing={e => setDraft(e.nativeEvent.text)} onSubmitEditing={save} returnKeyType="done" autoFocus autoCapitalize="words" autoCorrect={false} placeholder="One word" placeholderTextColor={C.dark ? '#636366' : '#a1a1a6'}
                 style={[font(22, '600'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, padding: 14, marginTop: 14 }]} />
               <Pill label="Save it" style={{ marginTop: 14 }} onPress={save} />
-            </Pressable>
+            </View>
             </ScrollView>
           </KeyboardAvoidingView>
-        </Pressable>
+        </View>
       </Modal>
     </View>
   );

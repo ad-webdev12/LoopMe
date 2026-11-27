@@ -101,7 +101,7 @@ export default function ScammedScreen({ ctx }: { ctx: Ctx }) {
           <Pressable style={[st.sheet, { backgroundColor: C.card }]} onPress={() => {}}>
             <Text style={[font(20, '700'), { color: C.ink }]} allowFontScaling>Your bank’s number</Text>
             <Text style={[font(15, '400', 1.4), { color: C.ink2, marginTop: 6 }]} allowFontScaling>Turn your card over. The number is printed on the back. Loop Me keeps it so next time is one tap.</Text>
-            <TextInput value={bank} onChangeText={setBank} autoFocus keyboardType="phone-pad" placeholder="Number on the back of the card" placeholderTextColor={C.meta} returnKeyType="done" onSubmitEditing={saveBank}
+            <TextInput value={bank} onChangeText={setBank} autoFocus keyboardType="phone-pad" placeholder="Number on the back of the card" placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"} returnKeyType="done" onSubmitEditing={saveBank}
               style={[font(22, '600'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, padding: 14, marginTop: 14 }]} />
             <Pill label="Call now" style={{ marginTop: 14 }} onPress={saveBank} icon={<Phone size={18} color="#fff" strokeWidth={2} />} />
           </Pressable>

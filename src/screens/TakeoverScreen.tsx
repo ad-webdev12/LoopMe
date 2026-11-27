@@ -38,15 +38,17 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
   // The engine's "nothing to check" step names a "Check it" button this app
   // doesn't have; say what to actually do.
   const safeStep = /check it/i.test(v?.safeStep || '') ? 'There were no words to check. Paste or type the message itself, then check it again.' : v?.safeStep;
-  const headline = level === 'red' ? 'Stop.\nDon’t reply.' : level === 'amber' ? 'Be careful.' : 'Looks okay.';
+  // A phone call (from "Was it a phone call?") has nothing to reply to.
+  const isCall = !!rec?.tags?.includes('call');
+  const headline = level === 'red' ? (isCall ? 'Hang up.\nThat’s a scam call.' : 'Stop.\nDon’t reply.') : level === 'amber' ? 'Be careful.' : 'Looks okay.';
   // Read answers aloud (Settings): the verdict is spoken as it appears.
   useEffect(() => {
     if (!s.readAloud) return;
-    Speech.speak(headline.replace('\n', ' ') + ' ' + explainHeadline(ctx.msg, level, v?.tags || []), { rate: 0.9 });
+    Speech.speak(headline.replace('\n', ' ') + ' ' + sub, { rate: 0.9 });
     return () => { Speech.stop(); };
   }, [ctx.recordId]); // eslint-disable-line react-hooks/exhaustive-deps
   // One plain line here; the reasons, one by one, live on Show me more.
-  const sub = explainHeadline(ctx.msg, level, v?.tags || []);
+  const sub = isCall && level === 'red' ? 'If they call again, hang up. Then call the person or company on a number you already have.' : explainHeadline(ctx.msg, level, v?.tags || []);
 
   return (
     <Takeover color={color} haptic={level === 'red' ? 'error' : level === 'amber' ? 'warning' : null} playKey={ctx.recordId + level}>

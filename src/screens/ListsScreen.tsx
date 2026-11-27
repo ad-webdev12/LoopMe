@@ -41,7 +41,7 @@ export default function ListsScreen({ ctx }: { ctx: Ctx }) {
         <ScreenTitle C={C}>{blocked ? 'Blocked numbers' : 'Trusted numbers'}</ScreenTitle>
         <Lead C={C}>{blocked ? 'Numbers you blocked.' : 'Never flagged.'}</Lead>
         <View style={[st.addRow, { backgroundColor: C.card }]}>
-          <TextInput value={value} onChangeText={setValue} placeholder={blocked ? 'Number to block' : 'Name or number'} placeholderTextColor={C.meta} keyboardType={blocked ? 'phone-pad' : 'default'} returnKeyType="done" onSubmitEditing={add}
+          <TextInput value={value} onChangeText={setValue} placeholder={blocked ? 'Number to block' : 'Name or number'} placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"} keyboardType={blocked ? 'phone-pad' : 'default'} returnKeyType="done" onSubmitEditing={add}
             style={[font(17, '400'), { color: C.ink, flex: 1, height: 44 }]} />
           <Pressable onPress={add} style={({ pressed }) => [st.plus, { backgroundColor: C.greenTint }, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel="Add"><Plus size={18} color={C.accent} strokeWidth={2.2} /></Pressable>
         </View>

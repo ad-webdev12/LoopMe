@@ -32,7 +32,10 @@ function phoneOf(c: Contacts.Contact): string {
 }
 
 /** Mount once, near the root. Owns the modal and hands results back to openContactPicker. */
-export function ContactPickerHost({ C }: { C: Palette }) {
+export function ContactPickerHost({ C, inLoop = [] }: { C: Palette; inLoop?: string[] }) {
+  // People already in the loop show as such and can't be picked twice.
+  const digits = (p: string) => p.replace(/\D/g, '').replace(/^1(?=\d{10}$)/, '');
+  const loopSet = new Set(inLoop.map(digits).filter(Boolean));
   const [open, setOpen] = useState(false);
   const [all, setAll] = useState<Contacts.Contact[]>([]);
   const [q, setQ] = useState('');
@@ -86,7 +89,7 @@ export function ContactPickerHost({ C }: { C: Palette }) {
             <X size={20} color={C.ink} strokeWidth={2.2} />
           </Pressable>
         </View>
-        <TextInput value={q} onChangeText={setQ} placeholder="Search by name or number" placeholderTextColor={C.ink2} autoCorrect={false} clearButtonMode="while-editing" returnKeyType="search" autoFocus
+        <TextInput value={q} onChangeText={setQ} placeholder="Search by name or number" placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"} autoCorrect={false} clearButtonMode="while-editing" returnKeyType="search" autoFocus
           style={[font(17, '400'), st.search, { color: C.ink, backgroundColor: C.card }]} accessibilityLabel="Search contacts" />
         <FlatList
           data={rows}
@@ -97,13 +100,15 @@ export function ContactPickerHost({ C }: { C: Palette }) {
           ListEmptyComponent={<Text style={[font(15, '400'), { color: C.ink2, textAlign: 'center', marginTop: 40 }]} allowFontScaling>{loading ? 'Loading your contacts' : all.length ? 'Nobody matches that.' : 'No contacts with a phone number.'}</Text>}
           renderItem={({ item }) => {
             const name = nameOf(item);
+            const taken = loopSet.has(digits(phoneOf(item)));
             return (
-              <Pressable onPress={() => finish(item)} accessibilityRole="button" accessibilityLabel={name} style={({ pressed }) => [st.row, { backgroundColor: pressed ? C.card : 'transparent' }]}>
+              <Pressable onPress={() => finish(item)} disabled={taken} accessibilityRole="button" accessibilityLabel={taken ? name + ', in your loop' : name} accessibilityState={{ disabled: taken }} style={({ pressed }) => [st.row, { backgroundColor: pressed ? C.card : 'transparent' }, taken && { opacity: 0.55 }]}>
                 <Avatar name={name} size={44} />
                 <View style={{ flex: 1 }}>
                   <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling numberOfLines={1}>{name}</Text>
                   <Text style={[font(15, '400'), { color: C.ink2, marginTop: 1 }]} allowFontScaling numberOfLines={1}>{phoneOf(item)}</Text>
                 </View>
+                {taken && <Text style={[font(14, '600'), { color: C.accent }]} allowFontScaling>In your loop</Text>}
               </Pressable>
             );
           }}

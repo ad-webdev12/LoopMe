@@ -97,6 +97,11 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
   const [rel, setRel] = useState(ctx.settings.careRel || 'Mother');
   const [whose, setWhose] = useState<'mine' | 'theirs'>(ctx.settings.careName ? 'theirs' : 'mine');
   const [me, setMe] = useState(ctx.settings.myName);
+  const next = () => {
+    if (whose === 'mine') { ctx.update({ ...ctx.settings, careName: '', myName: me.trim() }); ctx.go('ob3'); return; }
+    if (!name.trim()) { ctx.flash('Add their first name so alerts can use it.'); return; }
+    ctx.update({ ...ctx.settings, careName: name.trim(), careRel: rel }); ctx.go('ob3');
+  };
   return (
     <Screen C={C} playKey="ob2" scroll>
       <ObBack ctx={ctx} to="ob1" />
@@ -108,7 +113,7 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
       {whose === 'mine' && (
         <Card C={C} style={{ marginHorizontal: 16, marginTop: 16 }} radius={16}>
           <Text style={[font(15, '600'), { color: C.ink, marginBottom: 8 }]} allowFontScaling>Your first name</Text>
-          <TextInput style={[st.input, { backgroundColor: C.ground, color: C.ink }]} value={me} onChangeText={setMe} placeholder="First name" placeholderTextColor={C.ink2} accessibilityLabel="Your first name" />
+          <TextInput style={[st.input, { backgroundColor: C.ground, color: C.ink }]} value={me} onChangeText={setMe} returnKeyType="done" onSubmitEditing={next} placeholder="First name" placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"} accessibilityLabel="Your first name" />
           <Note C={C} top={10} style={{ paddingHorizontal: 0 }}>So the person you choose next knows who the alerts are about.</Note>
         </Card>
       )}
@@ -116,7 +121,7 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
         <Card C={C} style={{ marginHorizontal: 16, marginTop: 16, gap: 16 }} radius={16}>
           <View>
             <Text style={[font(15, '600'), { color: C.ink, marginBottom: 8 }]} allowFontScaling>Their first name</Text>
-            <TextInput style={[st.input, { backgroundColor: C.ground, color: C.ink }]} value={name} onChangeText={setName} placeholder="First name" placeholderTextColor={C.ink2} accessibilityLabel="Their first name" />
+            <TextInput style={[st.input, { backgroundColor: C.ground, color: C.ink }]} value={name} onChangeText={setName} returnKeyType="done" onSubmitEditing={next} placeholder="First name" placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"} accessibilityLabel="Their first name" />
           </View>
           <View>
             <Text style={[font(15, '600'), { color: C.ink, marginBottom: 8 }]} allowFontScaling>They are your</Text>
@@ -125,11 +130,7 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
           <Note C={C} top={0} style={{ paddingHorizontal: 0 }}>You are setting it up on their phone. They keep every setting.</Note>
         </Card>
       )}
-      <Bottom label="Continue" onPress={() => {
-        if (whose === 'mine') { ctx.update({ ...ctx.settings, careName: '', myName: me.trim() }); ctx.go('ob3'); return; }
-        if (!name.trim()) { ctx.flash('Add their first name so alerts can use it.'); return; }
-        ctx.update({ ...ctx.settings, careName: name.trim(), careRel: rel }); ctx.go('ob3');
-      }} />
+      <Bottom label="Continue" onPress={next} />
     </Screen>
   );
 }
@@ -340,7 +341,7 @@ export function Ob6({ ctx }: { ctx: Ctx }) {
       <ScreenTitle C={C} top={18}>Pick a family secret word</ScreenTitle>
       <Lead C={C}>If a caller sounds like family and asks for money, {s.careName ? firstNameOf(s.careName) + ' asks' : 'they ask'} for the word. A cloned voice won’t know it.</Lead>
       <Card C={C} style={{ marginHorizontal: 16, marginTop: 22 }} radius={16}>
-        <TextInput value={word} onChangeText={setWord} onEndEditing={e => setWord(e.nativeEvent.text)} returnKeyType="done" autoCapitalize="words" autoCorrect={false} placeholder="One word" placeholderTextColor={C.ink2}
+        <TextInput value={word} onChangeText={setWord} onEndEditing={e => setWord(e.nativeEvent.text)} returnKeyType="done" onSubmitEditing={() => finish(true)} autoCapitalize="words" autoCorrect={false} placeholder="One word" placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"}
           style={[font(22, '600'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, padding: 14 }]} accessibilityLabel="Secret word" />
         <Note C={C} top={10} style={{ paddingHorizontal: 0 }}>Stays on this phone, behind Face ID in Settings.</Note>
       </Card>

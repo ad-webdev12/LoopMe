@@ -5,7 +5,7 @@
 //              arrives, and the linked state afterwards.
 //   WatchWait  the moment between tapping the invite and the link confirming.
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Linking, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Keyboard, Linking, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Check, X, Send, QrCode, Share2, Phone, UserPlus } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { Screen, BackLink, ScreenTitle, Lead, Note, Pill, Avatar, Card, SectionHeader, CheckCircle } from '../ui/base';
@@ -143,7 +143,15 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
   // The code box sits mid-page: when the keyboard comes up, scroll it into view.
   const scroll = useRef<ScrollView>(null);
   const codeY = useRef(0);
-  const showCodeBox = () => setTimeout(() => scroll.current?.scrollTo({ y: Math.max(0, codeY.current - 12), animated: true }), 300);
+  const codeFocused = useRef(false);
+  const toCodeBox = () => scroll.current?.scrollTo({ y: Math.max(0, codeY.current - 12), animated: true });
+  const showCodeBox = () => { codeFocused.current = true; setTimeout(toCodeBox, 300); };
+  // Scroll again once the keyboard is fully up, so the field, its note and the button all sit above it.
+  useEffect(() => {
+    const a = Keyboard.addListener('keyboardDidShow', () => { if (codeFocused.current) toCodeBox(); });
+    const b = Keyboard.addListener('keyboardDidHide', () => { codeFocused.current = false; });
+    return () => { a.remove(); b.remove(); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <Screen C={C} playKey={paired ? 'done' : 'open'}>
       <ScrollView ref={scroll} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}
@@ -183,7 +191,7 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
         ) : (
           <>
             <View style={{ alignItems: 'center', paddingTop: 10, paddingHorizontal: 20 }}>
-              <Avatar name={s.watching?.name || watchName} photo={s.watching?.photo} size={104} />
+              <Avatar name={s.watching?.name || '?'} photo={s.watching?.photo} size={104} />
               <Text style={[font(24, '700'), { color: C.ink, marginTop: 12 }]} allowFontScaling>You are looking after {watchName}</Text>
               <Text style={[font(16, '400', 1.45), { color: C.ink2, marginTop: 8, textAlign: 'center' }]} allowFontScaling>A flagged text takes over this screen. Your reply lands on theirs.</Text>
             </View>
@@ -192,12 +200,12 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
                 {hasPhone ? <Phone size={18} color={C.accent} strokeWidth={2.2} /> : <UserPlus size={18} color={C.accent} strokeWidth={2.2} />}
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>{hasPhone ? s.watching?.name : 'Add ' + watchName + '’s number'}</Text>
+                <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>{hasPhone ? s.watching?.name : (s.watching?.name ? 'Add ' + watchName + '’s number' : 'Add their number')}</Text>
                 <Text style={[font(15, '400'), { color: C.ink2, marginTop: 2 }]} allowFontScaling>{hasPhone ? s.watching?.phone : 'So the call button dials them.'}</Text>
               </View>
             </Card>
             <View style={{ paddingHorizontal: 16, paddingTop: 22, gap: 10 }}>
-              <Pill label={'Open ' + watchName + '’s screen'} onPress={() => ctx.go('ward')} />
+              <Pill label={s.watching?.name ? 'Open ' + watchName + '’s screen' : 'Open their screen'} onPress={() => ctx.go('ward')} />
               <Pill label="Stop looking after this phone" height={54} bg={C.card} color={C.redText} onPress={ctx.unlinkFamily} />
             </View>
           </>
@@ -234,7 +242,9 @@ function JoinWithCode({ ctx, onFocus }: { ctx: Ctx; onFocus?: () => void }) {
     const up = t.toUpperCase().replace(/[\s-]/g, '');
     // Keep only the letters and digits a code can have, as they are typed.
     const kept = up.split('').filter(ch => CODE_ALPHABET.includes(ch)).join('').slice(0, 8);
-    setBadChar(up.split('').some(ch => !CODE_ALPHABET.includes(ch)));
+    const bad = up.split('').some(ch => !CODE_ALPHABET.includes(ch));
+    setBadChar(bad);
+    if (bad) onFocus?.();
     setCode(kept);
   };
   const join = async () => {
@@ -249,7 +259,7 @@ function JoinWithCode({ ctx, onFocus }: { ctx: Ctx; onFocus?: () => void }) {
     <View>
       <Card C={C} style={{ marginHorizontal: 16 }} radius={16}>
         <Text style={[font(15, '400', 1.4), { color: C.ink2 }]} allowFontScaling>It is in the invite text, under the link. On their phone it is under Family, Show a code instead.</Text>
-        <TextInput value={code} onChangeText={onType} onFocus={onFocus} placeholder="K7M29QXH" placeholderTextColor={C.dark ? '#636366' : '#c7c7cc'}
+        <TextInput value={code} onChangeText={onType} onFocus={onFocus} placeholder="K7M29QXH" placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"}
           autoCapitalize="characters" autoCorrect={false} spellCheck={false} returnKeyType="go" onSubmitEditing={() => { if (clean.length === 8) void join(); }}
           style={[font(28, code ? '700' : '400'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, height: 60, marginTop: 12, textAlign: 'center', letterSpacing: 3 }]} accessibilityLabel="Invite code" />
         {badChar && <Text style={[font(15, '400', 1.4), { color: C.redText, marginTop: 8 }]} allowFontScaling accessibilityLiveRegion="polite">Codes don’t use 0, 1, I, L or O.</Text>}

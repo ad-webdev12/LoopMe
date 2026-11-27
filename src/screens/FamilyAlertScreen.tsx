@@ -25,7 +25,7 @@ export default function FamilyAlertScreen({ ctx }: { ctx: Ctx }) {
   const red = rec.level !== 'amber';
   const field = red ? T.red : T.amber;
   const phone = s.watching?.phone;
-  const headline = rec.askedFamily ? name + ' asked you about a text.' : red ? name + ' got a scam text.' : 'A text on ' + name + '’s phone looks off.';
+  const headline = rec.askedFamily ? name + ' asked you about a text.' : red ? name + (rec.tags?.includes('call') ? ' got a scam call.' : ' got a scam text.') : 'A text on ' + name + '’s phone looks off.';
 
   // Short and warm, in the caretaker's voice. These land on the other phone
   // exactly as written.
@@ -72,7 +72,7 @@ export default function FamilyAlertScreen({ ctx }: { ctx: Ctx }) {
           <Text style={[font(15, '600'), { color: '#fff', marginBottom: 2 }]} allowFontScaling>Answer {name}</Text>
           {writing ? (
             <View style={st.compose}>
-              <TextInput value={text} onChangeText={setText} autoFocus multiline maxLength={300} placeholder={'Write to ' + name} placeholderTextColor="#8e8e93"
+              <TextInput value={text} onChangeText={setText} autoFocus multiline maxLength={300} placeholder={'Write to ' + name} placeholderTextColor={ctx.C.dark ? "#636366" : "#a1a1a6"}
                 style={[font(17, '400', 1.35), { color: '#000', minHeight: 80, maxHeight: 160, textAlignVertical: 'top' }]} accessibilityLabel={'Note to ' + name} allowFontScaling />
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 16, alignItems: 'center', marginTop: 8 }}>
                 <Pressable onPress={() => { setWriting(false); setText(''); }} hitSlop={8} accessibilityRole="button">

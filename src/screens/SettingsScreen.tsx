@@ -8,10 +8,16 @@ import { ShieldCheck, Volume2, Users, BookOpen, LifeBuoy, SlidersHorizontal, Loc
 import { T, font } from '../theme';
 import { Screen, LargeTitle, Group, Row, IOSSwitch, PulseDot, Note, SectionHeader, usePulse } from '../ui/base';
 import { useProtection } from '../lib/protection';
-import type { Ctx } from '../App';
+import type { Ctx, ScreenId } from '../App';
+
+// The tab Settings was opened from. Coming back from a Settings page keeps it,
+// so Done always returns to where the person started.
+let openedFrom: ScreenId = 'home';
+const OPENERS: ScreenId[] = ['home', 'family', 'history', 'ward'];
 
 export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
   const { C, settings: s } = ctx;
+  if (OPENERS.includes(ctx.from)) openedFrom = ctx.from;
   const p = useProtection(ctx.tallies);
   const version = Constants.expoConfig?.version || '1.0.1';
   const set = (patch: Partial<typeof s>) => ctx.update({ ...s, ...patch });
@@ -20,7 +26,7 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
   return (
     <Screen C={C} playKey="settings">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
-        <LargeTitle C={C} right={<Pressable onPress={() => ctx.go('home')} style={({ pressed }) => [st.done, { backgroundColor: C.dark ? '#2c2c2e' : '#e5e5ea' }, pressed && { opacity: 0.7 }]} accessibilityRole="button"><Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Done</Text></Pressable>}>Settings</LargeTitle>
+        <LargeTitle C={C} right={<Pressable onPress={() => ctx.go(openedFrom)} style={({ pressed }) => [st.done, { backgroundColor: C.dark ? '#2c2c2e' : '#e5e5ea' }, pressed && { opacity: 0.7 }]} accessibilityRole="button"><Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Done</Text></Pressable>}>Settings</LargeTitle>
 
         <View style={{ height: 8 }} />
         <ProtectionCard ctx={ctx} p={p} />

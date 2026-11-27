@@ -18,7 +18,11 @@ export default function AskScreen({ ctx }: { ctx: Ctx }) {
   const { C, settings: s } = ctx;
   const person = loopPerson(s);
   const who = firstName(person?.name) || 'them';
-  const rec = ctx.hist.find(h => h.id === ctx.recordId);
+  // Where Ask was opened from. Only a result screen for a check brings that check along;
+  // from Get help or Family it opens blank and Back returns there.
+  const from = useRef(ctx.from).current;
+  const fromResult = from === 'scam' || from === 'amber' || from === 'green' || from === 'detail';
+  const rec = fromResult ? ctx.hist.find(h => h.id === ctx.recordId) : undefined;
   // idle → sending → sent, or failed with a retry. A check already asked about
   // opens as sent, so the reply (or the wait for it) is what shows.
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'failed'>(rec?.askedFamily ? 'sent' : 'idle');
@@ -48,7 +52,7 @@ export default function AskScreen({ ctx }: { ctx: Ctx }) {
 
   return (
     <Screen C={C} playKey="ask" scroll>
-      <BackLink color={C.accent} onPress={() => ctx.go(rec && ctx.recordId ? (rec.level === 'red' ? 'scam' : rec.level === 'amber' ? 'amber' : 'green') : 'family')} />
+      <BackLink color={C.accent} onPress={() => ctx.go(from && from !== 'ask' ? from : 'family')} />
       <View style={{ paddingHorizontal: 20, paddingTop: 8, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <Avatar name={person?.name || '?'} photo={person?.photo} size={48} />
         <View style={{ flex: 1 }}>

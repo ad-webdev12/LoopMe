@@ -88,7 +88,7 @@ export const EXPLAIN: Pattern[] = [
   P(`\\b(?:overdue|must be (?:paid|repaid|made)|payable|outstanding)\\b`, 'Pressure to pay', 'Check with the company on a number you already have.', 6),
   P(`\\b(?:ring|call|phone) (?:this|the|our) number\\b|\\bpress (?:one|two|three|\\d)\\b`, 'Wants you to call or press', 'Hang up and call the company yourself.', 6),
   P(`\\bwill be deleted\\b|\\bhas expired\\b|\\babout to (?:end|expire)\\b|\\bat risk\\b|\\bgoes to someone else\\b`, 'Threatens a loss', 'Fear makes you act before you think.', 5),
-  P(`\\b(?:in|within) \\d+ (?:hours?|days?)\\b|\\bthis week\\b|\\bby (?:monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow|tonight)\\b`, 'Rushing you', 'Rushing you stops you checking.', 4),
+  P(`\\b(?:in|within) \\d+ (?:hours?|days?)\\b|\\bby (?:monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow|tonight)\\b`, 'Rushing you', 'Rushing you stops you checking.', 4),
   // Links only count when the link checks found something wrong with them.
   P(`\\b(?:https?:\\/\\/)?(?:[a-z0-9-]+\\.)+[a-z]{2,10}(?:\\/[^\\s]*)?`,
     'A link that isn’t real', 'It looks official but goes somewhere else.', 8, ['url-lookalike', 'url-blocklisted', 'url-brand-subdomain', 'url-glued', 'url-ip', 'url-look', 'url-punycode', 'url-security-theater', 'url-tld']),

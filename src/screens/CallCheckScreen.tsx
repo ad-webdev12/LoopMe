@@ -89,7 +89,7 @@ export default function CallCheckScreen({ ctx }: { ctx: Ctx }) {
           <KeyboardAvoidingView behavior="padding">
           <Pressable style={[st.sheet, { backgroundColor: C.card }]} onPress={() => {}}>
             <Text style={[font(20, '700'), { color: C.ink }]} allowFontScaling>The number that called</Text>
-            <TextInput value={num} onChangeText={setNum} keyboardType="phone-pad" autoFocus placeholder="Type the number" placeholderTextColor={C.meta}
+            <TextInput value={num} onChangeText={setNum} keyboardType="phone-pad" autoFocus placeholder="Type the number" placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"}
               style={[font(22, '500'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, padding: 14, marginTop: 14 }]} />
             <Pill label="Block it" bg={T.red} style={{ marginTop: 14 }} onPress={blockEntered} />
           </Pressable>

@@ -709,7 +709,7 @@ export default function App() {
           <TabBar C={C} careMode={careMode} watchName={watchName} screen={screen} go={goTab} />
         )}
         <Toast text={toast} />
-        <ContactPickerHost C={C} />
+        <ContactPickerHost C={C} inLoop={settings.trusted.map(t => t.phone)} />
       </View>
     </SafeAreaView>
     </SafeAreaProvider>

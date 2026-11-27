@@ -17,7 +17,8 @@ export default function DrawerInfoScreen({ ctx }: { ctx: Ctx }) {
         <ScreenTitle C={C}>How to check a text message</ScreenTitle>
         <Lead C={C}>Check a text without leaving Messages.</Lead>
 
-        <View style={st.drawer}>
+        <Text style={[font(13, '600'), { color: C.ink2, marginTop: 18, marginHorizontal: 28, textTransform: 'uppercase', letterSpacing: 0.5 }]} allowFontScaling>Example: what you’ll see in Messages</Text>
+        <View style={[st.drawer, { opacity: 0.72 }]} accessible={false} importantForAccessibility="no-hide-descendants" pointerEvents="none">
           <View style={st.grabber} />
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 }}>
             <Image source={APP_ICON} style={{ width: 24, height: 24, borderRadius: 6 }} />
@@ -53,7 +54,7 @@ export default function DrawerInfoScreen({ ctx }: { ctx: Ctx }) {
 }
 
 const st = StyleSheet.create({
-  drawer: { marginHorizontal: 16, marginTop: 18, backgroundColor: '#f9f9f7', borderRadius: 28, paddingTop: 8, paddingHorizontal: 20, paddingBottom: 20, borderWidth: StyleSheet.hairlineWidth, borderColor: '#e5e5ea' },
+  drawer: { marginHorizontal: 16, marginTop: 8, borderStyle: 'dashed', backgroundColor: '#f9f9f7', borderRadius: 28, paddingTop: 8, paddingHorizontal: 20, paddingBottom: 20, borderWidth: 1.5, borderColor: '#c7c7cc' },
   grabber: { width: 36, height: 5, borderRadius: 3, backgroundColor: '#c7c7cc', alignSelf: 'center' },
   step: { flex: 1, backgroundColor: '#fff', borderRadius: 12, paddingTop: 9, paddingHorizontal: 10, paddingBottom: 10 },
   btn: { height: 54, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },

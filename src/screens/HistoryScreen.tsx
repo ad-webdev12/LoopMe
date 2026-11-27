@@ -27,10 +27,14 @@ function timeShort(at: number): string {
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
+// The chosen range survives opening an entry and coming back.
+let lastRange = 'Month';
+
 export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
   const { C, settings: s } = ctx;
   const careMode = s.role === 'caretaker';
-  const [range, setRange] = useState('Month');
+  const [range, setRangeState] = useState(lastRange);
+  const setRange = (r: string) => { lastRange = r; setRangeState(r); };
   const who = firstName(loopPerson(s)?.name);
 
   const all = ctx.hist.filter(h => careMode || h.source !== 'family');
@@ -38,22 +42,33 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
   const hist = all.filter(h => h.at >= since);
   const scams = hist.filter(h => h.level === 'red').length;
   const fine = hist.filter(h => h.level === 'green').length;
+  const careful = hist.filter(h => h.level === 'amber').length;
   const monthName = new Date().toLocaleDateString(undefined, { month: 'long' });
 
-  // One bar per day of the range (up to 14), the worst verdict that day.
+  // Up to 14 bars, the worst verdict in each. Week and Month: one bar a day.
+  // All: from the first check to today, several days to a bar when needed.
+  const DAY = 86400000;
+  const today0 = (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); })();
+  const firstAt = all.length ? Math.min(...all.map(h => h.at)) : Date.now();
+  const first0 = (() => { const d = new Date(firstAt); d.setHours(0, 0, 0, 0); return d.getTime(); })();
+  const spanDays = range === 'Week' ? 7 : range === 'Month' ? Math.min(14, new Date().getDate()) : Math.max(1, Math.round((today0 - first0) / DAY) + 1);
+  const nBars = Math.min(14, spanDays);
+  const per = Math.ceil(spanDays / nBars);
+  const start0 = range === 'All' ? first0 : today0 - (spanDays - 1) * DAY;
   const bars = useMemo(() => {
-    const days = range === 'Week' ? 7 : range === 'Month' ? Math.min(14, new Date().getDate()) : 14;
     const out: { level: 'red' | 'amber' | 'green' | 'none'; n: number }[] = [];
-    for (let i = days - 1; i >= 0; i--) {
-      const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - i);
-      const items = all.filter(h => new Date(h.at).toDateString() === d.toDateString());
+    for (let i = 0; i < nBars; i++) {
+      // The last bar always ends today.
+      const end = today0 + DAY - (nBars - 1 - i) * per * DAY;
+      const from = Math.max(start0, end - per * DAY);
+      const items = all.filter(h => h.at >= from && h.at < end);
       const level = items.some(h => h.level === 'red') ? 'red' : items.some(h => h.level === 'amber') ? 'amber' : items.length ? 'green' : 'none';
       out.push({ level, n: items.length });
     }
     return out;
-  }, [all, range]);
+  }, [all, range]); // eslint-disable-line react-hooks/exhaustive-deps
   const maxN = Math.max(1, ...bars.map(b => b.n));
-  const firstLabel = (() => { const d = new Date(); d.setDate(d.getDate() - (bars.length - 1)); return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); })();
+  const firstLabel = new Date(start0).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 
   const groups = useMemo(() => {
     const out: { label: string; items: CheckRecord[] }[] = [];
@@ -94,7 +109,7 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
             <Text style={[font(76, '800', 1.0, -3, true), { color: scams ? T.red : T.green, marginBottom: -10 }]} allowFontScaling={false}>{scams}</Text>
             <Text style={[font(17, '600', 1.25), { color: C.ink, flex: 1 }]} allowFontScaling>
               {scams === 1 ? 'scam stopped' : 'scams stopped'}{'\n'}{range === 'Week' ? 'this week' : range === 'Month' ? 'in ' + monthName : 'so far'}{'\n'}
-              <Text style={{ fontWeight: '400', color: C.ink2 }}>{fine} other {fine === 1 ? 'text was' : 'texts were'} fine</Text>
+              <Text style={{ fontWeight: '400', color: C.ink2 }}>{careful ? careful + ' to be careful with. ' : ''}{fine} {fine === 1 ? 'text was' : 'texts were'} fine</Text>
             </Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 6, height: 58, marginTop: 18 }}>
