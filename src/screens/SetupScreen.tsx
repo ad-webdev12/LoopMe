@@ -69,7 +69,7 @@ export default function SetupScreen({ ctx }: { ctx: Ctx }) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
         <BackLink label="Settings" onPress={ctx.back} />
         <ScreenTitle C={C}>Turn on scam protection</ScreenTitle>
-        <Lead C={C}>{total === 2 ? 'Two switches' : 'Three switches'} in your iPhone’s Settings. Apple only lets you turn them on yourself, so here’s exactly where they are.</Lead>
+        <Lead C={C}>{total === 2 ? 'Two switches' : 'Three switches'} in iPhone Settings. Here’s where.</Lead>
         <Text style={[font(15, '600'), { color: T.green, paddingHorizontal: 20, paddingTop: 12 }]} allowFontScaling>{on} of {total} switched on</Text>
 
         <PermCard C={C} Icon={MessageCircle} title="Unknown texts" on={textsOn} steps={TEXT_STEPS} frames={TEXT_FRAMES} captions={TEXT_CAPTIONS} onOpen={() => Linking.openSettings()} first

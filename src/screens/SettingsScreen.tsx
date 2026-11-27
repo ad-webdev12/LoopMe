@@ -22,30 +22,26 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
         <LargeTitle C={C} right={<Pressable onPress={() => ctx.go('home')} style={({ pressed }) => [st.done, { backgroundColor: C.dark ? '#2c2c2e' : '#e5e5ea' }, pressed && { opacity: 0.7 }]} accessibilityRole="button"><Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Done</Text></Pressable>}>Settings</LargeTitle>
 
-        <SectionHeader C={C}>Scam protection</SectionHeader>
+        <View style={{ height: 8 }} />
         <ProtectionCard ctx={ctx} p={p} />
 
-        <SectionHeader C={C}>Preferences</SectionHeader>
+        <View style={{ height: 20 }} />
         <Group C={C}>
-          <Row C={C} chip={Volume2} chipColor={T.iosGrey} title="Read answers aloud" pad={9} last right={<IOSSwitch C={C} on={!!s.readAloud} onChange={v => set({ readAloud: v })} />} />
-        </Group>
-
-        <SectionHeader C={C}>Manage</SectionHeader>
-        <Group C={C}>
+          <Row C={C} chip={Volume2} chipColor={T.iosGrey} title="Read answers aloud" pad={9} right={<IOSSwitch C={C} on={!!s.readAloud} onChange={v => set({ readAloud: v })} />} />
           <Row C={C} chip={Users} chipColor={T.green} title="Trusted and blocked numbers" pad={9} chevron last onPress={() => ctx.go('numbers')} right={counts > 0 ? <Text style={[font(17, '400'), { color: C.meta }]} allowFontScaling>{counts}</Text> : undefined} />
         </Group>
 
-        <SectionHeader C={C}>Help & support</SectionHeader>
+        <View style={{ height: 20 }} />
         <Group C={C}>
           <Row C={C} chip={HelpCircle} chipColor={T.green} title="How to use Loop Me" pad={9} chevron onPress={() => ctx.go('howto')} />
           <Row C={C} chip={BookOpen} chipColor={T.amber} title="Learn about scams" pad={9} chevron onPress={() => ctx.go('learn')} />
-          <Row C={C} chip={LifeBuoy} chipColor={T.red} title="Contact support" pad={9} chevron last onPress={() => ctx.go('support')} />
+          <Row C={C} chip={LifeBuoy} chipColor={T.red} title="Get help" pad={9} chevron last onPress={() => ctx.go('support')} />
         </Group>
 
-        <SectionHeader C={C}>Other</SectionHeader>
+        <View style={{ height: 20 }} />
         <Group C={C}>
-          <Row C={C} chip={SlidersHorizontal} chipColor={T.iosGrey} title="Advanced settings" pad={9} chevron onPress={() => ctx.go('advanced')} />
-          <Row C={C} chip={Lock} chipColor={T.iosGrey} title="Privacy & data" pad={9} chevron last onPress={() => ctx.go('privacy')} />
+          <Row C={C} chip={SlidersHorizontal} chipColor={T.iosGrey} title="More settings" pad={9} chevron onPress={() => ctx.go('advanced')} />
+          <Row C={C} chip={Lock} chipColor={T.iosGrey} title="Privacy" pad={9} chevron last onPress={() => ctx.go('privacy')} />
         </Group>
 
         <Note C={C} center top={22}>Loop Me {version} · No account required</Note>
@@ -63,9 +59,8 @@ function ProtectionCard({ ctx, p }: { ctx: Ctx; p: ReturnType<typeof useProtecti
       <Pressable onPress={() => ctx.go('setup')} style={({ pressed }) => [st.card, { backgroundColor: T.green, alignItems: 'flex-start', flexDirection: 'column' }, pressed && { opacity: 0.85 }]} accessibilityRole="button">
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <ShieldCheck size={30} color="#fff" strokeWidth={2} />
-          <Text style={[font(20, '700', 1.2), { color: '#fff', flex: 1 }]} allowFontScaling>Your text protection is active</Text>
+          <Text style={[font(20, '700', 1.2), { color: '#fff', flex: 1 }]} allowFontScaling>Protection is on</Text>
         </View>
-        <Text style={[font(16, '400', 1.4), { color: '#fff', marginTop: 8 }]} allowFontScaling>Scam texts and calls are stopped before they reach you.</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginTop: 12 }}>
           <Text style={[font(17, '600'), { color: '#fff' }]} allowFontScaling>Manage protection</Text>
           <ChevronRight size={18} color="#fff" strokeWidth={2.4} />
@@ -78,8 +73,8 @@ function ProtectionCard({ ctx, p }: { ctx: Ctx; p: ReturnType<typeof useProtecti
       <Animated.View style={[st.card, { backgroundColor: rowBg, paddingRight: 14 }]}>
         <View style={{ marginHorizontal: 3 }}><PulseDot size={12} /></View>
         <View style={{ flex: 1 }}>
-          <Text style={[font(18, '700'), { color: C.ink }]} allowFontScaling>Turn on scam protection</Text>
-          <Text style={[font(15, '500', 1.35), { color: C.redText, marginTop: 2 }]} allowFontScaling>{p.left === 1 ? '1 step left to turn on protection' : p.left + ' steps to turn on protection'}</Text>
+          <Text style={[font(18, '700'), { color: C.ink }]} allowFontScaling>Protection is off</Text>
+          <Text style={[font(15, '500', 1.35), { color: C.redText, marginTop: 2 }]} allowFontScaling>{p.left === 1 ? '1 step left' : p.left + ' steps to turn it on'}</Text>
         </View>
         <View style={st.start}><Text style={[font(15, '600'), { color: '#fff' }]} allowFontScaling>Start</Text></View>
       </Animated.View>

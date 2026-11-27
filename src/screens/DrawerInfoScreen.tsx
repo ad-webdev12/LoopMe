@@ -15,7 +15,7 @@ export default function DrawerInfoScreen({ ctx }: { ctx: Ctx }) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
         <BackLink label="Back" onPress={() => ctx.go('howto')} />
         <ScreenTitle C={C}>How to check a text message</ScreenTitle>
-        <Lead C={C}>Check a text without leaving Messages. Loop Me sits in the + list under the keyboard, next to Photos.</Lead>
+        <Lead C={C}>Check a text without leaving Messages.</Lead>
 
         <View style={st.drawer}>
           <View style={st.grabber} />
@@ -42,10 +42,10 @@ export default function DrawerInfoScreen({ ctx }: { ctx: Ctx }) {
         </View>
 
         <Note C={C} top={18}>
-          In Messages, press and hold the text, tap Copy. Tap the + next to the message box, then Loop Me, then the green Paste button. The answer appears right there, in red, amber or green, with the same buttons as the app. Nothing is sent into the chat.
+          Hold the text, tap Copy. Tap +, then Loop Me, then Paste.
         </Note>
         <Note C={C}>
-          Don’t see Loop Me in the + list? Scroll the list down; it sits with the other apps.
+          Not in the + list? Scroll down.
         </Note>
       </ScrollView>
     </Screen>
