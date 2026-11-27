@@ -18,10 +18,10 @@ import type { Ctx } from '../App';
 // this message are shown: no link, no link stage; no sender, no sender stage.
 type Stage = { t: string; title: string };
 function stagesFor(text: string, sender?: string | null): Stage[] {
-  const out: Stage[] = [{ t: 'Unmasking hidden text', title: 'Reading the message' }];
-  if (/(https?:\/\/|www\.|\b[a-z0-9-]+\.(?:com|net|org|co|io|ly|info|xyz|top|me|us|uk|app|link|site|online)\b)/i.test(text)) out.push({ t: 'Following the links', title: 'Checking where links go' });
-  if (sender && /\d{3,}|@/.test(sender)) out.push({ t: 'Checking the sender', title: 'Looking at who sent it' });
-  out.push({ t: 'AI reading the meaning', title: 'Understanding what it asks' });
+  const out: Stage[] = [{ t: 'Unmasking hidden text', title: 'Reading' }];
+  if (/(https?:\/\/|www\.|\b[a-z0-9-]+\.(?:com|net|org|co|io|ly|info|xyz|top|me|us|uk|app|link|site|online)\b)/i.test(text)) out.push({ t: 'Following the links', title: 'Checking links' });
+  if (sender && /\d{3,}|@/.test(sender)) out.push({ t: 'Checking the sender', title: 'Checking sender' });
+  out.push({ t: 'AI reading the meaning', title: 'Understanding' });
   out.push({ t: 'Weighing it all up', title: 'Deciding' });
   return out;
 }
@@ -35,7 +35,9 @@ export default function CheckingScreen({ ctx }: { ctx: Ctx }) {
   const matches = ctx.verdict ? highlights(ctx.msg, ctx.verdict.level, ctx.verdict.tags || []) : [];
   const off = motionOff();
   const stages = useRef(stagesFor(ctx.msg || '', rec?.sender)).current;
-  const STEP_MS = 640;
+  // Spread across the 3.6 s the app holds this screen; the last stage keeps
+  // going until the verdict is shown.
+  const STEP_MS = Math.round(3000 / stages.length);
 
   const prog = useRef(new Animated.Value(0)).current;
   const spin = useRef(new Animated.Value(0)).current;
@@ -115,8 +117,8 @@ export default function CheckingScreen({ ctx }: { ctx: Ctx }) {
           )}
           <Animated.Image source={APP_ICON} style={[st.icon, !off && { transform: [{ scale: breathe.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1.04] }) }] }]} />
         </View>
-        <Animated.Text accessibilityLiveRegion="polite" allowFontScaling
-          style={[font(26, '700', 1.25, -0.5), { color: C.ink, marginTop: 14, textAlign: 'center', opacity: titleIn, transform: [{ translateY: titleIn.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }]}>{stages[step].title}</Animated.Text>
+        <Animated.Text accessibilityLiveRegion="polite" allowFontScaling numberOfLines={1} adjustsFontSizeToFit
+          style={[font(26, '700', 1.25, -0.5), { color: C.ink, marginTop: 14, height: 34, textAlign: 'center', opacity: titleIn, transform: [{ translateY: titleIn.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }]}>{stages[step].title}</Animated.Text>
       </View>
 
       <View style={[st.card, { backgroundColor: C.card }]}>

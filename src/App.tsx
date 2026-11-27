@@ -398,7 +398,7 @@ export default function App() {
   const activeCheck = useRef('');
   // The Checking screen plays for 2.8 seconds while the rules and the model
   // run underneath; the takeover that follows is the final answer.
-  const CHECK_MS = 2800;
+  const CHECK_MS = 3600;
   const check = useCallback((text: string, sender?: string) => {
     const raw = (text || '').trim();
     if (!raw) { flash('Copy a message first, then tap Check.'); return; }
