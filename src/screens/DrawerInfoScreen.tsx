@@ -5,5 +5,5 @@ import { HowToScreen } from './SettingsSubScreens';
 import type { Ctx } from '../App';
 
 export default function DrawerInfoScreen({ ctx }: { ctx: Ctx }) {
-  return <HowToScreen ctx={ctx} start="messages" />;
+  return <HowToScreen ctx={ctx} start="messages" fromSettings={false} />;
 }

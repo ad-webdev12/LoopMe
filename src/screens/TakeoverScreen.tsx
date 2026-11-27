@@ -5,11 +5,11 @@
 import { highlights, headline as explainHeadline } from '../engine/explain';
 import React, { useEffect } from 'react';
 import * as Speech from 'expo-speech';
-import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Phone, Send } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { T, font } from '../theme';
-import { Takeover, Pill, TextBtn, Avatar } from '../ui/base';
+import { Takeover, Pill, Avatar } from '../ui/base';
 import { MessageCard, loopPerson, firstName, senderLabel, whenLabel } from '../ui/pieces';
 import type { Ctx } from '../App';
 
@@ -54,7 +54,7 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
     <Takeover color={color} haptic={level === 'red' ? 'error' : level === 'amber' ? 'warning' : null} playKey={ctx.recordId + level}>
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingTop: 70, paddingHorizontal: 22, paddingBottom: 30 }} showsVerticalScrollIndicator={false}>
         <Text style={[font(50, '800', 1.0, -1), { color: '#fff' }]} allowFontScaling>{headline}</Text>
-        <Text style={[font(18, '400', 1.4), { color: '#fff', marginTop: 14 }]} allowFontScaling>{sub}</Text>
+        <Text style={[font(22, '600', 1.3), { color: '#fff', marginTop: 14 }]} allowFontScaling>{sub}</Text>
 
         <MessageCard C={{ ...C, card: '#fff', ink: '#000', meta: '#000' }} sender={sender} when={whenLabel(rec?.at || Date.now())} text={ctx.msg}
           matches={highlights(ctx.msg, level, v?.tags || [])}
@@ -62,11 +62,13 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
           shadow={level === 'red' ? 'rgba(80,10,0,.25)' : level === 'amber' ? 'rgba(60,30,0,.25)' : undefined}
           style={{ marginTop: 20 }} />
 
-        {level === 'amber' && (
-          <>
-            <Text style={[font(17, '600', 1.4), { color: '#fff', marginTop: 18 }]} allowFontScaling>What to do</Text>
-            <Text style={[font(16, '400', 1.45), { color: '#fff', marginTop: 4 }]} allowFontScaling>{safeStep || 'Don’t tap or reply yet. Check with them on a number you already have.'}</Text>
-          </>
+        {level !== 'green' && (
+          <View style={st.todo}>
+            <Text style={[font(15, '700', 1.3), { color: '#fff', opacity: 0.85, letterSpacing: 0.4 }]} allowFontScaling>WHAT TO DO</Text>
+            <Text style={[font(19, '500', 1.4), { color: '#fff', marginTop: 6 }]} allowFontScaling>{level === 'red'
+              ? (isCall ? 'Hang up and call back on a number you already have.' : safeStep || 'Don’t tap the link or reply. Delete the message.')
+              : safeStep || 'Don’t tap or reply yet. Check with them on a number you already have.'}</Text>
+          </View>
         )}
         {level === 'green' && (
           <Text style={[font(16, '400', 1.45), { color: '#fff', marginTop: 18 }]} allowFontScaling>
@@ -87,9 +89,9 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
               {canBlock && <Pill label="Block Number" bg="#fff" color={T.red} onPress={block} />}
               {!!trusted && <Pill label={'Call ' + firstName(trusted.name)} bg={canBlock ? 'rgba(255,255,255,.2)' : '#fff'} color={canBlock ? '#fff' : T.red} onPress={() => call(trusted.phone)} />}
               {canBlock || trusted ? (
-                <View style={{ flexDirection: 'row', marginTop: 2 }}>
-                  <TextBtn label="Show me more" onPress={() => ctx.go('detail')} style={{ flex: 1 }} />
-                  <TextBtn label="Leave it" onPress={() => ctx.back()} style={{ flex: 1 }} />
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  <Pill label="Show me more" height={52} bg="rgba(255,255,255,.2)" onPress={() => ctx.go('detail')} style={{ flex: 1 }} />
+                  <Pill label="Leave it" height={52} bg="rgba(255,255,255,.2)" onPress={() => ctx.back()} style={{ flex: 1 }} />
                 </View>
               ) : (
                 <>
@@ -109,9 +111,9 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
                   <Pill label="Close" bg="rgba(255,255,255,.22)" onPress={() => ctx.back()} />
                 </>
               ) : (
-                <View style={{ flexDirection: 'row', marginTop: 2 }}>
-                  <TextBtn label="Show me more" onPress={() => ctx.go('detail')} style={{ flex: 1 }} />
-                  <TextBtn label="Close" onPress={() => ctx.back()} style={{ flex: 1 }} />
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  <Pill label="Show me more" height={52} bg="rgba(255,255,255,.2)" onPress={() => ctx.go('detail')} style={{ flex: 1 }} />
+                  <Pill label="Close" height={52} bg="rgba(255,255,255,.2)" onPress={() => ctx.back()} style={{ flex: 1 }} />
                 </View>
               )}
             </>
@@ -132,3 +134,7 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
     </Takeover>
   );
 }
+
+const st = StyleSheet.create({
+  todo: { marginTop: 18, borderRadius: 18, padding: 16, backgroundColor: 'rgba(255,255,255,.16)' },
+});

@@ -27,13 +27,13 @@ export function NumbersScreen({ ctx }: { ctx: Ctx }) {
   );
 }
 
-export function HowToScreen({ ctx, start }: { ctx: Ctx; start?: 'messages' | 'app' }) {
+export function HowToScreen({ ctx, start, fromSettings = true }: { ctx: Ctx; start?: 'messages' | 'app'; fromSettings?: boolean }) {
   const { C } = ctx;
   const [tab, setTab] = React.useState<'messages' | 'app'>(start || 'messages');
   return (
     <Screen C={C} playKey="howto">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 130 }}>
-        <BackLink label="Settings" onPress={() => ctx.go('settings')} />
+        <BackLink label={fromSettings ? 'Settings' : 'Back'} onPress={() => fromSettings ? ctx.go('settings') : ctx.back()} />
         <ScreenTitle C={C}>How to use Loop Me</ScreenTitle>
         <View style={{ marginTop: 16, marginBottom: 22 }}>
           <Segmented C={C} options={['In Messages', 'In Loop Me']} value={tab === 'messages' ? 'In Messages' : 'In Loop Me'} onChange={v => setTab(v === 'In Messages' ? 'messages' : 'app')} />

@@ -212,7 +212,20 @@ final class CloudLink: @unchecked Sendable {
       rec["at"] = Date() as CKRecordValue
       do {
         let (saved, _) = try await pub.modifyRecords(saving: [rec], deleting: [], savePolicy: .ifServerRecordUnchanged)
-        if case .failure(let e)? = saved[rec.recordID] { lastError = e; continue }
+        if case .failure(let e)? = saved[rec.recordID] {
+          lastError = e
+          // Taken, but maybe by a code that has run out: reuse that one.
+          if let old = try? await pub.record(for: rec.recordID), let at = old["at"] as? Date,
+             Date().timeIntervalSince(at) > CloudLink.codeLife {
+            old["url"] = url as CKRecordValue
+            old["name"] = myName as CKRecordValue
+            old["at"] = Date() as CKRecordValue
+            if (try? await pub.modifyRecords(saving: [old], deleting: [], savePolicy: .ifServerRecordUnchanged)) != nil {
+              code = candidate; lastError = nil; break
+            }
+          }
+          continue
+        }
         code = candidate; lastError = nil; break
       } catch { lastError = error }
     }
@@ -228,6 +241,10 @@ final class CloudLink: @unchecked Sendable {
       _ = try? await pub.modifyRecords(saving: [], deleting: [CKRecord.ID(recordName: "inv-" + old)])
     }
     store.inviteCode = code; store.inviteCodeAt = Date(); store.inviteCodeURL = url
+    // Count who is already in, so only someone new takes the code down.
+    if let share = try? await container.privateCloudDatabase.record(for: CKRecord.ID(recordName: CKRecordNameZoneWideShare, zoneID: ownZoneID)) as? CKShare {
+      UserDefaults.standard.set(share.participants.filter { $0.role != .owner && $0.acceptanceStatus == .accepted }.count, forKey: "loopme.inviteCodeBase")
+    }
     return code
   }
 
@@ -473,7 +490,7 @@ final class CloudLink: @unchecked Sendable {
     let rec: CKRecord
     if let existing = try? await db.record(for: id) {
       let theirAt = (existing["at"] as? Double) ?? 0
-      if theirAt > at, let w = existing.encryptedValues["word"] as? String { return ["word": w, "at": theirAt] }
+      if theirAt >= at, let w = existing.encryptedValues["word"] as? String { return ["word": w, "at": theirAt] }
       rec = existing
     } else {
       rec = CKRecord(recordType: LM_WORD, recordID: id)

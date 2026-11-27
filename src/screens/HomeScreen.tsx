@@ -48,11 +48,12 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
   const [clipChecked, setClipChecked] = useState(clipCheckedFlag);
   const clipDone = () => { clipCheckedFlag = true; setClipChecked(true); };
   useEffect(() => {
-    const sub = Clipboard.addClipboardListener(() => { clipCheckedFlag = false; setClipChecked(false); });
+    // A new copy replaces the old one: never re-check stale text.
+    const sub = Clipboard.addClipboardListener(() => { clipCheckedFlag = false; setClipChecked(false); setClip(''); void readClip(); });
     let wasAway = false;
     const app = AppState.addEventListener('change', st => {
       if (st === 'background') wasAway = true;
-      else if (st === 'active' && wasAway) { wasAway = false; clipCheckedFlag = false; setClipChecked(false); }
+      else if (st === 'active' && wasAway) { wasAway = false; clipCheckedFlag = false; setClipChecked(false); setClip(''); }
     });
     return () => { Clipboard.removeClipboardListener(sub); app.remove(); };
   }, []);
@@ -185,7 +186,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
           )}
           {Paste && hasClip && !clip ? (
             // Apple's paste button: the tap is the permission, so no alert.
-            <Paste style={st.primary} onPaste={e => { const t = (e.nativeEvent.text || '').trim(); if (t.length > 3) { setClip(t); clipDone(); ctx.checkAs(t, 'pasted'); } }} />
+            <Paste style={st.primary} onPaste={e => { const t = (e.nativeEvent.text || '').trim(); if (t.length > 3) { setClip(t); clipDone(); ctx.checkAs(t, 'pasted'); } else { ctx.flash('That copy had no words to check. Type or paste it here.'); setTyping(true); } }} />
           ) : (
           <Pressable onPress={checkClip} style={({ pressed }) => [st.primary, pressed && { transform: [{ scale: 0.98 }] }]} accessibilityRole="button">
             <Text style={[font(19, '700'), { color: T.greenDeep }]} allowFontScaling>{clip ? 'Check this message' : 'Check a message'}</Text>

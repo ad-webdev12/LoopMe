@@ -504,7 +504,8 @@ final class PasteControlView: ExpoView {
 
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
-    pasteConfiguration = UIPasteConfiguration(forAccepting: NSString.self)
+    // Plain text, rich text and links all count: a copied scam is often a URL.
+    pasteConfiguration = UIPasteConfiguration(acceptableTypeIdentifiers: ["public.plain-text", "public.utf8-plain-text", "public.text", "public.url"])
     if #available(iOS 16.0, *) {
       let cfg = UIPasteControl.Configuration()
       cfg.displayMode = .iconAndLabel
@@ -524,12 +525,16 @@ final class PasteControlView: ExpoView {
   }
 
   override func paste(itemProviders: [NSItemProvider]) {
-    for p in itemProviders where p.canLoadObject(ofClass: NSString.self) {
-      p.loadObject(ofClass: NSString.self) { [weak self] obj, _ in
-        guard let text = (obj as? NSString).map(String.init), !text.isEmpty else { return }
-        DispatchQueue.main.async { self?.onPaste(["text": text]) }
-      }
-      return
+    // Always answer, even with nothing, so the app can fall back to typing
+    // instead of the tap doing nothing.
+    let send: (String) -> Void = { [weak self] t in DispatchQueue.main.async { self?.onPaste(["text": t]) } }
+    guard let p = itemProviders.first else { send(""); return }
+    if p.canLoadObject(ofClass: NSString.self) {
+      p.loadObject(ofClass: NSString.self) { obj, _ in send((obj as? NSString).map(String.init) ?? "") }
+    } else if p.canLoadObject(ofClass: NSURL.self) {
+      _ = p.loadObject(ofClass: NSURL.self) { obj, _ in send((obj as? NSURL)?.absoluteString ?? "") }
+    } else {
+      send("")
     }
   }
 }

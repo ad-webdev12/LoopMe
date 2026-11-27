@@ -57,7 +57,7 @@ export type ScreenId =
   | 'home' | 'checking' | 'scam' | 'amber' | 'green' | 'detail' | 'callcheck'
   | 'history' | 'family' | 'ask' | 'maria'
   | 'settings' | 'setup' | 'learn' | 'practice' | 'caregiver' | 'scammed' | 'blocked' | 'safe' | 'drawerInfo'
-  | 'numbers' | 'howto' | 'advanced' | 'privacy' | 'support'
+  | 'numbers' | 'howto' | 'advanced' | 'privacy'
   | 'ward' | 'wardItem' | 'familyAlert' | 'note' | 'ob5' | 'ob6';
 
 export interface Ctx {
@@ -118,7 +118,7 @@ export interface Ctx {
 
 // The floating bar shows on the four tabs only; pushed screens have Back.
 const TAB_SCREENS: ScreenId[] = ['home', 'history', 'family', 'ward'];
-const ALL_SCREENS: ScreenId[] = ['home', 'checking', 'scam', 'amber', 'green', 'detail', 'callcheck', 'history', 'family', 'ask', 'maria', 'settings', 'setup', 'learn', 'practice', 'caregiver', 'scammed', 'blocked', 'safe', 'drawerInfo', 'numbers', 'howto', 'advanced', 'privacy', 'support', 'ward', 'watchedBy', 'watch', 'intro', 'ob1', 'ob2', 'ob3', 'ob4', 'ob5', 'ob6'];
+const ALL_SCREENS: ScreenId[] = ['home', 'checking', 'scam', 'amber', 'green', 'detail', 'callcheck', 'history', 'family', 'ask', 'maria', 'settings', 'setup', 'learn', 'practice', 'caregiver', 'scammed', 'blocked', 'safe', 'drawerInfo', 'numbers', 'howto', 'advanced', 'privacy', 'ward', 'watchedBy', 'watch', 'intro', 'ob1', 'ob2', 'ob3', 'ob4', 'ob5', 'ob6'];
 
 LogBox.ignoreLogs(['SafeAreaView has been deprecated']);
 
@@ -265,7 +265,7 @@ export default function App() {
     if (next.familyLinked) {
       const w = await Family.shareWord(next);
       const cur = settingsRef.current!;
-      if (w && w.at > (cur.codeWordAt || 0)) update({ ...cur, codeWord: w.word, codeWordSet: true, codeWordAt: w.at });
+      if (w && w.word !== cur.codeWord && w.at >= (cur.codeWordAt || 0)) update({ ...cur, codeWord: w.word, codeWordSet: true, codeWordAt: w.at });
     }
     const drained = await Family.drainExtensions(next);
     const { newChecks, newNotes, newBlocks, newSafes } = await Family.sync();
