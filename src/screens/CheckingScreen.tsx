@@ -1,8 +1,12 @@
-// Checking a message: the message under a scan band, and the engine's real
-// stages ticking down a rail. Stages that don't apply (no link, no sender)
-// are left out. The last stage holds until the real verdict is in.
+// Checking a message. A ring fills stage by stage around the app icon while a
+// comet circles it and soft ripples breathe out; under it the message is swept
+// by a light band, and the engine's real stages light up one by one. Stages
+// that don't apply (no link, no sender) are left out. The ring and the last
+// stage hold until the real verdict is in.
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import Svg, { Circle, Defs, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Check } from 'lucide-react-native';
 import { highlights } from '../engine/explain';
 import { T, font } from '../theme';
@@ -22,50 +26,97 @@ function stagesFor(text: string, sender?: string | null): Stage[] {
   return out;
 }
 
+const ACirc = Animated.createAnimatedComponent(Circle);
+const R = 76, RING = 2 * Math.PI * R, SIZE = 200;
+
 export default function CheckingScreen({ ctx }: { ctx: Ctx }) {
   const { C } = ctx;
   const rec = ctx.hist.find(h => h.id === ctx.recordId);
   const matches = ctx.verdict ? highlights(ctx.msg, ctx.verdict.level, ctx.verdict.tags || []) : [];
   const off = motionOff();
+  const stages = useRef(stagesFor(ctx.msg || '', rec?.sender)).current;
+  const STEP_MS = 640;
 
-  const fill = useRef(new Animated.Value(0)).current;
+  const prog = useRef(new Animated.Value(0)).current;
+  const spin = useRef(new Animated.Value(0)).current;
   const breathe = useRef(new Animated.Value(0)).current;
+  const ripple = useRef([new Animated.Value(0), new Animated.Value(0)]).current;
   const band = useRef(new Animated.Value(0)).current;
-  const fade = useRef(new Animated.Value(1)).current;
+  const shimmer = useRef(new Animated.Value(0)).current;
+  const titleIn = useRef(new Animated.Value(1)).current;
+  const rows = useRef(stages.map((_, i) => new Animated.Value(i === 0 ? 1 : 0))).current;
+  const pops = useRef(stages.map(() => new Animated.Value(0))).current;
   const [lit, setLit] = useState(-1);
   const [step, setStep] = useState(0);
-  const stages = useRef(stagesFor(ctx.msg || '', rec?.sender)).current;
-  const STEP_MS = 620;
 
   useEffect(() => {
+    const n = stages.length;
     const loops: Animated.CompositeAnimation[] = [];
-    // Fills most of the way on its own, then waits on the verdict.
-    Animated.timing(fill, { toValue: 0.92, duration: 2600, delay: 100, easing: Easing.bezier(0.4, 0, 0.2, 1), useNativeDriver: false }).start();
+    const to = (k: number) => Animated.timing(prog, { toValue: Math.min(0.94, (k + 0.85) / n), duration: STEP_MS - 40, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
+    to(0);
     if (!off) {
-      loops.push(Animated.loop(Animated.sequence([Animated.timing(breathe, { toValue: 1, duration: 1000, easing: Easing.inOut(Easing.ease), useNativeDriver: true }), Animated.timing(breathe, { toValue: 0, duration: 1000, easing: Easing.inOut(Easing.ease), useNativeDriver: true })])));
-      loops.push(Animated.loop(Animated.timing(band, { toValue: 1, duration: 1400, easing: Easing.bezier(0.45, 0, 0.55, 1), useNativeDriver: true })));
+      loops.push(Animated.loop(Animated.timing(spin, { toValue: 1, duration: 1500, easing: Easing.linear, useNativeDriver: true })));
+      loops.push(Animated.loop(Animated.sequence([Animated.timing(breathe, { toValue: 1, duration: 900, easing: Easing.inOut(Easing.ease), useNativeDriver: true }), Animated.timing(breathe, { toValue: 0, duration: 900, easing: Easing.inOut(Easing.ease), useNativeDriver: true })])));
+      ripple.forEach((r, i) => loops.push(Animated.loop(Animated.sequence([Animated.delay(i * 900), Animated.timing(r, { toValue: 1, duration: 1800, easing: Easing.out(Easing.quad), useNativeDriver: true }), Animated.timing(r, { toValue: 0, duration: 0, useNativeDriver: true })]))));
+      loops.push(Animated.loop(Animated.timing(band, { toValue: 1, duration: 1500, easing: Easing.bezier(0.45, 0, 0.55, 1), useNativeDriver: true })));
+      loops.push(Animated.loop(Animated.timing(shimmer, { toValue: 1, duration: 1200, easing: Easing.linear, useNativeDriver: true })));
       loops.forEach(l => l.start());
     }
     const t = [900, 1300, 1700].map((ms, i) => setTimeout(() => setLit(i), ms));
-    // The last stage holds until the real verdict arrives and this screen closes.
     const k = stages.slice(1).map((_, i) => setTimeout(() => {
-      if (off) { setStep(i + 1); return; }
-      Animated.timing(fade, { toValue: 0, duration: 150, useNativeDriver: true }).start(() => {
-        setStep(i + 1);
-        Animated.timing(fade, { toValue: 1, duration: 200, useNativeDriver: true }).start();
+      const next = i + 1;
+      Animated.spring(pops[i], { toValue: 1, friction: 4, tension: 160, useNativeDriver: true }).start();
+      Animated.timing(rows[next], { toValue: 1, duration: off ? 0 : 320, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+      to(next);
+      if (off) { setStep(next); return; }
+      Animated.timing(titleIn, { toValue: 0, duration: 140, useNativeDriver: true }).start(() => {
+        setStep(next);
+        Animated.timing(titleIn, { toValue: 1, duration: 260, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
       });
     }, STEP_MS * (i + 1)));
     return () => { loops.forEach(l => l.stop()); [...t, ...k].forEach(clearTimeout); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const track = C.dark ? 'rgba(13,107,87,.28)' : '#e3eeea';
+  const rot = spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
+
   return (
     <Screen C={C} playKey="checking" scroll style={{ paddingHorizontal: 16 }}>
-      <View style={{ alignItems: 'center', paddingTop: 44 }}>
-        <Animated.Image source={APP_ICON} style={[st.icon, !off && { transform: [{ scale: breathe.interpolate({ inputRange: [0, 1], outputRange: [1, 1.04] }) }] }]} />
-        <Animated.Text style={[font(24, '700', 1.33, -0.4), { color: C.ink, marginTop: 24, textAlign: 'center', opacity: fade }]} allowFontScaling accessibilityLiveRegion="polite">{stages[step].title}</Animated.Text>
-        <View style={[st.track, { backgroundColor: C.dark ? 'rgba(13,107,87,.3)' : '#dfe9e5' }]}>
-          <Animated.View style={[st.bar, { width: fill.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }]} />
+      <View style={{ alignItems: 'center', paddingTop: 28 }}>
+        <View style={{ width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' }}>
+          {!off && ripple.map((r, i) => (
+            <Animated.View key={i} pointerEvents="none" style={[st.ripple, { borderColor: T.green, opacity: r.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0] }), transform: [{ scale: r.interpolate({ inputRange: [0, 1], outputRange: [0.62, 1.12] }) }] }]} />
+          ))}
+          <Svg width={SIZE} height={SIZE} style={StyleSheet.absoluteFill}>
+            <Defs>
+              <SvgGrad id="arc" x1="0" y1="0" x2="1" y2="1">
+                <Stop offset="0" stopColor="#3fbf95" />
+                <Stop offset="1" stopColor={T.greenDeep} />
+              </SvgGrad>
+            </Defs>
+            <Circle cx={SIZE / 2} cy={SIZE / 2} r={R} stroke={track} strokeWidth={8} fill="none" />
+            <ACirc cx={SIZE / 2} cy={SIZE / 2} r={R} stroke="url(#arc)" strokeWidth={8} strokeLinecap="round" fill="none"
+              strokeDasharray={RING} strokeDashoffset={prog.interpolate({ inputRange: [0, 1], outputRange: [RING, 0] })}
+              transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`} />
+          </Svg>
+          {!off && (
+            <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { transform: [{ rotate: rot }] }]}>
+              <Svg width={SIZE} height={SIZE}>
+                <Defs>
+                  <SvgGrad id="comet" x1="0" y1="0" x2="1" y2="0">
+                    <Stop offset="0" stopColor={T.green} stopOpacity="0" />
+                    <Stop offset="1" stopColor={T.green} stopOpacity="0.9" />
+                  </SvgGrad>
+                </Defs>
+                <Circle cx={SIZE / 2} cy={SIZE / 2} r={R + 14} stroke="url(#comet)" strokeWidth={3} strokeLinecap="round" fill="none" strokeDasharray={`${(R + 14) * 1.3} ${2 * Math.PI * (R + 14)}`} />
+                <Circle cx={SIZE / 2 + (R + 14) * Math.cos(1.3)} cy={SIZE / 2 + (R + 14) * Math.sin(1.3)} r={4.5} fill={T.green} />
+              </Svg>
+            </Animated.View>
+          )}
+          <Animated.Image source={APP_ICON} style={[st.icon, !off && { transform: [{ scale: breathe.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1.04] }) }] }]} />
         </View>
+        <Animated.Text accessibilityLiveRegion="polite" allowFontScaling
+          style={[font(26, '700', 1.25, -0.5), { color: C.ink, marginTop: 14, textAlign: 'center', opacity: titleIn, transform: [{ translateY: titleIn.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }]}>{stages[step].title}</Animated.Text>
       </View>
 
       <View style={[st.card, { backgroundColor: C.card }]}>
@@ -74,10 +125,13 @@ export default function CheckingScreen({ ctx }: { ctx: Ctx }) {
           <Text style={[font(13, '400'), { color: C.meta, opacity: C.dark ? 0.6 : 1 }]} allowFontScaling>{whenLabel(rec?.at || Date.now())}</Text>
         </View>
         <Bubble C={C} style={{ marginTop: 8, alignSelf: 'flex-start' }}>
-          <Highlighted text={ctx.msg} matches={matches} color={C.ink} size={16} lh={1.4} lit={lit} numberOfLines={8} />
+          <Highlighted text={ctx.msg} matches={matches} color={C.ink} size={16} lh={1.4} lit={lit} numberOfLines={6} />
         </Bubble>
         {!off && (
-          <Animated.View pointerEvents="none" style={[st.band, { opacity: band.interpolate({ inputRange: [0, 0.15, 0.85, 1], outputRange: [0, 1, 1, 0] }), transform: [{ translateY: band.interpolate({ inputRange: [0, 1], outputRange: [-40, 130] }) }] }]} />
+          <Animated.View pointerEvents="none" style={[st.band, { opacity: band.interpolate({ inputRange: [0, 0.12, 0.88, 1], outputRange: [0, 1, 1, 0] }), transform: [{ translateY: band.interpolate({ inputRange: [0, 1], outputRange: [-60, 170] }) }] }]}>
+            <LinearGradient colors={['rgba(13,107,87,0)', 'rgba(13,107,87,.16)']} style={{ flex: 1 }} />
+            <View style={{ height: 2, backgroundColor: T.green, shadowColor: T.green, shadowOpacity: 0.9, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } }} />
+          </Animated.View>
         )}
       </View>
 
@@ -85,15 +139,18 @@ export default function CheckingScreen({ ctx }: { ctx: Ctx }) {
         {stages.map((c, i) => {
           const done = step > i, now = step === i;
           return (
-            <View key={c.t} style={st.row}>
-              <View style={{ alignItems: 'center', width: 28 }}>
-                <View style={[st.dot, { backgroundColor: done ? T.green : now ? (C.dark ? 'rgba(13,107,87,.35)' : '#dff0ea') : C.dark ? '#2c2c2e' : '#eef1f0' }]}>
-                  {done ? <Check size={15} color="#fff" strokeWidth={3} /> : now ? <ActivityIndicator size="small" color={T.green} /> : null}
-                </View>
-                {i < stages.length - 1 && <View style={[st.line, { backgroundColor: done ? T.green : C.dark ? '#2c2c2e' : '#e3e8e6' }]} />}
+            <Animated.View key={c.t} style={[st.row, { backgroundColor: now ? (C.dark ? 'rgba(13,107,87,.22)' : '#eaf5f1') : 'transparent', opacity: rows[i].interpolate({ inputRange: [0, 1], outputRange: [0.32, 1] }), transform: [{ translateX: rows[i].interpolate({ inputRange: [0, 1], outputRange: [-6, 0] }) }] }]}>
+              {now && !off && (
+                <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { transform: [{ translateX: shimmer.interpolate({ inputRange: [0, 1], outputRange: [-240, 400] }) }] }]}>
+                  <LinearGradient start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} colors={['rgba(255,255,255,0)', C.dark ? 'rgba(255,255,255,.08)' : 'rgba(255,255,255,.75)', 'rgba(255,255,255,0)']} style={{ width: 160, height: '100%' }} />
+                </Animated.View>
+              )}
+              <View style={[st.dot, { backgroundColor: done ? T.green : now ? 'transparent' : C.dark ? '#2c2c2e' : '#e9eeec', borderWidth: now ? 2.5 : 0, borderColor: T.green }]}>
+                {done && <Animated.View style={{ transform: [{ scale: pops[i] }] }}><Check size={15} color="#fff" strokeWidth={3.2} /></Animated.View>}
+                {now && <Animated.View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: T.green, transform: [{ scale: breathe.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1.25] }) }] }} />}
               </View>
-              <Text style={[font(18, now ? '700' : '600'), { color: C.ink, opacity: done || now ? 1 : 0.35, paddingTop: 3 }]} allowFontScaling>{c.t}</Text>
-            </View>
+              <Text style={[font(18, now ? '700' : '600'), { color: done ? C.ink2 : C.ink, flex: 1 }]} allowFontScaling>{c.t}</Text>
+            </Animated.View>
           );
         })}
       </View>
@@ -102,13 +159,11 @@ export default function CheckingScreen({ ctx }: { ctx: Ctx }) {
 }
 
 const st = StyleSheet.create({
-  icon: { width: 84, height: 84, borderRadius: 21, shadowColor: 'rgba(13,74,59,1)', shadowOpacity: 0.25, shadowRadius: 28, shadowOffset: { width: 0, height: 12 } },
-  track: { width: 180, height: 6, borderRadius: 3, overflow: 'hidden', marginTop: 16 },
-  bar: { height: '100%', borderRadius: 3, backgroundColor: T.green },
-  card: { marginTop: 24, borderRadius: 20, paddingTop: 14, paddingHorizontal: 16, paddingBottom: 16, overflow: 'hidden' },
-  band: { position: 'absolute', left: 0, right: 0, top: 0, height: 44, backgroundColor: 'rgba(13,107,87,.12)', borderBottomWidth: 2.5, borderBottomColor: T.green },
-  rail: { marginTop: 26, paddingHorizontal: 10, paddingBottom: 40 },
-  row: { flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
-  line: { width: 2, height: 22, borderRadius: 1, marginVertical: 3 },
+  icon: { width: 96, height: 96, borderRadius: 24, shadowColor: 'rgba(13,74,59,1)', shadowOpacity: 0.3, shadowRadius: 24, shadowOffset: { width: 0, height: 10 } },
+  ripple: { position: 'absolute', width: SIZE, height: SIZE, borderRadius: SIZE / 2, borderWidth: 2 },
+  card: { marginTop: 20, borderRadius: 20, paddingTop: 14, paddingHorizontal: 16, paddingBottom: 16, overflow: 'hidden' },
+  band: { position: 'absolute', left: 0, right: 0, top: 0, height: 56 },
+  rail: { marginTop: 18, paddingBottom: 40, gap: 4 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 11, paddingHorizontal: 12, borderRadius: 14, overflow: 'hidden' },
   dot: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
 });

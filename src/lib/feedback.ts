@@ -1,15 +1,10 @@
 // "Was this right?" The one thing that lets the detector get better after
-// release without a server. A correction does three things on this phone:
-// it is remembered, so the same text is never misjudged again; a scam sender
-// is flagged for the call directory; and, only if the person switched it on
-// in Settings, the redacted text goes to the app's public CloudKit database
-// so the next version can be trained on real scams.
+// release without a server. A correction does two things on this phone:
+// it is remembered, so the same text is never misjudged again, and a scam sender
+// is flagged for the call directory. Nothing leaves the phone.
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { cloudSubmitSample } from '../../modules/scam-ai';
 import { normalizeText } from '../engine/normalize';
-import { redactPrivate } from './redact';
 import { updateCheck, listChecks } from './history';
-import { phoneRegion } from './region';
 import type { Settings } from './storage';
 
 const KEY = 'loopmein.corrections.v1';
@@ -39,7 +34,6 @@ export async function rememberText(text: string, label: Label, s: Settings): Pro
   const m = await load();
   m[keyOf(t)] = label;
   try { await AsyncStorage.setItem(KEY, JSON.stringify(m)); } catch {}
-  if (s.improve) void cloudSubmitSample(redactPrivate(t), label === 'scam' ? 'scam' : 'safe', phoneRegion() || 'XX');
 }
 
 export async function correct(recId: string, label: Label, s: Settings, fullText?: string): Promise<void> {
@@ -52,5 +46,4 @@ export async function correct(recId: string, label: Label, s: Settings, fullText
   if (keys.length > 500) for (const k of keys.slice(0, keys.length - 500)) delete m[k];
   try { await AsyncStorage.setItem(KEY, JSON.stringify(m)); } catch {}
   await updateCheck(recId, { userLabel: label, level: label === 'scam' ? 'red' : 'green' });
-  if (s.improve) void cloudSubmitSample(redactPrivate(text), label === 'scam' ? 'scam' : 'safe', phoneRegion() || 'XX');
 }

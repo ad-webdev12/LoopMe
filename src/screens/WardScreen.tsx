@@ -3,7 +3,7 @@
 // trying, and what is switched on over there.
 import React, { useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Phone, ChevronRight, Send } from 'lucide-react-native';
+import { Phone, ChevronRight, Send, Settings } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { Screen, LargeTitle, Avatar, Card, SectionHeader, Note, Tag, Pill, PulseDot } from '../ui/base';
 import { firstName, whenLabel } from '../ui/pieces';
@@ -37,7 +37,13 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
   return (
     <Screen C={C} playKey="ward">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
-        <LargeTitle C={C} right={<Pressable onPress={() => ctx.go('watch')} accessibilityRole="button" style={{ marginBottom: 5 }}><Text style={[font(17, '400'), { color: C.accent }]} allowFontScaling>Link</Text></Pressable>}>{known ? name : 'Waiting for the invite'}</LargeTitle>
+        <LargeTitle C={C} right={<View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 2 }}>
+          <Pressable onPress={() => ctx.go('watch')} accessibilityRole="button"><Text style={[font(17, '400'), { color: C.accent }]} allowFontScaling>Link</Text></Pressable>
+          <Pressable onPress={() => ctx.go('settings')} accessibilityRole="button" accessibilityLabel="Settings" style={({ pressed }) => [{ height: 40, paddingHorizontal: 14, borderRadius: 20, flexDirection: 'row', gap: 6, alignItems: 'center', backgroundColor: C.greenTint }, pressed && { opacity: 0.7 }]}>
+            <Settings size={19} color={C.accent} strokeWidth={2.2} />
+            <Text style={[font(16, '600'), { color: C.accent }]} allowFontScaling>Settings</Text>
+          </Pressable>
+        </View>}>{known ? name : 'Waiting for the invite'}</LargeTitle>
 
         <Card C={C} style={{ marginHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 14 }}>
           <Avatar name={s.watching?.name || '?'} photo={s.watching?.photo} size={56} />

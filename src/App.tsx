@@ -117,7 +117,7 @@ export interface Ctx {
 }
 
 // The floating bar shows on the four tabs only; pushed screens have Back.
-const TAB_SCREENS: ScreenId[] = ['home', 'history', 'family', 'settings', 'ward'];
+const TAB_SCREENS: ScreenId[] = ['home', 'history', 'family', 'ward'];
 const ALL_SCREENS: ScreenId[] = ['home', 'checking', 'scam', 'amber', 'green', 'detail', 'callcheck', 'history', 'family', 'ask', 'maria', 'settings', 'setup', 'learn', 'practice', 'caregiver', 'scammed', 'blocked', 'safe', 'drawerInfo', 'numbers', 'howto', 'advanced', 'privacy', 'support', 'ward', 'watchedBy', 'watch', 'intro', 'ob1', 'ob2', 'ob3', 'ob4', 'ob5', 'ob6'];
 
 LogBox.ignoreLogs(['SafeAreaView has been deprecated']);
@@ -187,7 +187,7 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToast(''), 2400);
   }, []);
 
-  const TAB_ORDER: ScreenId[] = ['ward', 'home', 'family', 'history', 'settings'];
+  const TAB_ORDER: ScreenId[] = ['ward', 'home', 'family', 'history'];
   const go = useCallback((s: ScreenId) => {
     // Nothing may skip setup: any road "home" before onboarding is done leads
     // back into it (a share or Shortcut can arrive before first-run finishes).

@@ -1,13 +1,13 @@
-// Settings. Built for someone who wants to know one thing first: am I
-// protected? One status card at the top, read from the iPhone itself. Then a
-// few plain rows; everything else sits one level down.
+// Settings, opened from the Family page. Am I protected comes first, read
+// from the iPhone itself. Then three short groups: what protects you, what is
+// about you, and where to get help.
 import React, { useEffect, useState } from 'react';
 import { Animated, KeyboardAvoidingView, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { nameProblem, tidyName } from '../lib/names';
 import Constants from 'expo-constants';
 import { ShieldCheck, Volume2, BookOpen, Lock, ChevronRight, HelpCircle, UserRound, Check, Ban, Filter } from 'lucide-react-native';
 import { T, font } from '../theme';
-import { Screen, LargeTitle, Group, Row, IOSSwitch, PulseDot, Note, Pill, usePulse } from '../ui/base';
+import { Screen, BackLink, SectionHeader, LargeTitle, Group, Row, IOSSwitch, PulseDot, Note, Pill, usePulse } from '../ui/base';
 import { useProtection } from '../lib/protection';
 import type { Ctx } from '../App';
 
@@ -20,35 +20,36 @@ export default function SettingsScreen({ ctx }: { ctx: Ctx }) {
   const nameKey: 'careName' | 'myName' = s.careName && !s.myName ? 'careName' : 'myName';
   const [editing, setEditing] = useState(false);
 
+  const careMode = s.role === 'caretaker';
+  const meta = { color: C.dark ? '#8e8e93' : '#6c6c70' };
+  const count = (n: number) => n ? <Text style={[font(17, '400'), meta]} allowFontScaling>{n}</Text> : undefined;
+
   return (
     <Screen C={C} playKey="settings">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 130 }}>
+        <BackLink label={careMode ? 'Back' : 'Family'} onPress={() => ctx.go(careMode ? 'ward' : 'family')} />
         <LargeTitle C={C}>Settings</LargeTitle>
 
         <View style={{ height: 8 }} />
         <ProtectionCard ctx={ctx} p={p} />
 
-        <View style={{ height: 20 }} />
+        <SectionHeader C={C}>Protection</SectionHeader>
         <Group C={C}>
-          <Row C={C} chip={UserRound} chipColor={T.green} title="Name" pad={9} chevron onPress={() => setEditing(true)} right={<Text style={[font(17, '400'), { color: C.dark ? '#8e8e93' : '#6c6c70' }]} numberOfLines={1} allowFontScaling>{s[nameKey] || 'Add'}</Text>} />
+          <Row C={C} chip={Filter} chipColor={T.red} title="Scam text filter" pad={9} chevron onPress={() => ctx.go('advanced')} right={<Text style={[font(17, '400'), meta]} allowFontScaling>{s.autoCheck !== false ? 'On' : 'Off'}</Text>} />
+          <Row C={C} chip={Check} chipColor={T.green} title="Trusted numbers" pad={9} chevron onPress={() => ctx.go('safe')} right={count(s.allowlist.length)} />
+          <Row C={C} chip={Ban} chipColor={T.red} title="Blocked numbers" pad={9} chevron last onPress={() => ctx.go('blocked')} right={count(s.blocked.length)} />
+        </Group>
+
+        <SectionHeader C={C}>You</SectionHeader>
+        <Group C={C}>
+          <Row C={C} chip={UserRound} chipColor={T.green} title="Name" pad={9} chevron onPress={() => setEditing(true)} right={<Text style={[font(17, '400'), meta]} numberOfLines={1} allowFontScaling>{s[nameKey] || 'Add'}</Text>} />
           <Row C={C} chip={Volume2} chipColor={T.iosGrey} title="Read answers aloud" pad={9} last right={<IOSSwitch C={C} on={!!s.readAloud} onChange={v => set({ readAloud: v })} />} />
         </Group>
 
-        <View style={{ height: 20 }} />
-        <Group C={C}>
-          <Row C={C} chip={Check} chipColor={T.green} title="Trusted numbers" pad={9} chevron onPress={() => ctx.go('safe')} right={s.allowlist.length ? <Text style={[font(17, '400'), { color: C.dark ? '#8e8e93' : '#6c6c70' }]} allowFontScaling>{s.allowlist.length}</Text> : undefined} />
-          <Row C={C} chip={Ban} chipColor={T.red} title="Blocked numbers" pad={9} chevron last onPress={() => ctx.go('blocked')} right={s.blocked.length ? <Text style={[font(17, '400'), { color: C.dark ? '#8e8e93' : '#6c6c70' }]} allowFontScaling>{s.blocked.length}</Text> : undefined} />
-        </Group>
-
-        <View style={{ height: 20 }} />
+        <SectionHeader C={C}>Help</SectionHeader>
         <Group C={C}>
           <Row C={C} chip={HelpCircle} chipColor={T.green} title="How to use Loop Me" pad={9} chevron onPress={() => ctx.go('howto')} />
-          <Row C={C} chip={BookOpen} chipColor={T.amber} title="Learn about scams" pad={9} chevron last onPress={() => ctx.go('learn')} />
-        </Group>
-
-        <View style={{ height: 20 }} />
-        <Group C={C}>
-          <Row C={C} chip={Filter} chipColor={T.red} title="Scam text filter" pad={9} chevron onPress={() => ctx.go('advanced')} />
+          <Row C={C} chip={BookOpen} chipColor={T.amber} title="Learn about scams" pad={9} chevron onPress={() => ctx.go('learn')} />
           <Row C={C} chip={Lock} chipColor={T.iosGrey} title="Privacy" pad={9} chevron last onPress={() => ctx.go('privacy')} />
         </Group>
 

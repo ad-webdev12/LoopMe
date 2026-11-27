@@ -107,8 +107,9 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
     <Screen C={C} playKey="family">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }}>
         <LargeTitle C={C} right={
-          <Pressable onPress={() => ctx.go('settings')} hitSlop={8} accessibilityRole="button" accessibilityLabel="Settings" style={({ pressed }) => [st.gear, { backgroundColor: C.sep2 }, pressed && { opacity: 0.7 }]}>
-            <Gear size={21} color={C.dark ? '#ebebf5' : '#3c3c43'} strokeWidth={2} />
+          <Pressable onPress={() => ctx.go('settings')} hitSlop={8} accessibilityRole="button" accessibilityLabel="Settings" style={({ pressed }) => [st.gear, { backgroundColor: C.greenTint }, pressed && { opacity: 0.7 }]}>
+            <Gear size={19} color={C.accent} strokeWidth={2.2} />
+            <Text style={[font(16, '600'), { color: C.accent }]} allowFontScaling>Settings</Text>
           </Pressable>
         }>Family</LargeTitle>
 
@@ -231,7 +232,7 @@ const st = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
   callBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   dashed: { width: 46, height: 46, borderRadius: 23, borderWidth: 1.5, borderStyle: 'dashed', borderColor: T.dashed, alignItems: 'center', justifyContent: 'center' },
-  gear: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginBottom: 2 },
+  gear: { height: 40, paddingHorizontal: 14, borderRadius: 20, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', marginBottom: 2 },
   linkRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14 },
   rel: { height: 40, paddingHorizontal: 16, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   dim: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', justifyContent: 'flex-end' },

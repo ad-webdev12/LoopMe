@@ -2,7 +2,7 @@
 // use Loop Me, advanced settings, privacy and data, and contact support.
 import React from 'react';
 import { ScrollView, Text, View } from 'react-native';
-import { Ban, Check, ShieldCheck, Search, Unlink, Send, Lock, Smartphone, UserX, Sparkles } from 'lucide-react-native';
+import { Ban, Check, ShieldCheck, Search, Unlink, Send, Lock, Smartphone, UserX } from 'lucide-react-native';
 import { FilterScene, PrivacyScene } from '../ui/Scenes';
 import { useProtection } from '../lib/protection';
 import { T, font } from '../theme';
@@ -55,7 +55,7 @@ export function AdvancedScreen({ ctx }: { ctx: Ctx }) {
         <BackLink label="Settings" onPress={() => ctx.go('settings')} />
         <FilterScene C={C} />
         <ScreenTitle C={C} top={4}>Scam text filter</ScreenTitle>
-        <Lead C={C} top={6}>Texts from unknown numbers are checked. Scams go to Junk.</Lead>
+        <Lead C={C} top={6}>Texts from unknown numbers are checked. Scams go quietly to Junk in Messages, without a ping. iPhone doesn’t let filters send alerts.</Lead>
         <Group C={C} style={{ marginTop: 18 }}>
           <Row C={C} chip={Search} chipColor={T.green} title="Check unknown senders" pad={9} last right={<IOSSwitch C={C} on={s.autoCheck !== false} onChange={v => set({ autoCheck: v })} />} />
         </Group>
@@ -77,8 +77,8 @@ export function AdvancedScreen({ ctx }: { ctx: Ctx }) {
 }
 
 export function PrivacyScreen({ ctx }: { ctx: Ctx }) {
-  const { C, settings: s } = ctx;
-  const facts: [typeof Lock, string][] = [[Smartphone, 'Checked on this phone'], [UserX, 'No account, no sign-in'], [Send, 'Shared only when you ask']];
+  const { C } = ctx;
+  const facts: [typeof Lock, string][] = [[Smartphone, 'Checked on this phone'], [UserX, 'No account, no sign-in'], [Send, 'Shared only when you ask'], [Lock, 'Nothing sent to us, ever']];
   return (
     <Screen C={C} playKey="privacy">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 130 }}>
@@ -93,10 +93,6 @@ export function PrivacyScreen({ ctx }: { ctx: Ctx }) {
             </View>
           ))}
         </View>
-        <Group C={C} style={{ marginTop: 26 }}>
-          <Row C={C} chip={Sparkles} chipColor={T.amber} title="Help improve Loop Me" pad={9} last right={<IOSSwitch C={C} on={!!s.improve} onChange={v => ctx.update({ ...s, improve: v })} />} />
-        </Group>
-        <Note C={C} top={10}>Sends texts you correct, with names and numbers removed.</Note>
       </ScrollView>
     </Screen>
   );
