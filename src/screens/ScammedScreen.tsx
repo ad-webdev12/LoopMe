@@ -92,7 +92,7 @@ export default function ScammedScreen({ ctx }: { ctx: Ctx }) {
           : <Pill label="Next step" onPress={() => setI(i + 1)} trailing={<ArrowRight size={18} color="#fff" strokeWidth={2.2} />} />}
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <Pill label="Read it to me" height={52} bg={C.card} color={C.ink} style={i > 0 ? { flex: 1 } : { paddingHorizontal: 24 }} icon={<Volume2 size={18} color={C.ink} strokeWidth={2} />} onPress={read} />
-          {i > 0 && <Pill label="Previous step" height={52} bg={C.card} color={C.ink} style={{ flex: 1 }} onPress={() => setI(i - 1)} />}
+          {i > 0 && <Pill label="Back" height={52} bg={C.card} color={C.ink} style={{ flex: 1 }} onPress={() => setI(i - 1)} />}
         </View>
       </View>
       <Modal visible={bankOpen} transparent animationType="fade" onRequestClose={() => setBankOpen(false)}>

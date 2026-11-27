@@ -63,7 +63,26 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
     ctx.update({ ...s, trusted });
     setOpen(o => o && o.phone === p.phone ? { ...o, ...change } : o);
   };
-  const remove = (p: TrustedPerson) => { ctx.update({ ...s, trusted: s.trusted.filter(t => t.phone !== p.phone) }); setOpen(null); ctx.flash(firstName(p.name) + ' removed.'); };
+  const remove = (p: TrustedPerson) => {
+    const name = firstName(p.name);
+    const linked = isLinked(s, p);
+    Alert.alert(
+      'Remove ' + name + ' from your loop?',
+      linked
+        ? name + ' is linked to this phone. Removing them also stops the link, so nothing new reaches their phone. You will be asked to confirm that next.'
+        : name + ' won’t be called or told about scams from this phone. You can add them again any time.',
+      [
+        { text: 'Keep ' + name, style: 'cancel' },
+        { text: 'Remove', style: 'destructive', onPress: () => {
+          const cur = ctx.settings;
+          ctx.update({ ...cur, trusted: cur.trusted.filter(t => !samePhone(t.phone, p.phone) && t.phone !== p.phone) });
+          setOpen(null);
+          if (linked) ctx.unlinkFamily();
+          else ctx.flash(name + ' is out of your loop.');
+        } },
+      ],
+    );
+  };
   const makeMain = (p: TrustedPerson) => { ctx.update({ ...s, trusted: [p, ...s.trusted.filter(t => t.phone !== p.phone)] }); setOpen(null); ctx.flash(firstName(p.name) + ' is now the main person.'); };
   const updatePhoto = async (p: TrustedPerson) => {
     if (!p.contactId) { ctx.flash('Remove ' + firstName(p.name) + ' and add them again from Contacts to get a photo.'); return; }
@@ -160,7 +179,8 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
       <InviteCodeSheet C={C} settings={s} visible={codeOpen} onClose={() => setCodeOpen(false)} onReady={() => { if (!s.familyInvited) ctx.update({ ...ctx.settings, familyInvited: true }); }} />
       <Modal visible={!!open} transparent animationType="fade" onRequestClose={() => setOpen(null)}>
         <Pressable style={st.dim} onPress={() => setOpen(null)}>
-          <Pressable style={[st.sheet, { backgroundColor: C.card }]} onPress={() => {}}>
+          <Pressable style={[st.sheet, { backgroundColor: C.card, maxHeight: '90%' }]} onPress={() => {}}>
+            <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
             {open && (
               <>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -183,10 +203,11 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
                   <Pill label={'Call ' + firstName(open.name)} height={52} bg={C.greenTint} color={T.greenDeep} onPress={() => digits(open.phone) ? tel(open.phone) : (setOpen(null), needNumber(open.name))} icon={<Phone size={18} color={T.greenDeep} strokeWidth={2.2} />} />
                   {person && open.phone !== person.phone && <Pill label="Make the main person" height={52} bg={C.greenTint} color={T.greenDeep} onPress={() => makeMain(open)} icon={<Star size={18} color={T.greenDeep} strokeWidth={2.2} />} />}
                   <Pill label="Update photo from Contacts" height={52} bg={C.greenTint} color={T.greenDeep} onPress={() => updatePhoto(open)} icon={<RefreshCw size={18} color={T.greenDeep} strokeWidth={2.2} />} />
-                  <Pill label={'Remove ' + firstName(open.name)} height={52} bg={C.redTint} color={C.redText} onPress={() => remove(open)} icon={<Trash2 size={18} color={C.redText} strokeWidth={2.2} />} />
+                  <Pill label="Remove from my loop" height={52} bg={C.redTint} color={C.redText} onPress={() => remove(open)} icon={<Trash2 size={18} color={C.redText} strokeWidth={2.2} />} />
                 </View>
               </>
             )}
+            </ScrollView>
           </Pressable>
         </Pressable>
       </Modal>

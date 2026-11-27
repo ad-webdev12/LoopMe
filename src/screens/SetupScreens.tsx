@@ -3,12 +3,11 @@
 // Ob4 the one person to tell. The contacts picker and the invite are real.
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Animated, Easing, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import * as Contacts from 'expo-contacts';
-import { ArrowRight, Check, Send, Smartphone, Users } from 'lucide-react-native';
+import { ArrowRight, Check, Lock, Send, Smartphone, Users, WifiOff } from 'lucide-react-native';
 import { sendInviteTo, markInvited } from '../lib/invite';
 import { ensureNotificationPermission } from '../lib/notify';
 import { T, font } from '../theme';
-import { Screen, ScreenTitle, Lead, Card, Row, Group, Pill, Segmented, Note, TextBtn, Avatar, APP_ICON, motionOff } from '../ui/base';
+import { Screen, BackLink, ScreenTitle, Lead, Card, Row, Group, Pill, Segmented, Note, TextBtn, Avatar, APP_ICON, motionOff } from '../ui/base';
 import { PermCard, TEXT_STEPS, CALL_STEPS, TEXT_FRAMES, TEXT_CAPTIONS, CALL_FRAMES, CALL_CAPTIONS } from './SetupScreen';
 import { callDirectoryStatus } from '../../modules/scam-ai';
 import { AppState, Linking } from 'react-native';
@@ -28,6 +27,10 @@ function Steps({ ctx, i, of }: { ctx: Ctx; i: number; of: number }) {
       </View>
     </View>
   );
+}
+/** Back to the previous onboarding step. */
+function ObBack({ ctx, to, inPage }: { ctx: Ctx; to: 'ob1' | 'ob2' | 'ob3' | 'ob4' | 'ob5'; inPage?: boolean }) {
+  return <View style={{ marginTop: 6, alignSelf: 'stretch', marginHorizontal: inPage ? -28 : 0 }}><BackLink color={ctx.C.accent} onPress={() => ctx.go(to)} /></View>;
 }
 function Bottom({ label, onPress }: { label: string; onPress: () => void }) {
   return (
@@ -96,6 +99,7 @@ export function Ob2({ ctx }: { ctx: Ctx }) {
   const [me, setMe] = useState(ctx.settings.myName);
   return (
     <Screen C={C} playKey="ob2" scroll>
+      <ObBack ctx={ctx} to="ob1" />
       <Steps ctx={ctx} i={2} of={whose === 'theirs' ? 6 : 5} />
       <ScreenTitle C={C} top={18}>Whose phone is it?</ScreenTitle>
       <View style={{ marginTop: 22 }}>
@@ -135,17 +139,18 @@ export function Ob3({ ctx }: { ctx: Ctx }) {
   const { C } = ctx;
   const care = !!ctx.settings.careName;
   const rows = [
-    'Messages are checked right here. No internet needed.',
-    'No account. Your history stays on this phone.',
-    'A message leaves only when you choose to ask someone about it.',
+    { t: 'Messages are checked right here. No internet needed.', icon: WifiOff },
+    { t: 'No account. Your history stays on this phone.', icon: Lock },
+    { t: 'A message leaves only when you choose to ask someone about it.', icon: Send },
   ];
   return (
     <Screen C={C} playKey="ob3" scroll>
+      <ObBack ctx={ctx} to="ob2" />
       <Steps ctx={ctx} i={3} of={care ? 6 : 5} />
       <ScreenTitle C={C} top={18}>Nothing leaves this phone.</ScreenTitle>
       <Group C={C} style={{ marginHorizontal: 16, marginTop: 22 }}>
         <View style={{ paddingLeft: 16 }}>
-          {rows.map((r, i) => <Row key={i} C={C} title={r} last={i === rows.length - 1} pad={14} />)}
+          {rows.map((r, i) => <Row key={i} C={C} chip={r.icon} title={r.t} last={i === rows.length - 1} pad={14} />)}
         </View>
       </Group>
       <Bottom label="Continue" onPress={() => ctx.go('ob4')} />
@@ -175,8 +180,6 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
   };
   const addFromContacts = async () => {
     try {
-      const { granted } = await Contacts.requestPermissionsAsync();
-      if (!granted) { ctx.flash('Opens your contacts to pick one person.'); return; }
       const res = await pickTrustedPerson();
       if (!res.ok) { if (res.reason) ctx.flash(res.reason); return; }
       setPending(res.person);
@@ -187,6 +190,7 @@ export function Ob4({ ctx }: { ctx: Ctx }) {
   return (
     <Screen C={C} playKey="ob4" scroll style={{ backgroundColor: ring }}>
       <View style={st.page}>
+        <ObBack ctx={ctx} to="ob3" inPage />
         <Steps ctx={ctx} i={4} of={care ? 6 : 5} />
         {first ? (
           <>
@@ -261,6 +265,7 @@ export function Ob5({ ctx }: { ctx: Ctx }) {
   return (
     <Screen C={C} playKey="ob5" scroll style={{ backgroundColor: ring }}>
       <View style={st.page}>
+        <ObBack ctx={ctx} to="ob4" inPage />
         <Steps ctx={ctx} i={5} of={care ? 6 : 5} />
         <View style={{ marginTop: 72 }}>
           <Image source={APP_ICON} style={st.icon} accessibilityLabel="Loop Me" />
@@ -317,9 +322,12 @@ function AlertDot({ ring }: { ring: string }) {
 // ---------------- Ob6: the family secret word (setting up for someone else) ----------------
 export function Ob6({ ctx }: { ctx: Ctx }) {
   const { C, settings: s } = ctx;
-  const [word, setWord] = useState(s.codeWord || '');
+  const [word, setWordState] = useState(s.codeWord || '');
+  // The live text, so Save reads exactly what is in the box this instant.
+  const wordRef = useRef(s.codeWord || '');
+  const setWord = (t: string) => { wordRef.current = t; setWordState(t); };
   const finish = (save: boolean) => {
-    const w = word.trim();
+    const w = wordRef.current.trim();
     if (save && w.length < 3) { ctx.flash('Pick a word of three letters or more.'); return; }
     ctx.update({ ...s, introSeen: true, role: 'elder', ...(save ? { codeWord: w, codeWordSet: true } : {}) });
     ctx.go('home');
@@ -327,11 +335,12 @@ export function Ob6({ ctx }: { ctx: Ctx }) {
   };
   return (
     <Screen C={C} playKey="ob6" scroll>
+      <ObBack ctx={ctx} to="ob5" />
       <Steps ctx={ctx} i={6} of={6} />
       <ScreenTitle C={C} top={18}>Pick a family secret word</ScreenTitle>
       <Lead C={C}>If a caller sounds like family and asks for money, {s.careName ? firstNameOf(s.careName) + ' asks' : 'they ask'} for the word. A cloned voice won’t know it.</Lead>
       <Card C={C} style={{ marginHorizontal: 16, marginTop: 22 }} radius={16}>
-        <TextInput value={word} onChangeText={setWord} autoCapitalize="words" autoCorrect={false} placeholder="One word" placeholderTextColor={C.ink2}
+        <TextInput value={word} onChangeText={setWord} onEndEditing={e => setWord(e.nativeEvent.text)} returnKeyType="done" autoCapitalize="words" autoCorrect={false} placeholder="One word" placeholderTextColor={C.ink2}
           style={[font(22, '600'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, padding: 14 }]} accessibilityLabel="Secret word" />
         <Note C={C} top={10} style={{ paddingHorizontal: 0 }}>Stays on this phone, behind Face ID in Settings.</Note>
       </Card>

@@ -17,12 +17,13 @@ import { T, Palette } from './theme';
 import { palette, setNavDir } from './ui/base';
 import { instant, upgrade, FusedVerdict } from './engine/ai';
 import { loadSettings, saveSettings, isPostPanic, Settings } from './lib/storage';
-import { addCheck, listChecks, newRecord, updateCheck, CheckRecord } from './lib/history';
+import { addCheck, listChecks, newRecord, updateCheck, CheckRecord, CheckHow } from './lib/history';
 import * as Family from './lib/family';
 import * as Feedback from './lib/feedback';
 import * as SplashScreen from 'expo-splash-screen';
 import { registerFamilyCategories, ensureNotificationPermission, scheduleWeekly } from './lib/notify';
-import { callDirectoryReload, sharedTallies, cloudJoinWithCode } from '../modules/scam-ai';
+import { callDirectoryReload, callDirectoryStatus, sharedTallies, cloudJoinWithCode } from '../modules/scam-ai';
+import { blockedMessage } from './lib/protection';
 import TabBar, { TabId } from './ui/TabBar';
 import Toast from './ui/Toast';
 import IntroScreen from './screens/IntroScreen';
@@ -68,6 +69,11 @@ export interface Ctx {
   go: (s: ScreenId) => void;
   flash: (t: string) => void;
   check: (text: string, sender?: string) => void;
+  /** check(), remembering how the message was given (pasted, typed, photo, spoken, shared). */
+  checkAs: (text: string, how: CheckHow) => void;
+  /** How a check's message was given, if known. */
+  howOf: (id: string) => CheckHow | undefined;
+
   /** True while a check waits for the on-device model. */
   checking: boolean;
   /** Open an earlier check on its own verdict screen. */
@@ -103,6 +109,8 @@ export interface Ctx {
   correct: (recId: string, label: 'scam' | 'fine') => Promise<void>;
   /** Back to the tab this screen was opened from. */
   back: () => void;
+  /** The screen shown just before this one (for Back labels and targets). */
+  from: ScreenId;
   /** "No, this is a scam" on a green verdict: remember it, then show the scam screen with its steps. */
   markScam: (recId: string) => Promise<void>;
   tallies: { filtered: number; junk: number; shared: number; lastFilteredAt: number };
@@ -153,6 +161,8 @@ export default function App() {
   const [alertId, setAlertId] = useState<string | null>(null);
   const [noteOpen, setNoteOpen] = useState<Ctx['noteOpen']>(null);
   const [tallies, setTallies] = useState({ filtered: 0, junk: 0, shared: 0, lastFilteredAt: 0 });
+  const talliesRef = useRef(tallies);
+  talliesRef.current = tallies;
   const [pulse, setPulse] = useState<Family.FamilyPulse | null>(null);
   const recentTags = useRef<string[]>([]);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -188,11 +198,13 @@ export default function App() {
       const a = TAB_ORDER.indexOf(prev), b = TAB_ORDER.indexOf(s);
       setNavDir(a >= 0 && b >= 0 ? (b > a ? 1 : b < a ? -1 : 0) : 1);
       if (prev !== s && TAB_ORDER.includes(prev)) lastTab.current = prev;
+      if (prev !== s) prevScreen.current = prev;
       return s;
     });
   }, []);
   // The tab a pushed screen was opened from, so Back lands where the person came from.
   const lastTab = useRef<ScreenId>('home');
+  const prevScreen = useRef<ScreenId>('home');
   const back = useCallback(() => go(lastTab.current), [go]);
 
   // Owner side, on the caretaker's say-so: block without a toast, the
@@ -412,8 +424,8 @@ export default function App() {
     const remembered = Feedback.remembered(raw).then((label) => {
       if (!label) return;
       final = label === 'scam'
-        ? { ...final, level: 'red', reason: 'You told Loop Me this one is a scam.', safeStep: 'Don’t reply. Delete the message.', confidence: 'very', fused: true }
-        : { ...final, level: 'green', reason: 'You told Loop Me this one is fine.', safeStep: 'Nothing to do.', confidence: 'very', fused: true };
+        ? { ...final, level: 'red', reason: 'You told Loop Me this one is a scam.', safeStep: 'Don’t reply. Delete the message.', confidence: 'very', fused: true, tags: [...final.tags.filter(t => t !== 'user-safe'), 'user-scam'] }
+        : { ...final, level: 'green', reason: 'You told Loop Me this one is fine.', safeStep: 'Nothing to do.', confidence: 'very', fused: true, tags: [...final.tags.filter(t => t !== 'user-scam'), 'user-safe'] };
       updateCheck(rec.id, { level: final.level, reason: final.reason }).then(refreshHist);
     }).catch(() => {});
     // A flagged check goes to the caretaker on its own, over the family link.
@@ -445,8 +457,31 @@ export default function App() {
       confidence: 'fairly', codeWordMoment: false, score: rec.score, disguised: false, aiTier: 'none', fused: false,
     };
     setMsg(rec.excerpt); setVerdict(v); setRecordId(rec.id); setNote(null);
+    // Remember where it was opened from (History, Home), so closing lands there.
+    setScreen(prev => { if (TAB_ORDER.includes(prev)) lastTab.current = prev; return prev; });
     setScreen(rec.level === 'red' ? 'scam' : rec.level === 'amber' ? 'amber' : 'green');
   }, []);
+
+  // Label-only: how the message was given. check() itself is unchanged; the
+  // label is attached to the record it just made.
+  const howById = useRef<Record<string, CheckHow>>({});
+  const checkAs = useCallback((text: string, how: CheckHow) => {
+    const before = activeCheck.current;
+    check(text);
+    const id = activeCheck.current;
+    if (!id || id === before) return;
+    howById.current[id] = how;
+    // The record is written asynchronously; retry briefly until it is there.
+    let tries = 0;
+    const attach = () => {
+      updateCheck(id, { how }).then(r => {
+        if (r) { refreshHist(); return; }
+        if (++tries < 6) setTimeout(attach, 250);
+      }).catch(() => {});
+    };
+    setTimeout(attach, 150);
+  }, [check, refreshHist]);
+  const howOf = useCallback((id: string) => howById.current[id] || histRef.current.find(r => r.id === id)?.how, []);
 
   // Elder side. The check lands on the caretaker's phone as a full-screen
   // alert over the family link. There is no text-message version.
@@ -513,7 +548,7 @@ export default function App() {
     const rec = histRef.current.find(r => r.id === recId);
     if (rec?.sender) Family.pushConfig(s, await listChecks());
     if (rec) void Family.publish({ ...rec, level: 'red', reason: 'You marked this as a scam.' }, s, false);
-    setVerdict(v => v ? { ...v, level: 'red', reason: 'You marked this as a scam.', signals: [], safeStep: 'Don’t reply. Delete the message.', confidence: 'very' } : v);
+    setVerdict(v => v ? { ...v, level: 'red', reason: 'You marked this as a scam.', signals: [], safeStep: 'Don’t reply. Delete the message.', confidence: 'very', tags: [...v.tags.filter(t => t !== 'user-safe'), 'user-scam'] } : v);
     setScreen('scam');
   }, [msg, refreshHist]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -534,8 +569,11 @@ export default function App() {
     if (digits.length < 7) { flash('That sender has no phone number to block.'); return; }
     if (s.blocked.includes(digits)) { flash('That number is already blocked.'); return; }
     update({ ...s, blocked: [...s.blocked, digits] });
-    const ok = await callDirectoryReload();
-    flash(ok ? 'Blocked. Calls and texts from it will not reach you.' : 'Saved. Turn on Loop Me under Settings › Phone › Call Blocking for it to take effect.');
+    await callDirectoryReload();
+    // Say only what really happened: calls stop only when iOS has Loop Me's
+    // call blocking on; texts go to Junk only when the text filter is on.
+    const callsOn = (await callDirectoryStatus()) === 'enabled';
+    flash(blockedMessage(callsOn, talliesRef.current.filtered > 0));
   }, [update, flash]);
 
   // ---- Deep links: check/alert (Shortcuts, share sheet, monitor) ----------
@@ -557,16 +595,16 @@ export default function App() {
       return;
     }
     if (where === 'check' && queryParams?.photo) { setPendingPhoto(true); go('home'); return; }
-    if (where === 'check' && text) { check(text); return; }
+    if (where === 'check' && text) { checkAs(text, 'shared'); return; }
     // The widget, Control Center and the Action button open the app with no
     // text: read what was copied here, where the person can see it happen.
     if (where === 'check' && queryParams?.clip) {
       Clipboard.getStringAsync().then(c => {
         const t = (c || '').trim();
-        if (t) check(t); else flash('Copy a message first, then tap again.');
+        if (t) checkAs(t, 'pasted'); else flash('Copy a message first, then tap again.');
       }).catch(() => flash('Copy a message first, then tap again.'));
     }
-  }, [check, flash, go]);
+  }, [check, checkAs, flash, go]);
 
   // The URL the app was COLD-LAUNCHED with must be handled exactly once;
   // getInitialURL() keeps returning it for the life of the process.
@@ -605,7 +643,7 @@ export default function App() {
   const C = palette(scheme === 'dark');
 
   const ctx: Ctx = {
-    settings, update, screen, go, flash, check,
+    settings, update, screen, go, flash, check, checkAs, howOf,
     msg, verdict, recordId, note, hist, refreshHist,
     wardOpen, openWard: (id) => { setWardOpen(id); setScreen('wardItem'); },
     alertId,
@@ -614,6 +652,7 @@ export default function App() {
     noteOpen,
     closeNote: () => { setNoteOpen(null); setScreen('home'); },
     loopIn, sendNoteTo, refreshFamily, unlinkFamily, blockNumber, correct, markScam, back, tallies, pulse, checking, openRecord,
+    from: prevScreen.current,
     C,
     pendingPhoto, clearPendingPhoto: () => setPendingPhoto(false),
   };

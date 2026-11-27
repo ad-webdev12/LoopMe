@@ -35,13 +35,20 @@ extension Engine {
     if text.isEmpty { return v }
     // ScamNet may only raise a level, never lower one. See ai.ts upgrade()
     // for why the amber-clear idea was measured and dropped.
-    return fuse(v, p: model.probability(text), threshold: model.threshold)
+    // Long text: the model reads about 100 words, so read it a few sentences at a time (as ai.ts).
+    let parts = text.split(whereSeparator: { $0.isWhitespace || $0.isNewline }).count > 40 ? Array(sentenceWindows(text).prefix(12)) : [text]
+    let p = parts.map { model.probability($0) }.max() ?? 0
+    return fuse(v, p: p, threshold: model.threshold)
   }
+
+  /// Same as BANK_ONLY_OK in ai.ts.
+  static let bankOnlyOK: Set<String> = ["bank-alert", "urgency", "url-mismatch"]
 
   static func fuse(_ v: Verdict, p: Double, threshold: Double) -> Verdict {
     guard p >= threshold else { return v }
+    let bankOnly = v.tags.contains("bank-alert") && v.tags.allSatisfy { bankOnlyOK.contains($0) }
     let level: Level = v.level == .red ? .red
-      : (v.level == .amber && p >= 0.9) ? .red
+      : (v.level == .amber && p >= 0.9 && !bankOnly) ? .red
       : .amber
     if level == v.level { return v }
     let note = "The on-device model recognizes the shape of this message as a scam, even though it does not match a specific known trick."

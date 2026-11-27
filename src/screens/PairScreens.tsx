@@ -4,8 +4,8 @@
 //   WatchSetup the phone that hears about it: what to do until the invite
 //              arrives, and the linked state afterwards.
 //   WatchWait  the moment between tapping the invite and the link confirming.
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Linking, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Linking, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Check, X, Send, QrCode, Share2, Phone, UserPlus } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { Screen, BackLink, ScreenTitle, Lead, Note, Pill, Avatar, Card, SectionHeader, CheckCircle } from '../ui/base';
@@ -140,9 +140,14 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
     if (!res.ok) { if (res.reason) ctx.flash(res.reason); return; }
     ctx.update({ ...s, watching: { name: s.watching?.name || res.person.name, phone: res.person.phone, photo: res.person.photo } });
   };
+  // The code box sits mid-page: when the keyboard comes up, scroll it into view.
+  const scroll = useRef<ScrollView>(null);
+  const codeY = useRef(0);
+  const showCodeBox = () => setTimeout(() => scroll.current?.scrollTo({ y: Math.max(0, codeY.current - 12), animated: true }), 300);
   return (
     <Screen C={C} playKey={paired ? 'done' : 'open'}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView ref={scroll} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}
+        keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
         <BackLink onPress={() => ctx.go(s.role === 'caretaker' && s.introSeen ? 'settings' : 'ob1')} />
         {!paired ? (
           <>
@@ -156,8 +161,10 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
                 </View>
               ))}
             </Card>
-            <SectionHeader C={C}>Got a code instead?</SectionHeader>
-            <JoinWithCode ctx={ctx} />
+            <View onLayout={e => { codeY.current = e.nativeEvent.layout.y; }}>
+              <SectionHeader C={C}>Got a code instead?</SectionHeader>
+            </View>
+            <JoinWithCode ctx={ctx} onFocus={showCodeBox} />
             <SectionHeader C={C}>What you will and will not see</SectionHeader>
             <Card C={C} style={{ marginHorizontal: 16, paddingVertical: 4 }} radius={16}>
               <Row C={C} yes text="Scam alerts, full screen, the moment they happen" />
@@ -165,7 +172,12 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
               <Row C={C} yes={false} text="Never their ordinary messages, photos or location" last />
             </Card>
             <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
-              <Pill label="I will tap the link when it arrives" height={54} bg={C.card} color={C.ink} onPress={() => ctx.go('home')} />
+              <Pill label="I will tap the link when it arrives" height={54} bg={C.card} color={C.ink} onPress={() => {
+                // Waiting is a real state: this phone becomes the one that hears,
+                // and its home (the Family tab) shows it is waiting for the invite.
+                ctx.update({ ...ctx.settings, role: 'caretaker', introSeen: true });
+                ctx.go('ward');
+              }} />
             </View>
           </>
         ) : (
@@ -212,11 +224,19 @@ export function WatchWait({ ctx }: { ctx: Ctx }) {
 export { CheckCircle };
 
 /** The code path: for a phone that installed Loop Me after the invite arrived. */
-function JoinWithCode({ ctx }: { ctx: Ctx }) {
+function JoinWithCode({ ctx, onFocus }: { ctx: Ctx; onFocus?: () => void }) {
   const { C } = ctx;
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
-  const clean = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const [badChar, setBadChar] = useState(false);
+  const clean = code;
+  const onType = (t: string) => {
+    const up = t.toUpperCase().replace(/[\s-]/g, '');
+    // Keep only the letters and digits a code can have, as they are typed.
+    const kept = up.split('').filter(ch => CODE_ALPHABET.includes(ch)).join('').slice(0, 8);
+    setBadChar(up.split('').some(ch => !CODE_ALPHABET.includes(ch)));
+    setCode(kept);
+  };
   const join = async () => {
     setBusy(true);
     try {
@@ -226,14 +246,18 @@ function JoinWithCode({ ctx }: { ctx: Ctx }) {
     } finally { setBusy(false); }
   };
   return (
-    <KeyboardAvoidingView behavior="padding">
+    <View>
       <Card C={C} style={{ marginHorizontal: 16 }} radius={16}>
         <Text style={[font(15, '400', 1.4), { color: C.ink2 }]} allowFontScaling>It is in the invite text, under the link. On their phone it is under Family, Show a code instead.</Text>
-        <TextInput value={code} onChangeText={t => setCode(t.toUpperCase().slice(0, 9))} placeholder="K7M2 9QXH" placeholderTextColor={C.ink2}
+        <TextInput value={code} onChangeText={onType} onFocus={onFocus} placeholder="K7M29QXH" placeholderTextColor={C.dark ? '#636366' : '#c7c7cc'}
           autoCapitalize="characters" autoCorrect={false} spellCheck={false} returnKeyType="go" onSubmitEditing={() => { if (clean.length === 8) void join(); }}
-          style={[font(28, '700'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, height: 60, marginTop: 12, textAlign: 'center', letterSpacing: 3 }]} accessibilityLabel="Invite code" />
+          style={[font(28, code ? '700' : '400'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, height: 60, marginTop: 12, textAlign: 'center', letterSpacing: 3 }]} accessibilityLabel="Invite code" />
+        {badChar && <Text style={[font(15, '400', 1.4), { color: C.redText, marginTop: 8 }]} allowFontScaling accessibilityLiveRegion="polite">Codes don’t use 0, 1, I, L or O.</Text>}
         <Pill label={busy ? 'Linking' : 'Link this phone'} height={52} style={{ marginTop: 12 }} disabled={busy || clean.length !== 8} onPress={join} icon={busy ? <ActivityIndicator color="#fff" /> : undefined} />
       </Card>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
+
+/** Invite codes use these only: no I, L, O, 0 or 1, so nothing is misread. */
+const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';

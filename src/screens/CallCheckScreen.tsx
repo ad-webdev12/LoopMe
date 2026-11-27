@@ -48,7 +48,6 @@ export default function CallCheckScreen({ ctx }: { ctx: Ctx }) {
     setAsking(false);
     await ctx.blockNumber(num);
     ctx.go('home');
-    ctx.flash('Blocked. That number can’t call or text you now.');
   };
 
   return (

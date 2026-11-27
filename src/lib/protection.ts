@@ -8,6 +8,13 @@ import { useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 import { callDirectoryStatus } from '../../modules/scam-ai';
 
+/** The toast after blocking a number, honest about what is actually on. */
+export function blockedMessage(callsOn: boolean, textsOn: boolean): string {
+  if (callsOn && textsOn) return 'Blocked. Calls from that number are stopped, and its texts go to Junk.';
+  if (callsOn) return 'Blocked. Calls from that number are stopped.';
+  return 'Saved as blocked. Turn on protection so calls from it are stopped.';
+}
+
 export interface Protection { textsOn: boolean; callsOn: boolean; done: boolean; left: number; known: boolean }
 
 export function useProtection(tallies: { filtered: number }): Protection {

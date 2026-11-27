@@ -3,6 +3,8 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import type { CheckRecord } from './history';
 import { redactPrivate } from './redact';
+import { sourceLabel } from '../ui/pieces';
+import * as FileSystem from 'expo-file-system/legacy';
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -12,7 +14,7 @@ export async function exportHistoryPdf(hist: CheckRecord[], who: string): Promis
   const ref = 'LM-' + Date.now().toString(36).toUpperCase();
   const rows = hist.map(h => {
     const mark = h.level === 'red' ? '<span class="mark red">Scam</span>' : h.level === 'amber' ? '<span class="mark amber">Be careful</span>' : '<span class="mark green">Fine</span>';
-    return `<tr><td class="dim">${esc(new Date(h.at).toLocaleString())}</td><td>${esc(h.sender || (h.source === 'filter' ? 'Unknown number' : 'Pasted into Loop Me'))}</td><td>${mark}</td><td>${esc(redactPrivate(h.excerpt))}<div class="why">${esc(h.reason || '')}</div></td></tr>`;
+    return `<tr><td class="dim">${esc(new Date(h.at).toLocaleString())}</td><td>${esc(h.sender || sourceLabel(h))}</td><td>${mark}</td><td>${esc(redactPrivate(h.excerpt))}<div class="why">${esc(h.reason || '')}</div></td></tr>`;
   }).join('');
   const html = `<!doctype html><html><head><meta charset="utf-8">
     <style>
@@ -30,8 +32,21 @@ export async function exportHistoryPdf(hist: CheckRecord[], who: string): Promis
     <table><tr><th>When</th><th>From</th><th>Result</th><th>Message and why</th></tr>${rows || '<tr><td colspan="4">No checks yet.</td></tr>'}</table>
     <p class="foot">Checked on this phone. Numbers and emails are blanked before saving.</p></body></html>`;
   try {
-    const { uri } = await Print.printToFileAsync({ html });
+    const { uri: printed } = await Print.printToFileAsync({ html });
+    const uri = await nicelyNamed(printed);
     if (await Sharing.isAvailableAsync()) { await Sharing.shareAsync(uri, { UTI: 'com.adobe.pdf', mimeType: 'application/pdf', dialogTitle: 'Loop Me history' }); return 'shared'; }
     return 'saved';
   } catch { return 'failed'; }
+}
+
+/** "Loop Me history 2026-11-26.pdf" in the cache folder, instead of a random name. */
+async function nicelyNamed(uri: string): Promise<string> {
+  try {
+    const d = new Date();
+    const day = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const dest = (FileSystem.cacheDirectory || '') + 'Loop Me history ' + day + '.pdf';
+    await FileSystem.deleteAsync(dest, { idempotent: true });
+    await FileSystem.moveAsync({ from: uri, to: dest });
+    return dest;
+  } catch { return uri; }
 }

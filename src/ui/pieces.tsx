@@ -32,10 +32,21 @@ export function whenLabel(at: number): string {
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + time;
 }
 
-export function senderLabel(rec?: Pick<CheckRecord, 'sender' | 'source'> | null): string {
-  if (!rec) return 'Unknown number';
+export function senderLabel(rec?: Pick<CheckRecord, 'sender' | 'source' | 'how'> | null, how?: CheckRecord['how']): string {
+  if (!rec) return how ? HOW_LABEL[how] : 'Unknown number';
   if (rec.sender) return rec.sender;
+  return sourceLabel(rec, how);
+}
+
+const HOW_LABEL: Record<NonNullable<CheckRecord['how']>, string> = {
+  pasted: 'Pasted message', typed: 'Typed message', photo: 'From a photo', spoken: 'Said out loud', shared: 'Shared message',
+};
+/** Where the message came from, when there is no sender to show. */
+export function sourceLabel(rec: Pick<CheckRecord, 'source' | 'how'>, how?: CheckRecord['how']): string {
+  const h = how || rec.how;
+  if (h) return HOW_LABEL[h];
   if (rec.source === 'filter') return 'Unknown number';
+  if (rec.source === 'link' || rec.source === 'share' || rec.source === 'qr') return 'Shared message';
   return 'Pasted message';
 }
 

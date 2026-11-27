@@ -12,6 +12,7 @@
 
 import { detect, Verdict, DetectorOptions } from './ScamDetector';
 import { modelMayJudge } from './guard';
+import { sentenceWindows } from './ScamDetector';
 import { normalizeText } from './normalize';
 import { availableTier, classify, AiTier, AiJudgement } from '../../modules/scam-ai';
 
@@ -79,6 +80,7 @@ function instantVerdict(message: string, opts?: DetectorOptions): FusedVerdict {
  */
 export const COREML_THRESHOLD = 0.8;
 export { modelMayJudge } from './guard';
+export const BANK_ONLY_OK = new Set(['bank-alert', 'urgency', 'url-mismatch']);
 
 
 export async function upgrade(message: string, rule: Verdict, opts?: DetectorOptions): Promise<FusedVerdict> {
@@ -96,7 +98,14 @@ export async function upgrade(message: string, rule: Verdict, opts?: DetectorOpt
   // send the raw text, so the same message could score differently here.
   const cleaned = normalizeText((message || '').trim()).text;
   if (!cleaned) return { ...rule, aiTier: tier, fused: false };
-  const ai = await classify(cleaned);
+  // The model reads about 100 words. A long message is read a few sentences
+  // at a time and the most scam-like part counts, so nothing hides at the end.
+  const parts = cleaned.split(/\s+/).length > 40 ? sentenceWindows(cleaned).slice(0, 12) : [cleaned];
+  let ai: Awaited<ReturnType<typeof classify>> = null;
+  for (const part of parts) {
+    const r = await classify(part);
+    if (r && (!ai || r.probability > ai.probability)) ai = r;
+  }
   if (!ai) return { ...rule, aiTier: tier, fused: false };
 
   // ScamNet may only raise a level, never lower one. Tried letting it clear a
@@ -114,7 +123,10 @@ export async function upgrade(message: string, rule: Verdict, opts?: DetectorOpt
     : ai.probability;
   if (p < (answered === 'foundation' ? 0.5 : COREML_THRESHOLD)) return { ...rule, ai, aiTier: tier, fused: false };
 
-  const level: Verdict['level'] = rule.level === 'amber' && p >= 0.9 ? 'red' : 'amber';
+  // A bank's own fraud alert looks exactly like a fake one. With nothing else
+  // wrong (no link trick, no payment, no code), the most it can be is Be careful.
+  const bankOnly = rule.tags.includes('bank-alert') && rule.tags.every(t => BANK_ONLY_OK.has(t));
+  const level: Verdict['level'] = rule.level === 'amber' && p >= 0.9 && !bankOnly ? 'red' : 'amber';
   if (level === rule.level) {
     // Agreement: keep the rules' wording, add the model's sentence to the reasons.
     const signals = ai.reason && !rule.signals.includes(ai.reason) ? [...rule.signals, ai.reason] : rule.signals;

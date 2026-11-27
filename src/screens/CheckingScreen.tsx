@@ -64,7 +64,7 @@ export default function CheckingScreen({ ctx }: { ctx: Ctx }) {
 
       <View style={[st.card, { backgroundColor: C.card }]}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Text style={[font(13, '400'), { color: C.meta, opacity: C.dark ? 0.6 : 1 }]} allowFontScaling numberOfLines={1}>{senderLabel(rec)}</Text>
+          <Text style={[font(13, '400'), { color: C.meta, opacity: C.dark ? 0.6 : 1 }]} allowFontScaling numberOfLines={1}>{senderLabel(rec, ctx.howOf(ctx.recordId))}</Text>
           <Text style={[font(13, '400'), { color: C.meta, opacity: C.dark ? 0.6 : 1 }]} allowFontScaling>{whenLabel(rec?.at || Date.now())}</Text>
         </View>
         <Bubble C={C} style={{ marginTop: 8, alignSelf: 'flex-start' }}>

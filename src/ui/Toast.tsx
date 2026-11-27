@@ -1,4 +1,4 @@
-// Toast at the top: rgba(28,28,30,.94), radius 16, 16/500 white, in 200ms,
+// Toast near the top, below the Back row (56) so it never covers Back: rgba(28,28,30,.94), radius 16, 16/500 white, in 200ms,
 // stays 2.4s. Confirms one-off actions (call, block, save PDF).
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
@@ -14,5 +14,5 @@ export default function Toast({ text }: { text: string }) {
   );
 }
 const st = StyleSheet.create({
-  wrap: { position: 'absolute', left: 20, right: 20, top: 6, zIndex: 30, backgroundColor: T.toast, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 },
+  wrap: { position: 'absolute', left: 20, right: 20, top: 56, zIndex: 30, backgroundColor: T.toast, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 },
 });

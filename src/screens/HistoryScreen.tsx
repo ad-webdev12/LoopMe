@@ -6,7 +6,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { T, font } from '../theme';
 import { Screen, LargeTitle, Segmented, Tag } from '../ui/base';
 import { exportHistoryPdf } from '../lib/pdf';
-import { firstName, loopPerson } from '../ui/pieces';
+import { firstName, loopPerson, sourceLabel } from '../ui/pieces';
 import type { CheckRecord } from '../lib/history';
 import type { Ctx } from '../App';
 
@@ -73,7 +73,8 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
     if (h.userLabel === 'scam') return 'You said it was a scam';
     if (reply) return who + ' replied.';
     if (h.askedFamily) return who ? 'You asked ' + who : 'You asked for help';
-    if (h.level === 'red') return h.sender && s.blocked.includes(h.sender.replace(/\D/g, '')) ? 'You blocked the number' : 'You didn’t reply';
+    // Only what the person actually did. Loop Me cannot know whether they replied.
+    if (h.level === 'red' && h.sender && s.blocked.includes(h.sender.replace(/\D/g, ''))) return 'You blocked the number';
     return '';
   };
 
@@ -116,7 +117,7 @@ export default function HistoryScreen({ ctx }: { ctx: Ctx }) {
           <View key={g.label}>
             <Text style={[font(15, '600'), { color: C.ink2, textAlign: 'center', paddingTop: 18, paddingBottom: 10 }]} allowFontScaling>{g.label}</Text>
             {g.items.map((h, i) => {
-              const sender = h.sender || (h.source === 'filter' ? 'Unknown number' : h.source === 'family' ? firstName(h.from) + '’s phone' : 'Pasted');
+              const sender = h.sender || (h.source === 'filter' ? 'Unknown number' : h.source === 'family' ? firstName(h.from) + '’s phone' : sourceLabel(h));
               const out = outcome(h);
               return (
                 <Pressable key={h.id} onPress={() => careMode && h.source === 'family' ? ctx.openWard(h.id) : ctx.openRecord(h.id)} style={({ pressed }) => [{ paddingHorizontal: 16, paddingTop: i ? 14 : 0, alignItems: 'flex-start', gap: 6 }, pressed && { opacity: 0.7 }]} accessibilityRole="button">

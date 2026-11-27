@@ -1,7 +1,7 @@
 // The family secret word, on the Family tab. Hidden until Face ID says it's
 // you; hides again when you leave. Set or change it from here.
-import React, { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { KeyboardAvoidingView, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { KeyRound, ScanFace } from 'lucide-react-native';
 import { T, font } from '../theme';
@@ -12,7 +12,10 @@ export function SecretWordCard({ ctx }: { ctx: Ctx }) {
   const { C, settings: s } = ctx;
   const [word, setWord] = useState<'locked' | 'scanning' | 'shown'>('locked');
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState('');
+  const [draft, setDraftState] = useState('');
+  // The live text, so Save reads exactly what is in the box this instant.
+  const draftRef = useRef('');
+  const setDraft = (t: string) => { draftRef.current = t; setDraftState(t); };
   useEffect(() => () => setWord('locked'), []);
 
   const reveal = async () => {
@@ -24,7 +27,7 @@ export function SecretWordCard({ ctx }: { ctx: Ctx }) {
     } catch { setWord('locked'); }
   };
   const save = () => {
-    const w = draft.trim();
+    const w = draftRef.current.trim();
     if (w.length < 3) { ctx.flash('Pick a word of three letters or more.'); return; }
     ctx.update({ ...ctx.settings, codeWord: w, codeWordSet: true });
     setEditing(false); setDraft(''); setWord('locked');
@@ -79,13 +82,15 @@ export function SecretWordCard({ ctx }: { ctx: Ctx }) {
       <Modal visible={editing} transparent animationType="fade" onRequestClose={() => setEditing(false)}>
         <Pressable style={st.dim} onPress={() => setEditing(false)}>
           <KeyboardAvoidingView behavior="padding">
+            <ScrollView keyboardShouldPersistTaps="handled" bounces={false} style={{ flexGrow: 0 }}>
             <Pressable style={[st.sheet, { backgroundColor: C.card }]} onPress={() => {}}>
               <Text style={[font(20, '700'), { color: C.ink }]} allowFontScaling>The family secret word</Text>
               <Text style={[font(15, '400', 1.4), { color: C.ink2, marginTop: 6 }]} allowFontScaling>Something only your family knows. It stays on this phone, behind Face ID.</Text>
-              <TextInput value={draft} onChangeText={setDraft} autoFocus autoCapitalize="words" autoCorrect={false} placeholder="One word" placeholderTextColor={C.meta}
+              <TextInput value={draft} onChangeText={setDraft} onEndEditing={e => setDraft(e.nativeEvent.text)} onSubmitEditing={save} returnKeyType="done" autoFocus autoCapitalize="words" autoCorrect={false} placeholder="One word" placeholderTextColor={C.meta}
                 style={[font(22, '600'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, padding: 14, marginTop: 14 }]} />
               <Pill label="Save it" style={{ marginTop: 14 }} onPress={save} />
             </Pressable>
+            </ScrollView>
           </KeyboardAvoidingView>
         </Pressable>
       </Modal>

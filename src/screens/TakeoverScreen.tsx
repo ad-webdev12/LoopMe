@@ -21,7 +21,7 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
   const color = level === 'red' ? T.red : level === 'amber' ? T.amber : T.green;
   const person = loopPerson(s);
   const who = firstName(person?.name) || '';
-  const sender = senderLabel(rec);
+  const sender = senderLabel(rec, ctx.howOf(ctx.recordId));
   const digits = (rec?.sender || '').replace(/\D/g, '');
   const canBlock = digits.length >= 7 && !s.blocked.includes(digits);
   // Who to call: the person in the loop first, then anyone saved with a number.
@@ -30,12 +30,14 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
   const block = async () => {
     if (!rec?.sender) return;
     await ctx.blockNumber(rec.sender);
-    ctx.go('home');
-    ctx.flash('Blocked. That number can’t call or text you now.');
+    ctx.back();
   };
   const call = (phone: string) => Linking.openURL('tel:' + phone.replace(/[^\d+]/g, '')).catch(() => {});
   const ask = () => { if (person?.linked) ctx.go('ask'); else { ctx.flash('Send someone the invite first.'); ctx.go('family'); } };
 
+  // The engine's "nothing to check" step names a "Check it" button this app
+  // doesn't have; say what to actually do.
+  const safeStep = /check it/i.test(v?.safeStep || '') ? 'There were no words to check. Paste or type the message itself, then check it again.' : v?.safeStep;
   const headline = level === 'red' ? 'Stop.\nDon’t reply.' : level === 'amber' ? 'Be careful.' : 'Looks okay.';
   // Read answers aloud (Settings): the verdict is spoken as it appears.
   useEffect(() => {
@@ -61,13 +63,13 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
         {level === 'amber' && (
           <>
             <Text style={[font(17, '600', 1.4), { color: '#fff', marginTop: 18 }]} allowFontScaling>What to do</Text>
-            <Text style={[font(16, '400', 1.45), { color: '#fff', marginTop: 4 }]} allowFontScaling>{v?.safeStep || 'Don’t tap or reply yet. Check with them on a number you already have.'}</Text>
+            <Text style={[font(16, '400', 1.45), { color: '#fff', marginTop: 4 }]} allowFontScaling>{safeStep || 'Don’t tap or reply yet. Check with them on a number you already have.'}</Text>
           </>
         )}
         {level === 'green' && (
           <Text style={[font(16, '400', 1.45), { color: '#fff', marginTop: 18 }]} allowFontScaling>
-            {/feels off/i.test(v?.safeStep || '') ? v!.safeStep
-              : (v?.safeStep && v.safeStep !== 'Nothing to do.' ? v.safeStep + ' ' : '') + 'If it still feels off, ' + (who ? 'ask ' + who + '.' : 'ask someone you trust.')}
+            {/feels off/i.test(safeStep || '') ? safeStep
+              : (safeStep && safeStep !== 'Nothing to do.' ? safeStep + ' ' : '') + 'If it still feels off, ' + (who ? 'ask ' + who + '.' : 'ask someone you trust.')}
           </Text>
         )}
 
@@ -85,12 +87,12 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
               {canBlock || trusted ? (
                 <View style={{ flexDirection: 'row', marginTop: 2 }}>
                   <TextBtn label="Show me more" onPress={() => ctx.go('detail')} style={{ flex: 1 }} />
-                  <TextBtn label="Leave it" onPress={() => ctx.go('home')} style={{ flex: 1 }} />
+                  <TextBtn label="Leave it" onPress={() => ctx.back()} style={{ flex: 1 }} />
                 </View>
               ) : (
                 <>
                   <Pill label="Show me more" bg="#fff" color={T.red} onPress={() => ctx.go('detail')} />
-                  <Pill label="Leave it" bg="rgba(255,255,255,.2)" onPress={() => ctx.go('home')} />
+                  <Pill label="Leave it" bg="rgba(255,255,255,.2)" onPress={() => ctx.back()} />
                 </>
               )}
             </>
@@ -102,19 +104,19 @@ export default function TakeoverScreen({ ctx }: { ctx: Ctx }) {
               {!person?.linked && !trusted ? (
                 <>
                   <Pill label="Show me more" bg="#fff" color={T.amberInk} onPress={() => ctx.go('detail')} />
-                  <Pill label="Close" bg="rgba(255,255,255,.22)" onPress={() => ctx.go('home')} />
+                  <Pill label="Close" bg="rgba(255,255,255,.22)" onPress={() => ctx.back()} />
                 </>
               ) : (
                 <View style={{ flexDirection: 'row', marginTop: 2 }}>
                   <TextBtn label="Show me more" onPress={() => ctx.go('detail')} style={{ flex: 1 }} />
-                  <TextBtn label="Close" onPress={() => ctx.go('home')} style={{ flex: 1 }} />
+                  <TextBtn label="Close" onPress={() => ctx.back()} style={{ flex: 1 }} />
                 </View>
               )}
             </>
           )}
           {level === 'green' && (
             <>
-              <Pill label="Done" bg="#fff" color={T.greenDeep} onPress={() => { Haptics.selectionAsync().catch(() => {}); ctx.go('home'); }} />
+              <Pill label="Done" bg="#fff" color={T.greenDeep} onPress={() => { Haptics.selectionAsync().catch(() => {}); ctx.back(); }} />
               <Pill label={who ? 'Ask ' + who + ' anyway' : 'Ask someone anyway'} bg="rgba(255,255,255,.2)" onPress={ask} />
               {!!rec && (
                 <Pressable onPress={() => ctx.markScam(rec.id)} accessibilityRole="button" style={{ height: 46, alignItems: 'center', justifyContent: 'center' }}>

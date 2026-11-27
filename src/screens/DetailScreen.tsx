@@ -64,7 +64,7 @@ export default function DetailScreen({ ctx }: { ctx: Ctx }) {
 
         {level !== 'green' && canBlock && (
           <Pill label="Block this number" bg={T.red} style={{ marginTop: 22, marginHorizontal: 16 }}
-            onPress={async () => { await ctx.blockNumber(rec!.sender!); ctx.go('home'); ctx.flash('Blocked. That number can’t call or text you now.'); }} />
+            onPress={async () => { await ctx.blockNumber(rec!.sender!); ctx.back(); }} />
         )}
         {level !== 'green' && (
           <Pressable onPress={report} style={({ pressed }) => [st.link, { marginTop: canBlock ? 4 : 18 }, pressed && { opacity: 0.6 }]} accessibilityRole="link">

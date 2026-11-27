@@ -1,7 +1,7 @@
 // Shared pieces of the redesigned screens: exact sizes from the handoff.
 // Every screen is built from these so the whole app moves together.
 import React, { useEffect, useRef } from 'react';
-import { AccessibilityInfo, Animated, Easing, Image, ImageStyle, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle, StyleProp, TextStyle } from 'react-native';
+import { AccessibilityInfo, Animated, useColorScheme, Easing, Image, ImageStyle, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle, StyleProp, TextStyle } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { ChevronLeft, ChevronRight, Check, X, LucideIcon } from 'lucide-react-native';
 import { T, font, Palette, LIGHT, DARK, MOTION } from '../theme';
@@ -145,7 +145,10 @@ export function Note({ C, children, center, top = 12, style }: { C: Palette; chi
 }
 
 /** "‹ Back" in green, 17px, 22px chevron. */
-export function BackLink({ label = 'Back', onPress, color = T.green, Icon = ChevronLeft }: { label?: string; onPress: () => void; color?: string; Icon?: LucideIcon }) {
+export function BackLink({ label = 'Back', onPress, color: colorProp, Icon = ChevronLeft }: { label?: string; onPress: () => void; color?: string; Icon?: LucideIcon }) {
+  // The palette accent, so it stays readable in dark mode.
+  const scheme = useColorScheme();
+  const color = colorProp || palette(scheme === 'dark').accent;
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [{ paddingVertical: 8, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start' }, pressed && { opacity: 0.6 }]} accessibilityRole="button" accessibilityLabel={label} hitSlop={8}>
       <Icon size={22} color={color} strokeWidth={2} />

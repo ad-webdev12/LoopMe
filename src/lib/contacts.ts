@@ -27,10 +27,15 @@ export function displayName(c: Contacts.Contact): string {
 export async function pickTrustedPerson(): Promise<PickResult> {
   // Loop Me's own list (src/ui/ContactPicker.tsx): the system picker's search
   // did nothing and sometimes returned the wrong row.
-  let granted = false, canAskAgain = true;
+  let granted = false, canAskAgain = true, justAsked = false;
   try {
-    const r = await Contacts.requestPermissionsAsync();
-    granted = r.granted; canAskAgain = r.canAskAgain;
+    const cur = await Contacts.getPermissionsAsync();
+    if (cur.granted) { granted = true; }
+    else {
+      justAsked = true;
+      const r = await Contacts.requestPermissionsAsync();
+      granted = r.granted; canAskAgain = r.canAskAgain;
+    }
   } catch { return { ok: false, reason: 'Your contacts could not be opened. You can try again in a moment.' }; }
   if (!granted) {
     return {
@@ -40,6 +45,10 @@ export async function pickTrustedPerson(): Promise<PickResult> {
         : 'Contacts are turned off for Loop Me. Turn them on in Settings, Privacy, Contacts, then try again.',
     };
   }
+  // Right after the iOS permission alert, give it a moment to finish closing:
+  // a sheet presented while the alert is still animating away never shows,
+  // which made people tap twice. Now Allow leads straight to the list.
+  if (justAsked) await new Promise(r => setTimeout(r, 650));
   const picked = await openContactPicker();
   if (!picked) return { ok: false, reason: '' };          // dismissed: say nothing
 

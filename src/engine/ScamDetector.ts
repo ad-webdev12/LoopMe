@@ -257,6 +257,11 @@ const RULES: Rule[] = [
   { re: /(?:akun|rekening) (?:anda|kamu) (?:akan |telah )?(?:diblokir|dibekukan|ditangguhkan)|verifikasi (?:akun|data|identitas) anda|klik (?:di ?sini|tautan)/i, w: 40, tag: 'bank-alert', plain: 'It claims an account is blocked unless you act (written in Indonesian).' },
   { re: /paket (?:anda |kamu )?(?:tertahan|ditahan)[\s\S]{0,80}(?:biaya|bayar|bea cukai)/i, w: 40, tag: 'delivery-fee', plain: 'A held parcel with a fee to release it (written in Indonesian).' },
   { re: /(?:ang |iyong )?account (?:mo |ninyo )?(?:ay )?(?:na-?block|suspended|ma-?lock)|i-?verify (?:ang )?(?:iyong )?(?:account|identity)|pindutin (?:ang )?link/i, w: 40, tag: 'bank-alert', plain: 'It claims an account is blocked unless you act (written in Tagalog).' },
+  // The same family-emergency script in Spanish, French and German: new
+  // number, send money, don't tell anyone. The words differ; the trick doesn't.
+  { re: /perd[ií] (?:mi )?(?:tel[eé]fono|celular|m[oó]vil)|(?:es|este es) mi n[uú]mero nuevo|mi nuevo n[uú]mero|j['’]ai (?:perdu|cass[eé]) mon (?:t[eé]l[eé]phone|portable)|(?:mon |c['’]est mon )?nouveau num[eé]ro|mein handy ist (?:kaputt|weg)|(?:meine |das ist meine )?neue (?:handy)?nummer/i, w: 30, tag: 'family-emergency', plain: 'Someone says they have a new number.' },
+  { re: /\b(?:m[aá]nd(?:a|ame)|env[ií](?:a|ame)|transfi[eé]r(?:e|eme)|pr[eé]st(?:a|ame)|deposit(?:a|ame))\b[^.?!]{0,30}?(?:\d[\d.,]*\s*(?:d[oó]lares|euros|pesos|€)|[$€]\s?\d|dinero)|\b(?:envoie|vire|pr[eê]te)(?:-moi)?\b[^.?!]{0,30}?(?:\d[\d.,]*\s*(?:euros|€)|argent)|\b(?:[üu]berweis|schick|leih)\w*\b[^.?!]{0,30}?(?:\d[\d.,]*\s*(?:euro|€)|geld)/i, w: 30, tag: 'money-ask', plain: 'It asks you to send money.' },
+  { re: /no (?:le |les )?(?:digas|cuentes) (?:nada )?a (?:nadie|pap[aá]|mam[aá]|tu \w+)|ne (?:le )?dis (?:rien )?[àa] (?:personne|papa|maman)|sag (?:es )?(?:niemandem|nicht papa|nicht mama)|sag papa nichts|sag mama nichts/i, w: 25, tag: 'secrecy', plain: 'It asks you to keep it secret.' },
 ];
 
 // PRECISION GUARD: the false-positive killer. Trend Micro flagged a real Amazon receipt; we will not.
@@ -303,11 +308,43 @@ const CODE_WORD_TAGS = new Set(['family-emergency']);
 // from this file and checked against it. Not used by the app itself.
 export const ENGINE_TABLES = { RULES, KNOWN_GOOD, PAY_TAGS, URG_TAGS, CODE_WORD_TAGS };
 
+// Long messages: the bar rises with length (see below), which keeps long
+// emails from tripping on everyday words. But a scam sentence pasted after a
+// page of friendly text must not hide in it. So a long message is also read a
+// few sentences at a time, at the normal bar: a window that reads as a scam on
+// its own makes the whole message at least Be careful, and a strong one Scam.
+export function sentenceWindows(message: string): string[] {
+  const sentences = message.split(/(?<=[.!?])\s+|\n+/).map(x => x.trim()).filter(Boolean);
+  const out: string[] = [];
+  let cur: string[] = [], n = 0;
+  for (const s of sentences) {
+    const w = s.split(/\s+/).filter(Boolean).length;
+    if (cur.length && n + w > 40) { out.push(cur.join(' ')); cur = []; n = 0; }
+    cur.push(s); n += w;
+  }
+  if (cur.length) out.push(cur.join(' '));
+  return out;
+}
+
 export function detect(message: string, opts: DetectorOptions = {}): Verdict {
+  const v = detectOne(message, opts);
+  if (v.level === 'red' || v.tags.includes('allowlist')) return v;
+  if ((message || '').split(/\s+/).filter(Boolean).length <= 40) return v;
+  let best: Verdict | null = null;
+  for (const w of sentenceWindows(message)) {
+    const x = detectOne(w, opts);
+    if (x.level !== 'green' && x.score >= 35 && (!best || x.score > best.score)) best = x;
+  }
+  if (!best) return v;
+  if (best.level === 'red' && best.score >= 75) return best;
+  return v.level === 'amber' ? v : { ...best, level: 'amber', confidence: 'fairly' };
+}
+
+function detectOne(message: string, opts: DetectorOptions = {}): Verdict {
   const norm = normalizeText((message || '').trim());
   const text = norm.text;
   const base: Omit<Verdict, 'level' | 'reason' | 'safeStep'> = { signals: [], matches: [], tags: [], confidence: 'very', codeWordMoment: false, score: 0, disguised: norm.disguised };
-  if (!text) return { ...base, level: 'green', reason: 'There’s nothing to check yet.', safeStep: 'Paste or share a message and tap “Check it”.' };
+  if (!text) return { ...base, level: 'green', reason: 'There’s nothing to check yet.', safeStep: 'Paste or share a message to check it.' };
 
   // Person-editable allowlist ("this really is my bank's number")
   const allow = (opts.allowlist || []).map(a => a.toLowerCase().trim()).filter(Boolean);

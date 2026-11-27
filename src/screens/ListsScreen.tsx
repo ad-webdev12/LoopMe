@@ -39,7 +39,7 @@ export default function ListsScreen({ ctx }: { ctx: Ctx }) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }} keyboardShouldPersistTaps="handled">
         <BackLink label="Back" onPress={() => ctx.go('numbers')} />
         <ScreenTitle C={C}>{blocked ? 'Blocked numbers' : 'Trusted numbers'}</ScreenTitle>
-        <Lead C={C}>{blocked ? 'These can’t call or text you.' : 'Never flagged.'}</Lead>
+        <Lead C={C}>{blocked ? 'Numbers you blocked.' : 'Never flagged.'}</Lead>
         <View style={[st.addRow, { backgroundColor: C.card }]}>
           <TextInput value={value} onChangeText={setValue} placeholder={blocked ? 'Number to block' : 'Name or number'} placeholderTextColor={C.meta} keyboardType={blocked ? 'phone-pad' : 'default'} returnKeyType="done" onSubmitEditing={add}
             style={[font(17, '400'), { color: C.ink, flex: 1, height: 44 }]} />

@@ -28,14 +28,18 @@ export default function TabBar({ C, screen, go, careMode, watchName }: { C: Pale
       ]
     : [
         { t: 'home', label: 'Check', Icon: ScanText, on: ['home', 'checking', 'callcheck'].includes(screen) },
-        { t: 'family', label: 'Family', Icon: Users, on: ['family', 'ask', 'maria', 'watchedBy', 'watch', 'settings', 'learn', 'setup', 'caregiver', 'blocked', 'safe', 'drawerInfo'].includes(screen) },
+        { t: 'family', label: 'Family', Icon: Users, on: ['family', 'ask', 'maria', 'watchedBy', 'watch'].includes(screen) },
         { t: 'history', label: 'History', Icon: Clock, on: screen === 'history' },
       ];
   const SIDE = tabs.length > 3 ? 14 : 50;
-  let active = tabs.findIndex(t => t.on);
-  if (active < 0) active = 0;
+  // Settings and its sub-screens have no tab of their own on this phone, so
+  // nothing is highlighted there: all icons sit evenly, no capsule.
+  const found = tabs.findIndex(t => t.on);
+  const none = found < 0;
+  const active = none ? 0 : found;
   const inner = width - SIDE * 2 - PAD * 2;
   const rest = (inner - PILL_W) / (tabs.length - 1);
+  const even = inner / tabs.length;
   const x = useRef(new Animated.Value(active * rest)).current;
   const labelOpacity = useRef(new Animated.Value(1)).current;
   const prev = useRef(active);
@@ -55,20 +59,20 @@ export default function TabBar({ C, screen, go, careMode, watchName }: { C: Pale
     } else {
       x.setValue(target);
     }
-  }, [active, rest]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [active, rest, none]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <View style={[st.bar, { left: SIDE, right: SIDE, backgroundColor: C.card, shadowColor: '#000' }]} pointerEvents="box-none">
-      <Animated.View style={[st.pill, { transform: [{ translateX: x }] }]} pointerEvents="none">
+      <Animated.View style={[st.pill, { transform: [{ translateX: x }] }, none && { opacity: 0 }]} pointerEvents="none">
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           {React.createElement(tabs[active].Icon, { size: 20, color: '#fff', strokeWidth: 2.2 })}
           <Animated.Text style={[font(15, '600'), { color: '#fff', opacity: labelOpacity }]} numberOfLines={1} allowFontScaling={false}>{tabs[active].label}</Animated.Text>
         </View>
       </Animated.View>
       {tabs.map((t, i) => (
-        <Pressable key={t.t} onPress={() => go(t.t)} accessibilityRole="button" accessibilityLabel={t.label} accessibilityState={{ selected: i === active }}
-          style={({ pressed }) => [{ width: i === active ? PILL_W : rest, height: 48, alignItems: 'center', justifyContent: 'center' }, pressed && { transform: [{ scale: 0.92 }] }]}>
-          {i !== active && <t.Icon size={23} color={C.dark ? '#aeaeb2' : '#6c6c70'} strokeWidth={1.9} />}
+        <Pressable key={t.t} onPress={() => go(t.t)} accessibilityRole="button" accessibilityLabel={t.label} accessibilityState={{ selected: !none && i === active }}
+          style={({ pressed }) => [{ width: none ? even : i === active ? PILL_W : rest, height: 48, alignItems: 'center', justifyContent: 'center' }, pressed && { transform: [{ scale: 0.92 }] }]}>
+          {(none || i !== active) && <t.Icon size={23} color={C.dark ? '#aeaeb2' : '#6c6c70'} strokeWidth={1.9} />}
         </Pressable>
       ))}
     </View>

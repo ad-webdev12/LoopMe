@@ -33,14 +33,52 @@ struct DetectorOptions {
 }
 
 enum Engine {
+  /// Mirrors sentenceWindows() in ScamDetector.ts.
+  static let sentenceSplit = try! NSRegularExpression(pattern: "(?<=[.!?])\\s+|\\n+")
+  static func sentenceWindows(_ message: String) -> [String] {
+    let ns = message as NSString
+    var sentences: [String] = []
+    var last = 0
+    for m in sentenceSplit.matches(in: message, range: NSRange(location: 0, length: ns.length)) {
+      sentences.append(ns.substring(with: NSRange(location: last, length: m.range.location - last)))
+      last = m.range.location + m.range.length
+    }
+    sentences.append(ns.substring(from: last))
+    var out: [String] = [], cur: [String] = [], n = 0
+    for s in sentences.map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) }).filter({ !$0.isEmpty }) {
+      let w = s.split(whereSeparator: { $0.isWhitespace || $0.isNewline }).count
+      if !cur.isEmpty && n + w > 40 { out.append(cur.joined(separator: " ")); cur = []; n = 0 }
+      cur.append(s); n += w
+    }
+    if !cur.isEmpty { out.append(cur.joined(separator: " ")) }
+    return out
+  }
+
+  /// Mirrors detect() in ScamDetector.ts: a long message is also read a few sentences at a time.
   static func detect(_ message: String, _ opts: DetectorOptions = DetectorOptions()) -> Verdict {
+    let v = detectOne(message, opts)
+    if v.level == .red || v.tags.contains("allowlist") { return v }
+    if message.split(whereSeparator: { $0.isWhitespace || $0.isNewline }).count <= 40 { return v }
+    var best: Verdict? = nil
+    for w in sentenceWindows(message) {
+      let x = detectOne(w, opts)
+      if x.level != .green && x.score >= 35 && (best == nil || x.score > best!.score) { best = x }
+    }
+    guard var b = best else { return v }
+    if b.level == .red && b.score >= 75 { return b }
+    if v.level == .amber { return v }
+    b.level = .amber; b.confidence = .fairly
+    return b
+  }
+
+  static func detectOne(_ message: String, _ opts: DetectorOptions = DetectorOptions()) -> Verdict {
     let t = EngineTables.shared
     let norm = Normalize.run(message.trimmingCharacters(in: .whitespacesAndNewlines))
     let text = norm.text
     var v = Verdict(level: .green, reason: "", safeStep: "", signals: [], matches: [], tags: [], confidence: .very, codeWordMoment: false, score: 0, disguised: norm.disguised)
     if text.isEmpty {
       v.reason = "There’s nothing to check yet."
-      v.safeStep = "Paste or share a message and tap “Check it”."
+      v.safeStep = "Paste or share a message to check it."
       return v
     }
 
@@ -195,6 +233,7 @@ enum Explain {
   }
 
   static func points(_ text: String, _ level: Level, _ tags: [String]) -> [ExplainPoint] {
+    if tags.contains("user-safe") && level == .green { return [ExplainPoint(phrase: "", short: "You marked it safe", why: "Loop Me won’t flag this one again.")] }
     let ns = text as NSString
     struct F { let at: Int; let end: Int; let rank: Int; let order: Int; let p: Pat; let phrase: String }
     var found: [F] = []
@@ -236,7 +275,9 @@ enum Explain {
   static let linkish = (EngineTables.shared.explain["linkish"] as? String) ?? "(?!)"
 
   static func headline(_ text: String, _ level: Level, _ tags: [String]) -> String {
+    if tags.contains("user-safe") && level == .green { return "You told Loop Me this one is fine." }
     if level == .green { return "Nothing here matches a scam we know." }
+    if tags.contains("user-scam") && !points(text, level, tags).contains(where: { !$0.phrase.isEmpty }) { return "You told Loop Me this one is a scam." }
     if tags.contains("family-emergency") { return "Someone is pretending to be family." }
     if tags.contains("bank-alert") && level == .amber { return "It might really be your bank, but texts like this are easy to fake." }
     let pts = points(text, level, tags)

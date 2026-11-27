@@ -52,7 +52,11 @@ export interface CheckRecord {
   reported?: boolean;            // the person forwarded it to 7726 or the FTC
   userLabel?: 'scam' | 'fine';   // the person said the verdict was wrong, and what it should have been
   seen?: boolean;                // caretaker side: the full-screen alert was shown
+  how?: CheckHow;                // how the person gave Loop Me the message (label only)
 }
+
+/** How a message reached a check: shown as the message card's label. */
+export type CheckHow = 'pasted' | 'typed' | 'photo' | 'spoken' | 'shared';
 
 const KEY = 'loopmein.history.v1';
 const CAP = 300;

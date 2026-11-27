@@ -2,7 +2,7 @@
 // headline, the clipboard as a bubble, one big button and three ways in.
 // Below: the protection status, then two tiles. Every value from the handoff.
 import React, { useEffect, useState } from 'react';
-import { Animated, AppState, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Animated, AppState, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -43,6 +43,19 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
   // hasStringAsync never shows the system paste alert; the text itself is
   // read only when they tap Check, so the alert comes from their own tap.
   const [hasClip, setHasClip] = useState(false);
+  // Once the copied text has been checked, the "You copied something" hint
+  // goes away until the clipboard changes (or the person leaves and comes back).
+  const [clipChecked, setClipChecked] = useState(clipCheckedFlag);
+  const clipDone = () => { clipCheckedFlag = true; setClipChecked(true); };
+  useEffect(() => {
+    const sub = Clipboard.addClipboardListener(() => { clipCheckedFlag = false; setClipChecked(false); });
+    let wasAway = false;
+    const app = AppState.addEventListener('change', st => {
+      if (st === 'background') wasAway = true;
+      else if (st === 'active' && wasAway) { wasAway = false; clipCheckedFlag = false; setClipChecked(false); }
+    });
+    return () => { Clipboard.removeClipboardListener(sub); app.remove(); };
+  }, []);
   const Paste = PasteControl();
   const readClip = async () => {
     try { setHasClip(await Clipboard.hasStringAsync()); } catch { setHasClip(false); }
@@ -73,25 +86,36 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
     : firstName(people[0].name) + ' and ' + firstName(people[1].name) + ' are in your loop';
 
   const checkClip = async () => {
-    if (clip) { ctx.check(clip); return; }
+    if (clip) { clipDone(); ctx.checkAs(clip, 'pasted'); return; }
     if (hasClip) {
       try {
         const t = (await Clipboard.getStringAsync() || '').trim();
-        if (t.length > 3) { setClip(t); ctx.check(t); return; }
+        if (t.length > 3) { setClip(t); clipDone(); ctx.checkAs(t, 'pasted'); return; }
       } catch {}
     }
     setTyping(true);
   };
+  // Shows "Opening" the moment it is tapped: the permission check and the
+  // picker can take a few seconds to appear. After Allow, the picker opens in
+  // the same flow, no second tap.
+  const [opening, setOpening] = useState(false);
   const photo = async () => {
+    if (opening) return;
+    setOpening(true);
     try {
-      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      let perm = await ImagePicker.getMediaLibraryPermissionsAsync();
+      let justAsked = false;
+      if (!perm.granted && perm.canAskAgain) { justAsked = true; perm = await ImagePicker.requestMediaLibraryPermissionsAsync(); }
       if (!perm.granted) { ctx.flash('Photo access is needed to read a screenshot.'); return; }
+      // Let the iOS alert finish closing, or the picker never shows.
+      if (justAsked) await new Promise(r => setTimeout(r, 600));
       const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.9 });
       const uri = res.assets?.[0]?.uri;
       if (!uri) return;
       const found = (await recognizeText(uri)).trim();
-      if (found) ctx.check(found); else ctx.flash('No words found in that picture. Try a clearer one.');
+      if (found) ctx.checkAs(found, 'photo'); else ctx.flash('No words found in that picture. Try a clearer one.');
     } catch { ctx.flash('Could not read that picture. Paste the text instead.'); }
+    finally { setOpening(false); }
   };
   // Say it: a sheet that shows the words as they are heard, then one tap to
   // check them. Nothing is recorded and speech stays on the phone.
@@ -118,7 +142,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
     setShot(null);
     try {
       const found = (await recognizeText(uri)).trim();
-      if (found) ctx.check(found); else ctx.flash('No words found in that screenshot.');
+      if (found) ctx.checkAs(found, 'photo'); else ctx.flash('No words found in that screenshot.');
     } catch { ctx.flash('Could not read that screenshot.'); }
   };
 
@@ -148,7 +172,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
                 <Text style={[font(16, '400', 1.38), { color: '#000' }]} allowFontScaling numberOfLines={6}>{clip}</Text>
               </View>
             </>
-          ) : hasClip ? (
+          ) : hasClip && !clipChecked ? (
             <Text style={[font(14, '600'), { color: '#fff', marginTop: 20, marginLeft: 6 }]} allowFontScaling>You copied something. Tap Paste to check it.</Text>
           ) : null}
           {!!shot && (
@@ -159,7 +183,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
           )}
           {Paste && hasClip && !clip ? (
             // Apple's paste button: the tap is the permission, so no alert.
-            <Paste style={st.primary} onPaste={e => { const t = (e.nativeEvent.text || '').trim(); if (t.length > 3) { setClip(t); ctx.check(t); } }} />
+            <Paste style={st.primary} onPaste={e => { const t = (e.nativeEvent.text || '').trim(); if (t.length > 3) { setClip(t); clipDone(); ctx.checkAs(t, 'pasted'); } }} />
           ) : (
           <Pressable onPress={checkClip} style={({ pressed }) => [st.primary, pressed && { transform: [{ scale: 0.98 }] }]} accessibilityRole="button">
             <Text style={[font(19, '700'), { color: T.greenDeep }]} allowFontScaling>{clip ? 'Check this message' : 'Check a message'}</Text>
@@ -167,7 +191,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
           </Pressable>
           )}
           <View style={{ flexDirection: 'row', marginTop: 8 }}>
-            <Alt Icon={Camera} label="Take a photo" onPress={photo} />
+            <Alt Icon={Camera} label={opening ? 'Opening…' : 'Take a photo'} onPress={photo} busy={opening} />
             <Alt Icon={Mic} label="Say it" onPress={sayIt} />
             <Alt Icon={Keyboard} label="Type it" onPress={() => setTyping(true)} />
           </View>
@@ -228,13 +252,15 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Pressable onPress={stopSaying} accessibilityRole="button"><Text style={[font(17, '400'), { color: C.accent }]} allowFontScaling>Cancel</Text></Pressable>
             <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Say the message</Text>
-            <Pressable onPress={() => { stopSaying(); if (spoken) ctx.check(spoken); }} accessibilityRole="button"><Text style={[font(17, '600'), { color: spoken ? T.green : C.meta }]} allowFontScaling>Check</Text></Pressable>
+            <Pressable onPress={() => { stopSaying(); if (spoken) ctx.checkAs(spoken, 'spoken'); }} accessibilityRole="button"><Text style={[font(17, '600'), { color: spoken ? T.green : C.meta }]} allowFontScaling>Check</Text></Pressable>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 24 }}>
             <PulseDot color={T.red} size={12} />
             <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Listening</Text>
           </View>
           <Text style={[font(24, '500', 1.35), { color: spoken ? C.ink : C.meta, marginTop: 16 }]} allowFontScaling>{spoken || 'Read the message out loud, then tap Check.'}</Text>
+          {/* Say it only starts when iOS can do on-device recognition (requiresOnDeviceRecognition), so this is true whenever the sheet is open. */}
+          <Text style={[font(15, '400', 1.4), { color: C.ink2, marginTop: 16 }]} allowFontScaling>Your words stay on this phone.</Text>
         </View>
       </Modal>
       <Modal visible={typing} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setTyping(false)}>
@@ -242,7 +268,7 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Pressable onPress={() => setTyping(false)} accessibilityRole="button"><Text style={[font(17, '400'), { color: C.accent }]} allowFontScaling>Cancel</Text></Pressable>
             <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Type the message</Text>
-            <Pressable onPress={() => { setTyping(false); if (typed.trim()) ctx.check(typed.trim()); }} accessibilityRole="button"><Text style={[font(17, '600'), { color: C.accent }]} allowFontScaling>Check</Text></Pressable>
+            <Pressable onPress={() => { setTyping(false); if (typed.trim()) ctx.checkAs(typed.trim(), 'typed'); }} accessibilityRole="button"><Text style={[font(17, '600'), { color: C.accent }]} allowFontScaling>Check</Text></Pressable>
           </View>
           <TextInput value={typed} onChangeText={setTyped} multiline autoFocus placeholder="Type or paste the text here" placeholderTextColor={C.meta}
             style={[font(18, '400', 1.4), { color: C.ink, backgroundColor: C.card, borderRadius: 16, padding: 16, marginTop: 16, minHeight: 180, textAlignVertical: 'top' }]} />
@@ -252,10 +278,13 @@ export default function HomeScreen({ ctx }: { ctx: Ctx }) {
   );
 }
 
-function Alt({ Icon, label, onPress }: { Icon: typeof Camera; label: string; onPress: () => void }) {
+/** Survives Home remounting (going to a verdict and back). */
+let clipCheckedFlag = false;
+
+function Alt({ Icon, label, onPress, busy }: { Icon: typeof Camera; label: string; onPress: () => void; busy?: boolean }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [{ flex: 1, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 }, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel={label}>
-      <Icon size={18} color="#fff" strokeWidth={2} />
+    <Pressable onPress={onPress} disabled={busy} style={({ pressed }) => [{ flex: 1, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 }, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ busy }}>
+      {busy ? <ActivityIndicator size="small" color="#fff" /> : <Icon size={18} color="#fff" strokeWidth={2} />}
       <Text style={[font(15, '600'), { color: '#fff' }]} allowFontScaling>{label}</Text>
     </Pressable>
   );

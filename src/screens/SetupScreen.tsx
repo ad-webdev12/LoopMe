@@ -67,7 +67,7 @@ export default function SetupScreen({ ctx }: { ctx: Ctx }) {
   return (
     <Screen C={C} playKey="setup">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-        <BackLink label="Settings" onPress={ctx.back} />
+        <BackLink label={BACK_LABEL[ctx.from] || 'Back'} onPress={() => ctx.go(ctx.from === 'setup' ? 'home' : ctx.from)} />
         <ScreenTitle C={C}>Turn on scam protection</ScreenTitle>
         <Lead C={C}>{total === 2 ? 'Two switches' : 'Three switches'} in iPhone Settings. Here’s where.</Lead>
         <Text style={[font(15, '600'), { color: T.green, paddingHorizontal: 20, paddingTop: 12 }]} allowFontScaling>{on} of {total} switched on</Text>
@@ -131,3 +131,9 @@ const st = StyleSheet.create({
   chip: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   btn: { height: 52, borderRadius: 26, marginTop: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
 });
+
+// Back says where it goes: the screen this walkthrough was opened from.
+const BACK_LABEL: Partial<Record<Ctx['screen'], string>> = {
+  home: 'Check', settings: 'Settings', family: 'Family', ward: 'Family', caregiver: 'Setup checklist',
+  advanced: 'More settings', howto: 'How to use', numbers: 'Numbers', privacy: 'Privacy',
+};

@@ -98,6 +98,7 @@ export const EXPLAIN: Pattern[] = [
 
 // The trick, by the detector's tag, for messages with no single phrase to point at.
 export const BY_TAG: Record<string, [string, string]> = {
+  'user-scam': ['You marked it a scam', 'Loop Me will treat texts like this as scams.'],
   'family-emergency': ['Pretends to be family', 'Call them on the number you know.'],
   'borrow-ask': ['Asks to borrow money', 'Check with them in person or on their usual number.'],
   'borrow-repay': ['Asks for money', 'Check who it is before you send anything.'],
@@ -160,6 +161,8 @@ const compiled = EXPLAIN.map(p => ({ ...p, re: new RegExp(p.source, p.flags + 'g
 export const LINKISH = /\b(?:https?:\/\/|www\.)|\b[a-z0-9-]+\.(?:com|net|org|info|co|io|us|uk|biz|xyz|top|site|online|app|ly|me|gov|edu)\b/i;
 
 export function explain(text: string, level: 'red' | 'amber' | 'green', tags: string[] = []): Point[] {
+  // The person's own correction outranks everything the detector found.
+  if (tags.includes('user-safe') && level === 'green') return [{ phrase: '', short: 'You marked it safe', why: 'Loop Me won’t flag this one again.' }];
   const found: { at: number; end: number; rank: number; p: Pattern; phrase: string }[] = [];
   compiled.forEach(p => {
     if (p.needTags && !p.needTags.some(t => tags.includes(t))) return;
@@ -206,7 +209,9 @@ export function highlights(text: string, level: 'red' | 'amber' | 'green', tags:
 
 /** One line under the headline: who it pretends to be, or the strongest reason. */
 export function headline(text: string, level: 'red' | 'amber' | 'green', tags: string[] = []): string {
+  if (tags.includes('user-safe') && level === 'green') return 'You told Loop Me this one is fine.';
   if (level === 'green') return 'Nothing here matches a scam we know.';
+  if (tags.includes('user-scam') && !explain(text, level, tags).some(p => p.phrase)) return 'You told Loop Me this one is a scam.';
   if (tags.includes('family-emergency')) return 'Someone is pretending to be family.';
   if (tags.includes('bank-alert') && level === 'amber') return 'It might really be your bank, but texts like this are easy to fake.';
   const pts = explain(text, level, tags);
