@@ -17,6 +17,7 @@ export interface Settings {
   alerts: boolean; readAloud: boolean;
   allowlist: string[]; trusted: TrustedPerson[];
   watching: TrustedPerson | null; // caretaker side: the person they look out for
+  watchApproved: boolean;        // that person said yes on their phone
   codeWordSet: boolean;          // never store the word itself in plain settings exports
   codeWord: string;              // shared only with the linked family phone, encrypted in iCloud
   codeWordAt: number;            // when it was last set, so the newest word wins across phones
@@ -46,7 +47,7 @@ const OLD_KEY = 'loopmein.settings.v2';
 const DEFAULTS: Settings = {
   role: null, myName: '',
   alerts: true, readAloud: false,
-  allowlist: [], trusted: [], watching: null,
+  allowlist: [], trusted: [], watching: null, watchApproved: false,
   codeWordSet: false, codeWord: '', codeWordAt: 0, panicCompletedAt: null,
   pairCode: '', watchedBy: null, careName: '', careRel: 'Mother', autoCheck: true, improve: false, darkMode: false, introSeen: false,
   familyLinked: false, familyRole: null, familyInvited: false, linkedNames: [], protectionLater: false, bankPhone: '', blocked: [], installedAt: 0,

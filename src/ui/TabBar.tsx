@@ -28,7 +28,7 @@ export default function TabBar({ C, screen, go, careMode, watchName }: { C: Pale
       ]
     : [
         { t: 'home', label: 'Check', Icon: ScanText, on: ['home', 'checking', 'callcheck'].includes(screen) },
-        { t: 'family', label: 'Family', Icon: Users, on: ['family', 'ask', 'maria', 'watchedBy', 'watch', ...SETTINGS_SCREENS].includes(screen) },
+        { t: 'family', label: 'Family', Icon: Users, on: ['family', 'ask', 'maria', 'watchedBy', 'watch', 'ward', 'wardItem', ...SETTINGS_SCREENS].includes(screen) },
         { t: 'history', label: 'History', Icon: Clock, on: screen === 'history' },
       ];
   const SIDE = tabs.length > 3 ? 14 : 50;

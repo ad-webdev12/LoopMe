@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Phone, ChevronRight, Send, Settings } from 'lucide-react-native';
 import { T, font } from '../theme';
+import { BackLink } from '../ui/base';
 import { Screen, LargeTitle, Avatar, Card, SectionHeader, Note, Tag, Pill, PulseDot } from '../ui/base';
 import { firstName, whenLabel } from '../ui/pieces';
 import { repeatSenders } from '../lib/family';
@@ -16,7 +17,10 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
   const name = firstName(s.watching?.name) || 'them';
   // "Anna's phone", or "their phone" while the name is not known yet.
   const phoneOf = known ? name + '’s phone' : 'their phone';
-  const linked = s.familyLinked;
+  const linked = !!s.watching?.name && s.watchApproved;
+  const waiting = !!s.watching?.name && !s.watchApproved;
+  // A phone that protects its own person reaches this page from Family.
+  const fromFamily = s.role !== 'caretaker';
   const p = ctx.pulse;
   const events = ctx.hist.filter(h => h.source === 'family');
   const open = events.filter(h => h.level !== 'green' && !(h.notes || []).some(n => n.mine)).slice(0, 5);
@@ -37,7 +41,8 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
   return (
     <Screen C={C} playKey="ward">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
-        <LargeTitle C={C} right={<View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 2 }}>
+        {fromFamily && <BackLink label="Family" onPress={() => ctx.go('family')} />}
+        <LargeTitle C={C} right={fromFamily ? undefined : <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 2 }}>
           <Pressable onPress={() => ctx.go('watch')} accessibilityRole="button"><Text style={[font(17, '400'), { color: C.accent }]} allowFontScaling>Link</Text></Pressable>
           <Pressable onPress={() => ctx.go('settings')} accessibilityRole="button" accessibilityLabel="Settings" style={({ pressed }) => [{ height: 40, paddingHorizontal: 14, borderRadius: 20, flexDirection: 'row', gap: 6, alignItems: 'center', backgroundColor: C.greenTint }, pressed && { opacity: 0.7 }]}>
             <Settings size={19} color={C.accent} strokeWidth={2.2} />
@@ -50,8 +55,8 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
           <View style={{ flex: 1 }}>
             <Text style={[font(20, '700'), { color: C.ink }]} allowFontScaling>{s.watching?.name || 'Not linked yet'}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
-              <PulseDot size={8} color={linked ? T.green : T.amber} still />
-              <Text style={[font(15, '400'), { color: C.ink2 }]} allowFontScaling>{linked ? 'Linked. You hear the moment something looks wrong.' : 'Waiting for the invite from their phone.'}</Text>
+              <PulseDot size={8} color={linked ? T.green : T.amber} still={!waiting} />
+              <Text style={[font(15, '400'), { color: C.ink2, flex: 1 }]} allowFontScaling>{linked ? 'Linked. You hear the moment something looks wrong.' : waiting ? 'Waiting for ' + name + ' to tap Yes on their phone.' : 'Not linked yet.'}</Text>
             </View>
           </View>
           <Pressable onPress={tel} style={({ pressed }) => [st.call, { backgroundColor: C.greenTint }, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel={'Call ' + name}>
@@ -59,7 +64,14 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
           </Pressable>
         </Card>
 
-        {open.length > 0 && (
+        {waiting && (
+          <Card C={C} style={{ marginHorizontal: 16, marginTop: 14 }} radius={16}>
+            <Text style={[font(17, '600', 1.3), { color: C.ink }]} allowFontScaling>One step left</Text>
+            <Text style={[font(16, '400', 1.45), { color: C.ink2, marginTop: 6 }]} allowFontScaling>{name} gets a question on their phone: “{firstName(s.myName) || 'You'} wants to link with this phone.” Once they tap Yes, their scam alerts start showing up here.</Text>
+          </Card>
+        )}
+
+        {linked && open.length > 0 && (
           <>
             <SectionHeader C={C}>Worth a word</SectionHeader>
             <View style={{ paddingHorizontal: 16, gap: 10 }}>
@@ -88,6 +100,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
           </>
         )}
 
+        {linked && (<>
         <SectionHeader C={C}>This week on {phoneOf}</SectionHeader>
         <Card C={C} style={{ marginHorizontal: 16 }} radius={16}>
           {p ? (
@@ -99,11 +112,12 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
               <Text style={[font(13, '500'), { color: C.meta, marginTop: 12 }]} allowFontScaling>Last seen {whenLabel(p.at).toLowerCase()}</Text>
             </>
           ) : (
-            <Text style={[font(16, '400', 1.45), { color: C.ink2 }]} allowFontScaling>{linked ? 'The first picture arrives after their phone checks something.' : 'Fills in once the phones are linked.'}</Text>
+            <Text style={[font(16, '400', 1.45), { color: C.ink2 }]} allowFontScaling>The first picture arrives the next time {name} opens Loop Me.</Text>
           )}
         </Card>
+        </>)}
 
-        {repeats.length > 0 && (
+        {linked && repeats.length > 0 && (
           <>
             <SectionHeader C={C}>Numbers that keep trying</SectionHeader>
             <Card C={C} style={{ marginHorizontal: 16, paddingVertical: 4 }} radius={16}>
@@ -124,11 +138,11 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
           </>
         )}
 
-        {p && (
+        {linked && p && (
           <>
             <SectionHeader C={C}>Switched on over there</SectionHeader>
             <Card C={C} style={{ marginHorizontal: 16, paddingVertical: 4 }} radius={16}>
-              {[['Unknown texts', p.filterOn], ['Scam callers', p.callsOn], ['Alerts', p.notifOn]].map(([label, on], i, arr) => (
+              {[['Scam call blocking', p.callsOn], ['Loop Me alerts', p.notifOn]].map(([label, on], i, arr) => (
                 <View key={String(label)} style={[{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 }, i < arr.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep }]}>
                   <PulseDot size={10} color={on ? T.green : T.amber} still />
                   <Text style={[font(17, '400'), { color: C.ink, flex: 1 }]} allowFontScaling>{label}</Text>
@@ -136,11 +150,11 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
                 </View>
               ))}
             </Card>
-            <Note C={C}>Loop Me {p.version ? p.version + ' ' : ''}on {phoneOf}. Off means a switch in their iPhone Settings; Settings › Set up for someone else has the exact path.</Note>
+            <Note C={C}>Loop Me {p.version ? p.version + ' ' : ''}on {phoneOf}. As of {whenLabel(p.at).toLowerCase()}. Off means a switch in their iPhone Settings; Settings › Set up for someone else has the exact path.</Note>
           </>
         )}
 
-        {events.length > 0 && (
+        {linked && events.length > 0 && (
           <>
             <SectionHeader C={C}>Recent</SectionHeader>
             <Card C={C} style={{ marginHorizontal: 16, paddingVertical: 4 }} radius={16}>
@@ -154,7 +168,7 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
             </Card>
           </>
         )}
-        {!linked && (
+        {!linked && !waiting && (
           <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
             <Pill label="How the link works" bg={C.card} color={C.accent} onPress={() => ctx.go('watch')} />
           </View>

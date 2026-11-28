@@ -196,6 +196,6 @@ export function repeatSenders(hist: CheckRecord[]): { sender: string; count: num
 /** Share the family secret word with the linked phone. When the other phone
  *  has a newer one, that comes back instead, and is what should be kept. */
 export async function shareWord(s: Settings): Promise<{ word: string; at: number } | null> {
-  if (!s.familyLinked || !s.codeWordSet || !s.codeWord) return null;
+  if (!(s.familyLinked || s.watchApproved) || !s.codeWordSet || !s.codeWord) return null;
   return cloudPutWord(s.codeWord, s.codeWordAt || 1);
 }

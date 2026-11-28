@@ -77,7 +77,7 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
           const cur = ctx.settings;
           ctx.update({ ...cur, trusted: cur.trusted.filter(t => !samePhone(t.phone, p.phone) && t.phone !== p.phone) });
           setOpen(null);
-          if (linked) ctx.unlinkFamily();
+          if (linked) ctx.unlinkFamily('share');
           else ctx.flash(name + ' is out of your loop.');
         } },
       ],
@@ -162,6 +162,19 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
           )}
         </View>
 
+        {!!s.watching?.name && (
+          <Pressable onPress={() => ctx.go('ward')} style={({ pressed }) => [st.list, { backgroundColor: C.card, marginTop: 18, paddingVertical: 0 }, pressed && { opacity: 0.7 }]} accessibilityRole="button">
+            <View style={st.linkRow}>
+              <Avatar name={s.watching.name} photo={s.watching.photo} size={46} />
+              <View style={{ flex: 1 }}>
+                <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>You look after {firstName(s.watching.name)}</Text>
+                <Text style={[font(15, '400'), { color: s.watchApproved ? C.ink2 : C.amberText, marginTop: 2 }]} allowFontScaling>{s.watchApproved ? 'Their alerts and weekly picture' : 'Waiting for them to tap Yes'}</Text>
+              </View>
+              <ChevronRight size={18} color={C.chevron} strokeWidth={2.2} />
+            </View>
+          </Pressable>
+        )}
+
         <SecretWordCard ctx={ctx} />
 
         <View style={[st.list, { backgroundColor: C.card, marginTop: 18, paddingVertical: 0 }]}>
@@ -172,6 +185,16 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
             </View>
             <ChevronRight size={18} color={C.chevron} strokeWidth={2.2} />
           </Pressable>
+          {!s.watching?.name && (
+            <Pressable onPress={() => ctx.go('watch')} style={({ pressed }) => [st.linkRow, { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: C.sep }, pressed && { opacity: 0.6 }]} accessibilityRole="button">
+              <QrCode size={22} color={C.accent} strokeWidth={2} />
+              <View style={{ flex: 1 }}>
+                <Text style={[font(17, '600'), { color: C.ink }]} allowFontScaling>Look after someone’s phone</Text>
+                <Text style={[font(15, '400'), { color: C.ink2, marginTop: 2 }]} allowFontScaling>Enter the code from their Loop Me</Text>
+              </View>
+              <ChevronRight size={18} color={C.chevron} strokeWidth={2.2} />
+            </Pressable>
+          )}
         </View>
       </ScrollView>
 

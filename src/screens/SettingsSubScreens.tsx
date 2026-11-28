@@ -66,9 +66,12 @@ export function AdvancedScreen({ ctx }: { ctx: Ctx }) {
         )}
 
         <Group C={C} style={{ marginTop: 28 }}>
-          <Row C={C} chip={Send} chipColor={T.amber} title="Setup checklist" pad={9} chevron last={!s.familyLinked} onPress={() => ctx.go('caregiver')} />
+          <Row C={C} chip={Send} chipColor={T.amber} title="Setup checklist" pad={9} chevron last={!s.familyLinked && !s.watching?.name} onPress={() => ctx.go('caregiver')} />
           {s.familyLinked && (
-            <Row C={C} chip={Unlink} chipColor={T.red} title={s.familyRole === 'owner' ? 'Stop ' + (who || 'them') + ' hearing from this phone' : 'Stop looking after this phone'} pad={9} danger last onPress={ctx.unlinkFamily} />
+            <Row C={C} chip={Unlink} chipColor={T.red} title={'Stop ' + (s.linkedNames.length > 1 ? 'everyone' : who || 'them') + ' hearing from this phone'} pad={9} danger last={!s.watching?.name} onPress={() => ctx.unlinkFamily('share')} />
+          )}
+          {!!s.watching?.name && (
+            <Row C={C} chip={Unlink} chipColor={T.red} title={'Stop looking after ' + s.watching.name.split(' ')[0]} pad={9} danger last onPress={() => ctx.unlinkFamily('watch')} />
           )}
         </Group>
       </ScrollView>

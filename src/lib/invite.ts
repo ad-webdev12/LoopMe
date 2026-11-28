@@ -43,3 +43,20 @@ export function isLinked(s: Settings, person: TrustedPerson): boolean {
   const names = s.linkedNames.length ? s.linkedNames : (s.watchedBy ? [s.watchedBy] : []);
   return names.some(n => n.toLowerCase().startsWith(first) || first.startsWith(n.split(' ')[0].toLowerCase()));
 }
+
+/** Make sure the linked person is in the Family list. With `first`, they also
+ *  become the main person (index 0). Matched by first name, the best iCloud gives. */
+export function withMainPerson(s: Settings, name: string, first: boolean): Settings {
+  const fn = (name || '').split(' ')[0].toLowerCase();
+  if (!fn) return s;
+  const i = s.trusted.findIndex(t => { const tf = t.name.split(' ')[0].toLowerCase(); return tf === fn || tf.startsWith(fn) || fn.startsWith(tf); });
+  if (i < 0) {
+    if (s.trusted.length >= 3 && !first) return s;
+    const p: TrustedPerson = { name, phone: '', invited: true };
+    const rest = s.trusted.length >= 3 ? s.trusted.slice(0, 2) : s.trusted;
+    return { ...s, trusted: first ? [p, ...rest] : [...rest, p] };
+  }
+  const p = { ...s.trusted[i], invited: true };
+  if (!first || i === 0) return s.trusted[i].invited ? s : { ...s, trusted: s.trusted.map((t, j) => j === i ? p : t) };
+  return { ...s, trusted: [p, ...s.trusted.filter((_, j) => j !== i)] };
+}

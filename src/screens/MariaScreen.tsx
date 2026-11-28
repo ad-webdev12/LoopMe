@@ -15,7 +15,7 @@ import type { Ctx } from '../App';
 
 export default function MariaScreen({ ctx }: { ctx: Ctx }) {
   const { C, settings: s } = ctx;
-  const careMode = s.role === 'caretaker';
+  const careMode = ctx.screen === 'wardItem';
   // Caretaker: the check being looked at. Owner: the last flagged check, as a preview.
   const rec = careMode
     ? ctx.hist.find(h => h.id === ctx.wardOpen) || ctx.hist.find(h => h.source === 'family' && h.level !== 'green')

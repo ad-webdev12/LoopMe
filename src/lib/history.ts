@@ -134,3 +134,10 @@ export async function upsertMany(recs: CheckRecord[]): Promise<number> {
 export async function clearHistory(): Promise<void> {
   try { await AsyncStorage.removeItem(KEY); } catch {}
 }
+
+/** Drop everything that came from a family link (the person this phone looked after). */
+export async function clearFamilyChecks(): Promise<void> {
+  const list = await readAll();
+  const keep = list.filter(r => r.source !== 'family');
+  if (keep.length !== list.length) await writeAll(keep);
+}

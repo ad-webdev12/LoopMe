@@ -38,16 +38,21 @@ export function Screen({ C, children, style, playKey, scroll }: { C: Palette; ch
     v.setValue(0);
     Animated.timing(v, { toValue: 1, duration: reduceMotion ? 150 : MOTION.screen.ms, easing: bez(MOTION.screen.bez), useNativeDriver: true }).start();
   }, [playKey]); // eslint-disable-line react-hooks/exhaustive-deps
-  const tx = reduceMotion ? 0 : v.interpolate({ inputRange: [0, 1], outputRange: [24 * dir, 0] });
-  const sc = reduceMotion ? 1 : v.interpolate({ inputRange: [0, 1], outputRange: [0.985, 1] });
+  // The page colour is there from the first frame; only the content moves in.
+  // Fading the whole page from 0 let the window behind it show through for a
+  // frame or two, which read as a flash between screens.
+  const tx = reduceMotion ? 0 : v.interpolate({ inputRange: [0, 1], outputRange: [14 * dir, 0] });
+  const op = v.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] });
   return (
-    <Animated.View style={[{ flex: 1, backgroundColor: C.ground, opacity: v, transform: [{ translateX: tx }, { scale: sc }] }, style]}>
-      {scroll ? (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="always" keyboardDismissMode="on-drag" automaticallyAdjustKeyboardInsets>
-          {children}
-        </ScrollView>
-      ) : children}
-    </Animated.View>
+    <View style={[{ flex: 1, backgroundColor: C.ground }, style]}>
+      <Animated.View style={{ flex: 1, opacity: op, transform: [{ translateX: tx }] }}>
+        {scroll ? (
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="always" keyboardDismissMode="on-drag" automaticallyAdjustKeyboardInsets>
+            {children}
+          </ScrollView>
+        ) : children}
+      </Animated.View>
+    </View>
   );
 }
 
@@ -62,11 +67,15 @@ export function Takeover({ color, haptic, children, style, playKey }: { color: s
       Haptics.notificationAsync(k).catch(() => {});
     }
   }, [playKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  // The colour fills the screen at once (it matches the status bar, which
+  // changes in the same frame); the content settles in on top of it.
   const sc = reduceMotion ? 1 : v.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1] });
   return (
-    <Animated.View style={[{ flex: 1, backgroundColor: color, opacity: v, transform: [{ scale: sc }] }, style]}>
-      {children}
-    </Animated.View>
+    <View style={[{ flex: 1, backgroundColor: color }, style]}>
+      <Animated.View style={{ flex: 1, opacity: v, transform: [{ scale: sc }] }}>
+        {children}
+      </Animated.View>
+    </View>
   );
 }
 

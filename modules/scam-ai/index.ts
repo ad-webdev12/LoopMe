@@ -38,8 +38,11 @@ export interface LinkStatus {
   role: 'owner' | 'caretaker' | 'none';
   name: string | null;   // the other person's name, once linked
   invited?: boolean;     // owner sent an invite nobody has tapped yet
-  names?: string[];      // owner side: everyone who accepted, as iCloud shows them
+  names?: string[];      // owner side: everyone this phone said yes to, as iCloud shows them
   count?: number;
+  watching?: string | null;   // the person this phone looks after, if any
+  watchApproved?: boolean;    // they said yes on their phone
+  requests?: JoinRequest[];   // people waiting for a yes on this phone
   account?: CloudAccountState;
 }
 
@@ -63,6 +66,8 @@ export interface FamilyPulse {
   at: number;          // when this was written
 }
 
+export interface JoinRequest { id: string; name: string; at: number }
+
 export interface FamilySnapshot {
   checks: SharedCheck[];
   notes: FamilyNote[];
@@ -70,10 +75,15 @@ export interface FamilySnapshot {
   caretakerName: string | null;
   joinedOwnerName: string | null;
   pulse: FamilyPulse | null;
+  requests?: JoinRequest[];
+  watchApproved?: boolean;
 }
 
 export type CloudEvent =
-  | { kind: 'joined'; name: string }
+  | { kind: 'joined'; name: string; approved?: boolean }
+  | { kind: 'approved'; name: string }
+  | { kind: 'denied'; name: string }
+  | { kind: 'request'; request: JoinRequest }
   | { kind: 'joinFailed'; message: string }
   | { kind: 'check'; check: SharedCheck }
   | { kind: 'note'; note: FamilyNote }
@@ -129,6 +139,10 @@ const native = requireOptionalNativeModule<{
   cloudSnapshot(): FamilySnapshot;
   cloudSubscribe(): Promise<boolean>;
   cloudUnlink(): Promise<boolean>;
+  cloudAnswer(userID: string, allow: boolean): Promise<boolean>;
+  cloudSetMyName(name: string): void;
+  cloudLeave(): Promise<boolean>;
+  cloudRevoke(): Promise<boolean>;
   sharedPutConfig(allowlist: string[], blocked: string[], flagged: string[], autoCheck: boolean): void;
   sharedPutPerson(name: string, phone: string): void;
   sharedDrainLog(): FilterLogEntry[];
@@ -303,6 +317,26 @@ export async function cloudSubscribe(): Promise<boolean> {
 export async function cloudUnlink(): Promise<boolean> {
   if (!native) return false;
   try { return await native.cloudUnlink(); } catch { return false; }
+}
+
+/** Owner: yes or no to someone who joined. */
+export async function cloudAnswer(userID: string, allow: boolean): Promise<boolean> {
+  if (!native) return false;
+  try { return await native.cloudAnswer(userID, allow); } catch { return false; }
+}
+/** The name a join request shows on the other phone. */
+export function cloudSetMyName(name: string): void {
+  try { native?.cloudSetMyName(name); } catch {}
+}
+/** Stop looking after someone. */
+export async function cloudLeave(): Promise<boolean> {
+  if (!native) return false;
+  try { return await native.cloudLeave(); } catch { return false; }
+}
+/** Stop sharing this phone with everyone. */
+export async function cloudRevoke(): Promise<boolean> {
+  if (!native) return false;
+  try { return await native.cloudRevoke(); } catch { return false; }
 }
 
 export function addCloudListener(cb: (e: CloudEvent) => void): () => void {

@@ -289,11 +289,62 @@ final class CloudLink: @unchecked Sendable {
       do { _ = try await (try container).accept(metadata) }
       catch { throw CloudLinkError.failed("iCloud would not join the family link. " + CloudLink.describe(error)) }
     }
+    let zone = metadata.share.recordID.zoneID
+    let sameFamily = store.joinedZone == zone
+    // Joining someone new replaces whoever this phone looked after before.
+    if !sameFamily {
+      if let old = store.joinedZone { _ = try? await (try container).sharedCloudDatabase.modifyRecordZones(saving: [], deleting: [old]) }
+      store.setToken("shared", nil)
+      store.clearShared()
+      store.joinApproved = false
+      store.joinedAt = Date().timeIntervalSince1970 * 1000
+    }
     store.joinedOwnerName = ownerName
-    store.joinedZone = metadata.share.recordID.zoneID
-    CloudBus.shared.emit(["kind": "joined", "name": ownerName])
+    store.joinedZone = zone
+    CloudBus.shared.emit(["kind": "joined", "name": ownerName, "approved": store.joinApproved])
+    if !store.joinApproved { try? await askToJoin(zone: zone) }
     Task { _ = try? await self.subscribe(); _ = try? await self.sync(notify: false) }
     return ownerName
+  }
+
+  /// Caretaker side: the "join" note that puts a yes/no question on the owner's phone.
+  private func askToJoin(zone: CKRecordZone.ID) async throws {
+    let c = try container
+    let uid = try await c.userRecordID().recordName
+    store.myUserID = uid
+    let rec = CKRecord(recordType: LM_NOTE, recordID: CKRecord.ID(recordName: "join-" + uid, zoneID: zone))
+    rec["checkId"] = "join" as CKRecordValue
+    rec["verdict"] = "join" as CKRecordValue
+    rec["text"] = uid as CKRecordValue
+    rec["from"] = (store.myName.flatMap { $0.isEmpty ? nil : $0 } ?? "Someone") as CKRecordValue
+    rec["at"] = Date() as CKRecordValue
+    _ = try await c.sharedCloudDatabase.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+  }
+
+  /// Owner side: yes or no to someone who joined. A no takes them out of the share at once.
+  func answer(userID: String, allow: Bool) async throws {
+    let c = try container
+    let db = c.privateCloudDatabase
+    let rec = CKRecord(recordType: LM_NOTE, recordID: CKRecord.ID(recordName: "ans-" + userID, zoneID: ownZoneID))
+    rec["checkId"] = "answer" as CKRecordValue
+    rec["verdict"] = (allow ? "allow" : "deny") as CKRecordValue
+    rec["text"] = userID as CKRecordValue
+    rec["from"] = (store.ownerName ?? "") as CKRecordValue
+    rec["at"] = Date() as CKRecordValue
+    _ = try await db.modifyRecords(saving: [rec], deleting: [], savePolicy: .allKeys)
+    store.requests = store.requests.filter { ($0["id"] as? String) != userID }
+    if allow {
+      if !store.approvedUsers.contains(userID) { store.approvedUsers = store.approvedUsers + [userID] }
+      return
+    }
+    store.approvedUsers = store.approvedUsers.filter { $0 != userID }
+    _ = try? await db.modifyRecords(saving: [], deleting: [CKRecord.ID(recordName: "join-" + userID, zoneID: ownZoneID)])
+    if let share = try? await db.record(for: CKRecord.ID(recordName: CKRecordNameZoneWideShare, zoneID: ownZoneID)) as? CKShare {
+      for p in share.participants where p.role != .owner && p.userIdentity.userRecordID?.recordName == userID {
+        share.removeParticipant(p)
+      }
+      _ = try? await db.modifyRecords(saving: [share], deleting: [], savePolicy: .changedKeys)
+    }
   }
 
   /// A CloudKit error in words a person can act on, with the code kept so
@@ -332,23 +383,30 @@ final class CloudLink: @unchecked Sendable {
     return parts.joined(separator: " ")
   }
 
-  /// Owner side: who has accepted. `linked` once a caretaker is in.
+  /// Both sides at once. A phone can have its own people (owner) and also
+  /// look after someone else (caretaker); neither hides the other.
+  ///   linked/names: approved people who hear from this phone
+  ///   watching/watchApproved: the person this phone looks after
+  ///   requests: people waiting for a yes on this phone
   func linkStatus() async -> [String: Any] {
-    // Caretaker side answers from what it saved when it accepted.
-    if let peer = store.joinedOwnerName {
-      return ["linked": true, "role": "caretaker", "name": peer]
-    }
-    guard await accountState() == "available" else {
-      return ["linked": false, "role": "none", "name": NSNull(), "account": await accountState()]
-    }
-    guard let db = try? container.privateCloudDatabase else {
-      return ["linked": false, "role": "none", "name": NSNull(), "account": "unknown"]
-    }
-    guard let share = try? await db.record(for: CKRecord.ID(recordName: CKRecordNameZoneWideShare, zoneID: ownZoneID)) as? CKShare else {
-      return ["linked": false, "role": "none", "name": NSNull(), "account": "available"]
+    var out: [String: Any] = [
+      "linked": false, "role": "none", "name": NSNull(), "names": [String](),
+      "watching": store.joinedOwnerName ?? NSNull(), "watchApproved": store.joinApproved,
+      "requests": store.requests,
+    ]
+    let account = await accountState()
+    out["account"] = account
+    guard account == "available", let db = try? container.privateCloudDatabase,
+          let share = try? await db.record(for: CKRecord.ID(recordName: CKRecordNameZoneWideShare, zoneID: ownZoneID)) as? CKShare else {
+      store.migrateApproval(participants: [])
+      if store.joinedZone != nil { out["role"] = "caretaker"; out["name"] = store.joinedOwnerName ?? NSNull(); out["watchApproved"] = store.joinApproved }
+      return out
     }
     let joined = share.participants.filter { $0.role != .owner && $0.acceptanceStatus == .accepted }
-    let names = joined.compactMap { CloudLink.displayName($0.userIdentity) }
+    store.migrateApproval(participants: joined.compactMap { $0.userIdentity.userRecordID?.recordName })
+    let approved = Set(store.approvedUsers)
+    let ok = joined.filter { p in p.userIdentity.userRecordID.map { approved.contains($0.recordName) } ?? false }
+    let names = ok.compactMap { CloudLink.displayName($0.userIdentity) }
     // A code is single use: once someone new has joined, take it down.
     let base = UserDefaults.standard.integer(forKey: "loopme.inviteCodeBase")
     if let old = store.inviteCode, joined.count > base {
@@ -356,12 +414,22 @@ final class CloudLink: @unchecked Sendable {
       store.inviteCode = nil; store.inviteCodeAt = nil
     }
     UserDefaults.standard.set(joined.count, forKey: "loopme.inviteCodeBase")
-    if let p = joined.first {
+    out["role"] = "owner"
+    out["invited"] = ok.isEmpty
+    out["count"] = ok.count
+    out["names"] = names
+    out["watchApproved"] = store.joinApproved
+    if let p = ok.first {
       let name = CloudLink.displayName(p.userIdentity) ?? store.caretakerName ?? "your caretaker"
       store.caretakerName = name
-      return ["linked": true, "role": "owner", "name": name, "names": names, "count": joined.count, "account": "available"]
+      out["linked"] = true
+      out["name"] = name
+    } else if store.joinedZone != nil {
+      // Shared nothing yet, but looks after someone: answer as the caretaker.
+      out["role"] = "caretaker"
+      out["name"] = store.joinedOwnerName ?? NSNull()
     }
-    return ["linked": false, "role": "owner", "name": NSNull(), "invited": true, "account": "available"]
+    return out
   }
 
   /// Owner side: publish one flagged check into the shared zone.
@@ -425,7 +493,7 @@ final class CloudLink: @unchecked Sendable {
   /// The entries stay in the log for the app to fold into history later; they
   /// are only marked so the app does not publish them twice.
   func publishPendingFromFilter() async -> Bool {
-    guard store.joinedZone == nil, store.caretakerName != nil || store.ownerName != nil else { return true }
+    guard store.caretakerName != nil, !store.approvedUsers.isEmpty else { return true }
     guard await accountState() == "available" else { return false }
     let pending = SharedStore.unpublishedFlagged()
     if pending.isEmpty { return true }
@@ -449,7 +517,9 @@ final class CloudLink: @unchecked Sendable {
     _ = try? await db.modifyRecords(saving: [], deleting: [shareID])
     _ = try? await db.modifyRecordZones(saving: [], deleting: [ownZoneID])
     store.caretakerName = nil
-    store.resetTokens()
+    store.approvedUsers = []
+    store.requests = []
+    store.setToken("private", nil)
   }
 
   // MARK: caretaker side
@@ -484,7 +554,8 @@ final class CloudLink: @unchecked Sendable {
     guard await accountState() == "available" else { throw CloudLinkError.noAccount }
     let db: CKDatabase
     let zone: CKRecordZone.ID
-    if let z = store.joinedZone { db = try container.sharedCloudDatabase; zone = z }
+    // The word belongs to this phone's own family when it has one.
+    if store.approvedUsers.isEmpty, let z = store.joinedZone { db = try container.sharedCloudDatabase; zone = z }
     else { db = try container.privateCloudDatabase; zone = ownZoneID }
     let id = CKRecord.ID(recordName: "secret-word", zoneID: zone)
     let rec: CKRecord
@@ -514,7 +585,10 @@ final class CloudLink: @unchecked Sendable {
     }
     store.joinedOwnerName = nil
     store.joinedZone = nil
-    store.resetTokens()
+    store.joinApproved = false
+    store.joinedAt = 0
+    store.setToken("shared", nil)
+    store.clearShared()
   }
 
   // MARK: push
@@ -534,25 +608,53 @@ final class CloudLink: @unchecked Sendable {
 
   /// Pull everything new from whichever zones this phone can see. Returns the
   /// number of new items. When `notify` is on, each new item from the other
-  /// side becomes a local notification.
+  /// side becomes a local notification. A phone can be on both sides.
   @discardableResult
   func sync(notify: Bool) async throws -> Int {
     guard await accountState() == "available" else { throw CloudLinkError.noAccount }
     var fresh = 0
 
-    // Caretaker: the owner's zone, through the shared database.
+    // Looking after someone: their zone, through the shared database.
     if let zone = store.joinedZone {
+      // The join question never made it across (offline at the time): ask again.
+      if !store.joinApproved, store.myUserID == nil { try? await askToJoin(zone: zone) }
       let (changed, _) = try await fetchChanges(db: container.sharedCloudDatabase, zone: zone, tokenKey: "shared")
+      for r in changed where r.recordType == LM_NOTE {
+        let verdict = (r["verdict"] as? String) ?? ""
+        if verdict == "join" { continue }
+        if verdict == "allow" || verdict == "deny" {
+          guard let me = store.myUserID, (r["text"] as? String) == me else { continue }
+          // An answer from an earlier time this phone joined does not count.
+          let when = (r.modificationDate ?? (r["at"] as? Date) ?? Date()).timeIntervalSince1970 * 1000
+          if store.joinedAt > 0, when < store.joinedAt - 120_000 { continue }
+          if verdict == "allow" {
+            if !store.joinApproved {
+              store.joinApproved = true
+              CloudBus.shared.emit(["kind": "approved", "name": store.joinedOwnerName ?? ""])
+              if notify { CloudLink.notifySimple("You’re linked", "\(store.joinedOwnerName ?? "They") said yes. You’ll hear the moment a scam reaches their phone.") }
+            }
+          } else {
+            let who = store.joinedOwnerName ?? "They"
+            try? await leave()
+            CloudBus.shared.emit(["kind": "denied", "name": who])
+            if notify { CloudLink.notifySimple("Not linked", "\(who) said no on their phone.") }
+            return fresh
+          }
+          continue
+        }
+        _ = store.appendNote(CloudLink.noteDict(r))
+      }
       for r in changed where r.recordType == LM_CHECK {
         let dict = CloudLink.checkDict(r)
+        // Only what happened after this phone joined.
+        if let at = dict["at"] as? Double, store.joinedAt > 0, at < store.joinedAt - 60_000 { continue }
         if store.appendCheck(dict) {
           fresh += 1
-          if notify { CloudLink.notifyCheck(dict) }
-          CloudBus.shared.emit(["kind": "check", "check": dict])
+          if store.joinApproved {
+            if notify { CloudLink.notifyCheck(dict) }
+            CloudBus.shared.emit(["kind": "check", "check": dict])
+          }
         }
-      }
-      for r in changed where r.recordType == LM_NOTE {
-        _ = store.appendNote(CloudLink.noteDict(r))
       }
       for r in changed where r.recordType == LM_WORD { CloudLink.emitWord(r) }
       for r in changed where r.recordType == LM_PULSE {
@@ -562,24 +664,51 @@ final class CloudLink: @unchecked Sendable {
       }
     }
 
-    // Owner: my own zone, for notes the caretaker wrote.
-    if store.joinedZone == nil {
-      let zones = (try? await container.privateCloudDatabase.allRecordZones()) ?? []
-      if zones.contains(where: { $0.zoneID.zoneName == LM_ZONE }) {
-        let (changed, _) = try await fetchChanges(db: container.privateCloudDatabase, zone: ownZoneID, tokenKey: "private")
-        for r in changed where r.recordType == LM_WORD { CloudLink.emitWord(r) }
-        for r in changed where r.recordType == LM_NOTE {
-          let dict = CloudLink.noteDict(r)
-          if store.appendNote(dict) {
-            fresh += 1
-            if notify { CloudLink.notifyNote(dict) }
-            CloudBus.shared.emit(["kind": "note", "note": dict])
+    // My own zone: people asking to join, and notes from the people I said yes to.
+    let zones = (try? await container.privateCloudDatabase.allRecordZones()) ?? []
+    if zones.contains(where: { $0.zoneID.zoneName == LM_ZONE }) {
+      let (changed, _) = try await fetchChanges(db: container.privateCloudDatabase, zone: ownZoneID, tokenKey: "private")
+      for r in changed where r.recordType == LM_WORD { CloudLink.emitWord(r) }
+      for r in changed where r.recordType == LM_NOTE {
+        let verdict = (r["verdict"] as? String) ?? ""
+        if verdict == "allow" || verdict == "deny" { continue }
+        if verdict == "join" {
+          guard let uid = r["text"] as? String else { continue }
+          let name = (r["from"] as? String) ?? "Someone"
+          if store.approvedUsers.contains(uid) {
+            // Same person again (a reinstall): they were already allowed.
+            try? await answer(userID: uid, allow: true)
+            continue
           }
+          if !store.requests.contains(where: { ($0["id"] as? String) == uid }) {
+            let req: [String: Any] = ["id": uid, "name": name, "at": Date().timeIntervalSince1970 * 1000]
+            store.requests = store.requests + [req]
+            fresh += 1
+            if notify { CloudLink.notifySimple("\(name) wants to link", "Open Loop Me to say yes or no.") }
+            CloudBus.shared.emit(["kind": "request", "request": req])
+          }
+          continue
+        }
+        let dict = CloudLink.noteDict(r)
+        if store.appendNote(dict) {
+          fresh += 1
+          if notify { CloudLink.notifyNote(dict) }
+          CloudBus.shared.emit(["kind": "note", "note": dict])
         }
       }
     }
     if fresh == 0 { CloudBus.shared.emit(["kind": "synced"]) }
     return fresh
+  }
+
+  static func notifySimple(_ title: String, _ body: String) {
+    let content = UNMutableNotificationContent()
+    content.title = title
+    content.body = body
+    content.sound = .default
+    content.threadIdentifier = "loopme-family"
+    content.userInfo = ["kind": "link"]
+    UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "link-" + UUID().uuidString, content: content, trigger: nil))
   }
 
   /// Handle a CloudKit push. Returns true when it was one of ours.
@@ -589,7 +718,7 @@ final class CloudLink: @unchecked Sendable {
           note.containerIdentifier == LM_CONTAINER else { return false }
     _ = try? await sync(notify: true)
     // Owner: a push is also the moment to send anything the filter caught.
-    if store.joinedZone == nil { _ = await publishPendingFromFilter() }
+    _ = await publishPendingFromFilter()
     return true
   }
 
@@ -763,6 +892,45 @@ final class FamilyStore: @unchecked Sendable {
     }
   }
 
+  // Approval. A phone that joins writes a "join" note; the owner's phone asks
+  // the person, and answers with an "allow" or "deny" note. Nothing reaches
+  // the joining phone's screen until it is allowed.
+  var myName: String? {
+    get { d.string(forKey: "family.myName") }
+    set { d.set(newValue, forKey: "family.myName") }
+  }
+  var myUserID: String? {
+    get { d.string(forKey: "family.myUserID") }
+    set { d.set(newValue, forKey: "family.myUserID") }
+  }
+  /// Caretaker side: when this phone joined. Checks from before are history it was never meant to see.
+  var joinedAt: Double {
+    get { d.double(forKey: "family.joinedAt") }
+    set { d.set(newValue, forKey: "family.joinedAt") }
+  }
+  var joinApproved: Bool {
+    get { d.bool(forKey: "family.joinApproved") }
+    set { d.set(newValue, forKey: "family.joinApproved") }
+  }
+  /// Owner side: iCloud user ids this person said yes to.
+  var approvedUsers: [String] {
+    get { d.stringArray(forKey: "family.approvedUsers") ?? [] }
+    set { d.set(newValue, forKey: "family.approvedUsers") }
+  }
+  /// Owner side: people waiting for a yes or no. [{ id, name, at }]
+  var requests: [[String: Any]] {
+    get { d.array(forKey: "family.requests") as? [[String: Any]] ?? [] }
+    set { d.set(newValue, forKey: "family.requests") }
+  }
+
+  /// Links made before approval existed count as approved, once.
+  func migrateApproval(participants: [String]) {
+    guard !d.bool(forKey: "family.approvalMigrated") else { return }
+    d.set(true, forKey: "family.approvalMigrated")
+    if caretakerName != nil { approvedUsers = Array(Set(approvedUsers + participants)) }
+    if joinedZone != nil && joinedAt == 0 { joinApproved = true }
+  }
+
   func token(_ key: String) -> CKServerChangeToken? {
     guard let data = d.data(forKey: "family.token." + key) else { return nil }
     return try? NSKeyedUnarchiver.unarchivedObject(ofClass: CKServerChangeToken.self, from: data)
@@ -773,6 +941,9 @@ final class FamilyStore: @unchecked Sendable {
     } else {
       d.removeObject(forKey: "family.token." + key)
     }
+  }
+  func clearShared() {
+    d.removeObject(forKey: "family.checks"); d.removeObject(forKey: "family.notes"); d.removeObject(forKey: "family.pulse")
   }
   func resetTokens() {
     setToken("shared", nil); setToken("private", nil)
@@ -808,7 +979,9 @@ final class FamilyStore: @unchecked Sendable {
 
   func snapshot() -> [String: Any] {
     [
-      "checks": checks,
+      "checks": joinApproved || joinedZone == nil ? checks : [],
+      "requests": requests,
+      "watchApproved": joinApproved,
       "notes": notes,
       "ownerName": ownerName ?? NSNull(),
       "caretakerName": caretakerName ?? NSNull(),

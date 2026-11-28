@@ -17,12 +17,16 @@ import { T, Palette } from './theme';
 import { palette, setNavDir } from './ui/base';
 import { instant, upgrade, FusedVerdict } from './engine/ai';
 import { loadSettings, saveSettings, isPostPanic, Settings } from './lib/storage';
-import { addCheck, listChecks, newRecord, updateCheck, CheckRecord, CheckHow } from './lib/history';
+import { addCheck, listChecks, newRecord, updateCheck, clearFamilyChecks, CheckRecord, CheckHow } from './lib/history';
 import * as Family from './lib/family';
+import type { JoinRequest } from '../modules/scam-ai';
+import { cloudAnswer, cloudSetMyName } from '../modules/scam-ai';
+import { withMainPerson } from './lib/invite';
+import JoinRequestScreen from './screens/JoinRequestScreen';
 import * as Feedback from './lib/feedback';
 import * as SplashScreen from 'expo-splash-screen';
 import { registerFamilyCategories, ensureNotificationPermission, scheduleWeekly } from './lib/notify';
-import { callDirectoryReload, callDirectoryStatus, sharedTallies, cloudJoinWithCode } from '../modules/scam-ai';
+import { callDirectoryReload, callDirectoryStatus, sharedTallies, cloudJoinWithCode, cloudLeave, cloudRevoke } from '../modules/scam-ai';
 import { blockedMessage } from './lib/protection';
 import TabBar, { TabId } from './ui/TabBar';
 import Toast from './ui/Toast';
@@ -58,7 +62,7 @@ export type ScreenId =
   | 'history' | 'family' | 'ask' | 'maria'
   | 'settings' | 'setup' | 'learn' | 'practice' | 'caregiver' | 'scammed' | 'blocked' | 'safe' | 'drawerInfo'
   | 'numbers' | 'howto' | 'advanced' | 'privacy'
-  | 'ward' | 'wardItem' | 'familyAlert' | 'note' | 'ob5' | 'ob6';
+  | 'ward' | 'wardItem' | 'familyAlert' | 'note' | 'joinRequest' | 'ob5' | 'ob6';
 
 export interface Ctx {
   settings: Settings;
@@ -103,7 +107,11 @@ export interface Ctx {
   /** Caretaker: the other phone's weekly picture, counts only. Null until the first one lands. */
   pulse: Family.FamilyPulse | null;
   refreshFamily: () => Promise<void>;
-  unlinkFamily: () => void;
+  /** 'share': stop everyone hearing from this phone. 'watch': stop looking after someone. */
+  unlinkFamily: (which?: 'share' | 'watch') => void;
+  /** Owner: someone joined and is waiting for a yes. */
+  request: JoinRequest | null;
+  answerRequest: (allow: boolean) => Promise<void>;
   blockNumber: (phone: string) => Promise<void>;
   /** "Was this right?" The person's answer is remembered on this phone. */
   correct: (recId: string, label: 'scam' | 'fine') => Promise<void>;
@@ -164,6 +172,9 @@ export default function App() {
   const talliesRef = useRef(tallies);
   talliesRef.current = tallies;
   const [pulse, setPulse] = useState<Family.FamilyPulse | null>(null);
+  const [request, setRequest] = useState<JoinRequest | null>(null);
+  const requestRef = useRef<JoinRequest | null>(null);
+  requestRef.current = request;
   const recentTags = useRef<string[]>([]);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -179,6 +190,7 @@ export default function App() {
   const update = useCallback((s: Settings) => {
     settingsRef.current = s; setSettings(s); saveSettings(s);
     Family.pushConfig(s, histRef.current);
+    cloudSetMyName(s.myName || '');
   }, []);
 
   const flash = useCallback((t: string) => {
@@ -248,21 +260,27 @@ export default function App() {
     const s = settingsRef.current;
     if (!s) return;
     const status = await Family.linkStatus();
-    const role = status.role === 'none' ? null : status.role;
-    const next: Settings = {
+    // Two independent sides. Owner: the people who hear from this phone.
+    // Caretaker: the one person this phone looks after. A phone can be both.
+    const ownerLinked = status.role === 'owner' && status.linked;
+    const watchName = status.watching || null;
+    const watchApproved = !!watchName && !!status.watchApproved;
+    let next: Settings = {
       ...s,
-      familyLinked: status.linked,
-      familyRole: role,
+      familyLinked: ownerLinked,
+      familyRole: ownerLinked ? 'owner' : watchName ? 'caretaker' : null,
       familyInvited: !!status.invited,
-      linkedNames: status.role === 'owner' ? (status.names || (status.linked && status.name ? [status.name] : [])) : s.linkedNames,
-      role: status.role === 'caretaker' ? 'caretaker' : s.role,
-      watchedBy: status.role === 'owner' && status.linked ? (status.name || s.watchedBy) : status.role === 'owner' ? null : s.watchedBy,
-      watching: status.role === 'caretaker' && status.name
-        ? { name: status.name, phone: s.watching?.phone || '' }
-        : s.watching,
+      linkedNames: ownerLinked ? (status.names?.length ? status.names : status.name ? [status.name] : []) : [],
+      watchedBy: ownerLinked ? (status.name || s.watchedBy) : null,
+      watching: watchName
+        ? { ...(s.watching || { phone: '' }), name: watchName }
+        : (s.role === 'caretaker' && !s.watchApproved ? s.watching : null),
+      watchApproved,
     };
+    // Everyone who is linked is in the Family list, so the page matches the link.
+    for (const n of next.linkedNames) next = withMainPerson(next, n, false);
     if (JSON.stringify(next) !== JSON.stringify(s)) update(next);
-    if (next.familyLinked) {
+    if (next.familyLinked || next.watchApproved) {
       const w = await Family.shareWord(next);
       const cur = settingsRef.current!;
       if (w && w.word !== cur.codeWord && w.at >= (cur.codeWordAt || 0)) update({ ...cur, codeWord: w.word, codeWordSet: true, codeWordAt: w.at });
@@ -270,14 +288,17 @@ export default function App() {
     const drained = await Family.drainExtensions(next);
     const { newChecks, newNotes, newBlocks, newSafes } = await Family.sync();
     if (drained.length || newChecks.length || newNotes.length) refreshHist();
-    if (next.role === 'caretaker') setPulse(Family.pulse());
-    if (next.familyRole === 'caretaker') {
+    // Someone is waiting for a yes on this phone: that question comes first.
+    const waiting = (await Family.linkStatus()).requests || [];
+    if (waiting.length && !requestRef.current) { setRequest(waiting[0]); setScreen('joinRequest'); return; }
+    if (next.watchApproved) {
+      setPulse(Family.pulse());
       void Family.ping();
       void scheduleWeeklySummary(next);
       const unseen = (await listChecks()).find(r => r.source === 'family' && !r.seen && Date.now() - r.at < 12 * 3600 * 1000 && !(r.notes || []).some(n => n.mine));
-      if (unseen) { setAlertId(unseen.id); setScreen('familyAlert'); }
-      return;
+      if (unseen) { setAlertId(unseen.id); setScreen('familyAlert'); return; }
     }
+    if (!next.familyLinked) return;
     // Owner: the caretaker may have blocked a sender from their phone.
     for (const sender of newBlocks) await blockQuietly(sender);
     for (const sender of newSafes) allowQuietly(sender);
@@ -311,11 +332,34 @@ export default function App() {
       if (e.kind === 'joined') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
         const s = settingsRef.current!;
-        update({ ...s, role: 'caretaker', familyLinked: true, familyRole: 'caretaker', introSeen: true,
-          watching: { name: e.name, phone: s.watching?.phone || '' } });
+        // A phone that was never set up becomes a caretaker phone. A phone
+        // that protects its own person keeps everything and gains this one.
+        const fresh = !(s.introSeen && s.role);
+        // Someone new: what this phone saw from the last person goes.
+        if (!e.approved) void clearFamilyChecks().then(refreshHist);
+        update({ ...s, role: fresh ? 'caretaker' : s.role, introSeen: true,
+          familyRole: s.familyLinked ? 'owner' : 'caretaker',
+          watching: { ...(s.watching || { phone: '' }), name: e.name }, watchApproved: !!e.approved });
         ensureNotificationPermission().catch(() => {});
-        setScreen('watch');
-        flash(e.name.split(' ')[0] + ' is linked. You will hear from this phone now.');
+        go('ward');
+        flash(e.approved ? 'Linked with ' + e.name.split(' ')[0] + '.' : 'Almost there. ' + e.name.split(' ')[0] + ' needs to tap Yes on their phone.');
+      } else if (e.kind === 'approved') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+        const s = settingsRef.current!;
+        update({ ...s, watchApproved: true });
+        void Family.fold().then(refreshHist);
+        flash(e.name.split(' ')[0] + ' said yes. You’re linked.');
+        void refreshFamily();
+      } else if (e.kind === 'denied') {
+        void clearFamilyChecks().then(refreshHist); setPulse(null);
+        const s = settingsRef.current!;
+        update({ ...s, watching: s.role === 'caretaker' ? { ...(s.watching || { phone: '' }), name: '' } : null, watchApproved: false,
+          familyRole: s.familyLinked ? 'owner' : null });
+        go(s.role === 'caretaker' ? 'ward' : 'family');
+        flash(e.name.split(' ')[0] + ' said no on their phone. Nothing was shared.');
+      } else if (e.kind === 'request') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
+        if (!requestRef.current) { setRequest(e.request); setScreen('joinRequest'); }
       } else if (e.kind === 'joinFailed') {
         flash('The invite could not be opened. Ask them to send it again.');
       } else if (e.kind === 'check') {
@@ -528,25 +572,59 @@ export default function App() {
     flash(ok ? 'On ' + who + '’s screen now.' : 'Could not reach iCloud just now. It will go when the phone is back online.');
   }, [flash, refreshHist]);
 
-  const unlinkFamily = useCallback(() => {
+  const unlinkFamily = useCallback((which?: 'share' | 'watch') => {
     const s = settingsRef.current;
     if (!s) return;
-    const other = s.familyRole === 'caretaker' ? (s.watching?.name?.split(' ')[0] || 'them') : (s.watchedBy?.split(' ')[0] || 'them');
+    const side = which || (s.familyLinked ? 'share' : 'watch');
+    const other = side === 'watch' ? (s.watching?.name?.split(' ')[0] || 'them') : (s.linkedNames.length > 1 ? 'everyone' : s.watchedBy?.split(' ')[0] || 'them');
     Alert.alert(
-      s.familyRole === 'caretaker' ? 'Stop looking after ' + other + '?' : 'Stop ' + other + ' hearing from this phone?',
+      side === 'watch' ? 'Stop looking after ' + other + '?' : 'Stop ' + other + ' hearing from this phone?',
       'Nothing new reaches the other phone after this. Either of you can set it up again any time.',
       [
         { text: 'Keep it', style: 'cancel' },
         { text: 'Stop', style: 'destructive', onPress: async () => {
-          await Family.unlink();
-          update({ ...s, familyLinked: false, familyRole: null, familyInvited: false, watchedBy: null,
-            watching: s.familyRole === 'caretaker' ? null : s.watching, role: s.familyRole === 'caretaker' ? 'elder' : s.role });
-          go('home');
+          if (side === 'watch') {
+            await cloudLeave();
+            await clearFamilyChecks(); refreshHist(); setPulse(null);
+            const cur = settingsRef.current!;
+            update({ ...cur, watching: null, watchApproved: false, familyRole: cur.familyLinked ? 'owner' : null });
+            go(cur.role === 'caretaker' ? 'ward' : 'family');
+          } else {
+            await cloudRevoke();
+            const cur = settingsRef.current!;
+            update({ ...cur, familyLinked: false, familyRole: cur.watching ? 'caretaker' : null, familyInvited: false, watchedBy: null, linkedNames: [],
+              trusted: cur.trusted.map(t => ({ ...t, invited: false })) });
+            go('family');
+          }
           flash('Done. Nothing more will be shared.');
         } },
       ],
     );
   }, [update, go, flash]);
+
+  // Owner: yes or no to the person who just joined.
+  const answerRequest = useCallback(async (allow: boolean) => {
+    const r = requestRef.current;
+    if (!r) return;
+    const ok = await cloudAnswer(r.id, allow);
+    setRequest(null);
+    if (!ok) { flash('Could not reach iCloud. Try again in a minute.'); go('family'); return; }
+    const cur = settingsRef.current!;
+    if (allow) {
+      // The person who just linked becomes the main person, so Family, Ask
+      // and every alert point at them.
+      const next = withMainPerson({ ...cur, familyLinked: true, familyRole: 'owner', watchedBy: r.name,
+        linkedNames: cur.linkedNames.includes(r.name) ? cur.linkedNames : [...cur.linkedNames, r.name] }, r.name, true);
+      update(next);
+      void Family.sendPulse(next, await listChecks(), true);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      flash(r.name.split(' ')[0] + ' will hear about scams on this phone.');
+    } else {
+      flash('Done. ' + r.name.split(' ')[0] + ' is not linked and sees nothing.');
+    }
+    go('family');
+    void refreshFamily();
+  }, [update, flash, go, refreshFamily]);
 
   const markScam = useCallback(async (recId: string) => {
     const s = settingsRef.current;
@@ -642,7 +720,7 @@ export default function App() {
   const watchName = settings.watching?.name?.split(' ')[0] || settings.careName.split(' ')[0] || 'Family';
   const alertRec = alertId ? hist.find(r => r.id === alertId) : undefined;
   // White status bar on Home (green header) and on every takeover; black elsewhere.
-  const darkBar = ['home', 'scam', 'amber', 'green', 'practice', 'familyAlert', 'note'].includes(screen);
+  const darkBar = ['home', 'scam', 'amber', 'green', 'practice', 'familyAlert', 'note', 'joinRequest'].includes(screen);
   const barColor = screen === 'scam' ? T.red
     : screen === 'amber' ? T.amber
     : screen === 'familyAlert' ? (alertRec?.level === 'amber' ? T.amber : T.red)
@@ -659,7 +737,7 @@ export default function App() {
     closeFamilyAlert: () => { if (alertId) updateCheck(alertId, { seen: true }).then(refreshHist); setAlertId(null); setScreen('ward'); },
     noteOpen,
     closeNote: () => { setNoteOpen(null); setScreen('home'); },
-    loopIn, sendNoteTo, refreshFamily, unlinkFamily, blockNumber, correct, markScam, back, tallies, pulse, checking, openRecord,
+    loopIn, sendNoteTo, refreshFamily, unlinkFamily, request, answerRequest, blockNumber, correct, markScam, back, tallies, pulse, checking, openRecord,
     from: prevScreen.current,
     C,
     pendingPhoto, clearPendingPhoto: () => setPendingPhoto(false),
@@ -675,7 +753,7 @@ export default function App() {
     <SafeAreaProvider>
     <SafeAreaView edges={['top']} style={[st.root, { backgroundColor: darkBar ? barColor : C.ground }]}>
       <StatusBar barStyle={darkBar || C.dark ? 'light-content' : 'dark-content'} />
-      <View style={st.body}>
+      <View style={[st.body, { backgroundColor: C.ground }]}>
         <ScreenGuard screen={screen} onReset={() => setScreen('home')}>
         {screen === 'ob1' && <Ob1 ctx={ctx} />}
         {screen === 'ob2' && <Ob2 ctx={ctx} />}
@@ -711,6 +789,7 @@ export default function App() {
         {screen === 'wardItem' && <MariaScreen ctx={ctx} />}
         {screen === 'familyAlert' && <FamilyAlertScreen ctx={ctx} />}
         {screen === 'note' && <NoteScreen ctx={ctx} />}
+        {screen === 'joinRequest' && <JoinRequestScreen ctx={ctx} />}
         </ScreenGuard>
         {TAB_SCREENS.includes(screen) && (
           <TabBar C={C} careMode={careMode} watchName={watchName} screen={screen} go={goTab} />
@@ -745,5 +824,5 @@ class ScreenGuard extends React.Component<{ screen: string; onReset: () => void;
 
 const st = StyleSheet.create({
   root: { flex: 1, backgroundColor: T.ground },
-  body: { flex: 1, backgroundColor: T.ground },
+  body: { flex: 1 },
 });

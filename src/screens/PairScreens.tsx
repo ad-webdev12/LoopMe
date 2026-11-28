@@ -74,7 +74,7 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
             </Card>
             <Note C={C}>Runs on your own iCloud. Nobody in the middle.</Note>
             <View style={{ paddingHorizontal: 16, paddingTop: 22 }}>
-              <Pill label={'Stop ' + who + ' hearing from this phone'} height={54} bg={C.card} color={C.redText} onPress={ctx.unlinkFamily} />
+              <Pill label={'Stop ' + who + ' hearing from this phone'} height={54} bg={C.card} color={C.redText} onPress={() => ctx.unlinkFamily('share')} />
             </View>
           </>
         ) : (
@@ -132,7 +132,8 @@ function Row({ C, yes, text, last }: { C: Ctx['C']; yes: boolean; text: string; 
 // ---------------- The phone that hears about it ----------------
 export function WatchSetup({ ctx }: { ctx: Ctx }) {
   const { C, settings: s } = ctx;
-  const paired = s.familyLinked && s.familyRole === 'caretaker';
+  const paired = !!s.watching?.name;
+  const setUp = s.introSeen && !!s.role;
   const watchName = firstName(s.watching?.name) || 'them';
   const hasPhone = !!s.watching?.phone;
   const addPhone = async () => {
@@ -156,7 +157,7 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
     <Screen C={C} playKey={paired ? 'done' : 'open'}>
       <ScrollView ref={scroll} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}
         keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
-        <BackLink onPress={() => ctx.go(s.role === 'caretaker' && s.introSeen ? 'settings' : 'ob1')} />
+        <BackLink onPress={() => ctx.go(!setUp ? 'ob1' : s.role === 'caretaker' ? 'ward' : 'family')} />
         {!paired ? (
           <>
             <ScreenTitle C={C}>Tap the invite from their phone</ScreenTitle>
@@ -183,8 +184,8 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
               <Pill label="I will tap the link when it arrives" height={54} bg={C.card} color={C.ink} onPress={() => {
                 // Waiting is a real state: this phone becomes the one that hears,
                 // and its home (the Family tab) shows it is waiting for the invite.
-                ctx.update({ ...ctx.settings, role: 'caretaker', introSeen: true });
-                ctx.go('ward');
+                if (!setUp) ctx.update({ ...ctx.settings, role: 'caretaker', introSeen: true });
+                ctx.go(setUp && s.role !== 'caretaker' ? 'family' : 'ward');
               }} />
             </View>
           </>
@@ -193,7 +194,7 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
             <View style={{ alignItems: 'center', paddingTop: 10, paddingHorizontal: 20 }}>
               <Avatar name={s.watching?.name || '?'} photo={s.watching?.photo} size={104} />
               <Text style={[font(24, '700'), { color: C.ink, marginTop: 12 }]} allowFontScaling>You are looking after {watchName}</Text>
-              <Text style={[font(16, '400', 1.45), { color: C.ink2, marginTop: 8, textAlign: 'center' }]} allowFontScaling>A flagged text takes over this screen. Your reply lands on theirs.</Text>
+              <Text style={[font(16, '400', 1.45), { color: C.ink2, marginTop: 8, textAlign: 'center' }]} allowFontScaling>{s.watchApproved ? 'A flagged text takes over this screen. Your reply lands on theirs.' : 'Waiting for ' + watchName + ' to tap Yes on their phone.'}</Text>
             </View>
             <Card C={C} style={{ marginHorizontal: 16, marginTop: 20, flexDirection: 'row', alignItems: 'center', gap: 12 }} radius={16} onPress={hasPhone ? undefined : addPhone}>
               <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: C.greenTint, alignItems: 'center', justifyContent: 'center' }}>
@@ -206,7 +207,7 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
             </Card>
             <View style={{ paddingHorizontal: 16, paddingTop: 22, gap: 10 }}>
               <Pill label={s.watching?.name ? 'Open ' + watchName + '’s screen' : 'Open their screen'} onPress={() => ctx.go('ward')} />
-              <Pill label="Stop looking after this phone" height={54} bg={C.card} color={C.redText} onPress={ctx.unlinkFamily} />
+              <Pill label="Stop looking after this phone" height={54} bg={C.card} color={C.redText} onPress={() => ctx.unlinkFamily('watch')} />
             </View>
           </>
         )}

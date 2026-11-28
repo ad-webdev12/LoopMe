@@ -194,6 +194,26 @@ public class ScamAiModule: Module {
       return true
     }
 
+    // Owner: yes or no to someone who joined.
+    AsyncFunction("cloudAnswer") { (userID: String, allow: Bool) -> Bool in
+      try await CloudLink.shared.answer(userID: userID, allow: allow)
+      return true
+    }
+    // The name a join request carries to the other phone.
+    Function("cloudSetMyName") { (name: String) in
+      FamilyStore.shared.myName = name
+    }
+    // Stop looking after someone (leave their share).
+    AsyncFunction("cloudLeave") { () -> Bool in
+      try await CloudLink.shared.leave()
+      return true
+    }
+    // Stop sharing this phone with everyone (tear down own share).
+    AsyncFunction("cloudRevoke") { () -> Bool in
+      try await CloudLink.shared.revoke()
+      return true
+    }
+
     // Owner revokes the share; caretaker leaves it. Same button, either side.
     AsyncFunction("cloudUnlink") { () -> Bool in
       if FamilyStore.shared.joinedZone != nil { try await CloudLink.shared.leave() }
