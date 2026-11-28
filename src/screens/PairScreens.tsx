@@ -160,34 +160,17 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
         <BackLink onPress={() => ctx.go(!setUp ? 'ob1' : s.role === 'caretaker' ? 'ward' : 'family')} />
         {!paired ? (
           <>
-            <ScreenTitle C={C}>Type their code</ScreenTitle>
-            <Lead C={C}>The 5 numbers from Loop Me on the phone you look after. They tap Yes on their phone, and you’re linked.</Lead>
-            <View style={{ height: 14 }} onLayout={e => { codeY.current = e.nativeEvent.layout.y; }} />
-            <JoinWithCode ctx={ctx} onFocus={showCodeBox} />
-            <SectionHeader C={C}>Where they find the code</SectionHeader>
-            <Card C={C} style={{ marginHorizontal: 16, paddingVertical: 4 }} radius={16}>
-              {['On their phone, open Loop Me and go to Family', 'Tap “Link with a code instead”. The code and a QR code show up', 'Type the code here, or point this phone’s Camera at the QR code'].map((t, i) => (
-                <View key={t} style={[{ flexDirection: 'row', gap: 14, paddingVertical: 12, alignItems: 'center' }, i < 2 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep }]}>
-                  <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: C.greenTint, alignItems: 'center', justifyContent: 'center' }}><Text style={[font(14, '700'), { color: C.accent }]} allowFontScaling>{i + 1}</Text></View>
-                  <Text style={[font(16, '400', 1.4), { color: C.ink, flex: 1 }]} allowFontScaling>{t}</Text>
-                </View>
-              ))}
-            </Card>
-            <Note C={C}>Got a text with a link from them instead? Just tap the link.</Note>
-            <SectionHeader C={C}>What you will and will not see</SectionHeader>
-            <Card C={C} style={{ marginHorizontal: 16, paddingVertical: 4 }} radius={16}>
-              <Row C={C} yes text="Scam alerts, full screen, the moment they happen" />
-              <Row C={C} yes text="Three one-tap replies that appear on their screen" />
-              <Row C={C} yes={false} text="Never their ordinary messages, photos or location" last />
-            </Card>
-            <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
-              <Pill label="I will tap the link when it arrives" height={54} bg={C.card} color={C.ink} onPress={() => {
-                // Waiting is a real state: this phone becomes the one that hears,
-                // and its home (the Family tab) shows it is waiting for the invite.
-                if (!setUp) ctx.update({ ...ctx.settings, role: 'caretaker', introSeen: true });
-                ctx.go(setUp && s.role !== 'caretaker' ? 'family' : 'ward');
-              }} />
+            <View style={{ alignItems: 'center', paddingHorizontal: 24, paddingTop: 28 }}>
+              <Text style={[font(34, '800', 1.1, -0.5), { color: C.ink, textAlign: 'center' }]} allowFontScaling>Enter their code</Text>
+              <Text style={[font(17, '400', 1.4), { color: C.ink2, textAlign: 'center', marginTop: 10 }]} allowFontScaling>It’s on their phone, under Family.</Text>
             </View>
+            <View style={{ height: 28 }} onLayout={e => { codeY.current = e.nativeEvent.layout.y; }} />
+            <JoinWithCode ctx={ctx} onFocus={showCodeBox} />
+            {!setUp && (
+              <Pressable onPress={() => { ctx.update({ ...ctx.settings, role: 'caretaker', introSeen: true }); ctx.go('ward'); }} hitSlop={10} accessibilityRole="button" style={{ alignSelf: 'center', marginTop: 28 }}>
+                <Text style={[font(16, '600'), { color: C.accent }]} allowFontScaling>I’ll do this later</Text>
+              </Pressable>
+            )}
           </>
         ) : (
           <>
@@ -238,24 +221,31 @@ function JoinWithCode({ ctx, onFocus }: { ctx: Ctx; onFocus?: () => void }) {
   const { C } = ctx;
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
-  const clean = code;
+  const input = useRef<TextInput>(null);
   const onType = (t: string) => setCode(t.replace(/\D/g, '').slice(0, CODE_LEN));
   const join = async () => {
     setBusy(true);
     try {
-      const r = await cloudJoinWithCode(clean);
+      const r = await cloudJoinWithCode(code);
       if ('error' in r) Alert.alert('Not linked', r.error);
       // Success: the native side announces "joined" and the app takes over from there.
     } finally { setBusy(false); }
   };
   return (
-    <View>
-      <Card C={C} style={{ marginHorizontal: 16 }} radius={16}>
-        <TextInput value={code} onChangeText={onType} onFocus={onFocus} placeholder="5 numbers" keyboardType="number-pad" textContentType="oneTimeCode" maxLength={CODE_LEN} placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"}
-          autoCorrect={false} spellCheck={false}
-          style={[font(28, code ? '700' : '400'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, height: 60, textAlign: 'center', letterSpacing: 8 }]} accessibilityLabel="Invite code" />
-        <Pill label={busy ? 'Linking' : 'Link this phone'} height={52} style={{ marginTop: 12 }} disabled={busy || clean.length !== CODE_LEN} onPress={join} icon={busy ? <ActivityIndicator color="#fff" /> : undefined} />
-      </Card>
+    <View style={{ paddingHorizontal: 24 }}>
+      <Pressable onPress={() => input.current?.focus()} style={{ flexDirection: 'row', justifyContent: 'center', gap: 10 }} accessibilityLabel="Invite code">
+        {Array.from({ length: CODE_LEN }).map((_, i) => {
+          const on = i === code.length;
+          return (
+            <View key={i} style={{ width: 54, height: 66, borderRadius: 14, backgroundColor: C.card, borderWidth: 2, borderColor: on ? T.green : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={[font(30, '700'), { color: C.ink }]} allowFontScaling={false}>{code[i] || ''}</Text>
+            </View>
+          );
+        })}
+        <TextInput ref={input} value={code} onChangeText={onType} onFocus={onFocus} keyboardType="number-pad" textContentType="oneTimeCode" maxLength={CODE_LEN}
+          autoFocus caretHidden style={{ position: 'absolute', opacity: 0.01, width: '100%', height: '100%' }} accessibilityLabel="Invite code" />
+      </Pressable>
+      <Pill label={busy ? 'Linking' : 'Link'} height={56} style={{ marginTop: 22 }} disabled={busy || code.length !== CODE_LEN} onPress={join} icon={busy ? <ActivityIndicator color="#fff" /> : undefined} />
     </View>
   );
 }
