@@ -38,6 +38,25 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
   };
   const tel = () => s.watching?.phone ? Linking.openURL('tel:' + s.watching.phone.replace(/[^\d+]/g, '')).catch(() => {}) : ctx.go('watch');
 
+  // Waiting for their Yes: one calm screen, nothing else to read.
+  if (waiting) return (
+    <Screen C={C} playKey="ward-wait">
+      {fromFamily && <BackLink label="Family" onPress={() => ctx.go('family')} />}
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32, paddingBottom: 90 }}>
+        <Avatar name={s.watching?.name || '?'} photo={s.watching?.photo} size={96} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 22 }}>
+          <PulseDot size={9} color={T.amber} />
+          <Text style={[font(15, '600'), { color: C.ink2 }]} allowFontScaling>Waiting</Text>
+        </View>
+        <Text style={[font(30, '800', 1.1, -0.6), { color: C.ink, marginTop: 10, textAlign: 'center' }]} allowFontScaling>Ask {name} to tap Yes</Text>
+        <Text style={[font(17, '400', 1.4), { color: C.ink2, marginTop: 10, textAlign: 'center' }]} allowFontScaling>It's on {known ? 'their' : 'the'} phone now. This page updates by itself.</Text>
+        <Pressable onPress={() => ctx.unlinkFamily('watch')} style={({ pressed }) => [{ marginTop: 28, padding: 10 }, pressed && { opacity: 0.6 }]} accessibilityRole="button">
+          <Text style={[font(16, '500'), { color: C.ink2 }]} allowFontScaling>Cancel</Text>
+        </Pressable>
+      </View>
+    </Screen>
+  );
+
   return (
     <Screen C={C} playKey="ward">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 112 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
@@ -64,12 +83,6 @@ export default function WardScreen({ ctx }: { ctx: Ctx }) {
           </Pressable>
         </Card>
 
-        {waiting && (
-          <Card C={C} style={{ marginHorizontal: 16, marginTop: 14 }} radius={16}>
-            <Text style={[font(17, '600', 1.3), { color: C.ink }]} allowFontScaling>One step left</Text>
-            <Text style={[font(16, '400', 1.45), { color: C.ink2, marginTop: 6 }]} allowFontScaling>{name} gets a question on their phone: “{firstName(s.myName) || 'You'} wants to link with this phone.” Once they tap Yes, their scam alerts start showing up here.</Text>
-          </Card>
-        )}
 
         {linked && open.length > 0 && (
           <>
