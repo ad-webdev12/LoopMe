@@ -361,7 +361,7 @@ export default function App() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
         if (!requestRef.current) { setRequest(e.request); setScreen('joinRequest'); }
       } else if (e.kind === 'joinFailed') {
-        flash('The invite could not be opened. Ask them to send it again.');
+        Alert.alert('Not linked', e.message || 'The invite could not be opened. Ask them to send it again.');
       } else if (e.kind === 'check') {
         Family.fold().then(({ newChecks }) => {
           refreshHist();
@@ -677,7 +677,7 @@ export default function App() {
     if (where === 'join' && typeof queryParams?.code === 'string') {
       const code = queryParams.code;
       flash('Linking this phone');
-      cloudJoinWithCode(code).then(r => { if ('error' in r) flash(r.error); }).catch(() => flash('The code could not be checked. Try again.'));
+      cloudJoinWithCode(code).then(r => { if ('error' in r) Alert.alert('Not linked', r.error); }).catch(() => flash('The code could not be checked. Try again.'));
       return;
     }
     if (where === 'check' && queryParams?.photo) { setPendingPhoto(true); go('home'); return; }

@@ -9,10 +9,22 @@ import { T, font } from '../theme';
 import type { Palette } from '../theme';
 import { Pill } from './base';
 import { inviteLink } from '../lib/invite';
-import { qrPng, formatCode } from '../../modules/scam-ai';
+import { qrPng, formatCode, cloudSync } from '../../modules/scam-ai';
 import type { Settings } from '../lib/storage';
 
-export function InviteCodeSheet({ C, settings, visible, onClose, onReady }: { C: Palette; settings: Settings; visible: boolean; onClose: () => void; onReady?: () => void }) {
+/**
+ * `joining` goes true the moment someone uses the code (the yes/no question
+ * is waiting): the sheet closes itself so that question is what the person sees.
+ */
+export function InviteCodeSheet({ C, settings, visible, onClose, onReady, joining }: { C: Palette; settings: Settings; visible: boolean; onClose: () => void; onReady?: () => void; joining?: boolean }) {
+  useEffect(() => { if (visible && joining) onClose(); }, [visible, joining]); // eslint-disable-line react-hooks/exhaustive-deps
+  // While the code is on screen, look for someone joining every few seconds.
+  useEffect(() => {
+    if (!visible) return;
+    const t = setInterval(() => { void cloudSync(); }, 5000);
+    return () => clearInterval(t);
+  }, [visible]);
+  const linked = settings.familyLinked ? settings.linkedNames : [];
   const [state, setState] = useState<{ code?: string; qr?: string | null; error?: string } | null>(null);
   useEffect(() => {
     if (!visible) return;
@@ -40,11 +52,14 @@ export function InviteCodeSheet({ C, settings, visible, onClose, onReady }: { C:
           <Text style={[font(16, '400', 1.45), { color: C.redText, marginTop: 24 }]} allowFontScaling>{state.error}</Text>
         ) : (
           <>
-            <Text style={[font(16, '400', 1.45), { color: C.ink2, marginTop: 14 }]} allowFontScaling>On the other phone, open Loop Me, choose “The phone that hears about it” and type this code.</Text>
+            {linked.length > 0 && (
+              <Text style={[font(15, '500', 1.4), { color: T.greenDeep, marginTop: 14 }]} allowFontScaling>Already linked: {linked.map(n => n.split(' ')[0]).join(', ')}. This code adds one more person.</Text>
+            )}
+            <Text style={[font(16, '400', 1.45), { color: C.ink2, marginTop: 14 }]} allowFontScaling>On the other phone, open Loop Me, go to Family, tap “Look after someone’s phone” and type this code. New to Loop Me? Choose “The phone that hears about it” during setup.</Text>
             {shown ? (
               <View style={[st.codeBox, { backgroundColor: C.card }]}>
                 <Text style={[font(44, '700'), { color: C.ink, letterSpacing: 4 }]} allowFontScaling={false} selectable accessibilityLabel={'Code ' + shown.split('').join(' ')}>{shown}</Text>
-                <Text style={[font(14, '400'), { color: C.ink2, marginTop: 6 }]} allowFontScaling>Works for 1 hour</Text>
+                <Text style={[font(14, '400'), { color: C.ink2, marginTop: 6 }]} allowFontScaling>Works once, for 1 hour. You’ll be asked before anyone is linked.</Text>
               </View>
             ) : (
               <Text style={[font(15, '400', 1.45), { color: C.ink2, marginTop: 18 }]} allowFontScaling>The code could not be made right now. The QR code below still works.</Text>
@@ -55,7 +70,7 @@ export function InviteCodeSheet({ C, settings, visible, onClose, onReady }: { C:
                 <Image source={{ uri: 'data:image/png;base64,' + state.qr }} style={{ width: 220, height: 220, alignSelf: 'center', marginTop: 12, borderRadius: 12 }} accessibilityLabel="QR code for the invite" />
               </>
             )}
-            {!!shown && <View style={{ marginTop: 'auto', marginBottom: 34 }}><Pill label="Send the code" onPress={() => { Share.share({ message: 'My Loop Me code: ' + shown + '. Open Loop Me, choose “The phone that hears about it” and type it in.' }).catch(() => {}); }} /></View>}
+            {!!shown && <View style={{ marginTop: 'auto', marginBottom: 34 }}><Pill label="Send the code" onPress={() => { Share.share({ message: 'My Loop Me code: ' + shown + '. In Loop Me, go to Family, tap “Look after someone’s phone” and type it in. New to Loop Me? Choose “The phone that hears about it” during setup.' }).catch(() => {}); }} /></View>}
           </>
         )}
       </View>

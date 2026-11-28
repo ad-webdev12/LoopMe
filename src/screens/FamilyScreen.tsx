@@ -200,7 +200,7 @@ export default function FamilyScreen({ ctx }: { ctx: Ctx }) {
 
       <RelationSheet C={C} name={pending?.name || null} onPick={saveWithRelation} onClose={() => setPending(null)} />
 
-      <InviteCodeSheet C={C} settings={s} visible={codeOpen} onClose={() => setCodeOpen(false)} onReady={() => { if (!s.familyInvited) ctx.update({ ...ctx.settings, familyInvited: true }); }} />
+      <InviteCodeSheet C={C} settings={s} visible={codeOpen} onClose={() => setCodeOpen(false)} onReady={() => { if (!s.familyInvited) ctx.update({ ...ctx.settings, familyInvited: true }); }} joining={!!ctx.request} />
       <Modal visible={!!open} transparent animationType="fade" onRequestClose={() => setOpen(null)}>
         <Pressable style={st.dim} onPress={() => setOpen(null)}>
           <Pressable style={[st.sheet, { backgroundColor: C.card, maxHeight: '90%' }]} onPress={() => {}}>

@@ -5,7 +5,7 @@
 //              arrives, and the linked state afterwards.
 //   WatchWait  the moment between tapping the invite and the link confirming.
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Keyboard, Linking, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Keyboard, Linking, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Check, X, Send, QrCode, Share2, Phone, UserPlus } from 'lucide-react-native';
 import { T, font } from '../theme';
 import { Screen, BackLink, ScreenTitle, Lead, Note, Pill, Avatar, Card, SectionHeader, CheckCircle } from '../ui/base';
@@ -105,7 +105,7 @@ export function WatchedBy({ ctx }: { ctx: Ctx }) {
             ) : (
               <Note C={C}>Runs on your own iCloud. Stop it here any time.</Note>
             )}
-            <InviteCodeSheet C={C} settings={s} visible={qr === 'open'} onClose={() => setQr(null)} onReady={() => { if (!s.familyInvited) ctx.update({ ...ctx.settings, familyInvited: true }); }} />
+            <InviteCodeSheet C={C} settings={s} visible={qr === 'open'} onClose={() => setQr(null)} onReady={() => { if (!s.familyInvited) ctx.update({ ...ctx.settings, familyInvited: true }); }} joining={!!ctx.request} />
             <View style={{ paddingHorizontal: 16, paddingTop: 20, gap: 10 }}>
               <Pill label={s.familyInvited ? 'Send the invite again' : 'Choose someone and send the invite'} disabled={busy} onPress={sendInvite} icon={busy ? <ActivityIndicator color="#fff" /> : <Send size={19} color="#fff" strokeWidth={2.2} />} />
               <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -160,20 +160,20 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
         <BackLink onPress={() => ctx.go(!setUp ? 'ob1' : s.role === 'caretaker' ? 'ward' : 'family')} />
         {!paired ? (
           <>
-            <ScreenTitle C={C}>Tap the invite from their phone</ScreenTitle>
-            <Lead C={C}>The invite is sent from Loop Me on the protected phone. Setting that phone up yourself? Choose “The phone to protect” on it and pick your own number.</Lead>
-            <Card C={C} style={{ marginHorizontal: 16, marginTop: 16, paddingVertical: 4 }} radius={16}>
-              {['On the protected phone, open Loop Me', 'Family › Choose someone and send the invite › pick you', 'A text arrives here. Tap the link in it, or type its code below'].map((t, i) => (
+            <ScreenTitle C={C}>Type their code</ScreenTitle>
+            <Lead C={C}>The 5 numbers from Loop Me on the phone you look after. They tap Yes on their phone, and you’re linked.</Lead>
+            <View style={{ height: 14 }} onLayout={e => { codeY.current = e.nativeEvent.layout.y; }} />
+            <JoinWithCode ctx={ctx} onFocus={showCodeBox} />
+            <SectionHeader C={C}>Where they find the code</SectionHeader>
+            <Card C={C} style={{ marginHorizontal: 16, paddingVertical: 4 }} radius={16}>
+              {['On their phone, open Loop Me and go to Family', 'Tap “Link with a code instead”. The code and a QR code show up', 'Type the code here, or point this phone’s Camera at the QR code'].map((t, i) => (
                 <View key={t} style={[{ flexDirection: 'row', gap: 14, paddingVertical: 12, alignItems: 'center' }, i < 2 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.sep }]}>
                   <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: C.greenTint, alignItems: 'center', justifyContent: 'center' }}><Text style={[font(14, '700'), { color: C.accent }]} allowFontScaling>{i + 1}</Text></View>
                   <Text style={[font(16, '400', 1.4), { color: C.ink, flex: 1 }]} allowFontScaling>{t}</Text>
                 </View>
               ))}
             </Card>
-            <View onLayout={e => { codeY.current = e.nativeEvent.layout.y; }}>
-              <SectionHeader C={C}>Got a code instead?</SectionHeader>
-            </View>
-            <JoinWithCode ctx={ctx} onFocus={showCodeBox} />
+            <Note C={C}>Got a text with a link from them instead? Just tap the link.</Note>
             <SectionHeader C={C}>What you will and will not see</SectionHeader>
             <Card C={C} style={{ marginHorizontal: 16, paddingVertical: 4 }} radius={16}>
               <Row C={C} yes text="Scam alerts, full screen, the moment they happen" />
@@ -207,7 +207,8 @@ export function WatchSetup({ ctx }: { ctx: Ctx }) {
             </Card>
             <View style={{ paddingHorizontal: 16, paddingTop: 22, gap: 10 }}>
               <Pill label={s.watching?.name ? 'Open ' + watchName + '’s screen' : 'Open their screen'} onPress={() => ctx.go('ward')} />
-              <Pill label="Stop looking after this phone" height={54} bg={C.card} color={C.redText} onPress={() => ctx.unlinkFamily('watch')} />
+              <Pill label={'Stop looking after ' + watchName} height={54} bg={C.card} color={C.redText} onPress={() => ctx.unlinkFamily('watch')} />
+              <Text style={[font(15, '400', 1.4), { color: C.ink2, textAlign: 'center', marginTop: 4 }]} allowFontScaling>To look after someone else instead, stop this first. Then you can type their code.</Text>
             </View>
           </>
         )}
@@ -243,17 +244,16 @@ function JoinWithCode({ ctx, onFocus }: { ctx: Ctx; onFocus?: () => void }) {
     setBusy(true);
     try {
       const r = await cloudJoinWithCode(clean);
-      if ('error' in r) ctx.flash(r.error);
+      if ('error' in r) Alert.alert('Not linked', r.error);
       // Success: the native side announces "joined" and the app takes over from there.
     } finally { setBusy(false); }
   };
   return (
     <View>
       <Card C={C} style={{ marginHorizontal: 16 }} radius={16}>
-        <Text style={[font(15, '400', 1.4), { color: C.ink2 }]} allowFontScaling>It is in the invite text, under the link. On their phone it is under Family, Show a code instead.</Text>
         <TextInput value={code} onChangeText={onType} onFocus={onFocus} placeholder="5 numbers" keyboardType="number-pad" textContentType="oneTimeCode" maxLength={CODE_LEN} placeholderTextColor={C.dark ? "#636366" : "#a1a1a6"}
           autoCorrect={false} spellCheck={false}
-          style={[font(28, code ? '700' : '400'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, height: 60, marginTop: 12, textAlign: 'center', letterSpacing: 8 }]} accessibilityLabel="Invite code" />
+          style={[font(28, code ? '700' : '400'), { color: C.ink, backgroundColor: C.ground, borderRadius: 12, height: 60, textAlign: 'center', letterSpacing: 8 }]} accessibilityLabel="Invite code" />
         <Pill label={busy ? 'Linking' : 'Link this phone'} height={52} style={{ marginTop: 12 }} disabled={busy || clean.length !== CODE_LEN} onPress={join} icon={busy ? <ActivityIndicator color="#fff" /> : undefined} />
       </Card>
     </View>

@@ -285,12 +285,20 @@ final class CloudLink: @unchecked Sendable {
     let ownerName = CloudLink.displayName(metadata.ownerIdentity)
       ?? metadata.share[CKShare.SystemFieldKey.title].flatMap { ($0 as? String)?.replacingOccurrences(of: "Loop Me: ", with: "") }
       ?? "Family"
+    if metadata.participantRole == .owner {
+      throw CloudLinkError.failed("That’s this phone’s own code. Scan or type it on the other phone, the one that should hear about scams.")
+    }
+    let zone = metadata.share.recordID.zoneID
+    let sameFamily = store.joinedZone == zone
+    // One person at a time. Switching is a choice, made in Settings first.
+    if let cur = store.joinedZone, cur != zone {
+      let who = store.joinedOwnerName ?? "someone"
+      throw CloudLinkError.failed("This phone already looks after \(who). To switch, open Settings and tap “Stop looking after \(who.split(separator: " ").first.map(String.init) ?? who)”, then use the new code.")
+    }
     if metadata.participantStatus != .accepted {
       do { _ = try await (try container).accept(metadata) }
       catch { throw CloudLinkError.failed("iCloud would not join the family link. " + CloudLink.describe(error)) }
     }
-    let zone = metadata.share.recordID.zoneID
-    let sameFamily = store.joinedZone == zone
     // Joining someone new replaces whoever this phone looked after before.
     if !sameFamily {
       if let old = store.joinedZone { _ = try? await (try container).sharedCloudDatabase.modifyRecordZones(saving: [], deleting: [old]) }
